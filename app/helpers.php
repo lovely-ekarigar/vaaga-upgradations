@@ -394,7 +394,7 @@ if (!function_exists('showInvoice')) {
         $invoice = new \App\Http\Controllers\Traits\InvoiceGenerator();
         $invoice->number($order->id);
         $invoice->addOrderInfo($order->reference_no);
-         if(str_contains($order->course_mode,"monthly")){
+         if(str_contains($order->course_mode,"monthly") && isset($order->end_date) && !empty($order->end_date)){
             
             $month = date("d M Y",strtotime("-1 Months",strtotime($order->end_date)));
             $month .= " - ".date("d M Y",strtotime($order->end_date));
@@ -432,7 +432,8 @@ if (!function_exists('showInvoice')) {
         $rateSum = \App\Models\Tax::where('status','=',1)->sum('rate');
      
         $invoice->addTotal($total);
-        $invoice->addTaxData($order->gst);
+        $gstAmount = isset($order->gst) ? $order->gst : 0;
+        $invoice->addTaxData($gstAmount);
 
         $user = \App\Models\Auth\User::find($order->user_id);
   if($type=='show'){

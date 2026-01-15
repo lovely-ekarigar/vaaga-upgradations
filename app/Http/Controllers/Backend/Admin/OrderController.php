@@ -18,6 +18,7 @@ use App\Models\Auth\User;
 use App\Models\Notification;
 use App\Models\UserNotification;
 use App\Mail\Frontend\Demo\SubscriptionDueEmail;
+use Illuminate\Support\Facades\Schema;
 use Mail;
 use Auth;
 class OrderController extends Controller
@@ -51,11 +52,15 @@ class OrderController extends Controller
 
                 }
 
-                    $message = 'Dear '.$order->user->first_name.',<br><br>
+                    $message = 'Dear '.$order->user->first_name.',<br><br>';
 
-Your subscription for <strong>'.$items.'</strong> is pending for the month of <strong>'.date("d M Y",strtotime("-1 Months",strtotime($order->end_date))).' - '.date("d M Y",strtotime($order->end_date)).'</strong>. Renew at the earliest for uninterrepted learning.<br><br>
+                    if(isset($order->end_date) && !empty($order->end_date)) {
+                        $message .= 'Your subscription for <strong>'.$items.'</strong> is pending for the month of <strong>'.date("d M Y",strtotime("-1 Months",strtotime($order->end_date))).' - '.date("d M Y",strtotime($order->end_date)).'</strong>. Renew at the earliest for uninterrepted learning.<br><br>';
+                    } else {
+                        $message .= 'Your subscription for <strong>'.$items.'</strong> is pending. Renew at the earliest for uninterrepted learning.<br><br>';
+                    }
 
-Best regards,<br>
+                    $message .= 'Best regards,<br>
 Team VaaGa';
 
         $not = new Notification;
@@ -97,6 +102,11 @@ Team VaaGa';
         $date="";
         $orders = null;
         $subscriptions = null;
+        
+        // Check if gst columns exist
+        $hasOrdersGstColumn = Schema::hasColumn('orders', 'gst');
+        $hasSubscriptionsGstColumn = Schema::hasColumn('subscriptions', 'gst');
+        
         if($request->start){
             $date = date("m/d/Y",strtotime($request->start))." - ".date("m/d/Y",strtotime($request->end));
             $orders = Order::where('status','1')->where('created_at','>=',date("Y-m-d 00:00:00",strtotime($request->start)))->where('created_at','<=',date("Y-m-d 23:59:59",strtotime($request->end)));
@@ -114,25 +124,36 @@ Team VaaGa';
         }
 
 
-       return view('backend.subscriptions.gst', compact('date','orders','subscriptions')); 
+       return view('backend.subscriptions.gst', compact('date','orders','subscriptions','hasOrdersGstColumn','hasSubscriptionsGstColumn')); 
     }
 
     public function subscriptionReports(Request $request){
 
-           $orders = Order::where("course_mode","like","%_monthly%")->where('status','1')->orderBy('updated_at', 'desc')->whereRaw("total_cycle > paid_cycle");
+           // Check if required columns exist
+           $hasEndDate = Schema::hasColumn('orders', 'end_date');
+           $hasTotalCycle = Schema::hasColumn('orders', 'total_cycle');
+           $hasPaidCycle = Schema::hasColumn('orders', 'paid_cycle');
 
-        if($request->type=='7days'){
-            $orders->where("end_date","<=",date("Y-m-d",strtotime("+7 Days",time())));
+           $orders = Order::where("course_mode","like","%_monthly%")->where('status','1')->orderBy('updated_at', 'desc');
+           
+           // Only apply cycle filter if columns exist
+           if($hasTotalCycle && $hasPaidCycle) {
+               $orders->whereRaw("total_cycle > paid_cycle");
+           }
 
-        }
-        if($request->type=='15days'){
-$orders->where("end_date","<=",date("Y-m-d",strtotime("+15 Days",time())));
-        }
-        if($request->type=='pending'){
-$orders->where("end_date","<=",date("Y-m-d"));
+        if($hasEndDate) {
+            if($request->type=='7days'){
+                $orders->where("end_date","<=",date("Y-m-d",strtotime("+7 Days",time())));
+            }
+            if($request->type=='15days'){
+                $orders->where("end_date","<=",date("Y-m-d",strtotime("+15 Days",time())));
+            }
+            if($request->type=='pending'){
+                $orders->where("end_date","<=",date("Y-m-d"));
+            }
         }
 
- return view('backend.subscriptions.reports',compact('orders'));
+ return view('backend.subscriptions.reports',compact('orders','hasEndDate'));
     }
 
 
@@ -143,17 +164,23 @@ $orders->where("end_date","<=",date("Y-m-d"));
     }
 
     public function subscriptionReportsData(Request $request){
+        // Check if required columns exist
+        $hasEndDate = Schema::hasColumn('orders', 'end_date');
+        $hasTotalCycle = Schema::hasColumn('orders', 'total_cycle');
+        $hasPaidCycle = Schema::hasColumn('orders', 'paid_cycle');
+        
         $orders = Order::where("course_mode","like","%_monthly%")->where('status','1')->orderBy('updated_at', 'desc');
 
-        if($request->type=='7days'){
-            $orders->where("end_date","<=",date("Y-m-d",strtotime("+7 Days",time())))->whereRaw("total_cycle > paid_cycle");
-
-        }
-        if($request->type=='15days'){
-$orders->where("end_date","<=",date("Y-m-d",strtotime("+15 Days",time())))->whereRaw("total_cycle > paid_cycle");
-        }
-        if($request->type=='pending'){
-$orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycle");
+        if($hasEndDate && $hasTotalCycle && $hasPaidCycle) {
+            if($request->type=='7days'){
+                $orders->where("end_date","<=",date("Y-m-d",strtotime("+7 Days",time())))->whereRaw("total_cycle > paid_cycle");
+            }
+            if($request->type=='15days'){
+                $orders->where("end_date","<=",date("Y-m-d",strtotime("+15 Days",time())))->whereRaw("total_cycle > paid_cycle");
+            }
+            if($request->type=='pending'){
+                $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycle");
+            }
         }
 
 
@@ -188,8 +215,11 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
             ->addColumn('due_amount', function ($q) {
                  return $q->amount;
             })
-            ->addColumn('due_cycle', function ($q) {
-                 return $q->total_cycle - $q->paid_cycle;
+            ->addColumn('due_cycle', function ($q) use ($hasTotalCycle, $hasPaidCycle) {
+                 if($hasTotalCycle && $hasPaidCycle && isset($q->total_cycle) && isset($q->paid_cycle)) {
+                     return $q->total_cycle - $q->paid_cycle;
+                 }
+                 return 'N/A';
             })
              ->addColumn('subs_date', function ($q) {
                 return $q->created_at->format('d M, Y');
@@ -197,17 +227,26 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
               ->addColumn('course_mode', function ($q) {
                 return getCourseType($q->course_mode);
             })
-             ->addColumn('total_amount', function ($q) {
-                 return $q->total_cycle * $q->amount;
+             ->addColumn('total_amount', function ($q) use ($hasTotalCycle) {
+                 if($hasTotalCycle && isset($q->total_cycle)) {
+                     return $q->total_cycle * $q->amount;
+                 }
+                 return $q->amount;
             })
-              ->addColumn('paid_amount', function ($q) {
-                 return $q->amount * $q->paid_cycle;
+              ->addColumn('paid_amount', function ($q) use ($hasPaidCycle) {
+                 if($hasPaidCycle && isset($q->paid_cycle)) {
+                     return $q->amount * $q->paid_cycle;
+                 }
+                 return 0;
             })
             ->addColumn('name', function ($q) {
                 return $q->user ? $q->user->name : '';
             })
-            ->addColumn('due_date', function ($q) {
-                return date("d M Y",strtotime("+0 Months",strtotime($q->end_date)));
+            ->addColumn('due_date', function ($q) use ($hasEndDate) {
+                if($hasEndDate && isset($q->end_date) && !empty($q->end_date)) {
+                    return date("d M Y",strtotime("+0 Months",strtotime($q->end_date)));
+                }
+                return 'N/A';
             })
              ->addColumn('course_mode', function ($q) {
                 return getCourseType($q->course_mode);

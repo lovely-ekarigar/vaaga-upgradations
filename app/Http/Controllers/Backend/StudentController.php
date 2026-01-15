@@ -147,13 +147,14 @@ class StudentController extends Controller
             return redirect()->back()->withFlashDanger("Student has been Deleted");
     }
 
-    public function updatestatus(Request $request)
+    public function updatestatus($id)
     {
-        //dd($request->id);
-        $student = User::find($request->id);
+        $student = User::find($id);
         
-        $student->active = $student->active == 1? 0 : 1;
-        $student->save();
+        if($student) {
+            $student->active = $student->active == 1 ? 0 : 1;
+            $student->save();
+        }
         return back();
     }
 

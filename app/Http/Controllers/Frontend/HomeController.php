@@ -175,8 +175,13 @@ Mail::to($teacher)->send(new TeacherFeedbackEmail($teacher));
         $dateRange = [7,3,1,0];
     
         foreach($orders as $order){
-            if($order->total_cycle > $order->paid_cycle){
-
+            // Check if required columns exist
+            $hasTotalCycle = isset($order->total_cycle);
+            $hasPaidCycle = isset($order->paid_cycle);
+            $hasEndDate = isset($order->end_date) && !empty($order->end_date);
+            
+            // Only process if cycle columns exist and condition is met
+            if($hasTotalCycle && $hasPaidCycle && $order->total_cycle > $order->paid_cycle && $hasEndDate){
 
             $datetime2 = new DateTime($order->end_date);
              $datetime1 = new DateTime(date("Y-m-d"));
@@ -198,14 +203,10 @@ Mail::to($teacher)->send(new TeacherFeedbackEmail($teacher));
 
                 }
 
-$user = User::find($order->user->id);
-           Mail::to($user)->send(new SubscriptionDueEmail($order,$items));
-
-
+                    $user = User::find($order->user->id);
+                    Mail::to($user)->send(new SubscriptionDueEmail($order,$items));
+                }
             }
-
-        }
-
         }
 
 

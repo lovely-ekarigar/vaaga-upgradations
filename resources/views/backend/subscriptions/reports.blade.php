@@ -59,7 +59,13 @@
                          
                             <div class="card bg-light text-dark text-center py-3">
                                 <div class="card-body pad0">
-                                    <h1 class="">{{$appCurrency['symbol']}}{{$orders->where("end_date","<=",date("Y-m-d"))->sum('amount')}}</h1>
+                                    @php
+                                        $overdueAmount = 0;
+                                        if(isset($hasEndDate) && $hasEndDate) {
+                                            $overdueAmount = $orders->where("end_date","<=",date("Y-m-d"))->sum('amount');
+                                        }
+                                    @endphp
+                                    <h1 class="">{{$appCurrency['symbol']}}{{$overdueAmount}}</h1>
                                     <h3>Total Overdue Amount</h3>
                                 </div>
                             </div>
@@ -70,7 +76,13 @@
                          
                             <div class="card bg-light text-dark text-center py-3">
                                 <div class="card-body pad0">
-                                    <h1 class="">{{$orders->where("end_date","<=",date("Y-m-d"))->count()}}</h1>
+                                    @php
+                                        $overdueCount = 0;
+                                        if(isset($hasEndDate) && $hasEndDate) {
+                                            $overdueCount = $orders->where("end_date","<=",date("Y-m-d"))->count();
+                                        }
+                                    @endphp
+                                    <h1 class="">{{$overdueCount}}</h1>
                                     <h3>Total Overdue Subscription</h3>
                                 </div>
                             </div>
