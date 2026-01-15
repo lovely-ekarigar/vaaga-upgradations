@@ -79,10 +79,14 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Pagination\AbstractPaginator::defaultSimpleView('pagination::simple-bootstrap-4');
 
 
-        if (Schema::hasTable('configs')) {
-            foreach (Config::all() as $setting) {
-                \Illuminate\Support\Facades\Config::set($setting->key, $setting->value);
+        try {
+            if (Schema::hasTable('configs')) {
+                foreach (Config::all() as $setting) {
+                    \Illuminate\Support\Facades\Config::set($setting->key, $setting->value);
+                }
             }
+        } catch (\Exception $e) {
+            // Database connection not available, skip config loading
         }
 
         /*
@@ -96,56 +100,85 @@ class AppServiceProvider extends ServiceProvider
 
 
 
-        if (Schema::hasTable('sliders')) {
-            $slides = Slider::where('status', 1)->orderBy('sequence', 'asc')->get();
-            view()->composer('*', function ($view) use ($slides) {
-                $view->with('slides', $slides);
-            });
+        try {
+            if (Schema::hasTable('sliders')) {
+                $slides = Slider::where('status', 1)->orderBy('sequence', 'asc')->get();
+                view()->composer('*', function ($view) use ($slides) {
+                    $view->with('slides', $slides);
+                });
+            }
+        } catch (\Exception $e) {
+            // Database connection not available, skip slider loading
         }
 
         view()->composer(['frontend.layouts.*', 'frontend-rtl.layouts.*'], function ($view) {
-            $menu_name = NULL;
-            $custom_menus = MenuItems::where('menu', '=', config('nav_menu'))
-                ->orderBy('sort')
-                ->get();
-            $menu_name = Menus::find((int)config('nav_menu'));
-            $menu_name = ($menu_name != NULL) ? $menu_name->name : NULL;
-            $custom_menus = menuList($custom_menus);
-            $max_depth = MenuItems::max('depth');
-            $view->with(compact('custom_menus', 'max_depth','menu_name'));
+            try {
+                $menu_name = NULL;
+                $custom_menus = MenuItems::where('menu', '=', config('nav_menu'))
+                    ->orderBy('sort')
+                    ->get();
+                $menu_name = Menus::find((int)config('nav_menu'));
+                $menu_name = ($menu_name != NULL) ? $menu_name->name : NULL;
+                $custom_menus = menuList($custom_menus);
+                $max_depth = MenuItems::max('depth');
+                $view->with(compact('custom_menus', 'max_depth','menu_name'));
+            } catch (\Exception $e) {
+                // Database connection not available, use empty menu data
+                $custom_menus = [];
+                $max_depth = 0;
+                $menu_name = NULL;
+                $view->with(compact('custom_menus', 'max_depth','menu_name'));
+            }
         });
 
         view()->composer(['frontend.layouts.partials.right-sidebar', 'frontend-rtl.layouts.partials.right-sidebar'], function ($view) {
-
-
-            $recent_news = Blog::orderBy('created_at', 'desc')->whereHas('category')->take(2)->get();
-
-            $view->with(compact('recent_news'));
+            try {
+                $recent_news = Blog::orderBy('created_at', 'desc')->whereHas('category')->take(2)->get();
+                $view->with(compact('recent_news'));
+            } catch (\Exception $e) {
+                // Database connection not available, skip recent news
+                $view->with('recent_news', collect([]));
+            }
         });
 
         view()->composer(['frontend.*', 'frontend-rtl.*'], function ($view) {
+            try {
+                $global_featured_course = Course::withoutGlobalScope('filter')
+                    ->whereHas('category')
+                    ->where('published', '=', 1)
+                    ->where('featured', '=', 1)->where('trending', '=', 1)->first();
 
-            $global_featured_course = Course::withoutGlobalScope('filter')
-                ->whereHas('category')
-                ->where('published', '=', 1)
-                ->where('featured', '=', 1)->where('trending', '=', 1)->first();
+                $featured_courses = Course::withoutGlobalScope('filter')->where('published', '=', 1)
+                    ->whereHas('category')
+                    ->where('featured', '=', 1)->take(8)->get();
 
-            $featured_courses = Course::withoutGlobalScope('filter')->where('published', '=', 1)
-                ->whereHas('category')
-                ->where('featured', '=', 1)->take(8)->get();
-
-
-
-            $view->with(compact('global_featured_course','featured_courses'));
+                $view->with(compact('global_featured_course','featured_courses'));
+            } catch (\Exception $e) {
+                // Database connection not available, skip featured courses
+                $view->with('global_featured_course', null);
+                $view->with('featured_courses', collect([]));
+            }
         });
 
         view()->composer(['frontend.*', 'backend.*', 'frontend-rtl.*','vendor.invoices.*'], function ($view) {
-
-
             $appCurrency = getCurrency(config('app.currency'));
 
-            if (Schema::hasTable('locales')) {
-                $locales = Locale::pluck('short_name as locale')->toArray();
+            $locales = [];
+            try {
+                // Try to get database connection - if it fails, use empty array
+                $connection = \DB::connection();
+                if ($connection && Schema::hasTable('locales')) {
+                    $locales = Locale::pluck('short_name as locale')->toArray();
+                }
+            } catch (\Exception $e) {
+                // Database connection not available, use empty locales array
+                $locales = [];
+            } catch (\PDOException $e) {
+                // PDO connection error, use empty locales array
+                $locales = [];
+            } catch (\Illuminate\Database\QueryException $e) {
+                // Query exception, use empty locales array
+                $locales = [];
             }
             $view->with(compact('locales','appCurrency'));
 
@@ -153,14 +186,17 @@ class AppServiceProvider extends ServiceProvider
 
 
         view()->composer(['backend.*'], function ($view) {
-
-            $locale_full_name = 'English';
-            $locale =  \App\Locale::where('short_name','=',config('app.locale'))->first();
-            if($locale){
-                $locale_full_name = $locale->name;
+            try {
+                $locale_full_name = 'English';
+                $locale =  \App\Locale::where('short_name','=',config('app.locale'))->first();
+                if($locale){
+                    $locale_full_name = $locale->name;
+                }
+                $view->with(compact('locale_full_name'));
+            } catch (\Exception $e) {
+                // Database connection not available, use default locale
+                $view->with('locale_full_name', 'English');
             }
-
-            $view->with(compact('locale_full_name'));
         });
 
 

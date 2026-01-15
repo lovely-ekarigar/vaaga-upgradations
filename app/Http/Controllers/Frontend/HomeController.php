@@ -956,8 +956,16 @@ if($location->countryName!='India'){
          
 
         $categories = Category::where("parent","101")->where('status','1')->orderBy('sort_order','asc')->get();
-        $achievement = Achievement::where('id','1')->first();
-        $link = VideoLink::where('id','1')->first();
+        try {
+            $achievement = Achievement::where('id','1')->first();
+        } catch (\Exception $e) {
+            $achievement = null;
+        }
+        try {
+            $link = VideoLink::where('id','1')->first();
+        } catch (\Exception $e) {
+            $link = null;
+        }
        // dd($testimonials);
         /*return view($this->path . '.index-' . config('theme_layout'), compact('popular_courses', 'featured_courses', 'sponsors', 'total_students', 'total_courses', 'total_teachers', 'testimonials', 'news', 'trending_courses', 'teachers', 'faqs', 'course_categories', 'reasons', 'sections','categories'));*/
         return view('welcome', compact('popular_courses', 'featured_courses', 'sponsors', 'total_students', 'total_courses', 'total_teachers', 'testimonials', 'news', 'trending_courses', 'teachers', 'faqs', 'course_categories', 'reasons', 'sections','categories','courses','slider','achievement','link'));

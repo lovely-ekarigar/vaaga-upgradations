@@ -29,8 +29,8 @@
                      <h3 class="mb-2">Login</h3>
                      <p>Sign in to your account to continue.</p>
                   </div>
-                  <form action="" method="post">
-                    	{{csrf_field()}}
+                  <form action="/userlogin" method="post" id="loginForm">
+                    	<input type="hidden" name="_token" value="{{ csrf_token() }}">
 			             @if(Session::has('message'))      
 							<div class="form-group col-sm-12" style="text-align:center;">
 							<div class="alert alert-danger">{!! Session::get('message') !!}</div>
@@ -54,7 +54,7 @@
                       </div>
                       <div class="form-group mb-3">
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                          <input class="form-check-input" type="checkbox" name="remember" value="1" id="flexCheckDefault">
                           <label class="form-check-label" for="flexCheckDefault">Remember me 
                           </label>
                         </div>

@@ -6,6 +6,8 @@ use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Database\QueryException;
+use PDOException;
 
 /**
  * Class Handler.
@@ -51,6 +53,22 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        // Handle database connection errors gracefully
+        if ($exception instanceof QueryException || $exception instanceof PDOException) {
+            $message = $exception->getMessage();
+            if (strpos($message, 'No connection could be made') !== false || 
+                strpos($message, 'Connection refused') !== false ||
+                strpos($message, 'target machine actively refused') !== false) {
+                // Database connection failed - return a friendly error page
+                if (config('app.debug')) {
+                    return parent::render($request, $exception);
+                }
+                return response()->view('errors.database', [
+                    'message' => 'Database connection failed. Please check your database configuration.'
+                ], 500);
+            }
+        }
+
         if ($exception instanceof UnauthorizedException) {
             return redirect()
                 ->route(home_route())

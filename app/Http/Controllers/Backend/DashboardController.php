@@ -102,17 +102,36 @@ class DashboardController extends Controller
                 $students_count = User::role('student')->count();
                 $teachers_count = User::role('teacher')->count();
                 $course_purchased_count = Order::where("status", "1")->get();
-                $course_subs_purchased_count = Subscription::where("status", "1")->get();
-                $enquiry_count = DemoRequest::all()->count();
-                $teacher_payment_count = TeacherPayment::all();
-                $courses_count = \App\Models\Course::all()->count() + \App\Models\Bundle::all()->count();
-                $recent_orders = Order::orderBy('created_at', 'desc')->take(10)->get();
-                $recent_contacts = Contact::orderBy('created_at', 'desc')->take(10)->get();
+                try {
+                    $course_subs_purchased_count = Subscription::where("status", "1")->get();
+                } catch (\Exception $e) {
+                    $course_subs_purchased_count = collect([]);
+                }
+                try {
+                    $enquiry_count = DemoRequest::all()->count();
+                } catch (\Exception $e) {
+                    $enquiry_count = 0;
+                }
+                try {
+                    $teacher_payment_count = TeacherPayment::all();
+                } catch (\Exception $e) {
+                    $teacher_payment_count = collect([]);
+                }
+                $courses_count = \App\Models\Course::where('published', 1)->count() + \App\Models\Bundle::where('published', 1)->count();
+                $recent_orders = Order::where("status", "1")->orderBy('created_at', 'desc')->take(10)->get();
+                try {
+                    $recent_contacts = Contact::orderBy('created_at', 'desc')->take(10)->get();
+                } catch (\Exception $e) {
+                    $recent_contacts = collect([]);
+                }
                 $teachers = User::role('teacher')->get();
                 foreach ($teachers as $th) {
-
-                    $er = new Earning;
-                    $balance += $er->totalBalance($th->id);
+                    try {
+                        $er = new Earning;
+                        $balance += $er->totalBalance($th->id);
+                    } catch (\Exception $e) {
+                        // Skip if earnings calculation fails
+                    }
                 }
             } else {
             }

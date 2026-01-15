@@ -705,9 +705,15 @@ $catx = Category::find($course->category->parent);
       <div class="container containerVideo">
          <div class="row justify-content-center d-flex">
             <div class="col-md-12 Videox" style="text-align:center;">
+                @if($link && isset($link->link))
                 <div data-href="https://www.youtube.com/embed/{{$link->link}}"  class="vplay" >
     <img src="/yt-vaaga.webp"  loading="lazy"  height="500" style="object-fit: cover;" alt="Youtube Math and Science Olympiad Classes" />
     </div>
+                @else
+                <div class="vplay" >
+    <img src="/yt-vaaga.webp"  loading="lazy"  height="500" style="object-fit: cover;" alt="Youtube Math and Science Olympiad Classes" />
+    </div>
+                @endif
               
             </div>
          </div>
@@ -1243,28 +1249,28 @@ $catx = Category::find($course->category->parent);
                <!-- <div class="border-2 bg-white line-hover p-4 rounded text-center"> -->
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #ffbe3d4a;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-laptop"></i></div>
-                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement->courses_offered}}">{{$achievement->courses_offered}}</span>+</h6>
+                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->courses_offered : 0}}">{{$achievement ? $achievement->courses_offered : 0}}</span>+</h6>
                   <span>Courses offered </span>
                </div>
             </div>
             <div class="col-6 col-lg-3 col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #4a2a514f;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-people-fill"></i></div>
-                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement->happy_students}}">{{$achievement->happy_students}}</span>+</h6>
+                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->happy_students : 0}}">{{$achievement ? $achievement->happy_students : 0}}</span>+</h6>
                   <span>Happy Students </span>
                </div>
             </div>
             <div class="col-6 col-lg-3 col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #50b5ff30;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-person"></i></div>
-                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement->expert_tutor}}">{{$achievement->expert_tutor}}</span>+</h6>
+                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->expert_tutor : 0}}">{{$achievement ? $achievement->expert_tutor : 0}}</span>+</h6>
                   <span>Expert Tutors </span>
                </div>
             </div>
             <div class="col-6 col-lg-3 col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #5cc9a747;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-chat"></i></div>
-                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement->hours_taught}}">{{$achievement->hours_taught}}</span>+</h6>
+                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->hours_taught : 0}}">{{$achievement ? $achievement->hours_taught : 0}}</span>+</h6>
                   <span>Hours taught</span>
                </div>
             </div>

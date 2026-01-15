@@ -521,7 +521,7 @@ use App\Models\TeacherProfile;
                             <a href="/user/report/sales" style="text-decoration: none;">
                             <div class="card text-white bg-warning text-center py-3">
                                 <div class="card-body">
-                                    <h1 class="">{{$course_purchased_count->where('status','1')->sum('amount')+$course_subs_purchased_count->where('status','1')->sum('amount')}}</h1>
+                                    <h1 class="">{{$course_purchased_count->sum('amount')+$course_subs_purchased_count->sum('amount')}}</h1>
                                     <h3>Total Earning</h3>
                                 </div>
                             </div>
@@ -565,7 +565,7 @@ use App\Models\TeacherProfile;
                             <a href="{{ route('admin.orders.index') }}" style="text-decoration: none;">
                             <div class="card text-white text-center py-3" style="background-color: #8823c975;">
                                 <div class="card-body">
-                                    <h1 class="">{{$course_purchased_count->where('status','1')->count()}}</h1>
+                                    <h1 class="">{{$course_purchased_count->count()}}</h1>
                                     <h3>Course Purchased</h3>
                                 </div>
                             </div>

@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => null,
+        'reference' => 'c6c3c00223159ff764ce4128b5df7e81a7ae8f42',
         'name' => 'rappasoft/laravel-5-boilerplate',
         'dev' => true,
     ),
@@ -1417,15 +1417,6 @@
             'reference' => '48f445a408c131e38cab1c235aa6d2bb7a0bb20d',
             'dev_requirement' => true,
         ),
-        'phpoffice/math' => array(
-            'pretty_version' => '0.3.0',
-            'version' => '0.3.0.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../phpoffice/math',
-            'aliases' => array(),
-            'reference' => 'fc31c8f57a7a81f962cbf389fd89f4d9d06fc99a',
-            'dev_requirement' => false,
-        ),
         'phpoffice/phpspreadsheet' => array(
             'pretty_version' => '1.15.0',
             'version' => '1.15.0.0',
@@ -1433,15 +1424,6 @@
             'install_path' => __DIR__ . '/../phpoffice/phpspreadsheet',
             'aliases' => array(),
             'reference' => 'a8e8068b31b8119e1daa5b1eb5715a3a8ea8305f',
-            'dev_requirement' => false,
-        ),
-        'phpoffice/phpword' => array(
-            'pretty_version' => '1.4.0',
-            'version' => '1.4.0.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../phpoffice/phpword',
-            'aliases' => array(),
-            'reference' => '6d75328229bc93790b37e93741adf70646cea958',
             'dev_requirement' => false,
         ),
         'phpseclib/phpseclib' => array(
@@ -1632,12 +1614,12 @@
             'dev_requirement' => false,
         ),
         'rappasoft/laravel-5-boilerplate' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => null,
+            'reference' => 'c6c3c00223159ff764ce4128b5df7e81a7ae8f42',
             'dev_requirement' => false,
         ),
         'razorpay/razorpay' => array(
@@ -1822,15 +1804,6 @@
             'replaced' => array(
                 0 => '*',
             ),
-        ),
-        'smalot/pdfparser' => array(
-            'pretty_version' => 'v2.12.0',
-            'version' => '2.12.0.0',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../smalot/pdfparser',
-            'aliases' => array(),
-            'reference' => '8440edbf58c8596074e78ada38dcb0bd041a5948',
-            'dev_requirement' => false,
         ),
         'spatie/db-dumper' => array(
             'pretty_version' => '2.21.1',
