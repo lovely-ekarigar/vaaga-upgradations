@@ -118,7 +118,7 @@ class DashboardController extends Controller
                     $teacher_payment_count = collect([]);
                 }
                 $courses_count = \App\Models\Course::where('published', 1)->count() + \App\Models\Bundle::where('published', 1)->count();
-                $recent_orders = Order::where("status", "1")->orderBy('created_at', 'desc')->take(10)->get();
+                $recent_orders = Order::where("status", "1")->with('user')->orderBy('created_at', 'desc')->take(10)->get();
                 try {
                     $recent_contacts = Contact::orderBy('created_at', 'desc')->take(10)->get();
                 } catch (\Exception $e) {

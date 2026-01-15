@@ -197,7 +197,7 @@ return $expired;
 
     public function scopeOfTeacher($query)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (Auth::check() && !Auth::user()->isAdmin()) {
             return $query->whereHas('teachers', function ($q) {
                 $q->where('user_id', Auth::user()->id);
             });
