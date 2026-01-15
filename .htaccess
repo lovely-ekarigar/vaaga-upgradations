@@ -1,0 +1,74 @@
+<IfModule mod_rewrite.c>
+   Options +FollowSymLinks
+   RewriteEngine On
+
+   # Redirect www to non-www with HTTPS
+   RewriteCond %{HTTP_HOST} ^www\.vaagaacademy\.com [NC]
+   RewriteRule ^(.*)$ https://vaagaacademy.com/$1 [L,R=301]
+
+   # Force HTTPS (Avoid redirect loop)
+   RewriteCond %{HTTPS} !=on
+   RewriteCond %{HTTP_HOST} ^vaagaacademy\.com [NC]
+   RewriteRule ^(.*)$ https://vaagaacademy.com/$1 [L,R=301]
+
+   # Redirect all traffic to /public/ (except existing files & folders)
+   RewriteCond %{REQUEST_URI} !^/public/ 
+   RewriteCond %{REQUEST_FILENAME} !-d
+   RewriteCond %{REQUEST_FILENAME} !-f
+   RewriteRule ^(.*)$ /public/$1 [L,QSA]
+</IfModule>
+
+<IfModule mod_deflate.c>
+   # Enable Gzip Compression
+   AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css text/javascript application/javascript application/x-javascript application/json
+</IfModule>
+
+<IfModule mod_expires.c>
+   ExpiresActive on
+   ExpiresDefault "access plus 0 seconds"
+
+   # Cache Control Headers
+   Header set Cache-Control "max-age=31536000, public"
+
+   # Favicon & Images
+   ExpiresByType image/x-icon "access plus 1 month"
+   ExpiresByType image/jpeg "access plus 1 month"
+   ExpiresByType image/png "access plus 1 month"
+   ExpiresByType image/gif "access plus 1 month"
+   ExpiresByType image/svg+xml "access plus 1 month"
+   ExpiresByType image/webp "access plus 1 month"
+
+   # CSS & JavaScript
+   ExpiresByType text/css "access plus 1 month"
+   ExpiresByType text/javascript "access plus 1 month"
+   ExpiresByType application/javascript "access plus 1 month"
+
+   # Web Fonts
+   ExpiresByType font/ttf "access plus 1 month"
+   ExpiresByType font/woff "access plus 1 month"
+   ExpiresByType font/woff2 "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+   # Enable Keep-Alive
+   Header set Connection keep-alive
+
+   # Enable Browser Caching
+   Header unset ETag
+   FileETag None
+
+   # Upgrade HTTP Requests to HTTPS
+   Header always set Content-Security-Policy: upgrade-insecure-requests
+</IfModule>
+
+<IfModule mod_pagespeed.c>
+   ModPagespeed on
+   ModPagespeedEnableFilters prioritize_critical_css, defer_javascript, sprite_images
+   ModPagespeedEnableFilters rewrite_images, recompress_images, collapse_whitespace, move_css_to_head
+</IfModule>
+
+# Protect .env File
+<Files .env> 
+   Order allow,deny 
+   Deny from all
+</Files>
