@@ -27,7 +27,8 @@ use Illuminate\Support\Facades\Response;
 use Newsletter;
 use Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Input;
+// Input facade removed in Laravel 5.4+ - use Request instead
+// use Illuminate\Support\Facades\Input;
 use Arcanedev\NoCaptcha\Rules\CaptchaRule;
 use Illuminate\Auth\Events\Registered;
 use Hash;

@@ -639,3 +639,18 @@ if (!class_exists('HieuLe\Active\Facades\Active')) {
 if (!class_exists('HieuLe\Active\Facades\Active')) {
     class_alias('Active', 'HieuLe\Active\Facades\Active');
 }
+
+/**
+ * Active class helper function
+ * Returns CSS class when condition is true
+ * 
+ * @param bool $condition
+ * @param string $class
+ * @return string
+ */
+if (!function_exists('active_class')) {
+    function active_class($condition, $class = 'active')
+    {
+        return $condition ? $class : '';
+    }
+}

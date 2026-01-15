@@ -14,7 +14,8 @@ use App\Events\Frontend\Auth\UserLoggedOut;
 use App\Repositories\Frontend\Auth\UserSessionRepository;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Input;
+// Input facade removed in Laravel 5.4+ - use Request instead
+// use Illuminate\Support\Facades\Input;
 use Arcanedev\NoCaptcha\Rules\CaptchaRule;
 
 
@@ -61,7 +62,7 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $validator = Validator::make(Input::all(), [
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
             'password' => 'required|min:6',
             'g-recaptcha-response' => (config('access.captcha.registration') ? ['required',new CaptchaRule] : ''),

@@ -42,7 +42,8 @@ use Newsletter;
 use Auth;
 use URL;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Input;
+// Input facade removed in Laravel 5.4+ - use Request instead
+// use Illuminate\Support\Facades\Input;
 use Arcanedev\NoCaptcha\Rules\CaptchaRule;
 use Illuminate\Auth\Events\Registered;
 use Hash;
@@ -626,7 +627,7 @@ if(!$board){
 //   }
   public function becometeacherCreate(Request $request)
   {
-    $validator = Validator::make(Input::all(), [ 
+    $validator = Validator::make($request->all(), [ 
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
             'dob' => 'required',
@@ -785,7 +786,7 @@ if($location->countryName!='India'){
 }
 
 
-      $validator = Validator::make(Input::all(), [ 
+      $validator = Validator::make($request->all(), [ 
             'first_name' => 'required|max:255',
             
             'last_name' => 'required|max:255',
@@ -848,7 +849,7 @@ if($location->countryName!='India'){
         //   return redirect('/userregister')->with('message', 'Something went wrong.');
    }
    public function dologin(Request $request){
-      $validator = Validator::make(Input::all(), [
+      $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
             'password' => 'required|min:6',
             'g-recaptcha-response' => (config('access.captcha.registration') ? ['required',new CaptchaRule] : ''),
