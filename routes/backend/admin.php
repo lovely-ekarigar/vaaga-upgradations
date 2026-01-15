@@ -123,17 +123,17 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
 
 
-    Route::get('students', ['uses' => 'StudentController@index'])->name('students.index');
-    Route::get('students/orders/{id}', ['uses' => 'StudentController@orders'])->name('students.orders');
-    Route::get('students/{id}', ['uses' => 'StudentController@updatestatus'])->name('students.updatestatus');
+    Route::get('students', ['uses' => '\App\Http\Controllers\Backend\StudentController@index'])->name('students.index');
+    Route::get('students/orders/{id}', ['uses' => '\App\Http\Controllers\Backend\StudentController@orders'])->name('students.orders');
+    Route::get('students/{id}', ['uses' => '\App\Http\Controllers\Backend\StudentController@updatestatus'])->name('students.updatestatus');
 
-    Route::get('student-recover/{id}', ['uses' => 'StudentController@studentRecover'])->name('students_recover');
-    Route::get('student-show/{id}', ['uses' => 'StudentController@studentShow'])->name('students_show');
-    Route::get('student-edit/{id}', ['uses' => 'StudentController@studentEdit'])->name('students_edit');
-    Route::post('student-edit/{id}', ['uses' => 'StudentController@studentUpdate'])->name('students_edit');
-    Route::get('student-delete/{id}', ['uses' => 'StudentController@studentDelete'])->name('students_delete');
+    Route::get('student-recover/{id}', ['uses' => '\App\Http\Controllers\Backend\StudentController@studentRecover'])->name('students_recover');
+    Route::get('student-show/{id}', ['uses' => '\App\Http\Controllers\Backend\StudentController@studentShow'])->name('students_show');
+    Route::get('student-edit/{id}', ['uses' => '\App\Http\Controllers\Backend\StudentController@studentEdit'])->name('students_edit');
+    Route::post('student-edit/{id}', ['uses' => '\App\Http\Controllers\Backend\StudentController@studentUpdate'])->name('students_edit');
+    Route::get('student-delete/{id}', ['uses' => '\App\Http\Controllers\Backend\StudentController@studentDelete'])->name('students_delete');
 
-    Route::get('student_batch_list/{id}', ['uses' => 'StudentController@studentBatchlist'])->name('student_batch_list');
+    Route::get('student_batch_list/{id}', ['uses' => '\App\Http\Controllers\Backend\StudentController@studentBatchlist'])->name('student_batch_list');
 
 
     Route::get('feedback-list', ['uses' => 'Admin\FeedbackController@index'])->name('feedback-list');
