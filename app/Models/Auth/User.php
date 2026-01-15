@@ -13,6 +13,7 @@ use App\Models\Coupon;
 use App\Models\DemoRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Subscription;
 use App\Models\Traits\Uuid;
 use App\Models\VideoProgress;
 use Illuminate\Support\Collection;
@@ -292,5 +293,10 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class, 'user_id');
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class, 'user_id');
     }
 }

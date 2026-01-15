@@ -505,7 +505,7 @@ use App\Models\UserNotification;
             @if ($logged_in_user->isAdmin() || $logged_in_user->hasRole('teacher'))
                 <li
                     class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('user/tests*', 'user/questions*'), 'open') }}">
-                    <a class="nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/log-viewer*')) }}"
+                    <a class="nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/tests*', 'admin/questions*')) }}"
                         href="#">
                         <i class="nav-icon icon-list"></i> Exam
                     </a>
@@ -824,28 +824,30 @@ use App\Models\UserNotification;
                     </ul>
                 </li> -->
 
+                {{-- Log Viewer section removed - routes not registered
                 <li
                     class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('admin/log-viewer*'), 'open') }}">
-                    <!-- <a class="nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/log-viewer*')) }}"
+                    <a class="nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/log-viewer*')) }}"
                        href="#">
                         <i class="nav-icon icon-list"></i> @lang('menus.backend.sidebar.debug-site.title')
-                    </a> -->
+                    </a>
 
                     <ul class="nav-dropdown-items">
-                        <!-- <li class="nav-item">
+                        <li class="nav-item">
                             <a class="nav-link {{ active_class(Active::checkUriPattern('admin/log-viewer')) }}"
                                href="{{ route('log-viewer::dashboard') }}">
                                 @lang('menus.backend.log-viewer.dashboard')
                             </a>
-                        </li> -->
-                        <!--<li class="nav-item">
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ active_class(Active::checkUriPattern('admin/log-viewer/logs*')) }}"
                                href="{{ route('log-viewer::logs.list') }}">
                                 @lang('menus.backend.log-viewer.logs')
                             </a>
-                        </li>-->
+                        </li>
                     </ul>
                 </li>
+                --}}
 
                 <!--<li class="nav-item ">
                     <a class="nav-link {{ $request->segment(1) == 'translation-manager' ? 'active' : '' }}"
