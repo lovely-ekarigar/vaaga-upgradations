@@ -6,7 +6,8 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Foundation\Auth\ResetsPasswords;
+// ResetsPasswords trait removed in Laravel 10 - implement password reset manually
+// use Illuminate\Foundation\Auth\ResetsPasswords;
 use App\Repositories\Frontend\Auth\UserRepository;
 use App\Http\Requests\Frontend\Auth\ResetPasswordRequest;
 
@@ -15,7 +16,7 @@ use App\Http\Requests\Frontend\Auth\ResetPasswordRequest;
  */
 class ResetPasswordController extends Controller
 {
-    use ResetsPasswords;
+    // ResetsPasswords trait removed in Laravel 10 - implement password reset manually using Password facade
 
     /**
      * @var UserRepository
@@ -67,11 +68,10 @@ class ResetPasswordController extends Controller
      */
     public function reset(ResetPasswordRequest $request)
     {
-
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
-        $response = $this->broker()->reset(
+        $response = Password::broker()->reset(
             $this->credentials($request),
             function ($user, $password) {
                 $this->resetPassword($user, $password);
@@ -84,6 +84,43 @@ class ResetPasswordController extends Controller
         return $response == Password::PASSWORD_RESET
             ? $this->sendResetResponse($response)
             : $this->sendResetFailedResponse($request, $response);
+    }
+
+    /**
+     * Get the password reset credentials from the request.
+     *
+     * @param  ResetPasswordRequest  $request
+     * @return array
+     */
+    protected function credentials(ResetPasswordRequest $request)
+    {
+        return $request->only(
+            'email', 'password', 'password_confirmation', 'token'
+        );
+    }
+
+    /**
+     * Get the guard to be used during password reset.
+     *
+     * @return \Illuminate\Contracts\Auth\StatefulGuard
+     */
+    protected function guard()
+    {
+        return \Illuminate\Support\Facades\Auth::guard();
+    }
+
+    /**
+     * Get the response for a failed password reset.
+     *
+     * @param  ResetPasswordRequest  $request
+     * @param  string  $response
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendResetFailedResponse(ResetPasswordRequest $request, $response)
+    {
+        return redirect()->back()
+            ->withInput($request->only('email'))
+            ->withErrors(['email' => trans($response)]);
     }
 
     /**

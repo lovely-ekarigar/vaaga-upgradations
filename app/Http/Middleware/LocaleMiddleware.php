@@ -3,12 +3,14 @@
 namespace App\Http\Middleware;
 
 use App\Locale;
-use Barryvdh\TranslationManager\Manager;
-use Barryvdh\TranslationManager\Models\Translation;
+// TranslationManager removed - using Laravel's built-in translation
+// use Barryvdh\TranslationManager\Manager;
+// use Barryvdh\TranslationManager\Models\Translation;
 use Closure;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 /**
  * Class LocaleMiddleware.
@@ -23,9 +25,27 @@ class LocaleMiddleware
      *
      * @return mixed
      */
-    public function __construct(Manager $manager)
+    public function __construct()
     {
-        $this->manager = $manager;
+        // TranslationManager removed - get locales from filesystem instead
+    }
+
+    /**
+     * Get available locales from language files
+     *
+     * @return array
+     */
+    protected function getLocales()
+    {
+        $locales = [];
+        $langPath = resource_path('lang');
+        if (File::exists($langPath)) {
+            $directories = File::directories($langPath);
+            foreach ($directories as $directory) {
+                $locales[] = basename($directory);
+            }
+        }
+        return $locales;
     }
 
 
@@ -40,8 +60,7 @@ class LocaleMiddleware
 
             $locales_list = null;
             if (Schema::hasTable('locales')) {
-                $locales_list = $this->manager->getLocales();
-
+                $locales_list = $this->getLocales();
             }
             if (session()->has('locale') && in_array(session()->get('locale'),$locales_list)) {
 

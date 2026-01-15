@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Traits;
 
-use Barryvdh\TranslationManager\Manager;
+// TranslationManager removed - this class needs to be refactored
+// use Barryvdh\TranslationManager\Manager;
 
-class MyImportManager extends Manager
+class MyImportManager // extends Manager
 {
     public function getDirectories(){
         return $this->files;

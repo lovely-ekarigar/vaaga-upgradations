@@ -28,6 +28,11 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Passport::routes();
+        // Passport routes are now auto-registered in Laravel 10
+        // If you need custom routes, use Passport::routes() with options
+        if (class_exists(\Laravel\Passport\Passport::class)) {
+            Passport::tokensExpireIn(now()->addDays(15));
+            Passport::refreshTokensExpireIn(now()->addDays(30));
+        }
     }
 }

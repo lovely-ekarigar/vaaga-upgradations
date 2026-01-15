@@ -8,12 +8,11 @@ use App\Models\Blog;
 use App\Models\Config;
 use App\Models\Course;
 use App\Models\Slider;
-use Barryvdh\TranslationManager\Manager;
-use Barryvdh\TranslationManager\Models\Translation;
 use Carbon\Carbon;
-use Harimayco\Menu\Facades\Menu;
-use Harimayco\Menu\Models\MenuItems;
-use Harimayco\Menu\Models\Menus;
+// Menu package removed - Menu functionality needs to be replaced
+// use Harimayco\Menu\Facades\Menu;
+// use Harimayco\Menu\Models\MenuItems;
+// use Harimayco\Menu\Models\Menus;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -113,14 +112,11 @@ class AppServiceProvider extends ServiceProvider
 
         view()->composer(['frontend.layouts.*', 'frontend-rtl.layouts.*'], function ($view) {
             try {
+                // Menu package removed - using empty menu data for now
+                // TODO: Implement menu functionality using Laravel 10 compatible package or custom solution
+                $custom_menus = [];
+                $max_depth = 0;
                 $menu_name = NULL;
-                $custom_menus = MenuItems::where('menu', '=', config('nav_menu'))
-                    ->orderBy('sort')
-                    ->get();
-                $menu_name = Menus::find((int)config('nav_menu'));
-                $menu_name = ($menu_name != NULL) ? $menu_name->name : NULL;
-                $custom_menus = menuList($custom_menus);
-                $max_depth = MenuItems::max('depth');
                 $view->with(compact('custom_menus', 'max_depth','menu_name'));
             } catch (\Exception $e) {
                 // Database connection not available, use empty menu data

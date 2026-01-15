@@ -208,19 +208,14 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
         Yajra\DataTables\ButtonsServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
-        Gerardojbaez\Messenger\MessengerServiceProvider::class,
         Jenssegers\Agent\AgentServiceProvider::class,
         Darryldecode\Cart\CartServiceProvider::class,
         ConsoleTVs\Invoices\InvoicesServiceProvider::class,
-        Harimayco\Menu\MenuServiceProvider::class,
 
 
-        Barryvdh\TranslationManager\ManagerServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
-        Chumper\Zipper\ZipperServiceProvider::class,
-        BC\Laravel\DropboxDriver\ServiceProvider::class,
         Mtownsend\ReadTime\Providers\ReadTimeServiceProvider::class,
 
 
@@ -286,7 +281,6 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'Zipper' => 'Chumper\Zipper\Zipper',
 
 
         /*
@@ -299,10 +293,8 @@ return [
         'Html' => Collective\Html\HtmlFacade::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'Messenger' => Gerardojbaez\Messenger\Facades\Messenger::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
-        'Menu' => Harimayco\Menu\Facades\Menu::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
 
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\Backend\StudentController;
 use App\Http\Controllers\Backend\Admin\NoteController;
 use App\Http\Controllers\Backend\Admin\TeamController;
 use App\Http\Controllers\Backend\Admin\NoteCategoryController;
+use App\Http\Controllers\Backend\Admin\OrderController;
 use App\Http\Controllers\Backend\EnquiryController;
 use App\Http\Controllers\Backend\BtoBController;
 /*
@@ -30,7 +31,7 @@ Route::get('btob-users', [BtoBController::class, 'users'])->name('btob.user.list
 
 
 Route::group(['middleware' => 'role:teacher|administrator|author'], function () {
-    Route::resource('orders', 'Admin\OrderController');
+    Route::resource('orders', '\App\Http\Controllers\Backend\Admin\OrderController');
 
     //===== Demo Request Routes =====//
     Route::get('demo-requests-teacher', ['uses' => 'Admin\DemoController@indexTeacher', 'as' => 'demo_requests_teacher']);
@@ -143,19 +144,19 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
 
     //===== Orders Routes =====//
-    Route::get('subscription-reports-details/{id}', ['uses' => 'Admin\OrderController@subscriptionDetails', 'as' => 'subscription.detailsInfo']);
-    Route::post('subscription-reports-details/{id}', ['uses' => 'Admin\OrderController@triggerEmail', 'as' => 'subscription.triggerEmail']);
-    Route::get('subscription-reports', ['uses' => 'Admin\OrderController@subscriptionReports', 'as' => 'subscription.report']);
-    Route::get('gst-reports', ['uses' => 'Admin\OrderController@gstReport', 'as' => 'gst.report']);
-    Route::get('subscription-reports-data', ['uses' => 'Admin\OrderController@subscriptionReportsData', 'as' => 'subscription.report_data']);
-    Route::get('subscriptions', ['uses' => 'Admin\OrderController@subscriptions', 'as' => 'subscription.index']);
-    Route::get('get-subscriptions-data', ['uses' => 'Admin\OrderController@getDataSubscription', 'as' => 'subscription.get_data']);
-    Route::get('get-orders-data', ['uses' => 'Admin\OrderController@getData', 'as' => 'orders.get_data']);
+    Route::get('subscription-reports-details/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@subscriptionDetails', 'as' => 'subscription.detailsInfo']);
+    Route::post('subscription-reports-details/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@triggerEmail', 'as' => 'subscription.triggerEmail']);
+    Route::get('subscription-reports', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@subscriptionReports', 'as' => 'subscription.report']);
+    Route::get('gst-reports', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@gstReport', 'as' => 'gst.report']);
+    Route::get('subscription-reports-data', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@subscriptionReportsData', 'as' => 'subscription.report_data']);
+    Route::get('subscriptions', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@subscriptions', 'as' => 'subscription.index']);
+    Route::get('get-subscriptions-data', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@getDataSubscription', 'as' => 'subscription.get_data']);
+    Route::get('get-orders-data', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@getData', 'as' => 'orders.get_data']);
 
-    Route::get('view-invoice/{oid}/{type}', ['uses' => 'Admin\OrderController@viewInvoice']);
-    Route::post('orders_mass_destroy', ['uses' => 'Admin\OrderController@massDestroy', 'as' => 'orders.mass_destroy']);
-    Route::post('orders/complete', ['uses' => 'Admin\OrderController@complete', 'as' => 'orders.complete']);
-    Route::delete('orders_perma_del/{id}', ['uses' => 'Admin\OrderController@perma_del', 'as' => 'orders.perma_del']);
+    Route::get('view-invoice/{oid}/{type}', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@viewInvoice']);
+    Route::post('orders_mass_destroy', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@massDestroy', 'as' => 'orders.mass_destroy']);
+    Route::post('orders/complete', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@complete', 'as' => 'orders.complete']);
+    Route::delete('orders_perma_del/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@perma_del', 'as' => 'orders.perma_del']);
 
     //===Batch Routes===//
     Route::get('batches', ['uses' => 'Admin\BatchController@index', 'as' => 'batch']);

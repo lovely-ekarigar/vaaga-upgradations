@@ -9,7 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Helpers\Frontend\Auth\Socialite;
 use App\Events\Frontend\Auth\UserLoggedIn;
 use App\Events\Frontend\Auth\UserLoggedOut;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+// AuthenticatesUsers trait removed in Laravel 10 - implement authentication manually
+// use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Repositories\Frontend\Auth\UserSessionRepository;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -22,7 +23,7 @@ use Arcanedev\NoCaptcha\Rules\CaptchaRule;
  */
 class LoginController extends Controller
 {
-    use AuthenticatesUsers;
+    // AuthenticatesUsers trait removed in Laravel 10 - implement authentication manually
 
     /**
      * Where to redirect users after login.

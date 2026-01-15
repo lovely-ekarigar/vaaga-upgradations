@@ -58,8 +58,6 @@ use DevDojo\Chatter\Events\ChatterAfterNewResponse;
 use DevDojo\Chatter\Events\ChatterBeforeNewDiscussion;
 use DevDojo\Chatter\Events\ChatterBeforeNewResponse;
 use DevDojo\Chatter\Mail\ChatterDiscussionUpdated;
-use Harimayco\Menu\Models\MenuItems;
-use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -73,14 +71,15 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Purifier;
-use Messenger;
-use Newsletter;
+// Messenger and Newsletter packages removed - functionality needs to be replaced
+// use Messenger;
+// use Newsletter;
 
 
 class ApiController extends Controller
 {
     use FileUploadTrait;
-    use SendsPasswordResetEmails;
+    // SendsPasswordResetEmails trait removed in Laravel 10 - use Password facade methods instead
 
 
     public function __construct(UserRepository $userRepository)

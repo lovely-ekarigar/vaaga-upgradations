@@ -9,7 +9,8 @@ use App\Events\Frontend\Auth\UserRegistered;
 use App\Models\Auth\User;
 use Arcanedev\NoCaptcha\Rules\CaptchaRule;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Foundation\Auth\RegistersUsers;
+// RegistersUsers trait removed in Laravel 10 - implement registration manually
+// use Illuminate\Foundation\Auth\RegistersUsers;
 use App\Repositories\Frontend\Auth\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -22,7 +23,7 @@ use App\Models\General;
  */
 class RegisterController extends Controller
 {
-    use RegistersUsers;
+    // RegistersUsers trait removed in Laravel 10 - implement registration manually
 
     /**
      * @var UserRepository

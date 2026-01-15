@@ -3,7 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Traits\MyImportManager;
-use Barryvdh\TranslationManager\Manager;
+// TranslationManager removed
+// use Barryvdh\TranslationManager\Manager;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -24,10 +25,10 @@ class MenuImport extends Command
      */
     protected $description = 'Import translations for menu';
 
-    /** @var \Barryvdh\TranslationManager\Manager */
+    /** @var MyImportManager */
     protected $manager;
 
-    public function __construct(MyImportManager $manager)
+    public function __construct(MyImportManager $manager = null)
     {
         $this->manager = $manager;
         parent::__construct();
