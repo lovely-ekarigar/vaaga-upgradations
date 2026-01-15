@@ -16,7 +16,7 @@ class CreateCertificatesTable extends Migration
         if(! Schema::hasTable('certificates')) {
 
             Schema::create('certificates', function (Blueprint $table) {
-                $table->increments('id');
+                $table->id();
                 $table->string('name')->nullable();
                 $table->integer('user_id')->unsigned()->nullable();
                 $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

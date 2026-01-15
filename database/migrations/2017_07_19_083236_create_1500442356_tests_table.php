@@ -14,7 +14,7 @@ class Create1500442356TestsTable extends Migration
     {
         if(! Schema::hasTable('tests')) {
             Schema::create('tests', function (Blueprint $table) {
-                $table->increments('id');
+                $table->id();
                 $table->integer('course_id')->unsigned()->nullable();
                 $table->foreign('course_id', '54422_596eeef514d00')->references('id')->on('courses')->onDelete('cascade');
                 $table->integer('lesson_id')->unsigned()->nullable();

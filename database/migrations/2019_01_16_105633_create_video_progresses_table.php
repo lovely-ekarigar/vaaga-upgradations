@@ -14,7 +14,7 @@ class CreateVideoProgressesTable extends Migration
     public function up()
     {
         Schema::create('video_progresses', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->integer('media_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->float('duration');

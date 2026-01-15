@@ -11,7 +11,7 @@ class CreateMessageThreadsTable extends Migration
     public function up()
     {
         Schema::create('message_threads', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
         });
 
         // 'message_threads' table is created after 'messages' table,

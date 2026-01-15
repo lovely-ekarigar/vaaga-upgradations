@@ -14,7 +14,7 @@ class CreateMenuItemsWpTable extends Migration
     public function up()
     {
         Schema::create( config('menu.table_prefix') . config('menu.table_name_items') , function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->string('label');
             $table->string('link');
             $table->integer('parent')->unsigned()->default(0);

@@ -14,7 +14,7 @@ class CreateEarningsTable extends Migration
     public function up()
     {
         Schema::create('earnings', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->unsignedInteger('order_id')->nullable();
             $table->unsignedInteger('course_id')->nullable();
             $table->unsignedInteger('user_id')->nullable();

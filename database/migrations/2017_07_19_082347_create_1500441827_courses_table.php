@@ -14,7 +14,7 @@ class Create1500441827CoursesTable extends Migration
     {
         if(! Schema::hasTable('courses')) {
             Schema::create('courses', function (Blueprint $table) {
-                $table->increments('id');
+                $table->id();
                 $table->integer('category_id')->nullable();
                 $table->string('title');
                 $table->string('slug')->nullable();

@@ -17,7 +17,7 @@ class CreateBundlesTable extends Migration
         if(! Schema::hasTable('bundles')) {
 
             Schema::create('bundles', function (Blueprint $table) {
-                $table->increments('id');
+                $table->id();
                 $table->integer('category_id')->nullable();
                 $table->integer('user_id')->unsigned()->nullable();
                 $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->nullable();

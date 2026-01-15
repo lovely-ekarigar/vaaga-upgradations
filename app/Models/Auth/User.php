@@ -95,11 +95,6 @@ class User extends Authenticatable implements MessageableInterface
     protected $hidden = ['password', 'remember_token'];
 
     /**
-     * @var array
-     */
-    protected $dates = ['last_login_at', 'deleted_at'];
-
-    /**
      * The dynamic attributes from mutators that should be returned with the user object.
      * @var array
      */
@@ -113,6 +108,8 @@ class User extends Authenticatable implements MessageableInterface
     protected $casts = [
         'active' => 'boolean',
         'confirmed' => 'boolean',
+        'last_login_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
 

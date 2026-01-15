@@ -14,7 +14,7 @@ class CreateTestsResultsAnswersTable extends Migration
     public function up()
     {
         Schema::create('tests_results_answers', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->integer('tests_result_id')->unsigned()->nullable();
             $table->foreign('tests_result_id')->references('id')->on('tests_results')->onDelete('cascade');
             $table->integer('question_id')->unsigned()->nullable();

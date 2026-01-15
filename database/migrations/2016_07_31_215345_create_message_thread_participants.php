@@ -11,7 +11,7 @@ class CreateMessageThreadParticipants extends Migration
     public function up()
     {
         Schema::create('message_thread_participants', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->integer('thread_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->timestamp('last_read')->nullable();

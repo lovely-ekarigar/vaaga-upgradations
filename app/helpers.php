@@ -592,3 +592,50 @@ if (!function_exists('menuList')) {
         return $temp_array;
     }
 }
+
+// Active package replacement for Laravel 10 compatibility
+if (!class_exists('HieuLe\Active\Facades\Active')) {
+    class Active {
+        public static function checkUriPattern($patterns) {
+            $request = request();
+            $currentUri = $request->path();
+            
+            if (!is_array($patterns)) {
+                $patterns = [$patterns];
+            }
+            
+            foreach ($patterns as $pattern) {
+                if (str_contains($pattern, '*')) {
+                    $pattern = str_replace('*', '.*', $pattern);
+                    if (preg_match('#^' . $pattern . '$#', $currentUri)) {
+                        return true;
+                    }
+                } elseif ($currentUri === $pattern || str_starts_with($currentUri, $pattern)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        public static function checkRoute($route) {
+            return request()->routeIs($route);
+        }
+        
+        public static function checkUri($uris) {
+            $request = request();
+            $currentUri = $request->path();
+            
+            if (!is_array($uris)) {
+                $uris = [$uris];
+            }
+            
+            return in_array($currentUri, $uris);
+        }
+    }
+}
+
+// Create namespace alias
+if (!class_exists('HieuLe\Active\Facades\Active')) {
+    class_alias('Active', 'HieuLe\Active\Facades\Active');
+}

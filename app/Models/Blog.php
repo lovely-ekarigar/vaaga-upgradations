@@ -8,9 +8,16 @@ use Illuminate\Support\Facades\File;
 
 class Blog extends Model
 {
-    protected $dates = ['deleted_at'];
-
     protected $appends = ['blog_category','blog_image','blog_author'];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
 
 
     public function getBlogAuthorAttribute()

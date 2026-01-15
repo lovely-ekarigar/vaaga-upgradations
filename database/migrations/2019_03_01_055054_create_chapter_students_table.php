@@ -14,7 +14,7 @@ class CreateChapterStudentsTable extends Migration
     public function up()
     {
         Schema::create('chapter_students', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
+            $table->id();
             $table->nullableMorphs('model');
             $table->integer('user_id')->unsigned()->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

@@ -14,7 +14,7 @@ class Create1500442169QuestionsTable extends Migration
     {
         if(! Schema::hasTable('questions')) {
             Schema::create('questions', function (Blueprint $table) {
-                $table->increments('id');
+                $table->id();
                 $table->text('question');
                 $table->string('question_image')->nullable();
                 $table->integer('score')->nullable();

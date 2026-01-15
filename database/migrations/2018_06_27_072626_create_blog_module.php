@@ -14,7 +14,7 @@ class CreateBlogModule extends Migration {
     {
         Schema::create('blogs', function(Blueprint $table)
         {
-            $table->increments('id');
+            $table->id();
             $table->unsignedInteger('category_id');
             $table->unsignedInteger('user_id');
             $table->string('title');
@@ -31,7 +31,7 @@ class CreateBlogModule extends Migration {
 
         Schema::create('blog_comments', function(Blueprint $table)
         {
-            $table->increments('id');
+            $table->id();
             $table->unsignedInteger('blog_id');
             $table->unsignedInteger('user_id');
             $table->string('name');
@@ -43,7 +43,7 @@ class CreateBlogModule extends Migration {
 
         Schema::create('tags', function(Blueprint $table)
         {
-            $table->increments('id');
+            $table->id();
             $table->string('name');
             $table->string('slug');
             $table->timestamps();

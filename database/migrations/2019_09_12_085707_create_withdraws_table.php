@@ -14,7 +14,7 @@ class CreateWithdrawsTable extends Migration
     public function up()
     {
         Schema::create('withdraws', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->unsignedInteger('user_id');
             $table->decimal('amount', 8, 2);
             $table->tinyInteger('payment_type')->nullable()->comment('0=Bank, 1=Paypal,2=offline');

@@ -14,7 +14,7 @@ class Create1500442247QuestionsOptionsTable extends Migration
     {
         if(! Schema::hasTable('questions_options')) {
             Schema::create('questions_options', function (Blueprint $table) {
-                $table->increments('id');
+                $table->id();
                 $table->integer('question_id')->unsigned()->nullable();
                 $table->foreign('question_id', '54421_596eee8745a1e')->references('id')->on('questions')->onDelete('cascade');
                 $table->text('option_text');

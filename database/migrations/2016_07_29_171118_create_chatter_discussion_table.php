@@ -8,7 +8,7 @@ class CreateChatterDiscussionTable extends Migration
     public function up()
     {
         Schema::create('chatter_discussion', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->integer('chatter_category_id')->unsigned()->default('1');
             $table->string('title');
             $table->integer('user_id')->unsigned();

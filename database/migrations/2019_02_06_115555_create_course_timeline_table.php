@@ -14,7 +14,7 @@ class CreateCourseTimelineTable extends Migration
     public function up()
     {
         Schema::create('course_timeline', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->nullableMorphs('model');
             $table->integer('course_id');
             $table->integer('sequence');

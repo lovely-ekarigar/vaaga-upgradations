@@ -10,9 +10,16 @@ class BlogComment extends Model
 {
     use SoftDeletes;
 
-    protected $dates = ['deleted_at'];
-
     protected $table = 'blog_comments';
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
 
     protected $guarded = ['id'];
 

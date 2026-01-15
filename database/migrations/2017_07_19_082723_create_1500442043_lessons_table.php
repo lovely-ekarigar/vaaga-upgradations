@@ -14,7 +14,7 @@ class Create1500442043LessonsTable extends Migration
     {
         if(! Schema::hasTable('lessons')) {
             Schema::create('lessons', function (Blueprint $table) {
-                $table->increments('id');
+                $table->id();
                 $table->integer('course_id')->unsigned()->nullable();
                 $table->foreign('course_id', '54419_596eedbb6686e')->references('id')->on('courses')->onDelete('cascade');
                 $table->string('title')->nullable();

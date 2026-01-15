@@ -14,7 +14,7 @@ class CreateMediaTable extends Migration
     public function up()
     {
         Schema::create('media', function (Blueprint $table) {
-            $table->increments('id')->unsigned();
+            $table->id();
             $table->nullableMorphs('model');
             $table->string('name');
             $table->text('url')->nullable();
