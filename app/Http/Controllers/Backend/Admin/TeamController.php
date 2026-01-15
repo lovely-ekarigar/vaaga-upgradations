@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Session;
 use Auth;
 use Illuminate\Support\Str;
@@ -13,14 +14,31 @@ class TeamController extends Controller
 {
     public function ourTeams()
     {
-         $teams = VaagTeam::orderBy("id","asc")->get();
-        return view('frontend.team.list',compact('teams'));
+        try {
+            if (!Schema::hasTable('vaaga_teams')) {
+                return view('frontend.team.list', ['teams' => collect([])]);
+            }
+            $teams = VaagTeam::orderBy("id","asc")->get();
+            return view('frontend.team.list',compact('teams'));
+        } catch (\Exception $e) {
+            return view('frontend.team.list', ['teams' => collect([])]);
+        }
     }
     
     public function teamDeatails($slug)
     {
-         $team = VaagTeam::where('slug',$slug)->first();
-        return view('frontend.team.details',compact('team'));
+        try {
+            if (!Schema::hasTable('vaaga_teams')) {
+                abort(404);
+            }
+            $team = VaagTeam::where('slug',$slug)->first();
+            if (!$team) {
+                abort(404);
+            }
+            return view('frontend.team.details',compact('team'));
+        } catch (\Exception $e) {
+            abort(404);
+        }
     }
    
     /**
@@ -30,16 +48,26 @@ class TeamController extends Controller
      */
     public function index(Request $request )
     {
-        $teams = VaagTeam::orderBy("id","desc");
-        $teams = $teams->paginate(10);
-        
-         $team = VaagTeam::find($request->del);
+        try {
+            // Check if table exists before querying
+            if (!\Schema::hasTable('vaaga_teams')) {
+                return view('backend.team.list', ['teams' => collect([])]);
+            }
+            
+            $teams = VaagTeam::orderBy("id","desc");
+            $teams = $teams->paginate(10);
+            
+            $team = VaagTeam::find($request->del);
             if($team){
                 $team->delete();
                 return redirect()->back()->withFlashSuccess("Team deleted successfully");
             }
-        
-       return view('backend.team.list',compact('teams'));
+            
+            return view('backend.team.list',compact('teams'));
+        } catch (\Exception $e) {
+            // If table doesn't exist or any other error, return empty collection
+            return view('backend.team.list', ['teams' => collect([])]);
+        }
     }
 
     /**
@@ -60,17 +88,22 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-        $this->validate($request,[
-            'name' => 'required|max:450',
+        try {
+            if (!Schema::hasTable('vaaga_teams')) {
+                return redirect()->back()->withFlashDanger("Teams table does not exist. Please run migrations.");
+            }
+            
+            // dd($request->all());
+            $this->validate($request,[
+                'name' => 'required|max:450',
 
-        ],[
-                'name.required' => 'Kindly Enter Team Name',
+            ],[
+                    'name.required' => 'Kindly Enter Team Name',
 
-        ]);
+            ]);
 
 
-        $co = new VaagTeam();
+            $co = new VaagTeam();
         $co->name=$request->name;
         $co->designation=$request->designation;
         $co->facebook=$request->facebook;
@@ -99,9 +132,12 @@ class TeamController extends Controller
 
         }
 
-        $co->save();
+            $co->save();
 
-        return redirect()->route('admin.team.list')->withFlashSuccess("Team added");
+            return redirect()->route('admin.team.list')->withFlashSuccess("Team added");
+        } catch (\Exception $e) {
+            return redirect()->back()->withFlashDanger("Error: " . $e->getMessage());
+        }
     }
 
     /**
@@ -123,11 +159,18 @@ class TeamController extends Controller
      */
     public function edit($id)
     {
-         $team=VaagTeam::find($id);
-        if(!$team){
-            return abort(404);
+        try {
+            if (!Schema::hasTable('vaaga_teams')) {
+                abort(404);
+            }
+            $team=VaagTeam::find($id);
+            if(!$team){
+                return abort(404);
+            }
+            return view('backend.team.edit',compact('team'));
+        } catch (\Exception $e) {
+            abort(404);
         }
-         return view('backend.team.edit',compact('team'));
     }
 
     /**
@@ -139,17 +182,25 @@ class TeamController extends Controller
      */
     public function update(Request $request, $id)
     {
-         // dd($request->all());
-        $this->validate($request,[
-            'name' => 'required|max:450',
+        try {
+            if (!Schema::hasTable('vaaga_teams')) {
+                return redirect()->back()->withFlashDanger("Teams table does not exist. Please run migrations.");
+            }
+            
+            // dd($request->all());
+            $this->validate($request,[
+                'name' => 'required|max:450',
 
-        ],[
-                'name.required' => 'Kindly Enter Team Name',
+            ],[
+                    'name.required' => 'Kindly Enter Team Name',
 
-        ]);
+            ]);
 
 
-        $co = VaagTeam::find($request->id);
+            $co = VaagTeam::find($request->id);
+            if (!$co) {
+                return redirect()->back()->withFlashDanger("Team not found.");
+            }
         $co->name=$request->name;
         $co->designation=$request->designation;
         $co->facebook=$request->facebook;
@@ -178,9 +229,12 @@ class TeamController extends Controller
 
         }
 
-        $co->update();
+            $co->update();
 
-        return redirect()->route('admin.team.list')->withFlashSuccess("Updated successfully");
+            return redirect()->route('admin.team.list')->withFlashSuccess("Updated successfully");
+        } catch (\Exception $e) {
+            return redirect()->back()->withFlashDanger("Error: " . $e->getMessage());
+        }
     }
 
     /**

@@ -36,7 +36,7 @@ Route::group(['middleware' => 'role:teacher|administrator|author'], function () 
     //===== Demo Request Routes =====//
     Route::get('demo-requests-teacher', ['uses' => 'Admin\DemoController@indexTeacher', 'as' => 'demo_requests_teacher']);
 
-    Route::get('update-sort', ['uses' => 'Admin\CategoriesController@updateSort', 'as' => 'update_sort']);
+    Route::get('update-sort', ['uses' => '\App\Http\Controllers\Backend\Admin\CategoriesController@updateSort', 'as' => 'update_sort']);
     Route::get('demo-requests', ['uses' => 'Admin\DemoController@index', 'as' => 'demo_requests']);
     Route::post('demo-requests', ['uses' => 'Admin\DemoController@scheduleDemo', 'as' => 'demo_requests_post']);
     Route::get('get-demo-requests-data', ['uses' => 'Admin\DemoController@getData', 'as' => 'demo_requests.get_data']);
@@ -76,10 +76,10 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
 
     // end enquiry route
-    Route::get('notifications-list', ['uses' => 'NotificationController@index', 'as' => 'notifications']);
-    Route::get('notifications-create', ['uses' => 'NotificationController@create', 'as' => 'create_notification']);
-    Route::post('notifications-create', ['uses' => 'NotificationController@save', 'as' => 'save_notification']);
-    Route::post('notifications-delete', ['uses' => 'NotificationController@destroy', 'as' => 'delete_notification']);
+    Route::get('notifications-list', ['uses' => '\App\Http\Controllers\Backend\NotificationController@index', 'as' => 'notifications']);
+    Route::get('notifications-create', ['uses' => '\App\Http\Controllers\Backend\NotificationController@create', 'as' => 'create_notification']);
+    Route::post('notifications-create', ['uses' => '\App\Http\Controllers\Backend\NotificationController@save', 'as' => 'save_notification']);
+    Route::post('notifications-delete', ['uses' => '\App\Http\Controllers\Backend\NotificationController@destroy', 'as' => 'delete_notification']);
 
     Route::get('trainings-list', ['uses' => 'Admin\TrainingController@index'])->name('trainings');
     Route::post('trainings-list-store', ['uses' => 'Admin\TrainingController@Store'])->name('training-store');
@@ -119,7 +119,7 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
 
 
-    Route::get('payments-stat', ['uses' => 'PaymentController@stats'])->name('teacher_payments_stats');
+    Route::get('payments-stat', ['uses' => '\App\Http\Controllers\Backend\PaymentController@stats'])->name('teacher_payments_stats');
 
 
 
@@ -315,9 +315,9 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
 
     //====== Coupon Routes =====//
-    Route::resource('coupons', 'CouponController');
-    Route::get('coupons/status/{id}', 'CouponController@status')->name('coupons.status', 'id');
-    Route::post('coupons/status', 'CouponController@updateStatus')->name('coupons.status');
+    Route::resource('coupons', '\App\Http\Controllers\Backend\CouponController');
+    Route::get('coupons/status/{id}', '\App\Http\Controllers\Backend\CouponController@status')->name('coupons.status', 'id');
+    Route::post('coupons/status', '\App\Http\Controllers\Backend\CouponController@updateStatus')->name('coupons.status');
 
 
     //==== Remove Locale FIle ====//
@@ -414,14 +414,14 @@ Route::group(['middleware' => 'role:administrator|teacher'], function () {
     Route::get('myclass/fees/{id}', ['uses' => 'Admin\MyclassController@batchFees', 'as' => 'myclass.fees']);
     Route::post('myclass/fees/{id}', ['uses' => 'Admin\MyclassController@batchFeesUpdate', 'as' => 'myclass.updatefees']);
     //====== Wallet  =====//
-    Route::get('payments', ['uses' => 'PaymentController@index', 'as' => 'payments']);
-    Route::get('get-earning-data', ['uses' => 'PaymentController@getEarningData', 'as' => 'payments.get_earning_data']);
-    Route::get('get-withdrawal-data', ['uses' => 'PaymentController@getwithdrawalData', 'as' => 'payments.get_withdrawal_data']);
-    Route::get('payments/withdraw-request', ['uses' => 'PaymentController@createRequest', 'as' => 'payments.withdraw_request']);
-    Route::post('payments/withdraw-store', ['uses' => 'PaymentController@storeRequest', 'as' => 'payments.withdraw_store']);
-    Route::get('payments-requests', ['uses' => 'PaymentController@paymentRequest', 'as' => 'payments.requests']);
-    Route::get('get-payment-request-data', ['uses' => 'PaymentController@getPaymentRequestData', 'as' => 'payments.get_payment_request_data']);
-    Route::post('payments-request-update', ['uses' => 'PaymentController@paymentsRequestUpdate', 'as' => 'payments.payments_request_update']);
+    Route::get('payments', ['uses' => '\App\Http\Controllers\Backend\PaymentController@index', 'as' => 'payments']);
+    Route::get('get-earning-data', ['uses' => '\App\Http\Controllers\Backend\PaymentController@getEarningData', 'as' => 'payments.get_earning_data']);
+    Route::get('get-withdrawal-data', ['uses' => '\App\Http\Controllers\Backend\PaymentController@getwithdrawalData', 'as' => 'payments.get_withdrawal_data']);
+    Route::get('payments/withdraw-request', ['uses' => '\App\Http\Controllers\Backend\PaymentController@createRequest', 'as' => 'payments.withdraw_request']);
+    Route::post('payments/withdraw-store', ['uses' => '\App\Http\Controllers\Backend\PaymentController@storeRequest', 'as' => 'payments.withdraw_store']);
+    Route::get('payments-requests', ['uses' => '\App\Http\Controllers\Backend\PaymentController@paymentRequest', 'as' => 'payments.requests']);
+    Route::get('get-payment-request-data', ['uses' => '\App\Http\Controllers\Backend\PaymentController@getPaymentRequestData', 'as' => 'payments.get_payment_request_data']);
+    Route::post('payments-request-update', ['uses' => '\App\Http\Controllers\Backend\PaymentController@paymentsRequestUpdate', 'as' => 'payments.payments_request_update']);
 
 
     Route::get('menu-manager', ['uses' => 'MenuController@index'])->name('menu-manager');
@@ -434,11 +434,11 @@ Route::get('delete-boards/{id}', ['uses' => 'Admin\BoardsController@delete'])->n
 
 
 //===== Categories Routes =====//
-Route::resource('categories', 'Admin\CategoriesController');
-Route::get('get-categories-data', ['uses' => 'Admin\CategoriesController@getData', 'as' => 'categories.get_data']);
-Route::post('categories_mass_destroy', ['uses' => 'Admin\CategoriesController@massDestroy', 'as' => 'categories.mass_destroy']);
-Route::post('categories_restore/{id}', ['uses' => 'Admin\CategoriesController@restore', 'as' => 'categories.restore']);
-Route::delete('categories_perma_del/{id}', ['uses' => 'Admin\CategoriesController@perma_del', 'as' => 'categories.perma_del']);
+Route::resource('categories', '\App\Http\Controllers\Backend\Admin\CategoriesController');
+Route::get('get-categories-data', ['uses' => '\App\Http\Controllers\Backend\Admin\CategoriesController@getData', 'as' => 'categories.get_data']);
+Route::post('categories_mass_destroy', ['uses' => '\App\Http\Controllers\Backend\Admin\CategoriesController@massDestroy', 'as' => 'categories.mass_destroy']);
+Route::post('categories_restore/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\CategoriesController@restore', 'as' => 'categories.restore']);
+Route::delete('categories_perma_del/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\CategoriesController@perma_del', 'as' => 'categories.perma_del']);
 
 
 //===== Courses Routes =====//
@@ -470,11 +470,11 @@ Route::delete('lessons_perma_del/{id}', ['uses' => 'Admin\LessonsController@perm
 
 
 //===== Questions Routes =====//
-Route::resource('questions', 'Admin\QuestionsController');
-Route::get('get-questions-data', ['uses' => 'Admin\QuestionsController@getData', 'as' => 'questions.get_data']);
-Route::post('questions_mass_destroy', ['uses' => 'Admin\QuestionsController@massDestroy', 'as' => 'questions.mass_destroy']);
-Route::post('questions_restore/{id}', ['uses' => 'Admin\QuestionsController@restore', 'as' => 'questions.restore']);
-Route::delete('questions_perma_del/{id}', ['uses' => 'Admin\QuestionsController@perma_del', 'as' => 'questions.perma_del']);
+Route::resource('questions', '\App\Http\Controllers\Backend\Admin\QuestionsController');
+Route::get('get-questions-data', ['uses' => '\App\Http\Controllers\Backend\Admin\QuestionsController@getData', 'as' => 'questions.get_data']);
+Route::post('questions_mass_destroy', ['uses' => '\App\Http\Controllers\Backend\Admin\QuestionsController@massDestroy', 'as' => 'questions.mass_destroy']);
+Route::post('questions_restore/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\QuestionsController@restore', 'as' => 'questions.restore']);
+Route::delete('questions_perma_del/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\QuestionsController@perma_del', 'as' => 'questions.perma_del']);
 
 
 //===== Questions Options Routes =====//
@@ -517,7 +517,7 @@ Route::group(['middleware' => ['auth', 'password_expires']], function () {
 Route::group(['middleware' => 'role:teacher'], function () {
     //====== Review Routes =====//
     Route::get('/training', ['uses' => 'Admin\TeachersController@teacherTraining', 'as' => 'teacherTraining']);
-    Route::get('notifications-info', ['uses' => 'NotificationController@teacher', 'as' => 'teacher_notifications']);
+    Route::get('notifications-info', ['uses' => '\App\Http\Controllers\Backend\NotificationController@teacher', 'as' => 'teacher_notifications']);
 
     Route::resource('reviews', 'ReviewController');
     Route::get('get-reviews-data', ['uses' => 'ReviewController@getData', 'as' => 'reviews.get_data']);
@@ -585,5 +585,5 @@ Route::get('reasons/status/{id}', 'Admin\ReasonController@status')->name('reason
 Route::post('reasons/status', ['uses' => 'Admin\ReasonController@updateStatus', 'as' => 'reasons.status']);
 
 //==== Home page video Routes ====//
-Route::get('video-link', ['uses' => 'Admin\VideoLinkController@homeVideo'])->name('homeVideo');
-Route::post('update-link', ['uses' => 'Admin\VideoLinkController@updateLink'])->name('updateLink');
+Route::get('video-link', ['uses' => '\App\Http\Controllers\Backend\Admin\VideoLinkController@homeVideo'])->name('homeVideo');
+Route::post('update-link', ['uses' => '\App\Http\Controllers\Backend\Admin\VideoLinkController@updateLink'])->name('updateLink');
