@@ -2,22 +2,17 @@
 
 namespace Yajra\DataTables\Utilities;
 
+use Illuminate\Http\Request as BaseRequest;
+
 /**
- * @method mixed input($key, $default = null)
- * @method mixed get($key, $default = null)
- * @method mixed query($key, $default = null)
- * @method mixed has($key)
- * @method mixed merge(array $values)
- * @method bool wantsJson()
- * @method bool ajax()
- * @method array all()
+ * @mixin \Illuminate\Http\Request
  */
 class Request
 {
     /**
-     * @var \Illuminate\Http\Request
+     * @var BaseRequest
      */
-    protected $request;
+    protected BaseRequest $request;
 
     /**
      * Request constructor.
@@ -28,23 +23,24 @@ class Request
     }
 
     /**
-     * Proxy non existing method calls to request class.
+     * Proxy non-existing method calls to base request class.
      *
-     * @param mixed $name
-     * @param mixed $arguments
+     * @param  string  $name
+     * @param  array  $arguments
      * @return mixed
      */
     public function __call($name, $arguments)
     {
-        if (method_exists($this->request, $name)) {
-            return call_user_func_array([$this->request, $name], $arguments);
+        $callback = [$this->request, $name];
+        if (is_callable($callback)) {
+            return call_user_func_array($callback, $arguments);
         }
     }
 
     /**
      * Get attributes from request instance.
      *
-     * @param string $name
+     * @param  string  $name
      * @return mixed
      */
     public function __get($name)
@@ -57,7 +53,7 @@ class Request
      *
      * @return array
      */
-    public function columns()
+    public function columns(): array
     {
         return (array) $this->request->input('columns');
     }
@@ -67,7 +63,7 @@ class Request
      *
      * @return bool
      */
-    public function isSearchable()
+    public function isSearchable(): bool
     {
         return $this->request->input('search.value') != '';
     }
@@ -75,10 +71,10 @@ class Request
     /**
      * Check if DataTables must uses regular expressions.
      *
-     * @param int $index
+     * @param  int  $index
      * @return bool
      */
-    public function isRegex($index)
+    public function isRegex(int $index): bool
     {
         return $this->request->input("columns.$index.search.regex") === 'true';
     }
@@ -88,16 +84,21 @@ class Request
      *
      * @return array
      */
-    public function orderableColumns()
+    public function orderableColumns(): array
     {
         if (! $this->isOrderable()) {
             return [];
         }
 
         $orderable = [];
-        for ($i = 0, $c = count($this->request->input('order')); $i < $c; $i++) {
-            $order_col = (int) $this->request->input("order.$i.column");
-            $order_dir = strtolower($this->request->input("order.$i.dir")) === 'asc' ? 'asc' : 'desc';
+        for ($i = 0, $c = count((array) $this->request->input('order')); $i < $c; $i++) {
+            /** @var int $order_col */
+            $order_col = $this->request->input("order.$i.column");
+
+            /** @var string $direction */
+            $direction = $this->request->input("order.$i.dir");
+
+            $order_dir = strtolower($direction) === 'asc' ? 'asc' : 'desc';
             if ($this->isColumnOrderable($order_col)) {
                 $orderable[] = ['column' => $order_col, 'direction' => $order_dir];
             }
@@ -111,18 +112,18 @@ class Request
      *
      * @return bool
      */
-    public function isOrderable()
+    public function isOrderable(): bool
     {
-        return $this->request->input('order') && count($this->request->input('order')) > 0;
+        return $this->request->input('order') && count((array) $this->request->input('order')) > 0;
     }
 
     /**
      * Check if a column is orderable.
      *
-     * @param  int $index
+     * @param  int  $index
      * @return bool
      */
-    public function isColumnOrderable($index)
+    public function isColumnOrderable(int $index): bool
     {
         return $this->request->input("columns.$index.orderable", 'true') == 'true';
     }
@@ -135,7 +136,8 @@ class Request
     public function searchableColumnIndex()
     {
         $searchable = [];
-        for ($i = 0, $c = count($this->request->input('columns')); $i < $c; $i++) {
+        $columns = (array) $this->request->input('columns');
+        for ($i = 0, $c = count($columns); $i < $c; $i++) {
             if ($this->isColumnSearchable($i, false)) {
                 $searchable[] = $i;
             }
@@ -147,11 +149,11 @@ class Request
     /**
      * Check if a column is searchable.
      *
-     * @param int $i
-     * @param bool    $column_search
+     * @param  int  $i
+     * @param  bool  $column_search
      * @return bool
      */
-    public function isColumnSearchable($i, $column_search = true)
+    public function isColumnSearchable(int $i, bool $column_search = true): bool
     {
         if ($column_search) {
             return
@@ -172,12 +174,13 @@ class Request
     /**
      * Get column's search value.
      *
-     * @param int $index
+     * @param  int  $index
      * @return string
      */
-    public function columnKeyword($index)
+    public function columnKeyword(int $index): string
     {
-        $keyword = $this->request->input("columns.$index.search.value");
+        /** @var string $keyword */
+        $keyword = $this->request->input("columns.$index.search.value") ?? '';
 
         return $this->prepareKeyword($keyword);
     }
@@ -185,16 +188,16 @@ class Request
     /**
      * Prepare keyword string value.
      *
-     * @param string|array $keyword
+     * @param  float|array|int|string  $keyword
      * @return string
      */
-    protected function prepareKeyword($keyword)
+    protected function prepareKeyword(float|array|int|string $keyword): string
     {
         if (is_array($keyword)) {
             return implode(' ', $keyword);
         }
 
-        return $keyword;
+        return (string) $keyword;
     }
 
     /**
@@ -202,24 +205,26 @@ class Request
      *
      * @return string
      */
-    public function keyword()
+    public function keyword(): string
     {
-        $keyword = $this->request->input('search.value');
+        /** @var string $keyword */
+        $keyword = $this->request->input('search.value') ?? '';
 
         return $this->prepareKeyword($keyword);
     }
 
     /**
-     * Get column identity from input or database.
+     * Get column name by index.
      *
-     * @param int $i
-     * @return string
+     * @param  int  $i
+     * @return string|null
      */
-    public function columnName($i)
+    public function columnName(int $i): ?string
     {
+        /** @var string[] $column */
         $column = $this->request->input("columns.$i");
 
-        return isset($column['name']) && $column['name'] != '' ? $column['name'] : $column['data'];
+        return (isset($column['name']) && $column['name'] != '') ? $column['name'] : $column['data'];
     }
 
     /**
@@ -227,10 +232,54 @@ class Request
      *
      * @return bool
      */
-    public function isPaginationable()
+    public function isPaginationable(): bool
     {
         return ! is_null($this->request->input('start')) &&
             ! is_null($this->request->input('length')) &&
             $this->request->input('length') != -1;
+    }
+
+    /**
+     * @return BaseRequest
+     */
+    public function getBaseRequest(): BaseRequest
+    {
+        return $this->request;
+    }
+
+    /**
+     * Get starting record value.
+     *
+     * @return int
+     */
+    public function start(): int
+    {
+        $start = $this->request->input('start', 0);
+
+        return is_numeric($start) ? intval($start) : 0;
+    }
+
+    /**
+     * Get per page length.
+     *
+     * @return int
+     */
+    public function length(): int
+    {
+        $length = $this->request->input('length', 10);
+
+        return is_numeric($length) ? intval($length) : 10;
+    }
+
+    /**
+     * Get draw request.
+     *
+     * @return int
+     */
+    public function draw(): int
+    {
+        $draw = $this->request->input('draw', 0);
+
+        return is_numeric($draw) ? intval($draw) : 0;
     }
 }

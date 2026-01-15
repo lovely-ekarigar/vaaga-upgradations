@@ -2,8 +2,9 @@
 
 namespace Yajra\DataTables;
 
-use Yajra\DataTables\Utilities\Config;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
+use Yajra\DataTables\Utilities\Config;
 use Yajra\DataTables\Utilities\Request;
 
 class DataTablesServiceProvider extends ServiceProvider
@@ -40,17 +41,21 @@ class DataTablesServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $engines = config('datatables.engines');
+        $engines = (array) config('datatables.engines');
         foreach ($engines as $engine => $class) {
-            $engine = camel_case($engine);
+            $engine = Str::camel($engine);
 
             if (! method_exists(DataTables::class, $engine) && ! DataTables::hasMacro($engine)) {
                 DataTables::macro($engine, function () use ($class) {
-                    if (! call_user_func_array([$class, 'canCreate'], func_get_args())) {
+                    $canCreate = [$class, 'canCreate'];
+                    if (is_callable($canCreate) && ! call_user_func_array($canCreate, func_get_args())) {
                         throw new \InvalidArgumentException();
                     }
 
-                    return call_user_func_array([$class, 'create'], func_get_args());
+                    $create = [$class, 'create'];
+                    if (is_callable($create)) {
+                        return call_user_func_array($create, func_get_args());
+                    }
                 });
             }
         }
@@ -63,7 +68,7 @@ class DataTablesServiceProvider extends ServiceProvider
      */
     protected function setupAssets()
     {
-        $this->mergeConfigFrom($config = __DIR__ . '/config/datatables.php', 'datatables');
+        $this->mergeConfigFrom($config = __DIR__.'/config/datatables.php', 'datatables');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([$config => config_path('datatables.php')], 'datatables');
@@ -77,6 +82,6 @@ class DataTablesServiceProvider extends ServiceProvider
      */
     protected function isLumen()
     {
-        return str_contains($this->app->version(), 'Lumen');
+        return Str::contains($this->app->version(), 'Lumen');
     }
 }
