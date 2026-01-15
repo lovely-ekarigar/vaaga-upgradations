@@ -3,46 +3,27 @@
 namespace Spatie\Html\Elements;
 
 use Spatie\Html\BaseElement;
+use Spatie\Html\Elements\Attributes\Autofocus;
+use Spatie\Html\Elements\Attributes\Name;
+use Spatie\Html\Elements\Attributes\Required;
 
 class File extends BaseElement
 {
+    use Autofocus;
+    use Name;
+    use Required;
+
     protected $tag = 'input';
 
-    const ACCEPT_AUDIO = 'audio/*';
-    const ACCEPT_VIDEO = 'video/*';
-    const ACCEPT_IMAGE = 'image/*';
+    public const ACCEPT_AUDIO = 'audio/*';
+    public const ACCEPT_VIDEO = 'video/*';
+    public const ACCEPT_IMAGE = 'image/*';
 
     public function __construct()
     {
         parent::__construct();
 
         $this->attributes->setAttribute('type', 'file');
-    }
-
-    /**
-     * @param string|null $name
-     *
-     * @return static
-     */
-    public function name($name)
-    {
-        return $this->attribute('name', $name);
-    }
-
-    /**
-     * @return static
-     */
-    public function required()
-    {
-        return $this->attribute('required');
-    }
-
-    /**
-     * @return static
-     */
-    public function autofocus()
-    {
-        return $this->attribute('autofocus');
     }
 
     /**

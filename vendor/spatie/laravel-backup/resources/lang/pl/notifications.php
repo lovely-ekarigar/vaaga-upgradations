@@ -18,7 +18,7 @@ return [
 
     'cleanup_successful_subject' => 'Kopie zapasowe aplikacji :application_name zostały pomyślnie wyczyszczone',
     'cleanup_successful_subject_title' => 'Kopie zapasowe zostały pomyślnie wyczyszczone!',
-    'cleanup_successful_body' => 'Czyszczenie kopii zapasowych aplikacji :application_name na dysku :disk_name zakończone sukcecem.',
+    'cleanup_successful_body' => 'Czyszczenie kopii zapasowych aplikacji :application_name na dysku :disk_name zakończone sukcesem.',
 
     'healthy_backup_found_subject' => 'Kopie zapasowe aplikacji :application_name na dysku :disk_name są poprawne',
     'healthy_backup_found_subject_title' => 'Kopie zapasowe aplikacji :application_name są poprawne',
@@ -32,4 +32,14 @@ return [
     'unhealthy_backup_found_old' => 'Ostatnia kopia zapasowa wykonania dnia :date jest zbyt stara.',
     'unhealthy_backup_found_unknown' => 'Niestety, nie można ustalić dokładnego błędu.',
     'unhealthy_backup_found_full' => 'Kopie zapasowe zajmują zbyt dużo miejsca. Obecne użycie dysku :disk_usage jest większe od ustalonego limitu :disk_limit.',
+
+    'no_backups_info' => 'Nie utworzono jeszcze kopii zapasowych',
+    'application_name' => 'Nazwa aplikacji',
+    'backup_name' => 'Nazwa kopii zapasowej',
+    'disk' => 'Dysk',
+    'newest_backup_size' => 'Najnowszy rozmiar kopii zapasowej',
+    'number_of_backups' => 'Liczba kopii zapasowych',
+    'total_storage_used' => 'Całkowite wykorzystane miejsce',
+    'newest_backup_date' => 'Najnowszy rozmiar kopii zapasowej',
+    'oldest_backup_date' => 'Najstarszy rozmiar kopii zapasowej',
 ];

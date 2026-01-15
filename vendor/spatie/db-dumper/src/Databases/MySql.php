@@ -2,44 +2,43 @@
 
 namespace Spatie\DbDumper\Databases;
 
+use Illuminate\Support\Facades\DB;
 use Spatie\DbDumper\DbDumper;
+use Spatie\DbDumper\Exceptions\CannotSetParameter;
 use Spatie\DbDumper\Exceptions\CannotStartDump;
 use Symfony\Component\Process\Process;
 
 class MySql extends DbDumper
 {
-    /** @var bool */
-    protected $skipComments = true;
+    protected bool $skipSsl = false;
 
-    /** @var bool */
-    protected $useExtendedInserts = true;
+    protected string $sslFlag = '';
 
-    /** @var bool */
-    protected $useSingleTransaction = false;
+    protected bool $skipComments = true;
 
-    /** @var bool */
-    protected $skipLockTables = false;
+    protected bool $useExtendedInserts = true;
 
-    /** @var bool */
-    protected $doNotUseColumnStatistics = false;
+    protected bool $useSingleTransaction = false;
 
-    /** @var bool */
-    protected $useQuick = false;
+    protected bool $skipLockTables = false;
 
-    /** @var string */
-    protected $defaultCharacterSet = '';
+    protected bool $doNotUseColumnStatistics = false;
 
-    /** @var bool */
-    protected $dbNameWasSetAsExtraOption = false;
+    protected bool $useQuick = false;
 
-    /** @var bool */
-    protected $allDatabasesWasSetAsExtraOption = false;
+    protected string $defaultCharacterSet = '';
 
-    /** @var string */
-    protected $setGtidPurged = 'AUTO';
+    protected bool $dbNameWasSetAsExtraOption = false;
 
-    /** @var bool */
-    protected $createTables = true;
+    protected bool $allDatabasesWasSetAsExtraOption = false;
+
+    protected string $setGtidPurged = 'AUTO';
+
+    protected bool $skipAutoIncrement = false;
+
+    protected bool $createTables = true;
+
+    protected bool $includeData = true;
 
     /** @var false|resource */
     private $tempFileHandle;
@@ -49,147 +48,134 @@ class MySql extends DbDumper
         $this->port = 3306;
     }
 
-    /**
-     * @return $this
-     */
-    public function skipComments()
+    public function setSkipSsl(bool $skipSsl = true): self
+    {
+        $this->skipSsl = $skipSsl;
+
+        return $this;
+    }
+
+    public function setSslFlag(string $sslFlag = ''): self
+    {
+        $allowedValues = [
+            'skip-ssl',
+            'ssl-mode=DISABLED',
+            'ssl-mode=PREFERRED',
+        ];
+
+        if (in_array($sslFlag, $allowedValues)) {
+            $this->sslFlag = $sslFlag;
+        }
+
+        return $this;
+    }
+
+    public function skipComments(): self
     {
         $this->skipComments = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function dontSkipComments()
+    public function dontSkipComments(): self
     {
         $this->skipComments = false;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function useExtendedInserts()
+    public function useExtendedInserts(): self
     {
         $this->useExtendedInserts = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function dontUseExtendedInserts()
+    public function dontUseExtendedInserts(): self
     {
         $this->useExtendedInserts = false;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function useSingleTransaction()
+    public function useSingleTransaction(): self
     {
         $this->useSingleTransaction = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function dontUseSingleTransaction()
+    public function dontUseSingleTransaction(): self
     {
         $this->useSingleTransaction = false;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function skipLockTables()
+    public function skipLockTables(): self
     {
         $this->skipLockTables = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function doNotUseColumnStatistics()
+    public function doNotUseColumnStatistics(): self
     {
         $this->doNotUseColumnStatistics = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function dontSkipLockTables()
+    public function dontSkipLockTables(): self
     {
         $this->skipLockTables = false;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function useQuick()
+    public function useQuick(): self
     {
         $this->useQuick = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function dontUseQuick()
+    public function dontUseQuick(): self
     {
         $this->useQuick = false;
 
         return $this;
     }
 
-    /**
-     * @param string $characterSet
-     *
-     * @return $this
-     */
-    public function setDefaultCharacterSet(string $characterSet)
+    public function setDefaultCharacterSet(string $characterSet): self
     {
         $this->defaultCharacterSet = $characterSet;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function setGtidPurged(string $setGtidPurged)
+    public function setGtidPurged(string $setGtidPurged): self
     {
         $this->setGtidPurged = $setGtidPurged;
 
         return $this;
     }
 
-    /**
-     * Dump the contents of the database to the given file.
-     *
-     * @param string $dumpFile
-     *
-     * @throws \Spatie\DbDumper\Exceptions\CannotStartDump
-     * @throws \Spatie\DbDumper\Exceptions\DumpFailed
-     */
-    public function dumpToFile(string $dumpFile)
+    public function skipAutoIncrement(): self
+    {
+        $this->skipAutoIncrement = true;
+
+        return $this;
+    }
+
+    public function dontSkipAutoIncrement(): self
+    {
+        $this->skipAutoIncrement = false;
+
+        return $this;
+    }
+
+    public function dumpToFile(string $dumpFile): void
     {
         $this->guardAgainstIncompleteCredentials();
 
@@ -203,9 +189,9 @@ class MySql extends DbDumper
         $this->checkIfDumpWasSuccessFul($process, $dumpFile);
     }
 
-    public function addExtraOption(string $extraOption)
+    public function addExtraOption(string $extraOption): self
     {
-        if (strpos($extraOption, '--all-databases') !== false) {
+        if (str_contains($extraOption, '--all-databases')) {
             $this->dbNameWasSetAsExtraOption = true;
             $this->allDatabasesWasSetAsExtraOption = true;
         }
@@ -218,24 +204,31 @@ class MySql extends DbDumper
         return parent::addExtraOption($extraOption);
     }
 
-    /**
-     * @return $this
-     */
-    public function doNotCreateTables()
+    public function doNotCreateTables(): self
     {
         $this->createTables = false;
 
         return $this;
     }
 
-    /**
-     * Get the command that should be performed to dump the database.
-     *
-     * @param string $dumpFile
-     * @param string $temporaryCredentialsFile
-     *
-     * @return string
-     */
+    public function doNotDumpData(): self
+    {
+        $this->includeData = false;
+
+        return $this;
+    }
+
+    public function useAppendMode(): self
+    {
+        if ($this->compressor) {
+            throw CannotSetParameter::conflictingParameters('append mode', 'compress');
+        }
+
+        $this->appendMode = true;
+
+        return $this;
+    }
+
     public function getDumpCommand(string $dumpFile, string $temporaryCredentialsFile): string
     {
         $quote = $this->determineQuote();
@@ -244,9 +237,19 @@ class MySql extends DbDumper
             "{$quote}{$this->dumpBinaryPath}mysqldump{$quote}",
             "--defaults-extra-file=\"{$temporaryCredentialsFile}\"",
         ];
+        $finalDumpCommand = $this->getCommonDumpCommand($command);
 
+        return $this->echoToFile($finalDumpCommand, $dumpFile);
+    }
+
+    public function getCommonDumpCommand(array $command): string
+    {
         if (! $this->createTables) {
             $command[] = '--no-create-info';
+        }
+
+        if (! $this->includeData) {
+            $command[] = '--no-data';
         }
 
         if ($this->skipComments) {
@@ -280,7 +283,7 @@ class MySql extends DbDumper
         }
 
         if (! empty($this->defaultCharacterSet)) {
-            $command[] = '--default-character-set='.$this->defaultCharacterSet;
+            $command[] = '--default-character-set=' . $this->defaultCharacterSet;
         }
 
         foreach ($this->extraOptions as $extraOption) {
@@ -288,7 +291,7 @@ class MySql extends DbDumper
         }
 
         if ($this->setGtidPurged !== 'AUTO') {
-            $command[] = '--set-gtid-purged='.$this->setGtidPurged;
+            $command[] = '--set-gtid-purged=' . $this->setGtidPurged;
         }
 
         if (! $this->dbNameWasSetAsExtraOption) {
@@ -304,7 +307,14 @@ class MySql extends DbDumper
             $command[] = $extraOptionAfterDbName;
         }
 
-        return $this->echoToFile(implode(' ', $command), $dumpFile);
+        $finalDumpCommand = implode(' ', $command);
+
+        if ($this->skipAutoIncrement) {
+            $sedCommand = "sed 's/ AUTO_INCREMENT=[0-9]*\b//'";
+            $finalDumpCommand .= " | {$sedCommand}";
+        }
+
+        return $finalDumpCommand;
     }
 
     public function getContentsOfCredentialsFile(): string
@@ -320,10 +330,14 @@ class MySql extends DbDumper
             $contents[] = "host = '{$this->host}'";
         }
 
+        if ($this->skipSsl) {
+            $contents[] = $this->getSSLFlag();
+        }
+
         return implode(PHP_EOL, $contents);
     }
 
-    public function guardAgainstIncompleteCredentials()
+    public function guardAgainstIncompleteCredentials(): void
     {
         foreach (['userName', 'host'] as $requiredProperty) {
             if (strlen($this->$requiredProperty) === 0) {
@@ -353,7 +367,7 @@ class MySql extends DbDumper
     /**
      * @return false|resource
      */
-    public function getTempFileHandle()
+    public function getTempFileHandle(): mixed
     {
         return $this->tempFileHandle;
     }
@@ -364,5 +378,29 @@ class MySql extends DbDumper
     public function setTempFileHandle($tempFileHandle)
     {
         $this->tempFileHandle = $tempFileHandle;
+    }
+
+    /**
+     * Since MySQL 8.0.26, --skip-ssl has been deprecated and replaced with ssl-mode=DISABLED.
+     * Since MySQL 8.4.0, --skip-ssl has been removed.
+     *
+     * https://dev.mysql.com/doc/relnotes/mysql/8.4/en/news-8-4-0.html
+     *
+     * @return string
+     */
+    protected function getSSLFlag(): string
+    {
+        if ($this->sslFlag !== '') {
+            return $this->sslFlag;
+        }
+
+        $sslFlag = 'skip-ssl';
+        $mysqlVersion = DB::selectOne('SELECT VERSION() AS version');
+
+        if (version_compare($mysqlVersion->version, '8.4.0', '>=')) {
+            $sslFlag = 'ssl-mode=DISABLED';
+        }
+
+        return $sslFlag;
     }
 }

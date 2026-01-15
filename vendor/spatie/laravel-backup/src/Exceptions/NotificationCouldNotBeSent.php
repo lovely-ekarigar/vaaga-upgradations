@@ -6,9 +6,9 @@ use Exception;
 
 class NotificationCouldNotBeSent extends Exception
 {
-    public static function noNotifcationClassForEvent($event): self
+    public static function noNotificationClassForEvent($event): self
     {
-        $eventClass = get_class($event);
+        $eventClass = $event::class;
 
         return new static("There is no notification class that can handle event `{$eventClass}`.");
     }

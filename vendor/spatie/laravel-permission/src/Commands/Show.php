@@ -4,8 +4,9 @@ namespace Spatie\Permission\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Contracts\Permission as PermissionContract;
+use Spatie\Permission\Contracts\Role as RoleContract;
+use Symfony\Component\Console\Helper\TableCell;
 
 class Show extends Command
 {
@@ -17,32 +18,60 @@ class Show extends Command
 
     public function handle()
     {
+        $permissionClass = app(PermissionContract::class);
+        $roleClass = app(RoleContract::class);
+        $teamsEnabled = config('permission.teams');
+        $team_key = config('permission.column_names.team_foreign_key');
+
         $style = $this->argument('style') ?? 'default';
         $guard = $this->argument('guard');
 
         if ($guard) {
             $guards = Collection::make([$guard]);
         } else {
-            $guards = Permission::pluck('guard_name')->merge(Role::pluck('guard_name'))->unique();
+            $guards = $permissionClass::pluck('guard_name')->merge($roleClass::pluck('guard_name'))->unique();
         }
 
         foreach ($guards as $guard) {
             $this->info("Guard: $guard");
 
-            $roles = Role::whereGuardName($guard)->orderBy('name')->get()->mapWithKeys(function (Role $role) {
-                return [$role->name => $role->permissions->pluck('name')];
-            });
+            $roles = $roleClass::whereGuardName($guard)
+                ->with('permissions')
+                ->when($teamsEnabled, function ($q) use ($team_key) {
+                    $q->orderBy($team_key);
+                })
+                ->orderBy('name')->get()->mapWithKeys(function ($role) use ($teamsEnabled, $team_key) {
+                    return [$role->name.'_'.($teamsEnabled ? ($role->$team_key ?: '') : '') => [
+                        'permissions' => $role->permissions->pluck('id'),
+                        $team_key => $teamsEnabled ? $role->$team_key : null,
+                    ]];
+                });
 
-            $permissions = Permission::whereGuardName($guard)->orderBy('name')->pluck('name');
+            $permissions = $permissionClass::whereGuardName($guard)->orderBy('name')->pluck('name', 'id');
 
-            $body = $permissions->map(function ($permission) use ($roles) {
-                return $roles->map(function (Collection $role_permissions) use ($permission) {
-                    return $role_permissions->contains($permission) ? ' ✔' : ' ·';
+            $body = $permissions->map(function ($permission, $id) use ($roles) {
+                return $roles->map(function (array $role_data) use ($id) {
+                    return $role_data['permissions']->contains($id) ? ' ✔' : ' ·';
                 })->prepend($permission);
             });
 
+            if ($teamsEnabled) {
+                $teams = $roles->groupBy($team_key)->values()->map(function ($group, $id) {
+                    return new TableCell('Team ID: '.($id ?: 'NULL'), ['colspan' => $group->count()]);
+                });
+            }
+
             $this->table(
-                $roles->keys()->prepend('')->toArray(),
+                array_merge([
+                    isset($teams) ? $teams->prepend(new TableCell(''))->toArray() : [],
+                    $roles->keys()->map(function ($val) {
+                        $name = explode('_', $val);
+                        array_pop($name);
+
+                        return implode('_', $name);
+                    })
+                        ->prepend('')->toArray(),
+                ]),
                 $body->toArray(),
                 $style
             );

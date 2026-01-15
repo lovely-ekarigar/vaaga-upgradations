@@ -3,20 +3,16 @@
 namespace Spatie\Backup\Tasks\Monitor\HealthChecks;
 
 use Spatie\Backup\BackupDestination\Backup;
-use Spatie\Backup\Tasks\Monitor\HealthCheck;
 use Spatie\Backup\BackupDestination\BackupDestination;
+use Spatie\Backup\Tasks\Monitor\HealthCheck;
 
 class MaximumAgeInDays extends HealthCheck
 {
-    /** @var int */
-    protected $days;
+    public function __construct(
+        protected int $days = 1
+    ) {}
 
-    public function __construct($days = 1)
-    {
-        $this->days = $days;
-    }
-
-    public function checkHealth(BackupDestination $backupDestination)
+    public function checkHealth(BackupDestination $backupDestination): void
     {
         $this->failIf(
             $this->hasNoBackups($backupDestination),
@@ -31,17 +27,13 @@ class MaximumAgeInDays extends HealthCheck
         );
     }
 
-    protected function hasNoBackups(BackupDestination $backupDestination)
+    protected function hasNoBackups(BackupDestination $backupDestination): bool
     {
         return $backupDestination->backups()->isEmpty();
     }
 
-    protected function isTooOld(Backup $backup)
+    protected function isTooOld(Backup $backup): bool
     {
-        if (is_null($this->days)) {
-            return false;
-        }
-
         if ($backup->date()->gt(now()->subDays($this->days))) {
             return false;
         }

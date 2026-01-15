@@ -22,13 +22,14 @@
         }
     ],
     "require": {
-        "php": "^7.1",
-        "illuminate/http": "~5.5.0|~5.6.0|~5.7.0|~5.8.0|^6.0",
-        "illuminate/support": "~5.5.0|~5.6.0|~5.7.0|~5.8.0|^6.0"
+        "php": "^8.0",
+        "illuminate/http": "^9.0|^8.0|^10.0",
+        "illuminate/support": "^9.0|^8.0|^10.0"
     },
     "require-dev": {
-        "mockery/mockery": "^1.0",
-        "phpunit/phpunit": "^7.0|^8.0"
+        "mockery/mockery": "^1.3",
+        "orchestra/testbench": "^7.0|^6.23|^8.0",
+        "pestphp/pest": "^1.22"
     },
     "autoload": {
         "psr-4": {
@@ -44,10 +45,13 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "test": "vendor/bin/pest"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "extra": {
         "laravel": {
@@ -58,5 +62,7 @@
                 "Html": "Spatie\\Html\\Facades\\Html"
             }
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

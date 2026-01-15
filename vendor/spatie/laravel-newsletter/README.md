@@ -1,95 +1,65 @@
 # Manage newsletters in Laravel
 [![Latest Version](https://img.shields.io/github/release/spatie/laravel-newsletter.svg?style=flat-square)](https://github.com/spatie/laravel-newsletter/releases)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build Status](https://img.shields.io/travis/spatie/laravel-newsletter/master.svg?style=flat-square)](https://travis-ci.org/spatie/laravel-newsletter)
-[![Quality Score](https://img.shields.io/scrutinizer/g/spatie/laravel-newsletter.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/laravel-newsletter)
-[![StyleCI](https://styleci.io/repos/35035915/shield?branch=master)](https://styleci.io/repos/35035915)
+[![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![run-tests](https://github.com/spatie/laravel-newsletter/actions/workflows/run-tests.yml/badge.svg)](https://github.com/spatie/laravel-newsletter/actions/workflows/run-tests.yml)
+[![PHPStan](https://github.com/spatie/laravel-newsletter/actions/workflows/phpstan.yml/badge.svg)](https://github.com/spatie/laravel-newsletter/actions/workflows/phpstan.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-newsletter.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-newsletter)
 
-This package provides an easy way to integrate MailChimp with Laravel 5. Behind the scenes v3 for the MailChimp API is used. Here are some examples of what you can do with the package:
+This package provides an easy way to integrate subscriptions to email lists of various email services.
 
-> Please note the at the time of this writing the default merge variables in MailChimp are named `FNAME` and `LNAME`. In our examples we use `firstName` and `lastName` for extra readability. Make sure you rename those merge variables at MailChimp in order to make these examples work.
+Currently this package support:
 
-```php
-// at the top of your class
-use Newsletter;
+- [Mailcoach](https://mailcoach.app) (built by us :-))
+- [MailChimp](https://mailchimp.com)
 
-// ...
+## Support us
 
-Newsletter::subscribe('rincewind@discworld.com');
+[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-newsletter.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-newsletter)
 
-Newsletter::unsubscribe('the.luggage@discworld.com');
+We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
 
-//Merge variables can be passed as the second argument
-Newsletter::subscribe('sam.vines@discworld.com', ['firstName'=>'Sam', 'lastName'=>'Vines']);
-
-//Subscribe someone to a specific list by using the third argument:
-Newsletter::subscribe('nanny.ogg@discworld.com', ['firstName'=>'Nanny', 'lastName'=>'Ogg'], 'Name of your list');
-
-//Subscribe someone to a specific list and require them to confirm via email:
-Newsletter::subscribePending('nanny.ogg@discworld.com', ['firstName'=>'Nanny', 'lastName'=>'Ogg'], 'Name of your list');
-
-//Subscribe or update someone
-Newsletter::subscribeOrUpdate('sam.vines@discworld.com', ['firstName'=>'Foo', 'lastName'=>'Bar']);
-
-// Change the email address of an existing subscriber
-Newsletter::updateEmailAddress('rincewind@discworld.com', 'the.luggage@discworld.com');
-
-//Get some member info, returns an array described in the official docs
-Newsletter::getMember('lord.vetinari@discworld.com');
-
-//Get the member activity, returns an array with recent activity for a given user
-Newsletter::getMemberActivity('lord.vetinari@discworld.com');
-
-//Get the members for a given list, optionally filtered by passing a second array of parameters
-Newsletter::getMembers();
-
-//Check if a member is subscribed to a list
-Newsletter::isSubscribed('rincewind@discworld.com');
-
-//Returns a boolean
-Newsletter::hasMember('greebo@discworld.com');
-
-//If you want to do something else, you can get an instance of the underlying API:
-Newsletter::getApi();
-```
-
-Spatie is a webdesign agency in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
+We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
 
 ## Installation
 
-You can install this package via composer using:
+You can install this package via Composer using:
 
 ```bash
 composer require spatie/laravel-newsletter
 ```
 
-The package will automatically register itself.
-
 To publish the config file to `config/newsletter.php` run:
 
 ```bash
-php artisan vendor:publish --provider="Spatie\Newsletter\NewsletterServiceProvider"
+php artisan vendor:publish --tag="newsletter-config"
 ```
 
 This will publish a file `newsletter.php` in your config directory with the following contents:
+
 ```php
 return [
 
     /*
-     * The API key of a MailChimp account. You can find yours at
-     * https://us10.admin.mailchimp.com/account/api-key-popup/.
+     * The driver to use to interact with MailChimp API.
+     * You may use "log" or "null" to prevent calling the
+     * API directly from your environment.
      */
-    'apiKey' => env('MAILCHIMP_APIKEY'),
+    'driver' => env('NEWSLETTER_DRIVER', Spatie\Newsletter\Drivers\MailcoachDriver::class),
+
+    /**
+     * These arguments will be given to the driver.
+     */
+    'driver_arguments' => [
+        'api_key' => env('NEWSLETTER_API_KEY'),
+
+        'endpoint' => env('NEWSLETTER_ENDPOINT'),
+    ],
 
     /*
-     * The listName to use when no listName has been specified in a method.
+     * The list name to use when no list name is specified in a method.
      */
-    'defaultListName' => 'subscribers',
+    'default_list_name' => 'subscribers',
 
-    /*
-     * Here you can define properties of the lists.
-     */
     'lists' => [
 
         /*
@@ -102,34 +72,48 @@ return [
         'subscribers' => [
 
             /*
-             * A MailChimp list id. Check the MailChimp docs if you don't know
-             * how to get this value:
+             * When using the Mailcoach driver, this should be the Email list UUID
+             * which is displayed in the Mailcoach UI
+             *
+             * When using the MailChimp driver, this should be a MailChimp list id.
              * http://kb.mailchimp.com/lists/managing-subscribers/find-your-list-id.
              */
-            'id' => env('MAILCHIMP_LIST_ID'),
+            'id' => env('NEWSLETTER_LIST_ID'),
         ],
     ],
-
-    /*
-     * If you're having trouble with https connections, set this to false.
-     */
-    'ssl' => true,
-
 ];
 ```
 
-## Updating from 3.x to 4.x
+### Using Mailcoach
 
-There is a new name for our config file. We've changed the name from `laravel-newsletter.php` to `newsletter.php`.
+To let this package work with Mailcoach, you need to install the Mailcoach SDK.
 
-If you are upgrading to 4.x, package is looking for the new config file name. In that case, you have to rename the file in your `app\config` folder.
+```bash
+composer require spatie/mailcoach-sdk-php
+```
+
+Next, you must provide values for the API key, endpoint and `list.subscribers.id` in the config file. You'll find the API key and endpoint in the [Mailcoach](https://mailcoach.app) settings screen. The value for `list.subscribers.id` must be the UUID of an email list on Mailcoach. You'll find this value on the settings screen of an email list
+
+### Using MailChimp
+
+To use MailChimp, install this extra package.
+
+```bash
+composer require drewm/mailchimp-api
+```
+
+The `driver` key of the `newsletter` config file must be set to `Spatie\Newsletter\Drivers\MailChimpDriver::class`.
+
+Next, you must provide values for the API key and `list.subscribers.id`. You'll find these values in the MailChimp UI.
+
+The `endpoint` config value must be set to null.
 
 ## Usage
 
 After you've installed the package and filled in the values in the config-file working with this package will be a breeze. All the following examples use the facade. Don't forget to import it at the top of your file.
 
 ```php
-use Newsletter;
+use Spatie\Newsletter\Facades\Newsletter;
 ```
 
 ### Subscribing, updating and unsubscribing
@@ -148,39 +132,52 @@ Let's unsubscribe someone:
 Newsletter::unsubscribe('the.luggage@discworld.com');
 ```
 
-You can pass some merge variables as the second argument:
-```php
-Newsletter::subscribe('rincewind@discworld.com', ['firstName'=>'Rince', 'lastName'=>'Wind']);
-```
-> Please note the at the time of this writing the default merge variables in MailChimp are named `FNAME` and `LNAME`. In our examples we use `firstName` and `lastName` for extra readability.
+For Mailcoach, you can pass extra attributes as the second argument:
 
-You can subscribe someone to a specific list by using the third argument:
 ```php
-Newsletter::subscribe('rincewind@discworld.com', ['firstName'=>'Rince', 'lastName'=>'Wind'], 'subscribers');
+Newsletter::subscribe('rincewind@discworld.com', ['first_name' => 'Rince', 'last_name' => 'Wind']);
 ```
+
+For MailChimp you can pass merge variables as the second argument:
+```php
+Newsletter::subscribe('rincewind@discworld.com', ['FNAME'=>'Rince', 'LNAME'=>'Wind']);
+```
+
+You can subscribe someone to a specific list by passing a list name:
+```php
+Newsletter::subscribe('rincewind@discworld.com', listName: 'subscribers');
+```
+
 That third argument is the name of a list you configured in the config file.
 
 You can also subscribe and/or update someone. The person will be subscribed or updated if he/she is already subscribed:
 
  ```php
- Newsletter::subscribeOrUpdate('rincewind@discworld.com', ['firstName'=>'Foo', 'lastname'=>'Bar']);
+ Newsletter::subscribeOrUpdate('rincewind@discworld.com', ['first_name' => 'Rince', 'last_name' => 'Wind']);
  ```
 
-You can subscribe someone to one or more specific group(s)/interest(s) by using the fourth argument:
+For MailChimp, You can subscribe someone to one or more specific group(s)/interest(s) by using the fourth argument:
 
 ```php
-Newsletter::subscribeOrUpdate('rincewind@dscworld.com', ['firstName'=>'Rince','lastName'=>'Wind'], 'subscribers', ['interests'=>['interestId'=>true, 'interestId'=>true]])
+Newsletter::subscribeOrUpdate(
+   'rincewind@dscworld.com', 
+   ['FNAME'=>'Rince','LNAME'=>'Wind'], 
+   'subscribers', 
+   ['interests'=>['interestId'=>true, 'interestId'=>true]],
+);
 ```
+
 Simply add `false` if you want to remove someone from a group/interest.
 
-You can also unsubscribe someone from a specific list:
+Here's how to unsubscribe someone from a specific list:
+
 ```php
 Newsletter::unsubscribe('rincewind@discworld.com', 'subscribers');
 ```
 
 ### Deleting subscribers
 
-Deleting is not the same as unsubscribing. Unlike unsubscribing, deleting a member will result in the loss of all history (add/opt-in/edits) as well as removing them from the list. In most cases you want to use `unsubscribe` instead of `delete`.
+Deleting is not the same as unsubscribing. Unlike unsubscribing, deleting a member will result in the loss of all history (add/opt-in/edits) as well as removing them from the list. In most cases, you want to use `unsubscribe` instead of `delete`.
 
 Here's how to perform a delete:
 
@@ -195,95 +192,62 @@ You can get information on a subscriber by using the `getMember` function:
 Newsletter::getMember('lord.vetinari@discworld.com');
 ```
 
-This will return an array with information on the subscriber. If there's no one subscribed with that
-e-mail address the function will return `false`
+For MailCoach, this will return an instance of `Spatie\Mailcoach\Resources|Subscriber`
+For MailChimp, this will return an array with information on the subscriber. 
 
-There's also a convenience method to check if someone is already subscribed:
+If there's no one subscribed with that e-mail address the function will return `false`
+
+There's also a convenient method to check if someone is already subscribed:
 
 ```php
 Newsletter::hasMember('nanny.ogg@discworld.com'); //returns a boolean
 ```
 
-In addition to this you can also check if a user is subscribed to your list:
+In addition to this, you can also check if a user is subscribed to your list:
 
 ```php
 Newsletter::isSubscribed('lord.vetinari@discworld.com'); //returns a boolean
 ```
 
-### Creating a campaign
-
-This the signature of `createCampaign`:
-```php
-public function createCampaign(
-    string $fromName,
-    string $replyTo,
-    string $subject,
-    string $html = '',
-    string $listName = '',
-    array $options = [],
-    array $contentOptions = [])
-```
-
-Note the campaign will only be created, no mails will be sent out.
-
-### Handling errors
-
-If something went wrong you can get the last error with:
-```php
-Newsletter::getLastError();
-```
-
-If you just want to make sure if the last action succeeded you can use:
-```php
-Newsletter::lastActionSucceeded(); //returns a boolean
-```
-
 ### Need something else?
 
-If you need more functionality you get an instance of the underlying [MailChimp Api](https://github.com/drewm/mailchimp-api) with:
+If you need more functionality you get an instance of the underlying API with
 
 ```php
 $api = Newsletter::getApi();
 ```
 
+If you're having trouble getting the MailChimp integration, you can see the last error with:
+
+```php
+Newsletter::getApi()->getLastError();
+```
+
 ## Testing
 
 Run the tests with:
+
 ```bash
-vendor/bin/phpunit
+vendor/bin/pest
 ```
 
 ### Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Please see [CONTRIBUTING](https://github.com/spatie/.github/blob/main/CONTRIBUTING.md) for details.
 
 ## Security
 
-If you discover any security related issues, please email [freek@spatie.be](mailto:freek@spatie.be) instead of using the issue tracker.
-
-## Postcardware
-
-You're free to use this package, but if it makes it to your production environment we highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using.
-
-Our address is: Spatie, Samberstraat 69D, 2060 Antwerp, Belgium.
-
-We publish all received postcards [on our company website](https://spatie.be/en/opensource/postcards).
+If you discover any security-related issues, please email [security@spatie.be](mailto:security@spatie.be) instead of using the issue tracker.
 
 ## Credits
 
 - [Freek Van der Herten](https://github.com/freekmurze)
 - [All Contributors](../../contributors)
-
-## Support us
-
-Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
-
-Does your business depend on our contributions? Reach out and support us on [Patreon](https://www.patreon.com/spatie). 
-All pledges will be dedicated to allocating workforce on maintenance and new awesome stuff.
+be dedicated to allocating workforce on maintenance and new awesome stuff.
 
 ## License
 

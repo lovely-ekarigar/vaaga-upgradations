@@ -2,36 +2,39 @@
 
 namespace Spatie\Html;
 
+use BackedEnum;
 use DateTimeImmutable;
-use Illuminate\Support\Str;
-use Spatie\Html\Elements\A;
-use Spatie\Html\Elements\I;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Http\Request;
-use Spatie\Html\Elements\Div;
-use Spatie\Html\Elements\Img;
-use Spatie\Html\Elements\File;
-use Spatie\Html\Elements\Form;
-use Spatie\Html\Elements\Span;
-use Spatie\Html\Elements\Input;
-use Spatie\Html\Elements\Label;
-use Spatie\Html\Elements\Button;
-use Spatie\Html\Elements\Legend;
-use Spatie\Html\Elements\Option;
-use Spatie\Html\Elements\Select;
-use Spatie\Html\Elements\Element;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
-use Spatie\Html\Elements\Fieldset;
-use Spatie\Html\Elements\Textarea;
+use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Contracts\Support\Htmlable;
+use Spatie\Html\Elements\A;
+use Spatie\Html\Elements\Button;
+use Spatie\Html\Elements\Div;
+use Spatie\Html\Elements\Element;
+use Spatie\Html\Elements\Fieldset;
+use Spatie\Html\Elements\File;
+use Spatie\Html\Elements\Form;
+use Spatie\Html\Elements\I;
+use Spatie\Html\Elements\Img;
+use Spatie\Html\Elements\Input;
+use Spatie\Html\Elements\Label;
+use Spatie\Html\Elements\Legend;
+use Spatie\Html\Elements\Option;
+use Spatie\Html\Elements\P;
+use Spatie\Html\Elements\Select;
+use Spatie\Html\Elements\Span;
+use Spatie\Html\Elements\Textarea;
+use UnitEnum;
 
 class Html
 {
     use Macroable;
 
-    const HTML_DATE_FORMAT = 'Y-m-d';
-    const HTML_TIME_FORMAT = 'H:i:s';
+    public const HTML_DATE_FORMAT = 'Y-m-d';
+    public const HTML_TIME_FORMAT = 'H:i:s';
 
     /** @var \Illuminate\Http\Request */
     protected $request;
@@ -66,6 +69,17 @@ class Html
     public function i($contents = null)
     {
         return I::create()
+            ->html($contents);
+    }
+
+    /**
+     * @param \Spatie\Html\HtmlElement|string|null $contents
+     *
+     * @return \Spatie\Html\Elements\P
+     */
+    public function p($contents = null)
+    {
+        return P::create()
             ->html($contents);
     }
 
@@ -117,7 +131,7 @@ class Html
     }
 
     /**
-     * @param \Spatie\Html\HtmlElement|string|null $contents
+     * @param \Spatie\Html\HtmlElement|string|iterable|int|float|null $contents
      *
      * @return \Spatie\Html\Elements\Div
      */
@@ -140,6 +154,17 @@ class Html
     /**
      * @param string|null $name
      * @param string|null $value
+     *
+     * @return \Spatie\Html\Elements\Input
+     */
+    public function search($name = null, $value = null)
+    {
+        return $this->input('search', $name, $value);
+    }
+
+    /**
+     * @param string|null $name
+     * @param string|null $value
      * @param bool $format
      *
      * @return \Spatie\Html\Elements\Input
@@ -153,6 +178,27 @@ class Html
         }
 
         return $element->value($this->formatDateTime($element->getAttribute('value'), self::HTML_DATE_FORMAT));
+    }
+
+    /**
+     * @param string|null $name
+     * @param string|null $value
+     * @param bool $format
+     *
+     * @return \Spatie\Html\Elements\Input
+     */
+    public function datetime($name = '', $value = null, $format = true)
+    {
+        $element = $this->input('datetime-local', $name, $value);
+
+        if (! $format || empty($element->getAttribute('value'))) {
+            return $element;
+        }
+
+        return $element->value($this->formatDateTime(
+            $element->getAttribute('value'),
+            self::HTML_DATE_FORMAT.'\T'.self::HTML_TIME_FORMAT
+        ));
     }
 
     /**
@@ -558,7 +604,9 @@ class Html
         // has a model assigned and there aren't old input items,
         // try to retrieve a value from the model.
         if (is_null($value) && $this->model && empty($this->request->old())) {
-            $value = data_get($this->model, $name) ?? '';
+            $value = ($value = data_get($this->model, $name)) instanceof UnitEnum
+                ? $this->getEnumValue($value)
+                : $value;
         }
 
         return $this->request->old($name, $value);
@@ -613,5 +661,18 @@ class Html
         } catch (\Exception $e) {
             return $value;
         }
+    }
+
+    /**
+     * Get the value from the given enum.
+     *
+     * @param  \UnitEnum|\BackedEnum  $value
+     * @return string|int
+     */
+    protected function getEnumValue($value)
+    {
+        return $value instanceof BackedEnum
+                ? $value->value
+                : $value->name;
     }
 }

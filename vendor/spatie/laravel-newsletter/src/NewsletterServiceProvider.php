@@ -2,34 +2,39 @@
 
 namespace Spatie\Newsletter;
 
-use DrewM\MailChimp\MailChimp;
-use Illuminate\Support\ServiceProvider;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Spatie\Newsletter\Drivers\Driver;
+use Spatie\Newsletter\Drivers\NullDriver;
+use Spatie\Newsletter\Support\Lists;
 
-class NewsletterServiceProvider extends ServiceProvider
+class NewsletterServiceProvider extends PackageServiceProvider
 {
-    protected $defer = false;
-
-    public function boot()
+    public function configurePackage(Package $package): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/newsletter.php', 'newsletter');
-
-        $this->publishes([
-            __DIR__.'/../config/newsletter.php' => config_path('newsletter.php'),
-        ]);
+        $package
+            ->name('laravel-newsletter')
+            ->hasConfigFile();
     }
 
-    public function register()
+    public function bootingPackage()
     {
-        $this->app->singleton(Newsletter::class, function () {
-            $mailChimp = new Mailchimp(config('newsletter.apiKey'));
+        $this->app->singleton('newsletter', function () {
+            /** @var class-string<Driver> $driverClass */
+            $driverClass = config('newsletter.driver');
 
-            $mailChimp->verify_ssl = config('newsletter.ssl', true);
+            if (
+                is_null($driverClass)
+                || $driverClass === 'log'
+                || $driverClass === NullDriver::class
+            ) {
+                return new NullDriver($driverClass === 'log');
+            }
 
-            $configuredLists = NewsletterListCollection::createFromConfig(config('newsletter'));
+            $arguments = config('newsletter.driver_arguments');
+            $lists = Lists::createFromConfig(config('newsletter'));
 
-            return new Newsletter($mailChimp, $configuredLists);
+            return $driverClass::make($arguments, $lists);
         });
-
-        $this->app->alias(Newsletter::class, 'newsletter');
     }
 }

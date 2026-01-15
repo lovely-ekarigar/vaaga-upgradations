@@ -2,13 +2,24 @@
 
 namespace Spatie\Html\Elements;
 
-use Illuminate\Support\Str;
-use Spatie\Html\Selectable;
-use Spatie\Html\BaseElement;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Spatie\Html\BaseElement;
+use Spatie\Html\Elements\Attributes\Autofocus;
+use Spatie\Html\Elements\Attributes\Disabled;
+use Spatie\Html\Elements\Attributes\Name;
+use Spatie\Html\Elements\Attributes\ReadonlyTrait;
+use Spatie\Html\Elements\Attributes\Required;
+use Spatie\Html\Selectable;
 
 class Select extends BaseElement
 {
+    use Autofocus;
+    use Disabled;
+    use Name;
+    use Required;
+    use ReadonlyTrait;
+
     /** @var string */
     protected $tag = 'select';
 
@@ -39,16 +50,6 @@ class Select extends BaseElement
     }
 
     /**
-     * @param string|null $name
-     *
-     * @return static
-     */
-    public function name($name)
-    {
-        return $this->attribute('name', $name);
-    }
-
-    /**
      * @param iterable $options
      *
      * @return static
@@ -56,7 +57,7 @@ class Select extends BaseElement
     public function options($options)
     {
         return $this->addChildren($options, function ($text, $value) {
-            if (is_array($text)) {
+            if (is_array($text) || $text instanceof Collection) {
                 return $this->optgroup($value, $text);
             }
 
@@ -83,8 +84,6 @@ class Select extends BaseElement
                     ->text($text)
                     ->selectedIf($value === $this->value);
             });
-
-        return $this->addChild($optgroup);
     }
 
     /**
@@ -100,14 +99,6 @@ class Select extends BaseElement
                 ->text($text)
                 ->selectedIf(! $this->hasSelection())
         );
-    }
-
-    /**
-     * @return static
-     */
-    public function required()
-    {
-        return $this->attribute('required');
     }
 
     /**

@@ -3,14 +3,14 @@
 namespace Spatie\Html;
 
 use BadMethodCallException;
-use Illuminate\Support\Str;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
-use Spatie\Html\Exceptions\MissingTag;
-use Spatie\Html\Exceptions\InvalidHtml;
+use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use Spatie\Html\Exceptions\InvalidChild;
-use Illuminate\Contracts\Support\Htmlable;
+use Spatie\Html\Exceptions\InvalidHtml;
+use Spatie\Html\Exceptions\MissingTag;
 
 abstract class BaseElement implements Htmlable, HtmlElement
 {
@@ -170,7 +170,7 @@ abstract class BaseElement implements Htmlable, HtmlElement
     }
 
     /**
-     * @param \Spatie\Html\HtmlElement|string|iterable|null $children
+     * @param \Spatie\Html\HtmlElement|string|iterable|int|float|null $children
      * @param callable|null $mapper
      *
      * @return static
@@ -193,7 +193,7 @@ abstract class BaseElement implements Htmlable, HtmlElement
     /**
      * Alias for `addChildren`.
      *
-     * @param \Spatie\Html\HtmlElement|string|iterable|null $children
+     * @param \Spatie\Html\HtmlElement|string|iterable|int|float|null $children
      * @param callable|null $mapper
      *
      * @return static
@@ -206,7 +206,7 @@ abstract class BaseElement implements Htmlable, HtmlElement
     /**
      * Alias for `addChildren`.
      *
-     * @param \Spatie\Html\HtmlElement|string|iterable|null $children
+     * @param \Spatie\Html\HtmlElement|string|iterable|int|float|null $children
      * @param callable|null $mapper
      *
      * @return static
@@ -219,7 +219,7 @@ abstract class BaseElement implements Htmlable, HtmlElement
     /**
      * Alias for `addChildren`.
      *
-     * @param \Spatie\Html\HtmlElement|string|iterable|null $children
+     * @param \Spatie\Html\HtmlElement|string|iterable|int|float|null $children
      * @param callable|null $mapper
      *
      * @return static
@@ -247,7 +247,7 @@ abstract class BaseElement implements Htmlable, HtmlElement
     }
 
     /**
-     * @param \Spatie\Html\HtmlElement|string|iterable|null $children
+     * @param \Spatie\Html\HtmlElement|string|iterable|int|float|null $children
      * @param callable|null $mapper
      *
      * @return static
@@ -266,7 +266,7 @@ abstract class BaseElement implements Htmlable, HtmlElement
     /**
      * Alias for `prependChildren`.
      *
-     * @param \Spatie\Html\HtmlElement|string|iterable|null $children
+     * @param \Spatie\Html\HtmlElement|string|iterable|int|float|null $children
      * @param callable|null $mapper
      *
      * @return static
@@ -348,7 +348,7 @@ abstract class BaseElement implements Htmlable, HtmlElement
     public function open()
     {
         $tag = $this->attributes->isEmpty()
-            ? '<'.$this->tag.'>'
+            ? '<' . $this->tag . '>'
             : "<{$this->tag} {$this->attributes->render()}>";
 
         $children = $this->children->map(function ($child): string {
@@ -360,14 +360,14 @@ abstract class BaseElement implements Htmlable, HtmlElement
                 return '';
             }
 
-            if (is_string($child)) {
+            if (is_string($child) || is_numeric($child)) {
                 return $child;
             }
 
             throw InvalidChild::childMustBeAnHtmlElementOrAString();
         })->implode('');
 
-        return new HtmlString($tag.$children);
+        return new HtmlString($tag . $children);
     }
 
     /**
@@ -388,7 +388,7 @@ abstract class BaseElement implements Htmlable, HtmlElement
     public function render()
     {
         return new HtmlString(
-            $this->open().$this->close()
+            $this->open() . $this->close()
         );
     }
 
@@ -481,9 +481,11 @@ abstract class BaseElement implements Htmlable, HtmlElement
     protected function guardAgainstInvalidChildren(Collection $children)
     {
         foreach ($children as $child) {
-            if ((! $child instanceof HtmlElement) && (! is_string($child)) && (! is_null($child))) {
-                throw InvalidChild::childMustBeAnHtmlElementOrAString();
+            if ($child instanceof HtmlElement || is_null($child) || is_string($child) || is_numeric($child)) {
+                continue;
             }
+
+            throw InvalidChild::childMustBeAnHtmlElementOrAString();
         }
     }
 }

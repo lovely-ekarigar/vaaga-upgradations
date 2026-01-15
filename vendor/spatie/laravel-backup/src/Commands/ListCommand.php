@@ -2,9 +2,10 @@
 
 namespace Spatie\Backup\Commands;
 
-use Spatie\Backup\Helpers\Format;
 use Illuminate\Support\Collection;
 use Spatie\Backup\BackupDestination\Backup;
+use Spatie\Backup\Helpers\Format;
+use Spatie\Backup\Helpers\RightAlignedTableStyle;
 use Spatie\Backup\Tasks\Monitor\BackupDestinationStatus;
 use Spatie\Backup\Tasks\Monitor\BackupDestinationStatusFactory;
 
@@ -16,11 +17,17 @@ class ListCommand extends BaseCommand
     /** @var string */
     protected $description = 'Display a list of all backups.';
 
-    public function handle()
+    public function handle(): int
     {
+        if (config()->has('backup.monitorBackups')) {
+            $this->warn('Warning! Your config file still uses the old monitorBackups key. Update it to monitor_backups.');
+        }
+
         $statuses = BackupDestinationStatusFactory::createForMonitorConfig(config('backup.monitor_backups'));
 
         $this->displayOverview($statuses)->displayFailures($statuses);
+
+        return static::SUCCESS;
     }
 
     protected function displayOverview(Collection $backupDestinationStatuses)
@@ -31,7 +38,10 @@ class ListCommand extends BaseCommand
             return $this->convertToRow($backupDestinationStatus);
         });
 
-        $this->table($headers, $rows);
+        $this->table($headers, $rows, 'default', [
+            4 => new RightAlignedTableStyle,
+            6 => new RightAlignedTableStyle,
+        ]);
 
         return $this;
     }
@@ -88,7 +98,7 @@ class ListCommand extends BaseCommand
         return $this;
     }
 
-    protected function getFormattedBackupDate(Backup $backup = null)
+    protected function getFormattedBackupDate(?Backup $backup = null)
     {
         return is_null($backup)
             ? 'No backups present'

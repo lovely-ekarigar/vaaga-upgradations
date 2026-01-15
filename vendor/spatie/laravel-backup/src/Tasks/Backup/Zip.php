@@ -2,29 +2,29 @@
 
 namespace Spatie\Backup\Tasks\Backup;
 
-use ZipArchive;
 use Illuminate\Support\Str;
 use Spatie\Backup\Helpers\Format;
+use ZipArchive;
 
 class Zip
 {
-    /** @var \ZipArchive */
-    protected $zipFile;
+    protected ZipArchive $zipFile;
 
-    /** @var int */
-    protected $fileCount = 0;
+    protected int $fileCount = 0;
 
-    /** @var string */
-    protected $pathToZip;
+    protected string $pathToZip;
 
     public static function createForManifest(Manifest $manifest, string $pathToZip): self
     {
+        $relativePath = config('backup.backup.source.files.relative_path') ?
+            rtrim(config('backup.backup.source.files.relative_path'), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR : false;
+
         $zip = new static($pathToZip);
 
         $zip->open();
 
         foreach ($manifest->files() as $file) {
-            $zip->add($file, self::determineNameOfFileInZip($file, $pathToZip));
+            $zip->add($file, self::determineNameOfFileInZip($file, $pathToZip, $relativePath));
         }
 
         $zip->close();
@@ -32,14 +32,18 @@ class Zip
         return $zip;
     }
 
-    protected static function determineNameOfFileInZip(string $pathToFile, string $pathToZip)
+    protected static function determineNameOfFileInZip(string $pathToFile, string $pathToZip, string $relativePath)
     {
-        $zipDirectory = pathinfo($pathToZip, PATHINFO_DIRNAME);
+        $fileDirectory = pathinfo($pathToFile, PATHINFO_DIRNAME).DIRECTORY_SEPARATOR;
 
-        $fileDirectory = pathinfo($pathToFile, PATHINFO_DIRNAME);
+        $zipDirectory = pathinfo($pathToZip, PATHINFO_DIRNAME).DIRECTORY_SEPARATOR;
 
         if (Str::startsWith($fileDirectory, $zipDirectory)) {
-            return str_replace($zipDirectory, '', $pathToFile);
+            return substr($pathToFile, strlen($zipDirectory));
+        }
+
+        if ($relativePath && $relativePath != DIRECTORY_SEPARATOR && Str::startsWith($fileDirectory, $relativePath)) {
+            return substr($pathToFile, strlen($relativePath));
         }
 
         return $pathToFile;
@@ -47,7 +51,7 @@ class Zip
 
     public function __construct(string $pathToZip)
     {
-        $this->zipFile = new ZipArchive();
+        $this->zipFile = new ZipArchive;
 
         $this->pathToZip = $pathToZip;
 
@@ -59,7 +63,7 @@ class Zip
         return $this->pathToZip;
     }
 
-    public function size(): int
+    public function size(): float
     {
         if ($this->fileCount === 0) {
             return 0;
@@ -73,23 +77,17 @@ class Zip
         return Format::humanReadableSize($this->size());
     }
 
-    public function open()
+    public function open(): void
     {
         $this->zipFile->open($this->pathToZip, ZipArchive::CREATE);
     }
 
-    public function close()
+    public function close(): void
     {
         $this->zipFile->close();
     }
 
-    /**
-     * @param string|array $files
-     * @param string $nameInZip
-     *
-     * @return \Spatie\Backup\Tasks\Backup\Zip
-     */
-    public function add($files, string $nameInZip = null): self
+    public function add(string|iterable $files, ?string $nameInZip = null): self
     {
         if (is_array($files)) {
             $nameInZip = null;
@@ -99,9 +97,24 @@ class Zip
             $files = [$files];
         }
 
+        $compressionMethod = config('backup.backup.destination.compression_method', null);
+        $compressionLevel = config('backup.backup.destination.compression_level', 9);
+
         foreach ($files as $file) {
-            if (file_exists($file)) {
-                $this->zipFile->addFile($file, ltrim($nameInZip, DIRECTORY_SEPARATOR)).PHP_EOL;
+            if (is_dir($file)) {
+                $this->zipFile->addEmptyDir(ltrim($nameInZip ?: $file, DIRECTORY_SEPARATOR));
+            }
+
+            if (is_file($file)) {
+                $this->zipFile->addFile($file, ltrim($nameInZip, DIRECTORY_SEPARATOR));
+
+                if (is_int($compressionMethod)) {
+                    $this->zipFile->setCompressionName(
+                        ltrim($nameInZip ?: $file, DIRECTORY_SEPARATOR),
+                        $compressionMethod,
+                        $compressionLevel
+                    );
+                }
             }
             $this->fileCount++;
         }

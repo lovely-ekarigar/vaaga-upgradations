@@ -2,12 +2,12 @@
 
 namespace Spatie\Backup\Notifications;
 
-use Spatie\Backup\Events\BackupHasFailed;
-use Illuminate\Notifications\Notification;
-use Spatie\Backup\Events\CleanupHasFailed;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Notifications\Notification;
+use Spatie\Backup\Events\BackupHasFailed;
 use Spatie\Backup\Events\BackupWasSuccessful;
+use Spatie\Backup\Events\CleanupHasFailed;
 use Spatie\Backup\Events\CleanupWasSuccessful;
 use Spatie\Backup\Events\HealthyBackupWasFound;
 use Spatie\Backup\Events\UnhealthyBackupWasFound;
@@ -15,15 +15,11 @@ use Spatie\Backup\Exceptions\NotificationCouldNotBeSent;
 
 class EventHandler
 {
-    /** @var \Illuminate\Contracts\Config\Repository */
-    protected $config;
+    public function __construct(
+        protected Repository $config
+    ) {}
 
-    public function __construct(Repository $config)
-    {
-        $this->config = $config;
-    }
-
-    public function subscribe(Dispatcher $events)
+    public function subscribe(Dispatcher $events): void
     {
         $events->listen($this->allBackupEventClasses(), function ($event) {
             $notifiable = $this->determineNotifiable();
@@ -43,21 +39,17 @@ class EventHandler
 
     protected function determineNotification($event): Notification
     {
-        $eventName = class_basename($event);
+        $lookingForNotificationClass = class_basename($event).'Notification';
 
         $notificationClass = collect($this->config->get('backup.notifications.notifications'))
             ->keys()
-            ->first(function ($notificationClass) use ($eventName) {
-                $notificationName = class_basename($notificationClass);
-
-                return $notificationName === $eventName;
-            });
+            ->first(fn (string $notificationClass) => class_basename($notificationClass) === $lookingForNotificationClass);
 
         if (! $notificationClass) {
-            throw NotificationCouldNotBeSent::noNotifcationClassForEvent($event);
+            throw NotificationCouldNotBeSent::noNotificationClassForEvent($event);
         }
 
-        return app($notificationClass)->setEvent($event);
+        return new $notificationClass($event);
     }
 
     protected function allBackupEventClasses(): array

@@ -3,9 +3,12 @@
 namespace Spatie\Html\Elements;
 
 use Spatie\Html\BaseElement;
+use Spatie\Html\Elements\Attributes\Target;
 
 class Form extends BaseElement
 {
+    use Target;
+
     protected $tag = 'form';
 
     /**
@@ -19,6 +22,17 @@ class Form extends BaseElement
     }
 
     /**
+     * @param string|null $route
+     * @param mixed $params
+     *
+     * @return static
+     */
+    public function route($route, ...$params)
+    {
+        return $this->action(route($route, ...$params));
+    }
+
+    /**
      * @param string|null $method
      *
      * @return static
@@ -29,11 +43,15 @@ class Form extends BaseElement
     }
 
     /**
+     * @param bool $novalidate
+     *
      * @return static
      */
-    public function novalidate()
+    public function novalidate($novalidate = true)
     {
-        return $this->attribute('novalidate');
+        return $novalidate
+            ? $this->attribute('novalidate')
+            : $this->forgetAttribute('novalidate');
     }
 
     /**
