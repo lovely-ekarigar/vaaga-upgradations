@@ -599,9 +599,9 @@ use App\Models\TeacherProfile;
                                             <td>
                                                 {{$item->user->full_name}}
                                             </td>
-                                            <td>{{$item->user->phone}}</td>
+                                            <td>{{$item->user->phone ?? 'N/A'}}</td>
                                             <td>{{$item->user->email}}</td>
-                                            <td>{{getCourseType($item->course_mode)}}</td>
+                                            <td>{{$item->course_mode ? getCourseType($item->course_mode) : 'N/A'}}</td>
                                             <td>{{$item->amount.' '.$appCurrency['symbol']}}</td>
                                             <td>{{$item->created_at->diffforhumans()}}</td>
                                             <td><a class="btn btn-sm btn-primary"
@@ -612,7 +612,7 @@ use App\Models\TeacherProfile;
                                     @endforeach
                                 @else
                                     <tr>
-                                        <td colspan="4">@lang('labels.backend.dashboard.no_data')</td>
+                                        <td colspan="7">@lang('labels.backend.dashboard.no_data')</td>
                                     </tr>
                                 @endif
                                 </tbody>
