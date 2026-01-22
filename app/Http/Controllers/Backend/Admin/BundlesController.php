@@ -116,7 +116,7 @@ class BundlesController extends Controller
                 }
 
                 $view .= view('backend.datatable.'.$type)
-                    ->with(['route' => route('admin.bundles.publish', ['bundle' => $q->id])])->render();
+                    ->with(['route' => route('admin.bundles.publish', ['id' => $q->id])])->render();
                 return $view;
 
             })

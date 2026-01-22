@@ -234,7 +234,7 @@ $cc->save();
                 }
 
                 $view .= view('backend.datatable.'.$type)
-                    ->with(['route' => route('admin.courses.publish', ['course' => $q->id])])->render();
+                    ->with(['route' => route('admin.courses.publish', ['id' => $q->id])])->render();
                 return $view;
 
                 
