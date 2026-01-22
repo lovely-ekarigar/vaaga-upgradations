@@ -29,7 +29,7 @@ use App\Models\TeacherBatch;
                         <div class="col-md-3 col-12">
                             <div class="card text-white bg-dark text-center py-3">
                                 <div class="card-body">
-                                    <h1 class="">{{$total_earnings}}</h1>
+                                    <h1 class="">{{$appCurrency['symbol']}} {{number_format($total_earnings, 2)}}</h1>
                                     <h3 style="font-size: 1rem;">Total Amount</h3>
                                 </div>
                             </div>
@@ -38,7 +38,7 @@ use App\Models\TeacherBatch;
                         <div class="col-md-3 col-12">
                             <div class="card text-white bg-light text-dark text-center py-3">
                                 <div class="card-body">
-                                    <h1 class="">{{$total_withdrawal}}</h1>
+                                    <h1 class="">{{$appCurrency['symbol']}} {{number_format($total_withdrawal, 2)}}</h1>
                                     <h3 style="font-size: 1rem;">Total Withdrawal </h3>
                                 </div>
                             </div>
@@ -46,7 +46,7 @@ use App\Models\TeacherBatch;
                          <div class="col-md-3 col-12">
                             <div class="card text-white bg-light text-dark text-center py-3">
                                 <div class="card-body">
-                                    <h1 class="">{{$total_withdrawal_pending}}</h1>
+                                    <h1 class="">{{$appCurrency['symbol']}} {{number_format($total_withdrawal_pending, 2)}}</h1>
                                     <h3 style="font-size: 1rem;">Pending Withdrawal </h3>
                                 </div>
                             </div>
@@ -55,7 +55,7 @@ use App\Models\TeacherBatch;
                         <div class="col-md-3 col-12">
                             <div class="card text-white bg-light text-dark text-center py-3">
                                 <div class="card-body">
-                                    <h1 class="">{{$total_balance}}</h1>
+                                    <h1 class="">{{$appCurrency['symbol']}} {{number_format($total_balance, 2)}}</h1>
                                     <h3 style="font-size: 1rem;">Balance</h3>
                                 </div>
                             </div>

@@ -588,7 +588,7 @@ Marketing | {{ env('APP_NAME') }}
                         <div class="card-title">
                             <i class="fas fa-bullhorn text-primary"></i>
                             Marketing Campaigns
-                            <span class="badge bg-primary rounded-pill ms-2">{{ count($campaigns) }}</span>
+                            <span class="badge bg-primary rounded-pill ms-2">{{ count($campaigns ?? []) }}</span>
                         </div>
                     </div>
                     <div class="card-body-modern p-0">

@@ -32,7 +32,7 @@
                             <div class="card bg-light text-dark text-center py-3">
                                 <div class="card-body pad0">
 
-                                    <h1 class="">{{number_format($orders->sum('amount') + $subscriptions->sum('amount'),2)}}</h1>
+                                    <h1 class="">{{$appCurrency['symbol']}} {{number_format($orders->sum('amount') + $subscriptions->sum('amount'),2)}}</h1>
                                     <h3>Total Invoice Amount</h3>
                                 </div>
                             </div>
@@ -43,7 +43,7 @@
                          
                             <div class="card bg-light text-dark text-center py-3">
                                 <div class="card-body pad0">
-                                    <h1 class="">{{number_format($orders->sum('gst') + $subscriptions->sum('gst'),2)}}</h1>
+                                    <h1 class="">{{$appCurrency['symbol']}} {{number_format($orders->sum('gst') + $subscriptions->sum('gst'),2)}}</h1>
                                     <h3>Total GST</h3>
                                 </div>
                             </div>
@@ -75,8 +75,8 @@
                             <td></td>
                             <td>{{$order->reference_no}}</td>
                             <td><a href="/user/orders/{{$order->id}}">{{$order->id}}</a></td>
-                            <td>{{$order->amount}}</td>
-                            <td>{{number_format($order->gst,2)}}</td>
+                            <td>{{$appCurrency['symbol']}} {{number_format($order->amount,2)}}</td>
+                            <td>{{$appCurrency['symbol']}} {{number_format($order->gst,2)}}</td>
                             <td>{{date('d M Y',strtotime($order->created_at))}}</td>
                         </tr>
 
@@ -88,8 +88,8 @@
                             <td></td>
                             <td>{{$order->reference_no}}</td>
                             <td><a href="/user/subscription-reports-details/{{$order->order_id}}">{{$order->order_id}}-{{$order->id}}</a></td>
-                            <td>{{$order->amount}}</td>
-                            <td>{{number_format($order->gst,2)}}</td>
+                            <td>{{$appCurrency['symbol']}} {{number_format($order->amount,2)}}</td>
+                            <td>{{$appCurrency['symbol']}} {{number_format($order->gst,2)}}</td>
                             <td>{{date('d M Y',strtotime($order->created_at))}}</td>
                         </tr>
 

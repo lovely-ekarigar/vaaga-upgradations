@@ -14,7 +14,7 @@
                 {!! Form::select('payment_type', $payment_types, old('payment_type'), ['class' => 'form-control select2 js-example-placeholder-multiple']) !!}
                 </div>
                 <div class="col-6 form-group">
-                {!! Form::label('amount',trans('labels.backend.payments.fields.amount').' - Balance: ₹'.$total_balance, ['class' => 'control-label']) !!}
+                {!! Form::label('amount',trans('labels.backend.payments.fields.amount').' - Balance: '.$appCurrency['symbol'].number_format($total_balance, 2), ['class' => 'control-label']) !!}
                 {!! Form::number('amount', old('amount'), ['class' => 'form-control', 'required'=>'required', 'placeholder' => trans('labels.backend.payments.fields.amount'), 'pattern' => "[0-9]", 'min' => '1','id'=>'paid_amount', 'max' => $total_balance, 'step' => '.01']) !!}
                 </div>
             </div>

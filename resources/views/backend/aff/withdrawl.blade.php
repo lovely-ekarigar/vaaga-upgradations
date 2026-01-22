@@ -83,9 +83,9 @@
                                             IFSC: {{$a->user->bank_ifsc}}
                                             
                                         </td>
-                                        <td>{{$a->amount}}</td>
+                                        <td>{{$appCurrency['symbol']}} {{number_format($a->amount,2)}}</td>
                                      
-                                        <td>₹{{$a->user->total_earnings - $a->user->total_withdrawl}}</td>
+                                        <td>{{$appCurrency['symbol']}} {{number_format($a->user->total_earnings - $a->user->total_withdrawl,2)}}</td>
                                            <td>
                                             <form method="post">
                                                 {{csrf_field()}}

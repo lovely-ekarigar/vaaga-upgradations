@@ -14,8 +14,13 @@ class MarketingController extends Controller
         $activeLeads = 0;
         $inactiveLeads = 0;
         $courses = \App\Models\Course::where('published', 1)->get();
+        $campaigns = collect([]);
+        $subjects = collect([]);
+        $grades = collect([]);
+        $skips = collect([]);
+        $lists = collect([]);
         
-        return view('admin.marketing.index-1', compact('totalCampaigns', 'totalLeads', 'activeLeads', 'inactiveLeads', 'courses'));
+        return view('admin.marketing.index-1', compact('totalCampaigns', 'totalLeads', 'activeLeads', 'inactiveLeads', 'courses', 'campaigns', 'subjects', 'grades', 'skips', 'lists'));
     }
 
     public function leads(Request $request)

@@ -379,6 +379,15 @@ Route::group(['middleware' => 'role:administrator'], function () {
     //===== Live Tracking Routes =====//
     Route::get('live-class-tracking', ['uses' => 'Admin\MyclassController@trackLive', 'as' => 'live-class-tracking']);
     Route::get('live-exam-tracking', ['uses' => 'Admin\MyclassController@trackLiveExam', 'as' => 'live-exam-tracking']);
+
+    //===== Route Aliases for Live Site URLs =====//
+    Route::get('questions-bank', ['uses' => 'Admin\QuestionsController@index', 'as' => 'questions-bank.index']);
+    Route::get('test-series', ['uses' => 'Admin\TestsController@index', 'as' => 'test-series.index']);
+    Route::get('purchase/test-series', ['uses' => 'Admin\PurchaseController@index', 'as' => 'purchase.test-series']);
+    Route::get('question/report', ['uses' => 'Admin\QuestionReportController@index', 'as' => 'question.report']);
+    Route::get('track/batch', ['uses' => 'Admin\MyclassController@trackLive', 'as' => 'track.batch']);
+    Route::get('track/exam', ['uses' => 'Admin\MyclassController@trackLiveExam', 'as' => 'track.exam']);
+    Route::get('demo-batch', ['uses' => 'Admin\BatchController@demoBatch', 'as' => 'demo-batch.index']);
 });
 
 

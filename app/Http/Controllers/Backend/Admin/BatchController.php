@@ -535,6 +535,23 @@ $teacher = User::find($request->teachersid);
 
 }
 
+    public function demoBatch()
+    {
+        if(!auth()->user()->isAdmin()){ 
+            return abort(403);
+        } 
+        // Get batches - for demo batch listing
+        $batches = Batch::orderBy("id","desc")->get();
+
+        $list=array();
+        foreach($batches as $b){
+            $b["course"]=Course::where("id",$b->cid)->first();
+            $list[]=$b;
+        }
+       
+        return view('backend.batch.index', compact('list'));
+    }
+
 
 }
 

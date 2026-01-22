@@ -95,7 +95,7 @@ use App\Models\TeacherProfile;
                                                     @endforeach
                                                 </td>
                                                 <td>
-                                                    {{$item->amount}}
+                                                    {{$appCurrency['symbol']}} {{number_format($item->amount, 2)}}
                                                 </td>
                                                 <td>
                                                     @if($item->status == 0)
@@ -521,7 +521,7 @@ use App\Models\TeacherProfile;
                             <a href="/user/report/sales" style="text-decoration: none;">
                             <div class="card text-white bg-warning text-center py-3">
                                 <div class="card-body">
-                                    <h1 class="">{{$course_purchased_count->sum('amount')+$course_subs_purchased_count->sum('amount')}}</h1>
+                                    <h1 class="">{{$appCurrency['symbol']}} {{number_format($course_purchased_count->sum('amount')+$course_subs_purchased_count->sum('amount'), 2)}}</h1>
                                     <h3>Total Earning</h3>
                                 </div>
                             </div>
@@ -531,7 +531,7 @@ use App\Models\TeacherProfile;
                             <a href="/user/payments-stat" style="text-decoration: none;">
                             <div class="card text-white bg-danger text-center py-3">
                                 <div class="card-body">
-                                    <h1 class="">{{$balance}}</h1>
+                                    <h1 class="">{{$appCurrency['symbol']}} {{number_format($balance, 2)}}</h1>
                                     <h3>Tutor Balance</h3>
                                 </div>
                             </div>
@@ -555,7 +555,7 @@ use App\Models\TeacherProfile;
                                     $total_amount = $course_purchased_count->sum('amount');
                                     $amount_paid = $teacher_payment_count->sum('amount');
                                     @endphp
-                                    <h1 class="">{{$total_amount - $amount_paid}}</h1>
+                                    <h1 class="">{{$appCurrency['symbol']}} {{number_format($total_amount - $amount_paid, 2)}}</h1>
                                     <h3>Total Due</h3>
                                 </div>
                             </div>

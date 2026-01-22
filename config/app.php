@@ -145,6 +145,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Currency
+    |--------------------------------------------------------------------------
+    |
+    | This value is the default currency code that will be used throughout
+    | the application for displaying prices and amounts.
+    |
+    */
+
+    'currency' => env('APP_CURRENCY', 'INR'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |
