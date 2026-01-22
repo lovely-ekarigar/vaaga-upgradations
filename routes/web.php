@@ -147,7 +147,7 @@ Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
  * Backend Routes
  * Namespaces indicate folder structure
  */
-Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => 'auth'], function () {
+Route::group(['namespace' => 'App\Http\Controllers\Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => 'auth'], function () {
     /*
      * These routes need view-backend permission
      * (good if you want to allow more than one group in the backend,
@@ -159,7 +159,7 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'm
     include_route_files(__DIR__ . '/backend/');
 });
 
-Route::group(['namespace' => 'Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => 'auth'], function () {
+Route::group(['namespace' => 'App\Http\Controllers\Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => 'auth'], function () {
 
 //==== Messages Routes =====//
     Route::get('messages', [MessagesController::class, 'index'])->name('messages');

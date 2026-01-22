@@ -14,7 +14,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Cart;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\URL;
@@ -341,13 +340,13 @@ class CartController extends Controller
         return redirect()->route('courses.all');
     }
 
-    public function getPaymentStatus()
+    public function getPaymentStatus(Request $request)
     {
         /** Get the payment ID before session clear **/
         $payment_id = Session::get('paypal_payment_id');
         /** clear the session payment ID **/
         Session::forget('paypal_payment_id');
-        if (empty(Input::get('PayerID')) || empty(Input::get('token'))) {
+        if (empty($request->get('PayerID')) || empty($request->get('token'))) {
             \Session::put('failure', trans('labels.frontend.cart.payment_failed'));
             return Redirect::route('status');
         }
@@ -356,7 +355,7 @@ class CartController extends Controller
         $order->payment_type = 2;
         $order->save();
         $execution = new PaymentExecution();
-        $execution->setPayerId(Input::get('PayerID'));
+        $execution->setPayerId($request->get('PayerID'));
         /**Execute the payment **/
         $result = $payment->execute($execution, $this->_api_context);
         if ($result->getState() == 'approved') {

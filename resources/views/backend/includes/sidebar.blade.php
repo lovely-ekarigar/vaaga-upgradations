@@ -832,18 +832,20 @@ use App\Models\UserNotification;
                     </a> -->
 
                     <ul class="nav-dropdown-items">
-                        <!-- <li class="nav-item">
+                        {{-- Log Viewer links removed: route log-viewer::dashboard not defined (package not in use)
+                        <li class="nav-item">
                             <a class="nav-link {{ active_class(Active::checkUriPattern('admin/log-viewer')) }}"
                                href="{{ route('log-viewer::dashboard') }}">
                                 @lang('menus.backend.log-viewer.dashboard')
                             </a>
-                        </li> -->
-                        <!--<li class="nav-item">
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ active_class(Active::checkUriPattern('admin/log-viewer/logs*')) }}"
                                href="{{ route('log-viewer::logs.list') }}">
                                 @lang('menus.backend.log-viewer.logs')
                             </a>
-                        </li>-->
+                        </li>
+                        --}}
                     </ul>
                 </li>
 

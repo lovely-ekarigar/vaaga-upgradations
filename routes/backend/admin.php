@@ -8,6 +8,7 @@ use \App\Http\Controllers\Backend\Auth\User\VideoLinkController;
 use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\Backend\StudentController;
 
+use App\Http\Controllers\Backend\Admin\DemoController;
 use App\Http\Controllers\Backend\Admin\NoteController;
 use App\Http\Controllers\Backend\Admin\TeamController;
 use App\Http\Controllers\Backend\Admin\NoteCategoryController;
@@ -34,15 +35,15 @@ Route::group(['middleware' => 'role:teacher|administrator|author'], function () 
     Route::resource('orders', '\App\Http\Controllers\Backend\Admin\OrderController');
 
     //===== Demo Request Routes =====//
-    Route::get('demo-requests-teacher', ['uses' => 'Admin\DemoController@indexTeacher', 'as' => 'demo_requests_teacher']);
+    Route::get('demo-requests-teacher', [DemoController::class, 'indexTeacher'])->name('demo_requests_teacher');
 
     Route::get('update-sort', ['uses' => 'Admin\CategoriesController@updateSort', 'as' => 'update_sort']);
-    Route::get('demo-requests', ['uses' => 'Admin\DemoController@index', 'as' => 'demo_requests']);
-    Route::post('demo-requests', ['uses' => 'Admin\DemoController@scheduleDemo', 'as' => 'demo_requests_post']);
-    Route::get('get-demo-requests-data', ['uses' => 'Admin\DemoController@getData', 'as' => 'demo_requests.get_data']);
-    Route::get('get-demo-requests-data-teacher', ['uses' => 'Admin\DemoController@getDataTeacher', 'as' => 'demo_requests.get_data_teacher']);
+    Route::get('demo-requests', [DemoController::class, 'index'])->name('demo_requests');
+    Route::post('demo-requests', [DemoController::class, 'scheduleDemo'])->name('demo_requests_post');
+    Route::get('get-demo-requests-data', [DemoController::class, 'getData'])->name('demo_requests.get_data');
+    Route::get('get-demo-requests-data-teacher', [DemoController::class, 'getDataTeacher'])->name('demo_requests.get_data_teacher');
 
-    Route::post('demo-requests/status-update', ['uses' => 'Admin\DemoController@statusUpdate', 'as' => 'demo_requests_status_update']);
+    Route::post('demo-requests/status-update', [DemoController::class, 'statusUpdate'])->name('demo_requests_status_update');
 
     Route::get('teacher-course-list', ['uses' => 'Admin\TeachersController@teachercourseList'])->name('teacher-course-list');
     Route::get('teacher-student-list', ['uses' => 'Admin\TeachersController@teacherstudentList'])->name('teacher-student-list');
@@ -86,9 +87,9 @@ Route::group(['middleware' => 'role:administrator'], function () {
     Route::get('trainings-list-delete/{id}', ['uses' => 'Admin\TrainingController@delete'])->name('training-delete');
 
 
-    Route::get('demo-history/{id}', ['uses' => 'Admin\DemoController@demoHistory', 'as' => 'demo_history']);
-    Route::get('demo-feedback-list/{id}', ['uses' => 'Admin\DemoController@demoFeedback', 'as' => 'demo_feedback_list']);
-    Route::post('demo-feedback-list/{id}', ['uses' => 'Admin\DemoController@senddemoEmail', 'as' => 'demo_feedback_list']);
+    Route::get('demo-history/{id}', [DemoController::class, 'demoHistory'])->name('demo_history');
+    Route::get('demo-feedback-list/{id}', [DemoController::class, 'demoFeedback'])->name('demo_feedback_list');
+    Route::post('demo-feedback-list/{id}', [DemoController::class, 'senddemoEmail'])->name('demo_feedback_list');
 
     //===== Teachers Routes =====//
     Route::resource('teachers', 'Admin\TeachersController');

@@ -86,6 +86,21 @@ if (!function_exists('home_route')) {
     }
 }
 
+if (!function_exists('active_class')) {
+    /**
+     * Get the active class for an element if the condition is met.
+     * Used for sidebar/ nav active states.
+     *
+     * @param bool $condition
+     * @param string $activeClass
+     * @return string
+     */
+    function active_class($condition, $activeClass = 'active')
+    {
+        return $condition ? $activeClass : '';
+    }
+}
+
 if (!function_exists('style')) {
 
     /**
