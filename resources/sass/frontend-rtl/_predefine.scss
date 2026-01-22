@@ -44,7 +44,8 @@ div#preloader {
 	height: 100%;
 	overflow: visible;
 	background-color: #fff;
-	background: #fff url('../img/preloader.gif') no-repeat center center;
+	background: #fff;
+	/* background: #fff url('../img/preloader.gif') no-repeat center center; */
 }
 a {
 	text-decoration:none;
@@ -192,7 +193,15 @@ h1,h2,h3,h4,h5,h6 {
 			text-shadow: 15px 0 $base-color-2;
 		}
 		&:after {
-			@extend .subtitle:before;
+			content: ".";
+			font-size: 70px;
+			pointer-events: none;
+			position: absolute;
+			text-shadow: rgba(0, 0, 0, 0) 0px 0px;
+			top: -10px;
+			line-height: 0;
+			color: $base-color-2;
+			text-shadow: 15px 0 $base-color-2;
 			right: -28px;
 			left: inherit
 		}
@@ -243,7 +252,8 @@ h1,h2,h3,h4,h5,h6 {
 	}
 }
 .breadcrumb-section {
-	background-image: url(../img/banner/brt-1.jpg);
+	/* background-image: url(../img/banner/brt-1.jpg); */
+	background-color: #f5f5f5;
 	padding-bottom: 355px;
 	.blakish-overlay {
 		opacity: 1;
