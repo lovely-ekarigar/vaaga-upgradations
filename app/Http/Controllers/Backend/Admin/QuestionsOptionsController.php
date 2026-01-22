@@ -25,7 +25,10 @@ class QuestionsOptionsController extends Controller
             return abort(401);
         }
 
-        return view('backend.questions_options.index', compact('questions_options'));
+        // Get questions for dropdown if needed
+        $questions = Question::get()->pluck('question', 'id')->prepend('Please select', '');
+
+        return view('backend.questions_options.index', compact('questions'));
     }
 
     /**
@@ -38,14 +41,22 @@ class QuestionsOptionsController extends Controller
         $has_view = false;
         $has_delete = false;
         $has_edit = false;
+        
+        $query = QuestionsOption::query()->with('question');
+        
         if ($request->show_deleted == 1) {
             if (!Gate::allows('questions_option_delete')) {
                 return abort(401);
             }
-            $questions_options = QuestionsOption::query()->with('question')->onlyTrashed()->get();
-        } else {
-            $questions_options = QuestionsOption::query()->with('question')->get();
+            $query = $query->onlyTrashed();
         }
+        
+        // Filter by question_id if provided
+        if ($request->has('question_id') && $request->question_id != '') {
+            $query = $query->where('question_id', $request->question_id);
+        }
+        
+        $questions_options = $query->get();
 
         if (auth()->user()->can('questions_option_view')) {
             $has_view = true;

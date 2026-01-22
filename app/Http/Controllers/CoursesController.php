@@ -1420,18 +1420,49 @@ return redirect('/thank-you');
         if($order){
             
             if($order->payment_method=='razorpay'){
-             $rzp_id=   $this->createRzpOrder("order_".$order->id,$order->amount);
-             $order->order_id=$rzp_id;
-             $order->update();
+                try {
+                    $rzp_id = $this->createRzpOrder("order_".$order->id,$order->amount);
+                    $order->order_id=$rzp_id;
+                    $order->update();
+                } catch (\Exception $e) {
+                    \Log::error('Razorpay Order Creation Failed', [
+                        'order_id' => $order->id,
+                        'reference_no' => $ref_id,
+                        'error' => $e->getMessage()
+                    ]);
+                    return redirect()->back()->with('error', 'Payment gateway error: ' . $e->getMessage());
+                }
             }
         }
         
         
     }else{
         $order = Subscription::where("reference_no",$ref_id)->where("status","0")->first();
-        $rzp_id=   $this->createRzpOrder("sub_".$order->id,$order->amount);
-             $order->order_id=$rzp_id;
-             $order->update();
+        if($order){
+            // Get payment_method from parent Order if Subscription doesn't have it
+            $parentOrder = null;
+            if($order->order_id){
+                $parentOrder = Order::find($order->order_id);
+            }
+            $paymentMethod = $order->payment_method ?? ($parentOrder ? $parentOrder->payment_method : null);
+            
+            if($paymentMethod == 'razorpay'){
+                try {
+                    $rzp_id = $this->createRzpOrder("sub_".$order->id,$order->amount);
+                    // Store Razorpay order ID - use a different column if order_id is foreign key
+                    // For now, assuming order_id can store Razorpay ID for subscriptions
+                    $order->order_id = $rzp_id;
+                    $order->update();
+                } catch (\Exception $e) {
+                    \Log::error('Razorpay Subscription Order Creation Failed', [
+                        'subscription_id' => $order->id,
+                        'reference_no' => $ref_id,
+                        'error' => $e->getMessage()
+                    ]);
+                    return redirect()->back()->with('error', 'Payment gateway error: ' . $e->getMessage());
+                }
+            }
+        }
     }
         if(!$order){
 
@@ -1442,41 +1473,98 @@ return redirect('/thank-you');
         // dd($order);
 
 // 
- if($order->payment_method=='razorpay'){
-return view('rzp', compact('order','payfor'));
-}else{
-  return view('paynow', compact('order','payfor'));  
-}
+ if($order){
+     // Handle both Order and Subscription objects
+     $paymentMethod = null;
+     if($order instanceof \App\Models\Order){
+         $paymentMethod = $order->payment_method;
+     } else if($order instanceof \App\Models\Subscription){
+         $paymentMethod = $order->payment_method ?? null;
+         if(!$paymentMethod && $order->order_id){
+             $parentOrder = \App\Models\Order::find($order->order_id);
+             $paymentMethod = $parentOrder ? $parentOrder->payment_method : null;
+         }
+     }
+     
+     if($paymentMethod == 'razorpay'){
+         return view('rzp', compact('order','payfor'));
+     }else{
+         return view('paynow', compact('order','payfor'));  
+     }
+ }
+ 
+ return redirect("/")->with('error', 'Order not found');
     }
     
     
     
     public function createRzpOrder($rep,$amount){
+        // Check if Razorpay credentials are configured
+        if (empty(env('RZP_KEY')) || empty(env('RZP_SECRET'))) {
+            \Log::error('Razorpay credentials not configured');
+            throw new \Exception('Payment gateway configuration error. Please contact support.');
+        }
+
         $ch = curl_init();
-$data=array(
-    "amount"=>$amount*100,
-    "currency"=>"INR",
-    "receipt"=>$rep
-    );
-curl_setopt($ch, CURLOPT_URL, 'https://api.razorpay.com/v1/orders');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-curl_setopt($ch, CURLOPT_USERPWD, env('RZP_KEY') . ':' . env('RZP_SECRET'));
+        $data = array(
+            "amount" => $amount * 100,
+            "currency" => "INR",
+            "receipt" => $rep
+        );
+        curl_setopt($ch, CURLOPT_URL, 'https://api.razorpay.com/v1/orders');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_USERPWD, env('RZP_KEY') . ':' . env('RZP_SECRET'));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
-$headers = array();
-$headers[] = 'Content-Type: application/json';
-curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-$result = curl_exec($ch);
-if (curl_errno($ch)) {
-    echo 'Error:' . curl_error($ch);
-}
-curl_close($ch);
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        $curlErrno = curl_errno($ch);
+        
+        curl_close($ch);
 
-$rd = json_decode($result,true);
+        // Check for cURL errors
+        if ($curlErrno) {
+            \Log::error('Razorpay cURL Error: ' . $curlError, ['errno' => $curlErrno, 'receipt' => $rep, 'amount' => $amount]);
+            throw new \Exception('Payment gateway connection error. Please try again later.');
+        }
 
-return $rd["id"];
+        // Check HTTP response code
+        if ($httpCode !== 200) {
+            \Log::error('Razorpay API Error: HTTP ' . $httpCode, ['response' => $result, 'receipt' => $rep, 'amount' => $amount]);
+            throw new \Exception('Payment gateway error. Please try again or contact support.');
+        }
+
+        // Decode JSON response
+        $rd = json_decode($result, true);
+        
+        // Check if JSON decode was successful
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            \Log::error('Razorpay JSON Decode Error: ' . json_last_error_msg(), ['response' => $result, 'receipt' => $rep]);
+            throw new \Exception('Invalid response from payment gateway. Please try again.');
+        }
+
+        // Check if response has error
+        if (isset($rd['error'])) {
+            $errorMsg = $rd['error']['description'] ?? $rd['error']['code'] ?? 'Unknown error';
+            \Log::error('Razorpay API Error Response', ['error' => $rd['error'], 'receipt' => $rep, 'amount' => $amount]);
+            throw new \Exception('Payment gateway error: ' . $errorMsg);
+        }
+
+        // Check if 'id' key exists
+        if (!isset($rd['id']) || empty($rd['id'])) {
+            \Log::error('Razorpay Response Missing ID', ['response' => $rd, 'receipt' => $rep, 'amount' => $amount]);
+            throw new \Exception('Invalid response from payment gateway. Order ID not received.');
+        }
+
+        return $rd['id'];
     }
     
 

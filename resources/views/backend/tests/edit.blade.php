@@ -39,18 +39,24 @@ use App\Models\Course;
                     <!-- {!! Form::select('course_id', $courses, old('course_id'), ['class' => 'form-control select2']) !!} -->
 
 
-                     <select class="form-control js-example-placeholder-single select2" id="course_id" name="course_id">
+                     <select class="form-control js-example-placeholder-single select2" id="course_id" name="course_id" required>
+                        <option value="">Please select</option>
                         @foreach($courses as $k=>$c)
                         <option value="{{$k}}" @if($test->course_id==$k) selected @endif>
-
                              <?php 
-
-                     $crs = new Course();
-                     echo $crs->getCouseNameWithCat($k);
-                     ?>
-
+                                $course = Course::find($k);
+                                if($course) {
+                                    // Show course title first, then category info if available
+                                    $displayText = $course->title;
+                                    if($course->category) {
+                                        $displayText = $course->category->name . ' - ' . $course->title;
+                                    }
+                                    echo htmlspecialchars($displayText, ENT_QUOTES, 'UTF-8');
+                                } else {
+                                    echo 'N/A';
+                                }
+                             ?>
                         </option>
-
                         @endforeach
                     </select>
 

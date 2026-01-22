@@ -277,6 +277,41 @@ use App\Models\UserNotification;
                         <span class="title">Training</span>
                     </a>
                 </li>
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(2) == 'marketing' ? 'active' : '' }}"
+                        href="{{ route('admin.marketing.index') }}">
+                        <i class="nav-icon icon-bulb"></i>
+                        <span class="title">Marketing</span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(2) == 'purchase-list' || $request->segment(2) == 'purchase' ? 'active' : '' }}"
+                        href="{{ route('admin.purchase.index') }}">
+                        <i class="nav-icon icon-bag"></i>
+                        <span class="title">Purchase List</span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(2) == 'question-reports' || $request->segment(2) == 'reports' ? 'active' : '' }}"
+                        href="{{ route('admin.question-reports.index') }}">
+                        <i class="nav-icon icon-doc"></i>
+                        <span class="title">Question Report</span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(2) == 'live-class-tracking' || $request->segment(2) == 'tracklive' ? 'active' : '' }}"
+                        href="{{ route('admin.live-class-tracking') }}">
+                        <i class="nav-icon icon-screen-desktop"></i>
+                        <span class="title">Live Class Tracking</span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link {{ $request->segment(2) == 'live-exam-tracking' || $request->segment(2) == 'trackliveexam' ? 'active' : '' }}"
+                        href="{{ route('admin.live-exam-tracking') }}">
+                        <i class="nav-icon icon-screen-desktop"></i>
+                        <span class="title">Live Exam Tracking</span>
+                    </a>
+                </li>
             @endif
             <!--  @if ($logged_in_user->isAdmin())
 <li class="nav-item ">
@@ -504,7 +539,7 @@ use App\Models\UserNotification;
 
             @if ($logged_in_user->isAdmin() || $logged_in_user->hasRole('teacher'))
                 <li
-                    class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('user/tests*', 'user/questions*'), 'open') }}">
+                    class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('user/tests*', 'user/questions*', 'user/questions_options*'), 'open') }}">
                     <a class="nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/log-viewer*')) }}"
                         href="#">
                         <i class="nav-icon icon-list"></i> Exam
@@ -521,6 +556,12 @@ use App\Models\UserNotification;
                             <a class="nav-link {{ $request->segment(2) == 'questions' ? 'active' : '' }}"
                                 href="{{ route('admin.questions.index') }}">
                                 <span class="title">@lang('menus.backend.sidebar.questions.title')</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $request->segment(2) == 'questions_options' ? 'active' : '' }}"
+                                href="{{ route('admin.questions_options.index') }}">
+                                <span class="title">@lang('menus.backend.sidebar.questions-options.title')</span>
                             </a>
                         </li>
                     </ul>

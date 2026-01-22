@@ -359,6 +359,26 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
     Route::post('translations/locales/add', 'LangController@postAddLocale');
     Route::post('translations/locales/remove', 'LangController@postRemoveLocaleFolder')->name('delete-locale-folder');
+
+    //===== Marketing Routes =====//
+    Route::get('marketing', ['uses' => 'Admin\MarketingController@index', 'as' => 'marketing.index']);
+    Route::get('marketing/leads', ['uses' => 'Admin\MarketingController@leads', 'as' => 'marketing.leads']);
+    Route::get('marketing/list', ['uses' => 'Admin\MarketingController@list', 'as' => 'marketing.list']);
+    Route::post('marketing/store-lead', ['uses' => 'Admin\MarketingController@storeLead', 'as' => 'marketing.store-lead']);
+    Route::post('marketing/store-campaign', ['uses' => 'Admin\MarketingController@storeCampaign', 'as' => 'marketing.store-campaign']);
+    Route::post('marketing/import-leads', ['uses' => 'Admin\MarketingController@importLeads', 'as' => 'marketing.import-leads']);
+    Route::get('marketing/download-template', ['uses' => 'Admin\MarketingController@downloadTemplate', 'as' => 'marketing.download-template']);
+    Route::post('marketing/assign-list', ['uses' => 'Admin\MarketingController@assignList', 'as' => 'marketing.assign-list']);
+
+    //===== Purchase List Routes =====//
+    Route::get('purchase-list', ['uses' => 'Admin\PurchaseController@index', 'as' => 'purchase.index']);
+
+    //===== Question Reports Routes =====//
+    Route::get('question-reports', ['uses' => 'Admin\QuestionReportController@index', 'as' => 'question-reports.index']);
+
+    //===== Live Tracking Routes =====//
+    Route::get('live-class-tracking', ['uses' => 'Admin\MyclassController@trackLive', 'as' => 'live-class-tracking']);
+    Route::get('live-exam-tracking', ['uses' => 'Admin\MyclassController@trackLiveExam', 'as' => 'live-exam-tracking']);
 });
 
 

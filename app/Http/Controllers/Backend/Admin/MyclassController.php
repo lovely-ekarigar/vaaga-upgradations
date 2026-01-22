@@ -1551,6 +1551,52 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
 
     }
 
+    public function trackLive()
+    {
+        $meetings = [];
+        
+        // Get all active batches and their meetings
+        $batches = Batch::whereHas('teachers', function($q) {
+            $q->where('user_id', auth()->user()->id);
+        })->get();
+
+        $e = new Elearn;
+        foreach($batches as $batch) {
+            if($batch->parent_api_class_id) {
+                try {
+                    $meetingInfo = $e->getMeetingInfo($batch->parent_api_class_id);
+                    if(isset($meetingInfo['meeting'])) {
+                        $meetings[] = $meetingInfo;
+                    }
+                } catch (\Exception $e) {
+                    // Continue if meeting info not available
+                }
+            }
+        }
+
+        return view('backend.myclass.tracklive', compact('meetings'));
+    }
+
+    public function trackLiveExam()
+    {
+        $exams = [];
+        
+        // Get all active exam batches
+        $examBatches = ExamBatch::whereHas('users', function($q) {
+            $q->where('user_id', auth()->user()->id);
+        })->get();
+
+        foreach($examBatches as $examBatch) {
+            $exams[] = [
+                'name' => $examBatch->name ?? 'Exam ' . $examBatch->id,
+                'status' => 'active',
+                'participants' => $examBatch->users()->count(),
+            ];
+        }
+
+        return view('backend.myclass.trackliveexam', compact('exams'));
+    }
+
 
 }
 
