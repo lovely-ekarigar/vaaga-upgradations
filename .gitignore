@@ -58,10 +58,10 @@ pnpm-debug.log
 /bootstrap/cache/*
 !/bootstrap/cache/.gitignore
 
-# Compiled assets
+# Compiled assets and build files
 /public/hot
 /public/storage
-/public/build
+/public/build/
 /public/mix-manifest.json
 /public/js/
 /public/css/
@@ -84,42 +84,7 @@ pnpm-debug.log
 /public/mentor/
 /public/photos/
 
-# IDE
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-*.log
-error_log
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.backup
-
-# Package files
-*.zip
-*.tar.gz
-*.rar
-
-# Test coverage
-/coverage/
-/coverage.xml
-
-# Package manager files (keep lock files for consistency, but ignore setup files)
+# Package manager setup files (lock files should be committed)
 composer.phar
 composer-setup.php
 
@@ -160,7 +125,7 @@ download.php
 index1.php
 j.php
 
-# Build and cache
+# Build and cache directories
 .cache/
 .parcel-cache/
 .next/
@@ -179,7 +144,7 @@ ehthumbs.db
 Thumbs.db
 desktop.ini
 
-# Editor backups
+# Editor backups and temporary files
 *~
 *.swp
 *.swo
@@ -188,7 +153,20 @@ desktop.ini
 *.tmp
 *.temp
 
-# Database
+# Logs
+*.log
+error_log
+
+# Package files
+*.zip
+*.tar.gz
+*.rar
+
+# Test coverage
+/coverage/
+/coverage.xml
+
+# Database files
 *.sql
 *.sqlite
 *.sqlite3
