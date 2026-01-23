@@ -6,6 +6,7 @@ use App\Helpers\General\EarningHelper;
 use App\Models\Bundle;
 use App\Models\Course;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -240,6 +241,11 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
                 $view = view('backend.datatable.action-view')
                     ->with(['route' => route('admin.orders.show', ['order' => $q->id])])->render();
 
+                $edit = view('backend.datatable.action-edit')
+                    ->with(['route' => route('admin.orders.edit', ['order' => $q->id])])
+                    ->render();
+                $view .= $edit;
+
                 if ($q->status == 0) {
                     $complete_order = view('backend.datatable.action-complete-order')
                         ->with(['route' => route('admin.orders.complete', ['order' => $q->id])])
@@ -325,6 +331,11 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
 
                 $view = view('backend.datatable.action-view')
                     ->with(['route' => route('admin.orders.show', ['order' => $q->id])])->render();
+
+                $edit = view('backend.datatable.action-edit')
+                    ->with(['route' => route('admin.orders.edit', ['order' => $q->id])])
+                    ->render();
+                $view .= $edit;
 
                 if ($q->status == 0) {
                     $complete_order = view('backend.datatable.action-complete-order')
@@ -428,6 +439,181 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
             $orderItem->item->students()->attach($order->user_id);
         }
         return back()->withFlashSuccess(trans('alerts.backend.general.updated'));
+    }
+
+    /**
+     * Show the form for creating a new Order.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        $users = User::orderBy('first_name')->get();
+        
+        $courses = Course::where('published', 1)->orderBy('title')->get();
+        
+        return view('backend.orders.create', compact('users', 'courses'));
+    }
+
+    /**
+     * Store a newly created Order in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'course_ids' => 'required|array|min:1',
+            'course_ids.*' => 'exists:courses,id',
+            'amount' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
+            'gst' => 'nullable|numeric|min:0',
+            'course_mode' => 'nullable|string',
+            'payment_type' => 'required|in:0,1,2,3,4',
+            'status' => 'required|in:0,1',
+            'end_date' => 'nullable|date',
+            'total_cycle' => 'nullable|integer|min:0',
+            'paid_cycle' => 'nullable|integer|min:0',
+        ]);
+
+        $order = new Order();
+        $order->user_id = $request->user_id;
+        $order->reference_no = str_random(8);
+        $order->amount = $request->amount;
+        $order->discount = $request->discount ?? 0;
+        $order->gst = $request->gst ?? 0;
+        $order->course_mode = $request->course_mode;
+        $order->payment_type = $request->payment_type;
+        $order->status = $request->status;
+        $order->end_date = $request->end_date;
+        $order->total_cycle = $request->total_cycle;
+        $order->paid_cycle = $request->paid_cycle ?? 0;
+        $order->save();
+
+        // Add order items
+        foreach ($request->course_ids as $courseId) {
+            $course = Course::find($courseId);
+            if ($course) {
+                $order->items()->create([
+                    'item_id' => $courseId,
+                    'item_type' => Course::class,
+                    'price' => $course->price ?? $request->amount / count($request->course_ids)
+                ]);
+            }
+        }
+
+        // If status is completed, attach students to courses
+        if ($order->status == 1) {
+            foreach ($order->items as $orderItem) {
+                if ($orderItem->item_type == Course::class) {
+                    $orderItem->item->students()->attach($order->user_id);
+                }
+            }
+        }
+
+        return redirect()->route('admin.orders.index')->withFlashSuccess(trans('alerts.backend.general.created'));
+    }
+
+    /**
+     * Show the form for editing the specified Order.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $order = Order::findOrFail($id);
+        $users = User::orderBy('first_name')->get();
+        
+        $courses = Course::where('published', 1)->orderBy('title')->get();
+        
+        // Get selected course IDs
+        $selectedCourseIds = $order->items()->where('item_type', Course::class)->pluck('item_id')->toArray();
+        
+        return view('backend.orders.edit', compact('order', 'users', 'courses', 'selectedCourseIds'));
+    }
+
+    /**
+     * Update the specified Order in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'course_ids' => 'required|array|min:1',
+            'course_ids.*' => 'exists:courses,id',
+            'amount' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
+            'gst' => 'nullable|numeric|min:0',
+            'course_mode' => 'nullable|string',
+            'payment_type' => 'required|in:0,1,2,3,4',
+            'status' => 'required|in:0,1',
+            'end_date' => 'nullable|date',
+            'total_cycle' => 'nullable|integer|min:0',
+            'paid_cycle' => 'nullable|integer|min:0',
+        ]);
+
+        $oldStatus = $order->status;
+        
+        $order->user_id = $request->user_id;
+        $order->amount = $request->amount;
+        $order->discount = $request->discount ?? 0;
+        $order->gst = $request->gst ?? 0;
+        $order->course_mode = $request->course_mode;
+        $order->payment_type = $request->payment_type;
+        $order->status = $request->status;
+        $order->end_date = $request->end_date;
+        $order->total_cycle = $request->total_cycle;
+        $order->paid_cycle = $request->paid_cycle ?? 0;
+        $order->save();
+
+        // Update order items - remove old ones and add new ones
+        $order->items()->delete();
+        
+        foreach ($request->course_ids as $courseId) {
+            $course = Course::find($courseId);
+            if ($course) {
+                $order->items()->create([
+                    'item_id' => $courseId,
+                    'item_type' => Course::class,
+                    'price' => $course->price ?? $request->amount / count($request->course_ids)
+                ]);
+            }
+        }
+
+        // Handle student enrollment based on status
+        if ($oldStatus == 0 && $order->status == 1) {
+            // Status changed from pending to completed - attach students
+            foreach ($order->items as $orderItem) {
+                if ($orderItem->item_type == Course::class) {
+                    $orderItem->item->students()->attach($order->user_id);
+                }
+            }
+        } elseif ($oldStatus == 1 && $order->status == 0) {
+            // Status changed from completed to pending - detach students
+            foreach ($order->items as $orderItem) {
+                if ($orderItem->item_type == Course::class) {
+                    $orderItem->item->students()->detach($order->user_id);
+                }
+            }
+        } elseif ($oldStatus == 1 && $order->status == 1) {
+            // Status remains completed - ensure students are attached
+            foreach ($order->items as $orderItem) {
+                if ($orderItem->item_type == Course::class) {
+                    $orderItem->item->students()->syncWithoutDetaching([$order->user_id]);
+                }
+            }
+        }
+
+        return redirect()->route('admin.orders.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
     }
 
     /**

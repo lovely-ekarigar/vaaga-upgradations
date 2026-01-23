@@ -74,6 +74,8 @@ use App\Models\Course;
                                     {{trans('labels.backend.orders.fields.payment_type.stripe') }}
                                 @elseif($order->payment_type == 2)
                                     {{trans('labels.backend.orders.fields.payment_type.paypal')}}
+                                @elseif($order->payment_type == 4)
+                                    Razorpay
                                 @else
                                     {{trans('labels.backend.orders.fields.payment_type.offline')}}
                                 @endif
@@ -108,6 +110,12 @@ use App\Models\Course;
                             <th>@lang('labels.backend.orders.fields.date')</th>
                             <td>{{ $order->created_at->format('d M, Y | h:i A') }}</td>
                         </tr>
+                        @if($order->end_date)
+                        <tr>
+                            <th>End Date</th>
+                            <td>{{ date('d M, Y', strtotime($order->end_date)) }}</td>
+                        </tr>
+                        @endif
 
 
                     </table>
@@ -115,6 +123,7 @@ use App\Models\Course;
             </div><!-- Nav tabs -->
             @if(Auth::user()->isAdmin())
             <a href="{{ route('admin.orders.index') }}" class="btn btn-default border">@lang('strings.backend.general.app_back_to_list')</a>
+            <a href="{{ route('admin.orders.edit', $order->id) }}" class="btn btn-primary">Edit Order</a>
             @else
             <a href="{{ route('admin.payments') }}" class="btn btn-default border">@lang('strings.backend.general.app_back_to_list')</a>
             @endif
