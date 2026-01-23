@@ -301,7 +301,8 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
                 return $payment_status;
             })
             ->editColumn('price', function ($q) {
-                return '$' . floatval($q->price);
+                $currency = getCurrency(config('app.currency'));
+                return ($currency['symbol'] ?? '₹') . floatval($q->price);
             })
             ->editColumn('reference_no', function ($q) {
                 return 'ORD-' .$q->id;
@@ -391,7 +392,8 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
                 return $payment_status;
             })
             ->editColumn('price', function ($q) {
-                return '$' . floatval($q->price);
+                $currency = getCurrency(config('app.currency'));
+                return ($currency['symbol'] ?? '₹') . floatval($q->price);
             })
              ->editColumn('reference_no', function ($q) {
                 return 'ORD-'. $q->id;
