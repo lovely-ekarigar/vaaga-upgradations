@@ -99,18 +99,18 @@ class QuestionsController extends Controller
                 }
                 if ($has_view) {
                     $view = view('backend.datatable.action-view')
-                        ->with(['route' => route('admin.questions.show', ['questions_option' => $q->id])])->render();
+                        ->with(['route' => route('admin.questions.show', ['question' => $q->id])])->render();
                 }
                 if ($has_edit) {
                     $edit = view('backend.datatable.action-edit')
-                        ->with(['route' => route('admin.questions.edit', ['questions_option' => $q->id])])
+                        ->with(['route' => route('admin.questions.edit', ['question' => $q->id])])
                         ->render();
                     $view .= $edit;
                 }
 
                 if ($has_delete) {
                     $delete = view('backend.datatable.action-delete')
-                        ->with(['route' => route('admin.questions.destroy', ['questions_option' => $q->id, 'test_id' => $request->test_id??''])])
+                        ->with(['route' => route('admin.questions.destroy', ['question' => $q->id, 'test_id' => $request->test_id??''])])
                         ->render();
                     $view .= $delete;
                 }
