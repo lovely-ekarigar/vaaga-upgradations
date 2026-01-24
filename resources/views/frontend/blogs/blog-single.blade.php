@@ -103,7 +103,7 @@ iframe >footer{
                                 </div>
                           
                             <br>
-                            {!! $blog->content !!}
+                            @include('includes.editorjs-parser', ['content' => $blog->content])
                             
                             
                                        </div>

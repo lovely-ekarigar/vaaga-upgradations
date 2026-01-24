@@ -226,24 +226,24 @@ Route::post('user/renew-subscription', [CoursesController::class, 'renew'])->nam
 Route::get('user/my-notifications', [NotificationController::class, 'myNotifications'])->name('myNotifications.index');
 
 // Tutor Mock Test Routes
-Route::group(['namespace' => 'Backend\Tutor', 'prefix' => 'user/tutor', 'as' => 'tutor.', 'middleware' => ['auth', 'role:teacher']], function () {
-    Route::get('mocktests/available', ['uses' => 'TutorMockTestController@availableTests', 'as' => 'mocktests.available']);
-    Route::get('mocktests/scheduled', ['uses' => 'TutorMockTestController@scheduledTests', 'as' => 'mocktests.scheduled']);
-    Route::get('mocktests/preview/{id}', ['uses' => 'TutorMockTestController@previewTest', 'as' => 'mocktests.preview']);
-    Route::get('mocktests/schedule/{id}', ['uses' => 'TutorMockTestController@scheduleForm', 'as' => 'mocktests.schedule_form']);
-    Route::post('mocktests/schedule', ['uses' => 'TutorMockTestController@scheduleTest', 'as' => 'mocktests.schedule']);
-    Route::get('mocktests/reschedule/{scheduleId}', ['uses' => 'TutorMockTestController@rescheduleForm', 'as' => 'mocktests.reschedule_form']);
-    Route::post('mocktests/reschedule', ['uses' => 'TutorMockTestController@rescheduleTest', 'as' => 'mocktests.reschedule']);
-    Route::get('mocktests/batch-results/{scheduleId}', ['uses' => 'TutorMockTestController@batchResults', 'as' => 'mocktests.batch_results']);
-    Route::post('mocktests/report-question', ['uses' => 'TutorMockTestController@reportQuestion', 'as' => 'mocktests.report_question']);
+Route::group(['prefix' => 'user/tutor', 'as' => 'tutor.', 'middleware' => ['auth', 'role:teacher']], function () {
+    Route::get('mocktests/available', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'availableTests'])->name('mocktests.available');
+    Route::get('mocktests/scheduled', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'scheduledTests'])->name('mocktests.scheduled');
+    Route::get('mocktests/preview/{id}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'previewTest'])->name('mocktests.preview');
+    Route::get('mocktests/schedule/{id}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'scheduleForm'])->name('mocktests.schedule_form');
+    Route::post('mocktests/schedule', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'scheduleTest'])->name('mocktests.schedule');
+    Route::get('mocktests/reschedule/{scheduleId}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'rescheduleForm'])->name('mocktests.reschedule_form');
+    Route::post('mocktests/reschedule', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'rescheduleTest'])->name('mocktests.reschedule');
+    Route::get('mocktests/batch-results/{scheduleId}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'batchResults'])->name('mocktests.batch_results');
+    Route::post('mocktests/report-question', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'reportQuestion'])->name('mocktests.report_question');
 });
 
 // Student Mock Test Routes
-Route::group(['namespace' => 'Frontend', 'prefix' => 'user', 'as' => 'student.', 'middleware' => ['auth', 'role:student']], function () {
-    Route::get('mocktests', ['uses' => 'StudentMockTestController@dashboard', 'as' => 'mocktests.dashboard']);
-    Route::get('mocktests/attempt/{scheduleId}', ['uses' => 'StudentMockTestController@attemptTest', 'as' => 'mocktests.attempt']);
-    Route::post('mocktests/submit', ['uses' => 'StudentMockTestController@submitTest', 'as' => 'mocktests.submit']);
-    Route::get('mocktests/result/{resultId}', ['uses' => 'StudentMockTestController@viewResult', 'as' => 'mocktests.result']);
+Route::group(['prefix' => 'user/student', 'as' => 'student.', 'middleware' => ['auth', 'role:student']], function () {
+    Route::get('mocktests', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'dashboard'])->name('mocktests.dashboard');
+    Route::get('mocktests/attempt/{scheduleId}', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'attemptTest'])->name('mocktests.attempt');
+    Route::post('mocktests/submit', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'submitTest'])->name('mocktests.submit');
+    Route::get('mocktests/result/{resultId}', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'viewResult'])->name('mocktests.result');
 });
 
 

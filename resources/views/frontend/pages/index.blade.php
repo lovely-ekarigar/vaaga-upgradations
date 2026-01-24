@@ -45,7 +45,7 @@
                     @endif
               
               
-              {!! $page->content !!}
+              @include('includes.editorjs-parser', ['content' => $page->content])
 
          </div>
         

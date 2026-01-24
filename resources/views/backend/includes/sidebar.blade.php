@@ -157,7 +157,7 @@ use App\Models\UserNotification;
                     </ul>
                 </li>
             @endif
-            @if ($logged_in_user->isAdmin() || $logged_in_user->hasRole('teacher'))
+            @if ($logged_in_user->isAdmin() || $logged_in_user->hasRole('teacher') || $logged_in_user->hasRole('student'))
                 <li
                     class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('user/tests*', 'user/questions*', 'user/questions_options*', 'user/questions-bank*', 'user/test-series*', 'user/purchase*', 'user/question/report*', 'user/marketing*'), 'open') }}">
                     <a class="nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/log-viewer*')) }}"
@@ -179,8 +179,12 @@ use App\Models\UserNotification;
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ $request->segment(2) == 'mocktests' ? 'active' : '' }}"
-                                href="/user/mocktests">
+                            <a class="nav-link {{ ($request->segment(2) == 'mocktests' || $request->segment(3) == 'mocktests') ? 'active' : '' }}"
+                                href="{{ $logged_in_user->isAdmin()
+                                    ? route('admin.mocktests.index')
+                                    : ($logged_in_user->hasRole('teacher')
+                                        ? route('tutor.mocktests.available')
+                                        : route('student.mocktests.dashboard')) }}">
                                 <span class="title">Mock Tests Management <span class="badge badge-success">NEW</span></span>
                             </a>
                         </li>

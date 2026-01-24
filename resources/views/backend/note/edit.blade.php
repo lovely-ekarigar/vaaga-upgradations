@@ -10,6 +10,26 @@ Edit Notes - {{ env('APP_NAME') }}
     .tox-statusbar__branding{
         display: none;
     }
+
+    .editorjs-holder {
+        min-height: 400px;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        background: #fff;
+        padding: 1rem;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .editorjs-holder:focus-within {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .editorjs-holder .ce-block__content,
+    .editorjs-holder .ce-toolbar__content {
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .ce-inline-tool { color: inherit; }
 </style>
 @stop
 @section('content')
@@ -93,8 +113,15 @@ Edit Notes - {{ env('APP_NAME') }}
                 </div>
             
             <div class="col-12 col-lg-12 form-group">
-                  <label for="editor" class="form-label">Description</label>
-                     <textarea  class="form-control" id="editor" name="description" rows="4" >{!! $note->description !!}</textarea>
+                  <label for="editor" class="form-label">Description<span class="text-danger">*</span></label>
+                   <!-- Enhanced Editor Container -->
+                    <div class="form-group shadow-sm border rounded-lg bg-white overflow-hidden mb-3">
+                        <div class="bg-gray-50 px-4 py-2 border-b text-sm font-semibold text-gray-600" style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; padding: 0.5rem 1rem;">
+                            Note Description
+                        </div>
+                        <div id="editorjs" class="p-4 prose max-w-none editorjs-holder" style="border:none; box-shadow:none;"></div>
+                    </div>
+                    <input type="hidden" name="description" id="description_input" value="{{ old('description', $note->description) }}">
             </div>
         </div>
          <div class="row pt-3">

@@ -68,7 +68,7 @@ use App\Models\Note;
                   <div class="row d-flex w-100 justify-content-between">
                       
                   </div>
-                  {!! $note->description !!}
+                  @include('includes.editorjs-parser', ['content' => $note->description])
                   <br>
               
                   <br>

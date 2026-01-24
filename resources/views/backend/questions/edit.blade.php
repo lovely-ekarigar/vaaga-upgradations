@@ -4,22 +4,29 @@
 @push('after-styles')
 <style>
     .editorjs-holder {
-        min-height: 300px;
-        border: 1px solid rgba(0, 0, 0, .12);
-        border-radius: 10px;
+        min-height: 400px;
+        border: 1px solid #e2e8f0; /* Light gray border as requested */
+        border-radius: 0.5rem; /* similar to rounded-lg */
         background: #fff;
-        padding: 14px 16px;
+        padding: 1rem;
         transition: border-color .15s ease, box-shadow .15s ease;
     }
 
     .editorjs-holder:focus-within {
-        border-color: rgba(13, 110, 253, .55);
-        box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .12);
+        border-color: #3b82f6; /* Tailwind blue-500 */
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* focus ring */
     }
 
+    /* Make Editor.js look consistent in this layout */
     .editorjs-holder .ce-block__content,
     .editorjs-holder .ce-toolbar__content {
         max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .ce-inline-tool {
+        color: inherit;
     }
 </style>
 @endpush
@@ -40,7 +47,14 @@
             <div class="row">
                 <div class="col-12 form-group">
                     {!! Form::label('question',  trans('labels.backend.questions.fields.question').'*', ['class' => 'control-label']) !!}
-                    <div id="editorjs" class="border rounded-lg p-4 bg-white editorjs-holder"></div>
+                    
+                    <!-- Enhanced Editor Container -->
+                    <div class="form-group shadow-sm border rounded-lg bg-white overflow-hidden mb-3">
+                        <div class="bg-gray-50 px-4 py-2 border-b text-sm font-semibold text-gray-600" style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; padding: 0.5rem 1rem;">
+                            Question Content
+                        </div>
+                        <div id="editorjs" class="p-4 prose max-w-none editorjs-holder" style="border:none; box-shadow:none;"></div>
+                    </div>
                     {!! Form::hidden('question', old('question', $question->question), ['id' => 'question_body']) !!}
                     <div id="editorjsError" class="invalid-feedback d-block" style="display:none"></div>
                     <p class="help-block"></p>
@@ -179,6 +193,8 @@
     import Header from 'https://cdn.jsdelivr.net/npm/@editorjs/header@latest/+esm';
     import List from 'https://cdn.jsdelivr.net/npm/@editorjs/list@latest/+esm';
     import ImageTool from 'https://cdn.jsdelivr.net/npm/@editorjs/image@latest/+esm';
+    import Table from 'https://cdn.jsdelivr.net/npm/@editorjs/table@latest/+esm';
+    import InlineCode from 'https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest/+esm';
 
     (function () {
         const form = document.getElementById('questionForm');
@@ -191,31 +207,22 @@
             return;
         }
 
+        // ... existing helper functions ...
         function stripHtml(html) {
-            const div = document.createElement('div');
-            div.innerHTML = html || '';
-            return (div.textContent || div.innerText || '').trim();
+             const div = document.createElement('div');
+             div.innerHTML = html || '';
+             return (div.textContent || div.innerText || '').trim();
         }
 
         function isEditorDataEmpty(data) {
             if (!data || !Array.isArray(data.blocks) || data.blocks.length === 0) return true;
-
             return !data.blocks.some((block) => {
                 const type = block && block.type;
                 const d = (block && block.data) || {};
-
-                if (type === 'paragraph' || type === 'header') {
-                    return stripHtml(d.text).length > 0;
-                }
-
-                if (type === 'list') {
-                    return Array.isArray(d.items) && d.items.some(i => stripHtml(i).length > 0);
-                }
-
-                if (type === 'image') {
-                    return !!(d.file && d.file.url);
-                }
-
+                if (type === 'paragraph' || type === 'header') return stripHtml(d.text).length > 0;
+                if (type === 'list') return Array.isArray(d.items) && d.items.some(i => stripHtml(i).length > 0);
+                if (type === 'image') return !!(d.file && d.file.url);
+                if (type === 'table') return d.content && d.content.some(row => row.some(cell => stripHtml(cell).length > 0)); 
                 return Object.keys(d).length > 0;
             });
         }
@@ -223,29 +230,19 @@
         function wrapLegacyText(text) {
             const trimmed = (text || '').trim();
             if (!trimmed) return undefined;
-
             return {
                 time: Date.now(),
-                blocks: [
-                    {
-                        type: 'paragraph',
-                        data: { text: trimmed }
-                    }
-                ]
+                blocks: [{ type: 'paragraph', data: { text: trimmed } }]
             };
         }
 
         function parseInitialData(raw) {
             const trimmed = (raw || '').trim();
             if (!trimmed) return undefined;
-
             try {
                 const parsed = JSON.parse(trimmed);
                 if (parsed && Array.isArray(parsed.blocks)) return parsed;
-            } catch (e) {
-                // ignore
-            }
-
+            } catch (e) { /* ignore */ }
             return wrapLegacyText(trimmed);
         }
 
@@ -257,6 +254,7 @@
                 reader.readAsDataURL(file);
             });
         }
+        // ... end helpers ...
 
         const initialData = parseInitialData(hidden.value);
 
@@ -268,7 +266,12 @@
             tools: {
                 header: {
                     class: Header,
-                    inlineToolbar: ['link']
+                    inlineToolbar: ['link', 'inlineCode'],
+                    config: {
+                         placeholder: 'Header',
+                         levels: [2, 3, 4],
+                         defaultLevel: 2
+                    }
                 },
                 list: {
                     class: List,
@@ -286,6 +289,13 @@
                             }
                         }
                     }
+                },
+                table: {
+                    class: Table,
+                    inlineToolbar: true
+                },
+                inlineCode: {
+                    class: InlineCode,
                 }
             }
         });
