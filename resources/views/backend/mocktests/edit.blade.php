@@ -55,6 +55,86 @@
                     </form>
                 </div>
             </div>
+
+            <div class="card shadow-sm border-0 mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Selected Questions</h6>
+                    <div class="small text-muted">Questions assigned from the Question Bank.</div>
+                </div>
+                <div class="card-body">
+                    @php
+                        $questions = $mockTest->questions ?? collect();
+
+                        $previewFromEditorJs = function ($raw) {
+                            $s = is_string($raw) ? trim($raw) : '';
+                            if ($s === '') return '';
+                            $decoded = json_decode($s, true);
+                            if (!is_array($decoded) || empty($decoded['blocks']) || !is_array($decoded['blocks'])) {
+                                return strip_tags($s);
+                            }
+                            $parts = [];
+                            foreach ($decoded['blocks'] as $b) {
+                                if (!is_array($b)) continue;
+                                $type = $b['type'] ?? null;
+                                $data = $b['data'] ?? [];
+                                if ($type === 'paragraph' || $type === 'header') {
+                                    $t = trim(strip_tags((string)($data['text'] ?? '')));
+                                    if ($t !== '') $parts[] = $t;
+                                } elseif ($type === 'list' && !empty($data['items']) && is_array($data['items'])) {
+                                    foreach ($data['items'] as $it) {
+                                        $t = trim(strip_tags((string)$it));
+                                        if ($t !== '') $parts[] = $t;
+                                    }
+                                }
+                                if (strlen(implode(' ', $parts)) > 220) break;
+                            }
+                            return trim(implode(' ', $parts));
+                        };
+                    @endphp
+
+                    @if($questions->isEmpty())
+                        <div class="text-muted">No questions selected yet.</div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                <tr>
+                                    <th style="width: 90px;">ID</th>
+                                    <th>Question</th>
+                                    <th style="width: 140px;">Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($questions as $q)
+                                    @php
+                                        $raw = $q->question_json ?: $q->question;
+                                        $preview = $previewFromEditorJs($raw);
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $q->id }}</td>
+                                        <td>
+                                            <div class="mb-1">
+                                                {{ \Illuminate\Support\Str::limit($preview ?: ('Question #' . $q->id), 220) }}
+                                            </div>
+                                            <div class="small">
+                                                <a href="{{ route('admin.questions.edit', ['question' => $q->id]) }}">Open in Question Bank</a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <form method="POST" action="{{ route('admin.mocktests.detach_question', ['mockTestId' => $mockTest->id, 'questionId' => $q->id]) }}"
+                                                  onsubmit="return confirm('Remove this question from the mock test?');">
+                                                @csrf
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
 @endsection

@@ -59,6 +59,41 @@
             </table>
         </div>
     </div>
+
+    @if(request('show_deleted') != 1)
+        <!-- Bulk Assign to Mock Test Modal -->
+        <div class="modal fade" id="assignMockTestModal" tabindex="-1" role="dialog" aria-labelledby="assignMockTestModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="assignMockTestForm" method="POST" action="{{ route('admin.questions.bulk_assign_mocktests') }}">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="assignMockTestModalLabel">Assign Selected Questions to Mock Test</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="bulk_mock_test_id">Mock Test</label>
+                                <select id="bulk_mock_test_id" name="mock_test_id" class="form-control select2" required>
+                                    @foreach(($mockTests ?? []) as $id => $title)
+                                        <option value="{{ $id }}">{{ $title }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Choose the mock test to assign the selected questions.</small>
+                            </div>
+                            <div class="small text-muted" id="bulkAssignCount"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Assign</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 @stop
 
 @push('after-scripts')
@@ -206,10 +241,33 @@
             });
             @can('question_delete')
             @if(request('show_deleted') != 1)
-            $('.actions').html('<a href="' + '{{ route('admin.questions.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>');
+            $('.actions').html(
+                '<a href="' + '{{ route('admin.questions.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>' +
+                '<button type="button" class="btn btn-xs btn-primary js-assign-mocktest-selected" style="margin-top:0.755em;margin-left: 10px;">Assign to Mock Test</button>'
+            );
             @endif
             @endcan
 
+            @if(request('show_deleted') != 1)
+            $(document).on('click', '.js-assign-mocktest-selected', function (e) {
+                e.preventDefault();
+
+                const ids = $('.single:checked').map(function () { return $(this).val(); }).get();
+                if (!ids || ids.length === 0) {
+                    alert('Please select at least one question.');
+                    return;
+                }
+
+                const $form = $('#assignMockTestForm');
+                $form.find('input[name="ids[]"]').remove();
+                ids.forEach(function (id) {
+                    $form.append('<input type="hidden" name="ids[]" value="' + id + '">');
+                });
+                $('#bulkAssignCount').text(ids.length + ' question(s) selected.');
+
+                $('#assignMockTestModal').modal('show');
+            });
+            @endif
         });
 
     </script>

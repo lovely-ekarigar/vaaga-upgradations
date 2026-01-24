@@ -118,6 +118,8 @@ Route::group(['prefix' => 'v1','namespace'=>'v1', 'middleware' => 'cors'],functi
         Route::post('confirm-order',[ApiController::class, 'confirmOrder']);
         Route::post('change-password',[ApiController::class, 'changePassword']);
         Route::post('student-batches',[ApiController::class, 'studentClasses']);
+        Route::post('mocktests',[ApiController::class, 'getMockTests']);
+        Route::post('mocktest-questions',[ApiController::class, 'getMockTestQuestions']);
     });
     Route::post('send-reset-link',[ApiController::class]);
     Route::post('configs',[ApiController::class, 'getConfigs']);

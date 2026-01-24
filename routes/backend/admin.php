@@ -502,6 +502,7 @@ Route::delete('lessons_perma_del/{id}', ['uses' => 'Admin\LessonsController@perm
 //===== Questions Routes =====//
 Route::resource('questions', 'Admin\QuestionsController');
 Route::get('get-questions-data', ['uses' => 'Admin\QuestionsController@getData', 'as' => 'questions.get_data']);
+Route::post('questions/bulk-assign-mocktest', ['uses' => 'Admin\QuestionsController@bulkAssignMockTests', 'as' => 'questions.bulk_assign_mocktests']);
 Route::post('questions_mass_destroy', ['uses' => 'Admin\QuestionsController@massDestroy', 'as' => 'questions.mass_destroy']);
 Route::post('questions_restore/{id}', ['uses' => 'Admin\QuestionsController@restore', 'as' => 'questions.restore']);
 Route::delete('questions_perma_del/{id}', ['uses' => 'Admin\QuestionsController@perma_del', 'as' => 'questions.perma_del']);
@@ -534,6 +535,7 @@ Route::group(['prefix' => 'mocktests', 'as' => 'mocktests.'], function () {
     Route::post('/', ['uses' => 'Admin\MockTestController@store', 'as' => 'store']);
     Route::get('{id}/edit', ['uses' => 'Admin\MockTestController@edit', 'as' => 'edit']);
     Route::put('{id}', ['uses' => 'Admin\MockTestController@update', 'as' => 'update']);
+    Route::post('{mockTestId}/questions/{questionId}/detach', ['uses' => 'Admin\MockTestController@detachQuestion', 'as' => 'detach_question']);
     Route::get('{id}', ['uses' => 'Admin\MockTestController@show', 'as' => 'show']);
     Route::delete('{id}', ['uses' => 'Admin\MockTestController@destroy', 'as' => 'destroy']);
     Route::post('assign-batch', ['uses' => 'Admin\MockTestController@assignBatch', 'as' => 'assign_batch']);

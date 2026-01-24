@@ -128,6 +128,24 @@
                     @endif
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-12 form-group">
+                    {!! Form::label('mock_tests', 'Assign to Mock Test(s)', ['class' => 'control-label']) !!}
+                    {!! Form::select(
+                        'mock_tests[]',
+                        $mockTests ?? [],
+                        old('mock_tests') ? old('mock_tests') : $question->mockTests->pluck('id')->toArray(),
+                        ['class' => 'form-control select2', 'multiple' => 'multiple']
+                    ) !!}
+                    <p class="help-block"></p>
+                    @if($errors->has('mock_tests'))
+                        <p class="help-block">
+                            {{ $errors->first('mock_tests') }}
+                        </p>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
     @foreach ($question->options as $key=>$option)

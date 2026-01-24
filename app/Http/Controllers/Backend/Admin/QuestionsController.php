@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend\Admin;
 use App\Models\Question;
 use App\Models\QuestionsOption;
 use App\Models\Test;
+use App\Models\MockTest;
 use function foo\func;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -40,8 +41,9 @@ class QuestionsController extends Controller
         }
 
         $tests = Test::where('published','=',1)->pluck('title','id')->prepend('Please select', '');
+        $mockTests = MockTest::orderByDesc('id')->pluck('title', 'id')->prepend('Please select', '');
 
-        return view('backend.questions.index', compact('questions','tests'));
+        return view('backend.questions.index', compact('questions','tests','mockTests'));
     }
 
 
@@ -139,7 +141,8 @@ class QuestionsController extends Controller
             return abort(401);
         }
         $tests = \App\Models\Test::get()->pluck('title', 'id');
-        return view('backend.questions.create', compact('tests'));
+        $mockTests = MockTest::orderByDesc('id')->pluck('title', 'id');
+        return view('backend.questions.create', compact('tests', 'mockTests'));
     }
 
     /**
@@ -159,6 +162,7 @@ class QuestionsController extends Controller
         $question->user_id = auth()->user()->id;
         $question->save();
         $question->tests()->sync(array_filter((array)$request->input('tests')));
+        $question->mockTests()->sync(array_filter((array)$request->input('mock_tests')));
 
         for ($q = 1; $q <= 4; $q++) {
             $option = $request->input('option_text_' . $q, '');
@@ -191,7 +195,8 @@ class QuestionsController extends Controller
         $question = Question::findOrFail($id);
         $tests = \App\Models\Test::get()->pluck('title', 'id');
 
-        return view('backend.questions.edit', compact('question', 'tests'));
+        $mockTests = MockTest::orderByDesc('id')->pluck('title', 'id');
+        return view('backend.questions.edit', compact('question', 'tests', 'mockTests'));
     }
 
     /**
@@ -212,6 +217,7 @@ class QuestionsController extends Controller
         $question->user_id = auth()->user()->id;
         $question->save();
         $question->tests()->sync(array_filter((array)$request->input('tests')));
+        $question->mockTests()->sync(array_filter((array)$request->input('mock_tests')));
 
         for ($q = 1; $q <= 4; $q++) {
             $option = $request->input('option_text_' . $q, '');
@@ -296,6 +302,36 @@ class QuestionsController extends Controller
                 $entry->delete();
             }
         }
+    }
+
+    public function bulkAssignMockTests(Request $request)
+    {
+        if (!Gate::allows('question_edit')) {
+            return abort(401);
+        }
+
+        $this->validate($request, [
+            'mock_test_id' => 'required|integer|exists:mock_tests,id',
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|exists:questions,id',
+        ]);
+
+        $mockTestId = (int) $request->mock_test_id;
+
+        $query = Question::whereIn('id', $request->input('ids', []));
+        if (!auth()->user()->hasRole('administrator')) {
+            $query->where('user_id', auth()->user()->id);
+        }
+
+        $questions = $query->get();
+
+        foreach ($questions as $question) {
+            $question->mockTests()->syncWithoutDetaching([$mockTestId]);
+        }
+
+        return redirect()
+            ->back()
+            ->withFlashSuccess('Selected questions assigned to mock test.');
     }
 
 

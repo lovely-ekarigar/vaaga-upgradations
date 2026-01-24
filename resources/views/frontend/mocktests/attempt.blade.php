@@ -26,10 +26,44 @@
 
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
+                        @php
+                            $previewFromEditorJs = function ($raw) {
+                                $s = is_string($raw) ? trim($raw) : '';
+                                if ($s === '') return '';
+                                $decoded = json_decode($s, true);
+                                if (!is_array($decoded) || empty($decoded['blocks']) || !is_array($decoded['blocks'])) {
+                                    return strip_tags($s);
+                                }
+                                $parts = [];
+                                foreach ($decoded['blocks'] as $b) {
+                                    if (!is_array($b)) continue;
+                                    $type = $b['type'] ?? null;
+                                    $data = $b['data'] ?? [];
+                                    if ($type === 'paragraph' || $type === 'header') {
+                                        $t = trim(strip_tags((string)($data['text'] ?? '')));
+                                        if ($t !== '') $parts[] = $t;
+                                    } elseif ($type === 'list' && !empty($data['items']) && is_array($data['items'])) {
+                                        foreach ($data['items'] as $it) {
+                                            $t = trim(strip_tags((string)$it));
+                                            if ($t !== '') $parts[] = $t;
+                                        }
+                                    } elseif ($type === 'image') {
+                                        $parts[] = '[Image]';
+                                    }
+                                    if (strlen(implode(' ', $parts)) > 1200) break;
+                                }
+                                return trim(implode(' ', $parts));
+                            };
+                        @endphp
+
                         @forelse($questions as $qIndex => $question)
+                            @php
+                                $rawQ = $question->question_json ?: $question->question;
+                                $qText = $previewFromEditorJs($rawQ);
+                            @endphp
                             <div class="mb-4">
                                 <div class="fw-semibold mb-2">
-                                    Q{{ $qIndex + 1 }}. {!! nl2br(e($question->question ?? '')) !!}
+                                    Q{{ $qIndex + 1 }}. {!! nl2br(e($qText ?: '')) !!}
                                 </div>
 
                                 <div class="ms-2">
@@ -41,7 +75,7 @@
                                                    id="q{{ $question->id }}_o{{ $opt->id }}"
                                                    value="{{ $opt->id }}">
                                             <label class="form-check-label" for="q{{ $question->id }}_o{{ $opt->id }}">
-                                                {!! nl2br(e($opt->option ?? '')) !!}
+                                                {!! nl2br(e($opt->option_text ?? '')) !!}
                                             </label>
                                         </div>
                                     @empty

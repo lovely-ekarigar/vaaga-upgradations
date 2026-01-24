@@ -221,10 +221,27 @@ class MockTestController extends Controller
             ->orderBy('title')
             ->pluck('title', 'id');
 
-        $mockTest = MockTest::with(['courses'])->findOrFail($id);
+        $mockTest = MockTest::with(['courses', 'questions'])->findOrFail($id);
         $selectedCourseIds = $mockTest->courses->pluck('id')->toArray();
 
         return view('backend.mocktests.edit', compact('mockTest', 'courses', 'selectedCourseIds'));
+    }
+
+    /**
+     * Detach a question from a mock test (does NOT delete the question).
+     */
+    public function detachQuestion($mockTestId, $questionId)
+    {
+        if (! Gate::allows('mocktest_edit')) {
+            return abort(401);
+        }
+
+        $mockTest = MockTest::findOrFail($mockTestId);
+        $mockTest->questions()->detach($questionId);
+
+        return redirect()
+            ->back()
+            ->withFlashSuccess('Question removed from the mock test.');
     }
 
     /**

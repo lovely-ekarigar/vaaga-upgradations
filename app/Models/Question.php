@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
+use App\Models\MockTest;
 
 /**
  * Class Question
@@ -28,8 +29,17 @@ class Question extends Model
             if (auth()->user()->hasRole('teacher')) {
                 static::addGlobalScope('filter', function (Builder $builder) {
                     $courses = auth()->user()->courses->pluck('id');
-                    $builder->whereHas('tests', function ($q) use ($courses) {
-                        $q->whereIn('tests.course_id', $courses);
+                    $builder->where(function ($q) use ($courses) {
+                        // Allow questions that are part of a Test in teacher's courses
+                        $q->whereHas('tests', function ($t) use ($courses) {
+                            $t->whereIn('tests.course_id', $courses);
+                        })
+                        // OR questions that are linked to a MockTest assigned to teacher's courses
+                        ->orWhereHas('mockTests', function ($mt) use ($courses) {
+                            $mt->whereHas('courses', function ($c) use ($courses) {
+                                $c->whereIn('courses.id', $courses);
+                            });
+                        });
                     });
                 });
             }
@@ -74,5 +84,11 @@ class Question extends Model
         return $this->belongsToMany(Test::class, 'question_test');
     }
 
+    public function mockTests()
+    {
+        return $this->belongsToMany(MockTest::class, 'mock_test_question')
+            ->withPivot('sequence')
+            ->withTimestamps();
+    }
 
 }

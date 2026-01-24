@@ -63,7 +63,7 @@
                             <div class="small">
                                 <span class="text-muted">Your answer:</span>
                                 <span class="{{ $resp->is_correct ? 'text-success' : 'text-danger' }}">
-                                    {{ $selected->option ?? 'Not attempted' }}
+                                    {{ $selected->option_text ?? 'Not attempted' }}
                                 </span>
                             </div>
                         </div>

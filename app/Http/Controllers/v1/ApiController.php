@@ -51,6 +51,7 @@ use App\Models\StudentJoin;
 use App\Models\Recording;
 use App\Models\Elearn;
 use App\Models\Affiliate;
+use App\Models\MockTest;
 use App\Repositories\Frontend\Auth\UserRepository;
 use Arcanedev\NoCaptcha\Rules\CaptchaRule;
 use Carbon\Carbon;
@@ -3092,6 +3093,124 @@ return ['status' => 'failure', 'message' => 'Kindly update the App to Apply coup
     {
         $currency = getCurrency(config('app.currency'));
         return response()->json(['status' => 'success', 'result' => $currency]);
+    }
+
+    public function getMockTests(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $courseIds = $this->getStudentCourseIdsForMockTests($user->id);
+        if (empty($courseIds)) {
+            return response()->json(['status' => true, 'result' => []]);
+        }
+
+        $mockTests = MockTest::where('published', 1)
+            ->whereHas('courses', function ($q) use ($courseIds) {
+                $q->whereIn('courses.id', $courseIds);
+            })
+            ->with(['courses'])
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json(['status' => true, 'result' => $mockTests]);
+    }
+
+    public function getMockTestQuestions(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        $validation = Validator::make($request->all(), [
+            'mock_test_id' => 'required|integer|exists:mock_tests,id',
+        ]);
+        if ($validation->fails()) {
+            return response()->json(['status' => false, 'message' => $validation->errors()->first()], 422);
+        }
+
+        $mockTestId = (int) $request->mock_test_id;
+        $courseIds = $this->getStudentCourseIdsForMockTests($user->id);
+
+        $authorized = MockTest::where('id', $mockTestId)
+            ->whereHas('courses', function ($q) use ($courseIds) {
+                $q->whereIn('courses.id', $courseIds);
+            })
+            ->exists();
+
+        if (!$authorized) {
+            return response()->json(['status' => false, 'message' => 'Forbidden'], 403);
+        }
+
+        $mockTest = MockTest::findOrFail($mockTestId);
+        $questions = $mockTest->questions()
+            ->with(['options' => function ($q) {
+                $q->select(['id', 'question_id', 'option_text']);
+            }])
+            ->get(['questions.id', 'questions.question', 'questions.question_json', 'questions.question_image', 'questions.score']);
+
+        // Return student-safe payload (no correct answers, no explanations)
+        $payload = $questions->map(function ($q) {
+            $raw = $q->question_json ?: $q->question;
+            return [
+                'id' => $q->id,
+                'question' => $raw,
+                'question_image' => $q->question_image,
+                'score' => $q->score,
+                'options' => ($q->options ?? collect())->map(function ($o) {
+                    return [
+                        'id' => $o->id,
+                        'option_text' => $o->option_text,
+                    ];
+                })->values(),
+            ];
+        })->values();
+
+        return response()->json(['status' => true, 'mock_test_id' => $mockTestId, 'questions' => $payload]);
+    }
+
+    private function getStudentCourseIdsForMockTests(int $userId): array
+    {
+        $courseIds = [];
+
+        // Most reliable: explicit course_student mapping
+        try {
+            $courseIds = array_merge($courseIds, DB::table('course_student')->where('user_id', $userId)->pluck('course_id')->toArray());
+        } catch (\Throwable $e) {}
+
+        // Also include batch enrollments -> batches.cid
+        try {
+            if (Schema::hasTable('student_teacher_batches')) {
+                $bids = StudentTeacherBatch::where('uid', $userId)->pluck('bid')->toArray();
+                if (!empty($bids)) {
+                    $courseIds = array_merge($courseIds, Batch::whereIn('id', $bids)->pluck('cid')->toArray());
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        // Fallback: purchased course helpers (if available in this app)
+        try {
+            $u = User::find($userId);
+            if ($u) {
+                try {
+                    foreach ($u->purchasedCourses() as $c) {
+                        if ($c && isset($c->id)) $courseIds[] = (int) $c->id;
+                    }
+                } catch (\Throwable $e) {}
+                try {
+                    foreach ($u->purchases() as $c) {
+                        if ($c && isset($c->id)) $courseIds[] = (int) $c->id;
+                    }
+                } catch (\Throwable $e) {}
+            }
+        } catch (\Throwable $e) {}
+
+        $courseIds = array_values(array_unique(array_filter(array_map('intval', $courseIds))));
+
+        return $courseIds;
     }
 
     private function applyTax($total)
