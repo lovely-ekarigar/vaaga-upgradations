@@ -90,10 +90,6 @@ composer-setup.php
 
 # Temporary and documentation files
 *.md
-!README.md
-!readme.md
-!CHANGELOG.md
-!LICENSE.md
 COMPREHENSIVE_FIX_SUMMARY.md
 COURSE_PAGE_FIX_SUMMARY.md
 DASHBOARD_FIXES_SUMMARY.md
