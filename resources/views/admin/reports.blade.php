@@ -32,16 +32,16 @@ Question Reports | {{ env('APP_NAME') }}
                         <tbody>
                             @forelse($reports as $key => $report)
                                 <tr>
-                                    <td>{{ $reports->firstItem() + $key }}</td>
-                                    <td>{{ $report->user->name ?? '-' }}</td>
+                                    <td>{{ ($reports->firstItem() ?? 1) + $key }}</td>
+                                    <td>{{ $report->reporter->name ?? '-' }}</td>
                                    
                                     <td><a href="/user/questions-bank/{{$report->question_id}}/edit" target="_blank">{{ $report->question_id }}</a></td>
-                                    <td>{{ $report->message }}</td>
+                                    <td>{{ $report->report_reason ?? '-' }}</td>
                                     <td>{{ $report->created_at->format('d M Y, h:i A') }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center">No reports found</td>
+                                    <td colspan="5" class="text-center">No reports found</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -49,9 +49,11 @@ Question Reports | {{ env('APP_NAME') }}
                 </div>
 
                 <!-- Pagination -->
-                <div class="d-flex justify-content-center mt-3">
-                    {!! $reports->links() !!}
-                </div>
+                @if(method_exists($reports, 'links'))
+                    <div class="d-flex justify-content-center mt-3">
+                        {!! $reports->links() !!}
+                    </div>
+                @endif
             </div>
         </div>
 

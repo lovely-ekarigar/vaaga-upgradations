@@ -179,6 +179,12 @@ use App\Models\UserNotification;
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ $request->segment(2) == 'mocktests' ? 'active' : '' }}"
+                                href="/user/mocktests">
+                                <span class="title">Mock Tests Management <span class="badge badge-success">NEW</span></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ $request->segment(2) == 'purchase' || $request->segment(2) == 'purchase-list' ? 'active' : '' }}"
                                 href="/user/purchase/test-series">
                                 <span class="title">Purchase List</span>
