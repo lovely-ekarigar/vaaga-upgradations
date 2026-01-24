@@ -39,7 +39,7 @@
             {{-- See https://laravel.com/docs/5.5/blade#stacks for usage --}}
 
 
-<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+
 @yield('page_css')
 <style>
     span.required {
@@ -161,12 +161,6 @@ s0.parentNode.insertBefore(s1,s0);
         <script>
             window._token = '{{ csrf_token() }}';
         </script>
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
-<script>
-    $(document).ready(function() {
-  $('#summernote').summernote({height: 250});
-});
-</script>
         @stack('after-scripts')
 
         </body>

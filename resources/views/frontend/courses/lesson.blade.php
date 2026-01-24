@@ -177,7 +177,7 @@
                                     </h3>
                                 </div>
                                 <div class="course-details-content">
-                                    <p> {!! $lesson->full_text !!} </p>
+                                    <p> @include('includes.editorjs-parser', ['content' => $lesson->full_text]) </p>
                                 </div>
                             </div>
                             <hr/>
@@ -264,7 +264,7 @@
                                     </h3>
                                 </div>
                                 <div class="course-details-content">
-                                    {!! $lesson->full_text !!}
+                                    @include('includes.editorjs-parser', ['content' => $lesson->full_text])
                                 </div>
                             </div>
                         @endif

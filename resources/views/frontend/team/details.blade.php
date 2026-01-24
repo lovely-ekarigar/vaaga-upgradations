@@ -68,7 +68,7 @@
                      </div>
                      </div>
                      <div>
-                         {!! $team->about  !!}
+                         @include('includes.editorjs-parser', ['content' => $team->about])
                      </div>
                            
                 </div>

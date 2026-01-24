@@ -57,16 +57,16 @@ class QuestionsController extends Controller
         $has_edit = false;
 
         /*TODO:: Show All questions if Admin, Show related if  Teacher*/
-        $questions = Question::orderBy('created_at', 'desc');
+        $questions = Question::query()->orderBy('created_at', 'desc');
 
-        if ($request->test_id != "") {
+        if ($request->filled('test_id')) {
             $test_id = $request->test_id;
-            $questions = Question::whereHas('tests',function ($q) use ($test_id){
-                $q->where('test_id',$test_id);
-            })->orderBy('created_at', 'desc')->get();
+            $questions->whereHas('tests', function ($q) use ($test_id) {
+                $q->where('tests.id', $test_id);
+            });
         }
 
-        if (!auth()->user()->role('administrator')) {
+        if (!auth()->user()->hasRole('administrator')) {
             $questions->where('user_id', '=', auth()->user()->id);
         }
 
@@ -74,7 +74,7 @@ class QuestionsController extends Controller
             if (!Gate::allows('question_delete')) {
                 return abort(401);
             }
-            $questions->onlyTrashed()->get();
+            $questions->onlyTrashed();
         }
 
 
@@ -116,6 +116,10 @@ class QuestionsController extends Controller
                 }
                 return $view;
 
+            })
+            ->editColumn('question', function ($q) {
+                // UI expects Editor.js JSON; use question_json when available, fallback to question text.
+                return $q->question_json ?: $q->question;
             })
             ->editColumn('question_image', function ($q) {
                 return ($q->question_image != null) ? '<img height="50px" src="' . asset('storage/uploads/' . $q->question_image) . '">' : 'N/A';

@@ -27,6 +27,21 @@ button.close {
                  @include('includes.partials.messages')
 
               <h3 class="mb-2">@lang('strings.backend.dashboard.welcome') {{ $logged_in_user->name }}!</h3>
+
+              <div class="row g-3 mt-1">
+                <div class="col-md-6 col-lg-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                      <div>
+                        <div class="text-muted small">Quick Link</div>
+                        <div class="fw-600">Mock Tests</div>
+                      </div>
+                      <a class="btn btn-primary btn-sm" href="/user/student/mocktests">Open</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
                  @if($demo_request->count()>0)
                      
                 <div class="demo_box"> 
@@ -142,6 +157,7 @@ button.close {
                                 <td>
                                     <a class="btn btn-primary btn-sm" href="{{ route('classes.show', [$item->slug]) }}">Classes</a>
                                     <a class="btn btn-success btn-sm" href="/course/study/{{$item->slug}}/">Course Content</a>
+                                    <a class="btn btn-outline-primary btn-sm" href="/user/student/mocktests">Mock Tests</a>
                                     
                                 </td>
                                 

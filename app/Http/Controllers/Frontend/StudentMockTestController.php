@@ -30,16 +30,22 @@ class StudentMockTestController extends Controller
      */
     public function dashboard()
     {
-        // Get student's batches
-        $batchIds = StudentTeacherBatch::where('uid', Auth::user()->id)->pluck('bid')->toArray();
+        // Get student's batches (if your installation uses batches)
+        $batchIds = [];
+        if (\Schema::hasTable('student_teacher_batches')) {
+            $batchIds = StudentTeacherBatch::where('uid', Auth::user()->id)->pluck('bid')->toArray();
+        }
 
         // Get all scheduled mock tests for student's batches
-        $schedules = MockTestSchedule::whereIn('batch_id', $batchIds)
-            ->with(['mockTest', 'batch', 'results' => function($q) {
-                $q->where('student_id', Auth::user()->id);
-            }])
-            ->orderBy('scheduled_date', 'asc')
-            ->get();
+        $schedules = collect();
+        if (!empty($batchIds)) {
+            $schedules = MockTestSchedule::whereIn('batch_id', $batchIds)
+                ->with(['mockTest', 'batch', 'results' => function($q) {
+                    $q->where('student_id', Auth::user()->id);
+                }])
+                ->orderBy('scheduled_date', 'asc')
+                ->get();
+        }
 
         $upcomingTests = [];
         $availableTests = [];
@@ -59,7 +65,60 @@ class StudentMockTestController extends Controller
             }
         }
 
-        return view('frontend.mocktests.dashboard', compact('upcomingTests', 'availableTests', 'completedTests'));
+        // Fallback: show published mock tests for student's courses even if not scheduled to batches yet.
+        $publishedTests = [];
+        $publishedTestsNote = null;
+        try {
+            $courseIds = [];
+
+            // 1) If you use course_user pivot
+            try {
+                $courseIds = array_merge($courseIds, Auth::user()->courses()->pluck('courses.id')->toArray());
+            } catch (\Throwable $e) {
+                // ignore
+            }
+
+            // 2) If courses are determined via Orders (this is what student dashboard uses in many setups)
+            try {
+                foreach (Auth::user()->purchasedCourses() as $c) {
+                    if ($c && isset($c->id)) {
+                        $courseIds[] = (int) $c->id;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ignore
+            }
+
+            // 3) If purchases() is used
+            try {
+                foreach (Auth::user()->purchases() as $c) {
+                    if ($c && isset($c->id)) {
+                        $courseIds[] = (int) $c->id;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ignore
+            }
+
+            $courseIds = array_values(array_unique(array_filter($courseIds)));
+
+            $publishedTests = MockTest::where('published', 1)
+                ->when(!empty($courseIds), function ($q) use ($courseIds) {
+                    $q->whereIn('course_id', $courseIds);
+                })
+                ->orderByDesc('id')
+                ->get();
+
+            // If no match for the student's course mapping, still show published tests (visibility only; attempts still need schedule).
+            if ($publishedTests->isEmpty()) {
+                $publishedTestsNote = 'Showing all published tests (not yet scheduled).';
+                $publishedTests = MockTest::where('published', 1)->orderByDesc('id')->get();
+            }
+        } catch (\Throwable $e) {
+            $publishedTests = [];
+        }
+
+        return view('frontend.mocktests.dashboard', compact('upcomingTests', 'availableTests', 'completedTests', 'publishedTests', 'publishedTestsNote'));
     }
 
     /**

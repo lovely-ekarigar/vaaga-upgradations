@@ -33,6 +33,40 @@ use App\Models\Course;
             border-radius: 3px;
         }
 
+
+    .editorjs-holder {
+        min-height: 400px;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        background: #fff;
+        padding: 1rem;
+        transition: border-color .15s ease, box-shadow .15s ease;
+         position: relative;
+        z-index: 10;
+    }
+    .editorjs-holder:focus-within {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+     .editorjs-holder .ce-block__content,
+    .editorjs-holder .ce-toolbar__content {
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .ce-inline-tool { color: inherit; }
+     /* Create extra space for the toolbar to be visible if needed */
+    .codex-editor__redactor {
+        padding-bottom: 50px !important;
+    }
+    
+    /* Ensure the toolbar button is visible */
+    .ce-toolbar__plus {
+        z-index: 20;
+    }
+    .ce-toolbar__actions {
+        z-index: 20;
+    }
     </style>
 
 @endpush
@@ -129,7 +163,14 @@ use App\Models\Course;
             <div class="row">
                 <div class="col-12 form-group">
                     {!! Form::label('full_text', trans('labels.backend.lessons.fields.full_text'), ['class' => 'control-label']) !!}
-                    {!! Form::textarea('full_text', old('full_text'), ['class' => 'form-control editor', 'placeholder' => '','id' => 'editor']) !!}
+                     <!-- Enhanced Editor Container -->
+                    <div class="form-group shadow-sm border rounded-lg bg-white mb-3">
+                        <div class="bg-gray-50 px-4 py-2 border-b text-sm font-semibold text-gray-600" style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; padding: 0.5rem 1rem;">
+                            Lesson Content
+                        </div>
+                        <div id="editorjs" class="p-4 prose max-w-none editorjs-holder" style="border:none; box-shadow:none;"></div>
+                    </div>
+                    {!! Form::hidden('full_text', old('full_text'), ['id' => 'full_text_input']) !!}
 
                 </div>
             </div>

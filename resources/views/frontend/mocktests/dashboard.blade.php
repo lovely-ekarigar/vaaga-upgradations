@@ -4,6 +4,13 @@
     <title>Mock Tests | {{ env('APP_NAME') }}</title>
 @endsection
 
+@section('page_css')
+    <style>
+        /* This page was showing a purple background due to theme styles. Keep mocktests clean/white only here. */
+        .bg-gray-100 { background: #ffffff !important; }
+    </style>
+@endsection
+
 @section('content')
     <section class="section bg-gray-100">
         <div class="container py-5">
@@ -108,6 +115,39 @@
                     </div>
                 </div>
             </div>
+
+            @if(!empty($publishedTests) && count($publishedTests) > 0)
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-header bg-white">
+                        <strong>Published Mock Tests (Not Scheduled Yet)</strong>
+                        <div class="text-muted small">
+                            {{ $publishedTestsNote ?? "These are created & published, but not yet assigned/scheduled for your batch." }}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Course</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($publishedTests as $mt)
+                                    <tr>
+                                        <td>{{ $mt->title }}</td>
+                                        <td>{{ optional($mt->course)->title ?? $mt->course_id }}</td>
+                                        <td><span class="badge bg-secondary">Awaiting Schedule</span></td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </section>
 @endsection

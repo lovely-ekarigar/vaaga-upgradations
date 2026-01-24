@@ -34,11 +34,14 @@ use App\Models\UserNotification;
             </div>
             <div class="card mb-4">
               <div class="card-header">
-                @php $seg = request()->segment(2); @endphp
+                @php
+                  $seg2 = request()->segment(2);
+                  $seg3 = request()->segment(3);
+                @endphp
                 <h6 class="my-2">My Account</h6>
               </div>
               <div class="list-group list-group-flush">
-                <a href="/user/dashboard" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg=='dashboard') active @endif">
+                <a href="/user/dashboard" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='dashboard') active @endif">
                   <div>
                     <i class="bi-person-circle me-2"></i>
                     <span>Dashboard </span>
@@ -47,7 +50,7 @@ use App\Models\UserNotification;
                     <i class="bi-chevron-right"></i>
                   </div>
                 </a>
-                <a href="/user/account" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg=='account') active @endif">
+                <a href="/user/account" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='account') active @endif">
                   <div>
                     <i class="bi-gear me-2"></i>
                     <span> My Profile</span>
@@ -56,7 +59,7 @@ use App\Models\UserNotification;
                     <i class="bi-chevron-right"></i>
                   </div>
                 </a>
-                <a href="/user/invoices" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg=='invoices') active @endif">
+                <a href="/user/invoices" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='invoices') active @endif">
                   <div>
                     <i class="bi-credit-card me-2"></i>
                     <span>Invoices</span>
@@ -66,10 +69,20 @@ use App\Models\UserNotification;
                   </div>
                 </a>
                 
-                 <a href="/user/certificates" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg=='certificates') active @endif">
+                 <a href="/user/certificates" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='certificates') active @endif">
                   <div>
                     <i class="bi-file me-2"></i>
                     <span>Certificates</span>
+                  </div>
+                  <div>
+                    <i class="bi-chevron-right"></i>
+                  </div>
+                </a>
+
+                <a href="/user/student/mocktests" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='student' && $seg3=='mocktests') active @endif">
+                  <div>
+                    <i class="bi-journal-text me-2"></i>
+                    <span>Mock Tests</span>
                   </div>
                   <div>
                     <i class="bi-chevron-right"></i>
@@ -80,7 +93,7 @@ use App\Models\UserNotification;
                 $unf = UserNotification::where('user_id',Auth::user()->id)->where("status",'0')->count();
                 ?>
 
-                 <a href="/user/my-notifications" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg=='my-notifications') active @endif">
+                 <a href="/user/my-notifications" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='my-notifications') active @endif">
                   <div>
                     <i class="bi-envelope me-2"></i>
                     <span>Notifications

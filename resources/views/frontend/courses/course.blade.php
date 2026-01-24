@@ -63,7 +63,7 @@
                             </div>
                             <div class="course-details-content">
                                 <p>
-                                    {!! $course->description !!}
+                                    @include('includes.editorjs-parser', ['content' => $course->description])
                                 </p>
                             </div>
                             @if($course->mediaVideo && $course->mediavideo->count() > 0)

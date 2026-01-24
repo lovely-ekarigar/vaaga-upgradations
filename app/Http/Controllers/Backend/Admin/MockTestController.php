@@ -274,7 +274,9 @@ class MockTestController extends Controller
     {
         $this->validate($request, [
             'mock_test_id' => 'required|exists:mock_tests,id',
-            'batch_id' => 'required|exists:batches,id'
+            'batch_id' => 'required|exists:batches,id',
+            'scheduled_date' => 'nullable|date',
+            'timezone' => 'nullable|string|max:100',
         ]);
 
         $mockTest = MockTest::findOrFail($request->mock_test_id);
@@ -287,6 +289,17 @@ class MockTestController extends Controller
         if ($existingSchedule) {
             return redirect()->back()->withFlashWarning('This mock test is already assigned to the selected batch.');
         }
+
+        $scheduledDate = $request->scheduled_date ? \Carbon\Carbon::parse($request->scheduled_date)->toDateString() : now()->toDateString();
+        $timezone = $request->timezone ?: (auth()->user()->timezone ?: 'Asia/Kolkata');
+
+        MockTestSchedule::create([
+            'mock_test_id' => $request->mock_test_id,
+            'batch_id' => $request->batch_id,
+            'scheduled_date' => $scheduledDate,
+            'timezone' => $timezone,
+            'status' => 'scheduled',
+        ]);
 
         // Send notification to students
         $this->notificationService->sendMockTestAssignment($mockTest, $request->batch_id);
@@ -308,7 +321,20 @@ class MockTestController extends Controller
             ->with(['batch', 'assignedBy', 'results'])
             ->get();
 
-        return view('backend.mocktests.schedules', compact('mockTest', 'schedules'));
+        if(auth()->user()->hasRole('administrator')){
+            $batch_list = Batch::orderBy('id','desc')->get();
+        } else if(auth()->user()->hasRole('teacher')){
+            $bids = [];
+            $batches = TeacherBatch::where("tid", Auth::user()->id)->get();
+            foreach($batches as $b){
+                $bids[] = $b->bid;
+            }
+            $batch_list = Batch::whereIn("id", $bids)->orderBy('id','desc')->get();
+        } else {
+            $batch_list = collect();
+        }
+
+        return view('backend.mocktests.schedules', compact('mockTest', 'schedules', 'batch_list'));
     }
 
     /**
