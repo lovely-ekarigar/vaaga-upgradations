@@ -50,6 +50,28 @@ yarn-error.log
 /public/build
 /public/mix-manifest.json
 
+# More compiled/public assets (avoid large uploads in git)
+/public/js/
+/public/css/
+/public/fonts/
+/public/assets/
+/public/assets-rtl/
+/public/frontend/
+/public/newassets/
+/public/ng/
+/public/nglive/
+/public/plugins/
+/public/storage1/
+/public/upload/
+/public/uploads/
+/public/live/
+/public/aff/
+/public/icon/
+/public/images/
+/public/img/
+/public/mentor/
+/public/photos/
+
 # IDE
 *.swp
 *.swo
@@ -80,6 +102,9 @@ error_log
 *.zip
 *.tar.gz
 *.rar
+
+# Documentation
+*.md
 
 # Test coverage
 /coverage/
