@@ -42,6 +42,89 @@ button.close {
                 </div>
               </div>
 
+              <h6 class="text-body fw-500 mb-3 pt-4">My Mock Tests</h6>
+              <div>
+                <table class="table table-nowrap mb-0">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Course</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @php $any = 0; @endphp
+
+                    @foreach(($availableMockTests ?? []) as $s)
+                      @php $any = 1; @endphp
+                      <tr>
+                        <td>{{ $s->mockTest->title ?? 'Mock Test' }}</td>
+                        <td>{{ (optional($s->mockTest)->courses ?? collect())->pluck('title')->filter()->implode(', ') ?: (optional($s->mockTest->course)->title ?? optional($s->mockTest)->course_id) }}</td>
+                        <td><span class="badge bg-success">Available Today</span></td>
+                        <td>
+                          <a class="btn btn-primary btn-sm" href="{{ route('student.mocktests.attempt', ['scheduleId' => $s->id]) }}">Attempt</a>
+                        </td>
+                      </tr>
+                    @endforeach
+
+                    @foreach(($upcomingMockTests ?? []) as $s)
+                      @php $any = 1; @endphp
+                      <tr>
+                        <td>{{ $s->mockTest->title ?? 'Mock Test' }}</td>
+                        <td>{{ (optional($s->mockTest)->courses ?? collect())->pluck('title')->filter()->implode(', ') ?: (optional($s->mockTest->course)->title ?? optional($s->mockTest)->course_id) }}</td>
+                        <td>
+                          <span class="badge bg-info">Upcoming</span>
+                          <span class="text-muted small ms-2">{{ \Carbon\Carbon::parse($s->scheduled_date)->format('d M Y') }}</span>
+                        </td>
+                        <td><a class="btn btn-outline-primary btn-sm" href="/user/student/mocktests">View</a></td>
+                      </tr>
+                    @endforeach
+
+                    @foreach(($completedMockTests ?? []) as $s)
+                      @php $any = 1; $r = optional($s->results)->first(); @endphp
+                      <tr>
+                        <td>{{ $s->mockTest->title ?? 'Mock Test' }}</td>
+                        <td>{{ (optional($s->mockTest)->courses ?? collect())->pluck('title')->filter()->implode(', ') ?: (optional($s->mockTest->course)->title ?? optional($s->mockTest)->course_id) }}</td>
+                        <td><span class="badge bg-secondary">Completed</span></td>
+                        <td>
+                          @if($r)
+                            <a class="btn btn-outline-primary btn-sm" href="{{ route('student.mocktests.result', ['resultId' => $r->id]) }}">Result</a>
+                          @else
+                            <a class="btn btn-outline-primary btn-sm" href="/user/student/mocktests">View</a>
+                          @endif
+                        </td>
+                      </tr>
+                    @endforeach
+
+                    @foreach(($publishedMockTests ?? collect()) as $mt)
+                      @php $any = 1; @endphp
+                      <tr>
+                        <td>{{ $mt->title }}</td>
+                        <td>{{ ($mt->courses ?? collect())->pluck('title')->filter()->implode(', ') ?: (optional($mt->course)->title ?? $mt->course_id) }}</td>
+                        <td>
+                          @if(!empty($publishedMockTestsScheduledIds) && in_array($mt->id, $publishedMockTestsScheduledIds))
+                            <span class="badge bg-info">Scheduled (Not assigned to you)</span>
+                          @else
+                            <span class="badge bg-warning text-dark">Awaiting Schedule</span>
+                          @endif
+                        </td>
+                        <td><a class="btn btn-outline-primary btn-sm" href="/user/student/mocktests">Open</a></td>
+                      </tr>
+                    @endforeach
+
+                    @if(!$any)
+                      <tr>
+                        <td colspan="4" class="text-muted">No mock tests found.</td>
+                      </tr>
+                    @endif
+                  </tbody>
+                </table>
+                @if(!empty($publishedMockTestsNote))
+                  <div class="small text-muted mt-2">{{ $publishedMockTestsNote }}</div>
+                @endif
+              </div>
+
                  @if($demo_request->count()>0)
                      
                 <div class="demo_box"> 

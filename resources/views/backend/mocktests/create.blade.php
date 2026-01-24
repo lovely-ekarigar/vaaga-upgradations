@@ -17,12 +17,16 @@
                         @csrf
 
                         <div class="form-group">
-                            <label>Course <span class="text-danger">*</span></label>
-                            <select class="form-control" name="course_id" required>
+                            <label>Assign to Classes <span class="text-danger">*</span></label>
+                            <select class="form-control" name="course_ids[]" multiple required size="6">
                                 @foreach(($courses ?? []) as $id => $title)
-                                    <option value="{{ $id }}">{{ $title }}</option>
+                                    <option value="{{ $id }}"
+                                        {{ in_array((string)$id, array_map('strval', (array)old('course_ids', [])), true) ? 'selected' : '' }}>
+                                        {{ $title }}
+                                    </option>
                                 @endforeach
                             </select>
+                            <small class="text-muted">Hold Ctrl (Windows) / Cmd (Mac) to select multiple.</small>
                         </div>
 
                         <div class="form-group">

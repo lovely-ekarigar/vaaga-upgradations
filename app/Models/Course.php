@@ -275,6 +275,15 @@ return $expired;
         return $this->belongsToMany(Bundle::class, 'bundle_courses');
     }
 
+    /**
+     * Mock tests assigned to this course (class).
+     */
+    public function mockTests()
+    {
+        return $this->belongsToMany(\App\Models\MockTest::class, 'mock_test_courses', 'course_id', 'mock_test_id')
+            ->withTimestamps();
+    }
+
     public function chapterCount()
     {
         $timeline = $this->courseTimeline;

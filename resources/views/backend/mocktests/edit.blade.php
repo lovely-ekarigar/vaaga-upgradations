@@ -18,14 +18,19 @@
                         @method('PUT')
 
                         <div class="form-group">
-                            <label>Course <span class="text-danger">*</span></label>
-                            <select class="form-control" name="course_id" required>
+                            <label>Assign to Classes <span class="text-danger">*</span></label>
+                            @php
+                                $selected = old('course_ids', $selectedCourseIds ?? []);
+                                $selected = array_map('strval', (array)$selected);
+                            @endphp
+                            <select class="form-control" name="course_ids[]" multiple required size="6">
                                 @foreach(($courses ?? []) as $id => $title)
-                                    <option value="{{ $id }}" {{ (string)$mockTest->course_id === (string)$id ? 'selected' : '' }}>
+                                    <option value="{{ $id }}" {{ in_array((string)$id, $selected, true) ? 'selected' : '' }}>
                                         {{ $title }}
                                     </option>
                                 @endforeach
                             </select>
+                            <small class="text-muted">Hold Ctrl (Windows) / Cmd (Mac) to select multiple.</small>
                         </div>
 
                         <div class="form-group">

@@ -44,9 +44,9 @@ class MockTestController extends Controller
             if (! Gate::allows('mocktest_delete')) {
                 return abort(401);
             }
-            $mockTests = MockTest::onlyTrashed()->get();
+            $mockTests = MockTest::onlyTrashed()->with(['courses'])->get();
         } else {
-            $mockTests = MockTest::all();
+            $mockTests = MockTest::with(['courses'])->get();
         }
         
         $courses = Course::ofTeacher()->pluck('title','id')->prepend('Please select', '');
@@ -78,7 +78,9 @@ class MockTestController extends Controller
         $mockTests = "";
 
         if ($request->course_id != "") {
-            $mockTests = MockTest::where('course_id','=',$request->course_id)->orderBy('created_at', 'desc')->get();
+            $mockTests = MockTest::whereHas('courses', function ($q) use ($request) {
+                $q->where('courses.id', '=', $request->course_id);
+            })->orderBy('created_at', 'desc')->get();
         }
 
         if (request('show_deleted') == 1) {
@@ -160,8 +162,10 @@ class MockTestController extends Controller
             return abort(401);
         }
         
-        $courses = Course::ofTeacher()->get();
-        $courses = $courses->pluck('title', 'id')->prepend('Please select', '');
+        $courses = Course::ofTeacher()
+            ->where('published', 1)
+            ->orderBy('title')
+            ->pluck('title', 'id');
 
         return view('backend.mocktests.create', compact('courses'));
     }
@@ -175,18 +179,27 @@ class MockTestController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'course_id' => 'required',
+            'course_ids' => 'required|array|min:1',
+            'course_ids.*' => 'integer|exists:courses,id',
             'title' => 'required',
             'description' => 'required'
-        ],['course_id.required' => 'The course field is required']);
+        ],['course_ids.required' => 'The class field is required']);
 
         if (! Gate::allows('mocktest_create')) {
             return abort(401);
         }
 
-        $mockTest = MockTest::create($request->all());
+        $courseIds = array_values(array_unique(array_filter($request->input('course_ids', []))));
+
+        $mockTest = MockTest::create([
+            'course_id' => $courseIds[0] ?? null, // legacy primary course
+            'title' => $request->title,
+            'description' => $request->description,
+            'published' => (int) ($request->published ?? 0),
+        ]);
         $mockTest->slug = str_slug($request->title);
         $mockTest->save();
+        $mockTest->courses()->sync($courseIds);
 
         return redirect()->route('admin.mocktests.index')->withFlashSuccess('Mock Test created successfully');
     }
@@ -203,12 +216,15 @@ class MockTestController extends Controller
             return abort(401);
         }
         
-        $courses = Course::ofTeacher()->get();
-        $courses = $courses->pluck('title', 'id')->prepend('Please select', '');
+        $courses = Course::ofTeacher()
+            ->where('published', 1)
+            ->orderBy('title')
+            ->pluck('title', 'id');
 
-        $mockTest = MockTest::findOrFail($id);
+        $mockTest = MockTest::with(['courses'])->findOrFail($id);
+        $selectedCourseIds = $mockTest->courses->pluck('id')->toArray();
 
-        return view('backend.mocktests.edit', compact('mockTest', 'courses'));
+        return view('backend.mocktests.edit', compact('mockTest', 'courses', 'selectedCourseIds'));
     }
 
     /**
@@ -225,9 +241,24 @@ class MockTestController extends Controller
         }
         
         $mockTest = MockTest::findOrFail($id);
-        $mockTest->update($request->all());
+        $this->validate($request,[
+            'course_ids' => 'required|array|min:1',
+            'course_ids.*' => 'integer|exists:courses,id',
+            'title' => 'required',
+            'description' => 'required'
+        ]);
+
+        $courseIds = array_values(array_unique(array_filter($request->input('course_ids', []))));
+
+        $mockTest->update([
+            'course_id' => $courseIds[0] ?? null, // legacy primary course
+            'title' => $request->title,
+            'description' => $request->description,
+            'published' => (int) ($request->published ?? 0),
+        ]);
         $mockTest->slug = str_slug($request->title);
         $mockTest->save();
+        $mockTest->courses()->sync($courseIds);
 
         return redirect()->route('admin.mocktests.index')->withFlashSuccess('Mock Test updated successfully');
     }
@@ -244,7 +275,7 @@ class MockTestController extends Controller
             return abort(401);
         }
         
-        $mockTest = MockTest::findOrFail($id);
+        $mockTest = MockTest::with(['courses'])->findOrFail($id);
 
         return view('backend.mocktests.show', compact('mockTest'));
     }

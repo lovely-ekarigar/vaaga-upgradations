@@ -33,13 +33,13 @@ class TutorMockTestController extends Controller
         $bids = TeacherBatch::where("tid", Auth::user()->id)->pluck('bid')->toArray();
         
         // Get all mock tests for courses that tutor teaches
-        $mockTests = MockTest::whereHas('course', function($q) {
+        $mockTests = MockTest::whereHas('courses', function($q) {
             $q->whereHas('teachers', function($t) {
                 $t->where('course_user.user_id', '=', Auth::user()->id);
             });
         })
         ->where('published', 1)
-        ->with(['course', 'questions'])
+        ->with(['courses', 'course', 'questions'])
         ->get();
 
         $batches = Batch::whereIn('id', $bids)->get();
@@ -52,10 +52,16 @@ class TutorMockTestController extends Controller
      */
     public function previewTest($id)
     {
-        $mockTest = MockTest::findOrFail($id);
+        $mockTest = MockTest::with(['courses'])->findOrFail($id);
         
-        // Verify tutor has access to this course
-        if (!$mockTest->course->teachers->contains(Auth::user()->id)) {
+        // Verify tutor has access to at least one assigned course
+        $hasCourseAccess = $mockTest->courses()
+            ->whereHas('teachers', function ($t) {
+                $t->where('course_user.user_id', '=', Auth::user()->id);
+            })
+            ->exists();
+
+        if (!$hasCourseAccess) {
             return abort(403, 'You do not have access to this mock test.');
         }
 
@@ -69,12 +75,18 @@ class TutorMockTestController extends Controller
      */
     public function scheduleForm($id)
     {
-        $mockTest = MockTest::findOrFail($id);
+        $mockTest = MockTest::with(['courses'])->findOrFail($id);
         
         // Get tutor's batches for this course
         $bids = TeacherBatch::where("tid", Auth::user()->id)->pluck('bid')->toArray();
+        $courseIds = $mockTest->courses->pluck('id')->toArray();
+        if (empty($courseIds) && $mockTest->course_id) {
+            $courseIds = [(int) $mockTest->course_id];
+        }
         $batches = Batch::whereIn('id', $bids)
-            ->where('cid', $mockTest->course_id)
+            ->when(!empty($courseIds), function ($q) use ($courseIds) {
+                $q->whereIn('cid', $courseIds);
+            })
             ->get();
 
         return view('backend.tutor.mocktests.schedule', compact('mockTest', 'batches'));

@@ -138,8 +138,16 @@
                                 @foreach($publishedTests as $mt)
                                     <tr>
                                         <td>{{ $mt->title }}</td>
-                                        <td>{{ optional($mt->course)->title ?? $mt->course_id }}</td>
-                                        <td><span class="badge bg-secondary">Awaiting Schedule</span></td>
+                                        <td>
+                                            {{ ($mt->courses ?? collect())->pluck('title')->filter()->implode(', ') ?: (optional($mt->course)->title ?? $mt->course_id) }}
+                                        </td>
+                                        <td>
+                                            @if(!empty($publishedScheduledIds) && in_array($mt->id, $publishedScheduledIds))
+                                                <span class="badge bg-info">Scheduled (Not assigned to you)</span>
+                                            @else
+                                                <span class="badge bg-secondary">Awaiting Schedule</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                                 </tbody>

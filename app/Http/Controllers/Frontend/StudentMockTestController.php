@@ -7,6 +7,7 @@ use App\Models\MockTestSchedule;
 use App\Models\MockTestResponse;
 use App\Models\MockTestResult;
 use App\Models\StudentTeacherBatch;
+use App\Models\Batch;
 use App\Models\Question;
 use App\Models\QuestionsOption;
 use App\Services\NotificationService;
@@ -30,17 +31,20 @@ class StudentMockTestController extends Controller
      */
     public function dashboard()
     {
-        // Get student's batches (if your installation uses batches)
-        $batchIds = [];
-        if (\Schema::hasTable('student_teacher_batches')) {
-            $batchIds = StudentTeacherBatch::where('uid', Auth::user()->id)->pluck('bid')->toArray();
-        }
+        // Class-based access:
+        // - identify the student's classes (courses) dynamically
+        // - show only mock tests assigned to those classes
+        $courseIds = $this->getStudentCourseIds();
+        $batchIds = $this->getStudentBatchIds($courseIds);
 
-        // Get all scheduled mock tests for student's batches
+        // Get all scheduled mock tests for student's accessible batches
         $schedules = collect();
-        if (!empty($batchIds)) {
+        if (!empty($batchIds) && !empty($courseIds)) {
             $schedules = MockTestSchedule::whereIn('batch_id', $batchIds)
-                ->with(['mockTest', 'batch', 'results' => function($q) {
+                ->whereHas('mockTest.courses', function ($q) use ($courseIds) {
+                    $q->whereIn('courses.id', $courseIds);
+                })
+                ->with(['mockTest.courses', 'mockTest.course', 'batch', 'results' => function($q) {
                     $q->where('student_id', Auth::user()->id);
                 }])
                 ->orderBy('scheduled_date', 'asc')
@@ -65,60 +69,51 @@ class StudentMockTestController extends Controller
             }
         }
 
-        // Fallback: show published mock tests for student's courses even if not scheduled to batches yet.
+        $scheduledMockTestIds = $schedules->pluck('mock_test_id')->unique()->values()->all();
+
+        // Published mock tests list (exclude those already scheduled to the student via batches)
         $publishedTests = [];
         $publishedTestsNote = null;
+        $publishedScheduledIds = [];
         try {
-            $courseIds = [];
-
-            // 1) If you use course_user pivot
-            try {
-                $courseIds = array_merge($courseIds, Auth::user()->courses()->pluck('courses.id')->toArray());
-            } catch (\Throwable $e) {
-                // ignore
-            }
-
-            // 2) If courses are determined via Orders (this is what student dashboard uses in many setups)
-            try {
-                foreach (Auth::user()->purchasedCourses() as $c) {
-                    if ($c && isset($c->id)) {
-                        $courseIds[] = (int) $c->id;
-                    }
-                }
-            } catch (\Throwable $e) {
-                // ignore
-            }
-
-            // 3) If purchases() is used
-            try {
-                foreach (Auth::user()->purchases() as $c) {
-                    if ($c && isset($c->id)) {
-                        $courseIds[] = (int) $c->id;
-                    }
-                }
-            } catch (\Throwable $e) {
-                // ignore
-            }
-
-            $courseIds = array_values(array_unique(array_filter($courseIds)));
-
             $publishedTests = MockTest::where('published', 1)
                 ->when(!empty($courseIds), function ($q) use ($courseIds) {
-                    $q->whereIn('course_id', $courseIds);
+                    $q->whereHas('courses', function ($c) use ($courseIds) {
+                        $c->whereIn('courses.id', $courseIds);
+                    });
+                }, function ($q) {
+                    // If student has no class mapping, don't show any tests.
+                    $q->whereRaw('1=0');
+                })
+                ->when(!empty($scheduledMockTestIds), function ($q) use ($scheduledMockTestIds) {
+                    $q->whereNotIn('id', $scheduledMockTestIds);
                 })
                 ->orderByDesc('id')
+                ->with(['courses', 'course'])
                 ->get();
 
-            // If no match for the student's course mapping, still show published tests (visibility only; attempts still need schedule).
             if ($publishedTests->isEmpty()) {
-                $publishedTestsNote = 'Showing all published tests (not yet scheduled).';
-                $publishedTests = MockTest::where('published', 1)->orderByDesc('id')->get();
+                $publishedTestsNote = 'No published mock tests are assigned to your class yet.';
+            }
+
+            if ($publishedTests->isNotEmpty()) {
+                $publishedScheduledIds = MockTestSchedule::whereIn('mock_test_id', $publishedTests->pluck('id')->toArray())
+                    ->distinct()
+                    ->pluck('mock_test_id')
+                    ->toArray();
             }
         } catch (\Throwable $e) {
             $publishedTests = [];
         }
 
-        return view('frontend.mocktests.dashboard', compact('upcomingTests', 'availableTests', 'completedTests', 'publishedTests', 'publishedTestsNote'));
+        return view('frontend.mocktests.dashboard', compact(
+            'upcomingTests',
+            'availableTests',
+            'completedTests',
+            'publishedTests',
+            'publishedTestsNote',
+            'publishedScheduledIds'
+        ));
     }
 
     /**
@@ -129,14 +124,42 @@ class StudentMockTestController extends Controller
         $schedule = MockTestSchedule::findOrFail($scheduleId);
         $mockTest = $schedule->mockTest;
 
-        // Verify student is in the batch
-        $isInBatch = StudentTeacherBatch::where('uid', Auth::user()->id)
-            ->where('bid', $schedule->batch_id)
-            ->exists();
+        // Verify student can access the batch (either assigned to batch OR has purchased the batch's course)
+        $isInBatch = false;
+        if (\Schema::hasTable('student_teacher_batches')) {
+            $isInBatch = StudentTeacherBatch::where('uid', Auth::user()->id)
+                ->where('bid', $schedule->batch_id)
+                ->exists();
+        }
+
+        if (!$isInBatch) {
+            try {
+                $courseIds = [];
+                foreach (Auth::user()->purchasedCourses() as $c) {
+                    if ($c && isset($c->id)) $courseIds[] = (int) $c->id;
+                }
+                foreach (Auth::user()->purchases() as $c) {
+                    if ($c && isset($c->id)) $courseIds[] = (int) $c->id;
+                }
+                $courseIds = array_values(array_unique(array_filter($courseIds)));
+                $batch = $schedule->batch ?: Batch::find($schedule->batch_id);
+                if ($batch && isset($batch->cid) && in_array((int)$batch->cid, $courseIds, true)) {
+                    $isInBatch = true;
+                }
+            } catch (\Throwable $e) {
+                // ignore
+            }
+        }
 
         if (!$isInBatch) {
             return redirect()->route('student.mocktests.dashboard')
                 ->withFlashDanger('You do not have access to this mock test.');
+        }
+
+        // Enforce class authorization for direct access via URL (403 if not assigned)
+        $courseIds = $this->getStudentCourseIds();
+        if (!$this->isAuthorizedForMockTest($mockTest, $courseIds)) {
+            return abort(403, 'You do not have access to this mock test.');
         }
 
         // Check if can attempt
@@ -280,5 +303,72 @@ class StudentMockTestController extends Controller
             ->get();
 
         return view('frontend.mocktests.result', compact('result', 'mockTest', 'schedule', 'responses'));
+    }
+
+    private function getStudentCourseIds(): array
+    {
+        $courseIds = [];
+
+        try {
+            foreach (Auth::user()->purchasedCourses() as $c) {
+                if ($c && isset($c->id)) $courseIds[] = (int) $c->id;
+            }
+        } catch (\Throwable $e) {}
+
+        try {
+            foreach (Auth::user()->purchases() as $c) {
+                if ($c && isset($c->id)) $courseIds[] = (int) $c->id;
+            }
+        } catch (\Throwable $e) {}
+
+        try {
+            $courseIds = array_merge($courseIds, Auth::user()->courses()->pluck('courses.id')->toArray());
+        } catch (\Throwable $e) {}
+
+        // Also include the course IDs inferred from the student's batch enrollments.
+        try {
+            if (\Schema::hasTable('student_teacher_batches')) {
+                $bids = StudentTeacherBatch::where('uid', Auth::user()->id)->pluck('bid')->toArray();
+                if (!empty($bids)) {
+                    $courseIds = array_merge($courseIds, Batch::whereIn('id', $bids)->pluck('cid')->toArray());
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        $courseIds = array_values(array_unique(array_filter(array_map('intval', $courseIds))));
+
+        return $courseIds;
+    }
+
+    private function getStudentBatchIds(array $courseIds): array
+    {
+        $batchIds = [];
+
+        try {
+            if (\Schema::hasTable('student_teacher_batches')) {
+                $batchIds = array_merge($batchIds, StudentTeacherBatch::where('uid', Auth::user()->id)->pluck('bid')->toArray());
+            }
+        } catch (\Throwable $e) {}
+
+        if (!empty($courseIds)) {
+            try {
+                $batchIds = array_merge($batchIds, Batch::whereIn('cid', $courseIds)->pluck('id')->toArray());
+            } catch (\Throwable $e) {}
+        }
+
+        $batchIds = array_values(array_unique(array_filter(array_map('intval', $batchIds))));
+
+        return $batchIds;
+    }
+
+    private function isAuthorizedForMockTest(MockTest $mockTest, array $courseIds): bool
+    {
+        if (empty($courseIds)) {
+            return false;
+        }
+
+        return $mockTest->courses()
+            ->whereIn('courses.id', $courseIds)
+            ->exists();
     }
 }

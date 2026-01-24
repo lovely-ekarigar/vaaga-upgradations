@@ -18,7 +18,10 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div><strong>Course:</strong> {{ optional($mockTest->course)->title ?? $mockTest->course_id }}</div>
+                    <div>
+                        <strong>Assigned Classes:</strong>
+                        {{ ($mockTest->courses ?? collect())->pluck('title')->filter()->implode(', ') ?: (optional($mockTest->course)->title ?? $mockTest->course_id) }}
+                    </div>
                     <div class="mt-2"><strong>Description:</strong><br>{{ $mockTest->description }}</div>
                     <div class="mt-2"><strong>Published:</strong> {{ (int)($mockTest->published ?? 0) === 1 ? 'Yes' : 'No' }}</div>
                 </div>

@@ -30,7 +30,8 @@ class MockTest extends Model
         if(auth()->check()) {
             if (auth()->user()->hasRole('teacher')) {
                 static::addGlobalScope('filter', function (Builder $builder) {
-                    $builder->whereHas('course', function ($q) {
+                    // Teacher can see mock tests assigned to any course they teach.
+                    $builder->whereHas('courses', function ($q) {
                         $q->whereHas('teachers', function ($t) {
                             $t->where('course_user.user_id', '=', auth()->user()->id);
                         });
@@ -58,6 +59,16 @@ class MockTest extends Model
     public function course()
     {
         return $this->belongsTo(Course::class, 'course_id')->withTrashed();
+    }
+
+    /**
+     * Courses (Classes) this mock test is assigned to.
+     */
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'mock_test_courses', 'mock_test_id', 'course_id')
+            ->withTimestamps()
+            ->withTrashed();
     }
 
     public function creator()

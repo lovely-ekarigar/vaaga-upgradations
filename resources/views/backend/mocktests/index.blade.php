@@ -34,7 +34,9 @@
                                 <tr>
                                     <td>{{ $mt->id }}</td>
                                     <td>{{ $mt->title }}</td>
-                                    <td>{{ optional($mt->course)->title ?? $mt->course_id }}</td>
+                                    <td>
+                                        {{ ($mt->courses ?? collect())->pluck('title')->filter()->implode(', ') ?: (optional($mt->course)->title ?? $mt->course_id) }}
+                                    </td>
                                     <td>
                                         @if((int)($mt->published ?? 0) === 1)
                                             <span class="badge badge-success">Yes</span>
