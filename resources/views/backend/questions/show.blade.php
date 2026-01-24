@@ -2,6 +2,10 @@
 @section('title', __('labels.backend.questions.title').' | '.app_name())
 
 @section('content')
+    @php
+        $editorjsData = json_decode($question->question, true);
+        $hasEditorJs = is_array($editorjsData) && isset($editorjsData['blocks']) && is_array($editorjsData['blocks']);
+    @endphp
     <div class="card">
         <div class="card-header">
             <h3 class="page-title float-left mb-0">@lang('labels.backend.questions.title')</h3>
@@ -12,7 +16,13 @@
                     <table class="table table-bordered table-striped">
                         <tr>
                             <th>@lang('labels.backend.questions.fields.question')</th>
-                            <td>{!! $question->question !!}</td>
+                            <td>
+                                @if($hasEditorJs)
+                                    <div id="editorjs_readonly" class="border rounded-lg p-4 bg-white" style="min-height: 150px;"></div>
+                                @else
+                                    {!! $question->question !!}
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <th>@lang('labels.backend.questions.fields.question_image')</th>
@@ -176,3 +186,47 @@
         </div>
     </div>
 @stop
+
+@push('after-scripts')
+@if($hasEditorJs)
+    <script type="module">
+        import EditorJS from 'https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest/+esm';
+        import Header from 'https://cdn.jsdelivr.net/npm/@editorjs/header@latest/+esm';
+        import List from 'https://cdn.jsdelivr.net/npm/@editorjs/list@latest/+esm';
+        import ImageTool from 'https://cdn.jsdelivr.net/npm/@editorjs/image@latest/+esm';
+
+        (function () {
+            if (!EditorJS) return;
+            const raw = @json($question->question);
+
+            let data;
+            try {
+                data = JSON.parse(raw);
+            } catch (e) {
+                data = null;
+            }
+
+            if (!data || !Array.isArray(data.blocks)) return;
+
+            new EditorJS({
+                holder: 'editorjs_readonly',
+                readOnly: true,
+                data: data,
+                tools: {
+                    header: {
+                        class: Header,
+                        inlineToolbar: ['link']
+                    },
+                    list: {
+                        class: List,
+                        inlineToolbar: true
+                    },
+                    image: {
+                        class: ImageTool
+                    }
+                }
+            });
+        })();
+    </script>
+@endif
+@endpush

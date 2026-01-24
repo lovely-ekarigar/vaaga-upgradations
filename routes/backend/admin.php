@@ -527,6 +527,29 @@ Route::post('tests_restore/{id}', ['uses' => 'Admin\TestsController@restore', 'a
 Route::delete('tests_perma_del/{id}', ['uses' => 'Admin\TestsController@perma_del', 'as' => 'tests.perma_del']);
 
 
+//===== Mock Tests Routes =====//
+Route::group(['prefix' => 'mocktests', 'as' => 'mocktests.'], function () {
+    Route::get('/', ['uses' => 'Admin\MockTestController@index', 'as' => 'index']);
+    Route::get('create', ['uses' => 'Admin\MockTestController@create', 'as' => 'create']);
+    Route::post('/', ['uses' => 'Admin\MockTestController@store', 'as' => 'store']);
+    Route::get('{id}/edit', ['uses' => 'Admin\MockTestController@edit', 'as' => 'edit']);
+    Route::put('{id}', ['uses' => 'Admin\MockTestController@update', 'as' => 'update']);
+    Route::get('{id}', ['uses' => 'Admin\MockTestController@show', 'as' => 'show']);
+    Route::delete('{id}', ['uses' => 'Admin\MockTestController@destroy', 'as' => 'destroy']);
+    Route::post('assign-batch', ['uses' => 'Admin\MockTestController@assignBatch', 'as' => 'assign_batch']);
+    Route::get('schedules/{id}', ['uses' => 'Admin\MockTestController@viewSchedules', 'as' => 'schedules']);
+    Route::get('results/{scheduleId}', ['uses' => 'Admin\MockTestController@viewResults', 'as' => 'results']);
+    Route::get('analysis/{scheduleId}/{studentId}', ['uses' => 'Admin\MockTestController@testAnalysis', 'as' => 'analysis']);
+    Route::get('question-reports', ['uses' => 'Admin\MockTestController@questionReports', 'as' => 'question_reports']);
+    Route::post('resolve-report/{id}', ['uses' => 'Admin\MockTestController@resolveReport', 'as' => 'resolve_report']);
+    Route::get('get-data', ['uses' => 'Admin\MockTestController@getData', 'as' => 'get_data']);
+    Route::post('mass_destroy', ['uses' => 'Admin\MockTestController@massDestroy', 'as' => 'mass_destroy']);
+    Route::post('restore/{id}', ['uses' => 'Admin\MockTestController@restore', 'as' => 'restore']);
+    Route::delete('perma_del/{id}', ['uses' => 'Admin\MockTestController@perma_del', 'as' => 'perma_del']);
+});
+
+
+
 //===== Media Routes =====//
 Route::post('media/remove', ['uses' => 'Admin\MediaController@destroy', 'as' => 'media.destroy']);
 

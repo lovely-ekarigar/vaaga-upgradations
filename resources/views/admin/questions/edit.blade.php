@@ -15,6 +15,30 @@ use Illuminate\Support\Str;
     svg{
         height: 30px;
     }
+
+    .editorjs-holder {
+        min-height: 180px;
+        border: 1px solid rgba(0, 0, 0, .12);
+        border-radius: 10px;
+        background: #fff;
+        padding: 14px 16px;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .editorjs-holder.editorjs-sm {
+        min-height: 140px;
+        padding: 12px 14px;
+    }
+
+    .editorjs-holder:focus-within {
+        border-color: rgba(13, 110, 253, .55);
+        box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .12);
+    }
+
+    .editorjs-holder .ce-block__content,
+    .editorjs-holder .ce-toolbar__content {
+        max-width: 100%;
+    }
 </style>
 @stop
 
@@ -73,7 +97,9 @@ use Illuminate\Support\Str;
                             <div class="row g-3">
                                 <div class="col-md-12">
                                     <label class="form-label small text-muted fw-bold">English</label>
-                                    <textarea name="question_text[en]" class="form-control question-input" rows="3" >{{ old('question_text.en', $questionText['en'] ?? '') }}</textarea>
+                                    <div id="editorjs_question_en" class="border rounded-lg p-4 bg-white editorjs-holder"></div>
+                                    <textarea id="question_text_en" name="question_text[en]" class="form-control question-input d-none" rows="3">{{ old('question_text.en', $questionText['en'] ?? '') }}</textarea>
+                                    <div id="editorjsQuestionError" class="invalid-feedback d-block" style="display:none"></div>
                                 </div>
                                 
                             </div>
@@ -103,7 +129,8 @@ use Illuminate\Support\Str;
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label small text-muted">English</label>
-                                                <textarea name="options[{{ $key }}][en]" class="form-control option-input" rows="2">{{ old("options.$key.en", $option['en'] ?? '') }}</textarea>
+                                                <div id="editorjs_option_{{ $key }}_en" class="border rounded-lg p-4 bg-white editorjs-holder editorjs-sm"></div>
+                                                <textarea id="option_{{ $key }}_en" name="options[{{ $key }}][en]" class="form-control option-input d-none" rows="2">{{ old("options.$key.en", $option['en'] ?? '') }}</textarea>
                                             </div>
                                            
                                         </div>
@@ -124,7 +151,8 @@ use Illuminate\Support\Str;
                         <div class="card-body">
                             <div class="mb-3">
                                 <label class="form-label small text-muted fw-bold">English</label>
-                                <textarea name="solution[en]" class="form-control solution-input" rows="3" >{{ old('solution.en', $solutionText['en'] ?? '') }}</textarea>
+                                <div id="editorjs_solution_en" class="border rounded-lg p-4 bg-white editorjs-holder"></div>
+                                <textarea id="solution_en" name="solution[en]" class="form-control solution-input d-none" rows="3">{{ old('solution.en', $solutionText['en'] ?? '') }}</textarea>
                             </div>
                             
                         </div>
@@ -196,70 +224,160 @@ use Illuminate\Support\Str;
 </div>
 @stop
 
-@push('after-scripts'))
-            <script src="https://bloomeditor.com/editor/bloom_QDpoh0v5zV4QkpZpoWiF6rvfKu8GpFCPBn8AfVpC/editor.js"></script>
-
+@push('after-scripts')
+<script>
+    // Prevent UMD builds from thinking CommonJS is available
+    window.module = undefined;
+    window.exports = undefined;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.31.1/dist/editorjs.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.8.8/dist/header.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@2.0.9/dist/editorjs-list.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@2.10.3/dist/image.umd.js"></script>
 
 <script>
-    
-    
-      document.addEventListener('DOMContentLoaded', function() {
-            // Initialize the editor with the full, image-matched toolbar
-            const editor = BloomEditor.init({
-                selector: 'textarea',
-                theme: 'light',
-                height: '300px',
-                toolbar: [
-                    'undo', 'redo', 'sep',
-                    'heading', 'fontFamily', 'fontSize', 'sep',
-                    'bold', 'italic', 'underline', 'strike', 'sep',
-                    'foreColor', 'backColor', 'sep',
-                    'link', 'image', 'media', 'table', 'math', 'fullscreen','more',
+    (function () {
+        const form = document.getElementById('questionForm');
+        const errorEl = document.getElementById('editorjsQuestionError');
+
+        if (!form || !window.EditorJS) return;
+
+        const ListTool = window.EditorjsList; // list tool UMD global
+        const ImageTool = window.ImageTool;
+        const HeaderTool = window.Header;
+
+        function isEmptyEditorData(data) {
+            if (!data || !Array.isArray(data.blocks) || data.blocks.length === 0) return true;
+            return !data.blocks.some((b) => {
+                const t = b && b.type;
+                const d = (b && b.data) || {};
+                if (t === 'paragraph' || t === 'header') return !!(d.text && String(d.text).replace(/<[^>]*>/g, '').trim());
+                if (t === 'list') return Array.isArray(d.items) && d.items.some(i => String(i || '').replace(/<[^>]*>/g, '').trim());
+                if (t === 'image') return !!(d.file && d.file.url);
+                return Object.keys(d).length > 0;
+            });
+        }
+
+        function htmlToInitialData(html) {
+            const trimmed = (html || '').trim();
+            if (!trimmed) return undefined;
+            return {
+                time: Date.now(),
+                blocks: [
+                    { type: 'paragraph', data: { text: trimmed } }
                 ]
-            });
+            };
+        }
 
-            // Get content button functionality
-            document.getElementById('getContentBtn').addEventListener('click', function() {
-                const content = editor.getContent('#myRednEditor');
-                const output = document.getElementById('output');
-                output.innerHTML = `
-                    <h3>Preview:</h3>
-                    <div style="border: 1px solid #e5e7eb; padding: 15px; border-radius: 6px; background: white;">
-                        ${content}
-                    </div>
-                    <h4 style="margin-top: 15px;">Raw HTML:</h4>
-                    <pre style="background: #1f2937; color: #f9fafb; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px;">${escapeHtml(content)}</pre>
-                `;
-                output.classList.remove('hidden');
-            });
+        function editorDataToHtml(data) {
+            if (!data || !Array.isArray(data.blocks)) return '';
+            return data.blocks.map((b) => {
+                const t = b.type;
+                const d = b.data || {};
+                if (t === 'header') {
+                    const level = Number(d.level) || 2;
+                    return `<h${level}>${d.text || ''}</h${level}>`;
+                }
+                if (t === 'paragraph') return `<p>${d.text || ''}</p>`;
+                if (t === 'list') {
+                    const tag = d.style === 'ordered' ? 'ol' : 'ul';
+                    const items = Array.isArray(d.items) ? d.items : [];
+                    return `<${tag}>${items.map(i => `<li>${i || ''}</li>`).join('')}</${tag}>`;
+                }
+                if (t === 'image') {
+                    const url = d.file && d.file.url ? d.file.url : '';
+                    const caption = d.caption ? `<figcaption>${d.caption}</figcaption>` : '';
+                    if (!url) return '';
+                    return `<figure><img src="${url}" alt=""/>${caption}</figure>`;
+                }
+                return '';
+            }).join('');
+        }
 
-            // Form submission handler
-            document.getElementById('editorForm').addEventListener('submit', function(e) {
-                // The content is automatically synchronized with the hidden textarea
-                // by the RednEdit editor, so no additional handling is needed
-                console.log('Form submitted with RednEdit content');
-                
-                // You can add additional validation or processing here if needed
-                // const content = editor.getContent('#myRednEditor');
-                // console.log('Content to be submitted:', content);
-            });
+        function makeEditor(holderId, textareaId) {
+            const textarea = document.getElementById(textareaId);
+            if (!textarea) return null;
 
-            // Utility function to escape HTML for display
-            function escapeHtml(unsafe) {
-                return unsafe
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#039;");
+            return new EditorJS({
+                holder: holderId,
+                autofocus: false,
+                data: htmlToInitialData(textarea.value),
+                tools: {
+                    header: { class: HeaderTool, inlineToolbar: ['link'] },
+                    list: { class: ListTool, inlineToolbar: true },
+                    image: {
+                        class: ImageTool,
+                        config: {
+                            uploader: {
+                                uploadByFile(file) {
+                                    return new Promise((resolve, reject) => {
+                                        const reader = new FileReader();
+                                        reader.onload = () => resolve({ success: 1, file: { url: reader.result } });
+                                        reader.onerror = () => reject(reader.error || new Error('File read failed'));
+                                        reader.readAsDataURL(file);
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        const editors = [];
+        const qEditor = makeEditor('editorjs_question_en', 'question_text_en');
+        if (qEditor) editors.push({ editor: qEditor, textareaId: 'question_text_en', required: true });
+
+        const sEditor = makeEditor('editorjs_solution_en', 'solution_en');
+        if (sEditor) editors.push({ editor: sEditor, textareaId: 'solution_en', required: false });
+
+        // Options (supports any keys present)
+        document.querySelectorAll('[id^="editorjs_option_"][id$="_en"]').forEach((holder) => {
+            const id = holder.id; // editorjs_option_{key}_en
+            const key = id.replace('editorjs_option_', '').replace('_en', '');
+            const textareaId = `option_${key}_en`;
+            const ed = makeEditor(id, textareaId);
+            if (ed) editors.push({ editor: ed, textareaId, required: false });
+        });
+
+        let isSubmitting = false;
+
+        form.addEventListener('submit', async function (e) {
+            if (isSubmitting) return;
+            e.preventDefault();
+
+            if (errorEl) {
+                errorEl.style.display = 'none';
+                errorEl.textContent = '';
+            }
+
+            try {
+                for (const item of editors) {
+                    const data = await item.editor.save();
+                    if (item.required && isEmptyEditorData(data)) {
+                        if (errorEl) {
+                            errorEl.textContent = 'Please enter a question before updating.';
+                            errorEl.style.display = 'block';
+                        }
+                        document.getElementById('editorjs_question_en')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
+
+                    const html = editorDataToHtml(data);
+                    const textarea = document.getElementById(item.textareaId);
+                    if (textarea) textarea.value = html;
+                }
+
+                isSubmitting = true;
+                form.submit();
+            } catch (err) {
+                console.error(err);
+                if (errorEl) {
+                    errorEl.textContent = 'Could not save the editor content. Please try again.';
+                    errorEl.style.display = 'block';
+                }
             }
         });
-        
-        
-
+    })();
 </script>
-
-
-
-
 @endpush

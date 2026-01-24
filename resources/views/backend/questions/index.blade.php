@@ -65,6 +65,68 @@
     <script>
 
         $(document).ready(function () {
+            function stripHtml(html) {
+                const div = document.createElement('div');
+                div.innerHTML = html || '';
+                return (div.textContent || div.innerText || '').trim();
+            }
+
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return String(text || '').replace(/[&<>"']/g, (m) => map[m]);
+            }
+
+            function extractPreviewFromEditorJsJson(raw) {
+                if (!raw) return '';
+                const s = String(raw).trim();
+                if (!s) return '';
+
+                let parsed;
+                try {
+                    parsed = JSON.parse(s);
+                } catch (e) {
+                    parsed = null;
+                }
+
+                if (!parsed || !Array.isArray(parsed.blocks)) {
+                    return stripHtml(s);
+                }
+
+                const parts = [];
+                for (const b of parsed.blocks) {
+                    if (!b || !b.type) continue;
+                    const d = b.data || {};
+
+                    if (b.type === 'header' || b.type === 'paragraph') {
+                        const t = stripHtml(d.text);
+                        if (t) parts.push(t);
+                    } else if (b.type === 'list' && Array.isArray(d.items)) {
+                        for (const item of d.items) {
+                            const t = stripHtml(item);
+                            if (t) parts.push(t);
+                        }
+                    } else if (b.type === 'image' && d.file && d.file.url) {
+                        parts.push('[Image]');
+                    }
+
+                    if (parts.join(' ').length > 220) break;
+                }
+
+                return parts.join(' ').trim();
+            }
+
+            function truncate(text, maxLen) {
+                const t = String(text || '');
+                if (t.length <= maxLen) return t;
+                return t.slice(0, maxLen - 1).trimEnd() + '…';
+            }
+
             var route = '{{route('admin.questions.get_data')}}';
 
             @if(request('show_deleted') == 1)
@@ -104,7 +166,16 @@
                     }, "orderable": false, "searchable":false, "name":"id" },
                         @endif
                     {data: "DT_RowIndex", name: 'DT_RowIndex'},
-                    {data: "question", name: 'question'},
+                    {
+                        data: "question",
+                        name: 'question',
+                        render: function (data, type, row) {
+                            // Keep sorting/filtering stable while improving display
+                            if (type !== 'display') return data;
+                            const preview = extractPreviewFromEditorJsJson(data);
+                            return escapeHtml(truncate(preview, 220));
+                        }
+                    },
                     {data: "question_image", name: 'question_image'},
                     {data: "score", name: "score"},
                     {data: "actions", name: "actions"}

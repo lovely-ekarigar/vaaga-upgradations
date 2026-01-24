@@ -1,9 +1,32 @@
 @extends('backend.layouts.app')
 @section('title', __('labels.backend.questions.title').' | '.app_name())
 
+@push('after-styles')
+<style>
+    .editorjs-holder {
+        min-height: 300px;
+        border: 1px solid rgba(0, 0, 0, .12);
+        border-radius: 10px;
+        background: #fff;
+        padding: 14px 16px;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .editorjs-holder:focus-within {
+        border-color: rgba(13, 110, 253, .55);
+        box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .12);
+    }
+
+    .editorjs-holder .ce-block__content,
+    .editorjs-holder .ce-toolbar__content {
+        max-width: 100%;
+    }
+</style>
+@endpush
+
 @section('content')
 
-    {!! Form::model($question, ['method' => 'PUT', 'route' => ['admin.questions.update', $question->id], 'files' => true,]) !!}
+    {!! Form::model($question, ['method' => 'PUT', 'route' => ['admin.questions.update', $question->id], 'files' => true, 'id' => 'questionForm']) !!}
 
     <div class="card">
         <div class="card-header">
@@ -17,7 +40,9 @@
             <div class="row">
                 <div class="col-12 form-group">
                     {!! Form::label('question',  trans('labels.backend.questions.fields.question').'*', ['class' => 'control-label']) !!}
-                    {!! Form::textarea('question', old('question'), ['class' => 'form-control ', 'placeholder' => '', 'required' => '']) !!}
+                    <div id="editorjs" class="border rounded-lg p-4 bg-white editorjs-holder"></div>
+                    {!! Form::hidden('question', old('question', $question->question), ['id' => 'question_body']) !!}
+                    <div id="editorjsError" class="invalid-feedback d-block" style="display:none"></div>
                     <p class="help-block"></p>
                     @if($errors->has('question'))
                         <p class="help-block">
@@ -147,4 +172,159 @@
 
     {!! Form::close() !!}
 @stop
+
+@push('after-scripts')
+<script type="module">
+    import EditorJS from 'https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest/+esm';
+    import Header from 'https://cdn.jsdelivr.net/npm/@editorjs/header@latest/+esm';
+    import List from 'https://cdn.jsdelivr.net/npm/@editorjs/list@latest/+esm';
+    import ImageTool from 'https://cdn.jsdelivr.net/npm/@editorjs/image@latest/+esm';
+
+    (function () {
+        const form = document.getElementById('questionForm');
+        const holder = document.getElementById('editorjs');
+        const hidden = document.getElementById('question_body');
+        const errorEl = document.getElementById('editorjsError');
+
+        if (!form || !holder || !hidden || !EditorJS) {
+            if (holder) holder.innerHTML = '<div style="color:#b42318;font-size:13px;">Editor failed to load. Please refresh the page.</div>';
+            return;
+        }
+
+        function stripHtml(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html || '';
+            return (div.textContent || div.innerText || '').trim();
+        }
+
+        function isEditorDataEmpty(data) {
+            if (!data || !Array.isArray(data.blocks) || data.blocks.length === 0) return true;
+
+            return !data.blocks.some((block) => {
+                const type = block && block.type;
+                const d = (block && block.data) || {};
+
+                if (type === 'paragraph' || type === 'header') {
+                    return stripHtml(d.text).length > 0;
+                }
+
+                if (type === 'list') {
+                    return Array.isArray(d.items) && d.items.some(i => stripHtml(i).length > 0);
+                }
+
+                if (type === 'image') {
+                    return !!(d.file && d.file.url);
+                }
+
+                return Object.keys(d).length > 0;
+            });
+        }
+
+        function wrapLegacyText(text) {
+            const trimmed = (text || '').trim();
+            if (!trimmed) return undefined;
+
+            return {
+                time: Date.now(),
+                blocks: [
+                    {
+                        type: 'paragraph',
+                        data: { text: trimmed }
+                    }
+                ]
+            };
+        }
+
+        function parseInitialData(raw) {
+            const trimmed = (raw || '').trim();
+            if (!trimmed) return undefined;
+
+            try {
+                const parsed = JSON.parse(trimmed);
+                if (parsed && Array.isArray(parsed.blocks)) return parsed;
+            } catch (e) {
+                // ignore
+            }
+
+            return wrapLegacyText(trimmed);
+        }
+
+        function fileToDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error || new Error('File read failed'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        const initialData = parseInitialData(hidden.value);
+
+        const editor = new EditorJS({
+            holder: 'editorjs',
+            autofocus: true,
+            placeholder: 'Type your question here...',
+            data: initialData,
+            tools: {
+                header: {
+                    class: Header,
+                    inlineToolbar: ['link']
+                },
+                list: {
+                    class: List,
+                    inlineToolbar: true
+                },
+                image: {
+                    class: ImageTool,
+                    config: {
+                        uploader: {
+                            uploadByFile(file) {
+                                return fileToDataUrl(file).then((url) => ({
+                                    success: 1,
+                                    file: { url }
+                                }));
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        let isSubmitting = false;
+
+        form.addEventListener('submit', async function (e) {
+            if (isSubmitting) return;
+            e.preventDefault();
+
+            if (errorEl) {
+                errorEl.style.display = 'none';
+                errorEl.textContent = '';
+            }
+
+            try {
+                const data = await editor.save();
+
+                if (isEditorDataEmpty(data)) {
+                    if (errorEl) {
+                        errorEl.textContent = 'Please enter a question before updating.';
+                        errorEl.style.display = 'block';
+                    }
+                    holder.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
+                hidden.value = JSON.stringify(data);
+                isSubmitting = true;
+                form.submit();
+            } catch (err) {
+                console.error(err);
+                if (errorEl) {
+                    errorEl.textContent = 'Could not save the editor content. Please try again.';
+                    errorEl.style.display = 'block';
+                }
+            }
+        });
+    })();
+</script>
+@endpush
 

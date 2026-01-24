@@ -1,0 +1,275 @@
+<?php
+
+namespace App\Http\Controllers\Backend\Tutor;
+
+use App\Models\MockTest;
+use App\Models\MockTestSchedule;
+use App\Models\MockTestQuestionReport;
+use App\Models\MockTestResult;
+use App\Models\Batch;
+use App\Models\TeacherBatch;
+use App\Models\StudentTeacherBatch;
+use App\Models\Auth\User;
+use App\Services\NotificationService;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Auth;
+
+class TutorMockTestController extends Controller
+{
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
+    /**
+     * Display available mock tests for tutor's batches
+     */
+    public function availableTests()
+    {
+        // Get tutor's batches
+        $bids = TeacherBatch::where("tid", Auth::user()->id)->pluck('bid')->toArray();
+        
+        // Get all mock tests for courses that tutor teaches
+        $mockTests = MockTest::whereHas('course', function($q) {
+            $q->whereHas('teachers', function($t) {
+                $t->where('course_user.user_id', '=', Auth::user()->id);
+            });
+        })
+        ->where('published', 1)
+        ->with(['course', 'questions'])
+        ->get();
+
+        $batches = Batch::whereIn('id', $bids)->get();
+
+        return view('backend.tutor.mocktests.available', compact('mockTests', 'batches'));
+    }
+
+    /**
+     * Preview mock test questions
+     */
+    public function previewTest($id)
+    {
+        $mockTest = MockTest::findOrFail($id);
+        
+        // Verify tutor has access to this course
+        if (!$mockTest->course->teachers->contains(Auth::user()->id)) {
+            return abort(403, 'You do not have access to this mock test.');
+        }
+
+        $questions = $mockTest->questions()->with('options')->get();
+
+        return view('backend.tutor.mocktests.preview', compact('mockTest', 'questions'));
+    }
+
+    /**
+     * Show schedule form
+     */
+    public function scheduleForm($id)
+    {
+        $mockTest = MockTest::findOrFail($id);
+        
+        // Get tutor's batches for this course
+        $bids = TeacherBatch::where("tid", Auth::user()->id)->pluck('bid')->toArray();
+        $batches = Batch::whereIn('id', $bids)
+            ->where('cid', $mockTest->course_id)
+            ->get();
+
+        return view('backend.tutor.mocktests.schedule', compact('mockTest', 'batches'));
+    }
+
+    /**
+     * Schedule a mock test for a batch
+     */
+    public function scheduleTest(Request $request)
+    {
+        $this->validate($request, [
+            'mock_test_id' => 'required|exists:mock_tests,id',
+            'batch_id' => 'required|exists:batches,id',
+            'scheduled_date' => 'required|date|after_or_equal:today',
+            'timezone' => 'nullable|string'
+        ]);
+
+        // Verify tutor has access to this batch
+        $hasBatch = TeacherBatch::where('tid', Auth::user()->id)
+            ->where('bid', $request->batch_id)
+            ->exists();
+
+        if (!$hasBatch) {
+            return redirect()->back()->withFlashDanger('You do not have access to this batch.');
+        }
+
+        // Check if already scheduled
+        $existing = MockTestSchedule::where('mock_test_id', $request->mock_test_id)
+            ->where('batch_id', $request->batch_id)
+            ->first();
+
+        if ($existing) {
+            return redirect()->back()->withFlashWarning('This mock test is already scheduled for this batch.');
+        }
+
+        // Create schedule
+        $schedule = MockTestSchedule::create([
+            'mock_test_id' => $request->mock_test_id,
+            'batch_id' => $request->batch_id,
+            'scheduled_date' => $request->scheduled_date,
+            'timezone' => $request->timezone ?? 'Asia/Kolkata',
+            'status' => 'scheduled'
+        ]);
+
+        // Send notifications
+        $this->notificationService->sendMockTestScheduled($schedule);
+
+        return redirect()->route('tutor.mocktests.available')
+            ->withFlashSuccess('Mock test scheduled successfully. Students have been notified.');
+    }
+
+    /**
+     * Show reschedule form
+     */
+    public function rescheduleForm($scheduleId)
+    {
+        $schedule = MockTestSchedule::findOrFail($scheduleId);
+        
+        // Verify tutor has access
+        $hasBatch = TeacherBatch::where('tid', Auth::user()->id)
+            ->where('bid', $schedule->batch_id)
+            ->exists();
+
+        if (!$hasBatch) {
+            return abort(403, 'You do not have access to this schedule.');
+        }
+
+        return view('backend.tutor.mocktests.reschedule', compact('schedule'));
+    }
+
+    /**
+     * Reschedule a mock test
+     */
+    public function rescheduleTest(Request $request)
+    {
+        $this->validate($request, [
+            'schedule_id' => 'required|exists:mock_test_schedules,id',
+            'scheduled_date' => 'required|date|after_or_equal:today',
+            'reschedule_reason' => 'required|string|max:500'
+        ]);
+
+        $schedule = MockTestSchedule::findOrFail($request->schedule_id);
+
+        // Verify tutor has access
+        $hasBatch = TeacherBatch::where('tid', Auth::user()->id)
+            ->where('bid', $schedule->batch_id)
+            ->exists();
+
+        if (!$hasBatch) {
+            return redirect()->back()->withFlashDanger('You do not have access to this schedule.');
+        }
+
+        // Check if any student has already attempted
+        if ($schedule->results()->count() > 0) {
+            return redirect()->back()->withFlashWarning('Cannot reschedule. Some students have already attempted this test.');
+        }
+
+        // Update schedule
+        $schedule->scheduled_date = $request->scheduled_date;
+        $schedule->rescheduled_at = now();
+        $schedule->rescheduled_by = Auth::user()->id;
+        $schedule->reschedule_reason = $request->reschedule_reason;
+        $schedule->save();
+
+        // Send notifications
+        $this->notificationService->sendMockTestRescheduled($schedule, $request->reschedule_reason);
+
+        return redirect()->route('tutor.mocktests.available')
+            ->withFlashSuccess('Mock test rescheduled successfully. Students and admin have been notified.');
+    }
+
+    /**
+     * View batch results for a specific schedule
+     */
+    public function batchResults($scheduleId)
+    {
+        $schedule = MockTestSchedule::findOrFail($scheduleId);
+        
+        // Verify tutor has access
+        $hasBatch = TeacherBatch::where('tid', Auth::user()->id)
+            ->where('bid', $schedule->batch_id)
+            ->exists();
+
+        if (!$hasBatch) {
+            return abort(403, 'You do not have access to these results.');
+        }
+
+        $mockTest = $schedule->mockTest;
+        $batch = $schedule->batch;
+
+        $uids = StudentTeacherBatch::where('bid', $batch->id)->pluck('uid')->toArray();
+        $students = User::whereIn("id", $uids)->get();
+        $users = [];
+        
+        foreach($students as $st){ 
+            $result = $schedule->results()->where('student_id', $st->id)->first();
+            
+            if ($result) {
+                $st->isAttempted = true;
+                $st->totalQuestion = $result->total_questions;
+                $st->totalCorrect = $result->total_correct;
+                $st->totalIncorrect = $result->total_incorrect;
+                $st->totalUnattempted = $result->total_unattempted;
+                $st->score = $result->score;
+                $st->percentage = $result->percentage;
+                $st->result_id = $result->id;
+            } else {
+                $st->isAttempted = false;
+                $st->totalQuestion = 0;
+                $st->totalCorrect = 0;
+                $st->totalIncorrect = 0;
+                $st->totalUnattempted = 0;
+                $st->score = 0;
+                $st->percentage = 0;
+            }
+
+            $users[] = $st;
+        }
+
+        return view('backend.tutor.mocktests.batch-results', compact('mockTest', 'schedule', 'users'));
+    }
+
+    /**
+     * Report a question issue
+     */
+    public function reportQuestion(Request $request)
+    {
+        $this->validate($request, [
+            'question_id' => 'required|exists:questions,id',
+            'report_reason' => 'required|string|max:1000'
+        ]);
+
+        MockTestQuestionReport::create([
+            'question_id' => $request->question_id,
+            'reported_by' => Auth::user()->id,
+            'report_reason' => $request->report_reason,
+            'status' => 'pending'
+        ]);
+
+        return redirect()->back()->withFlashSuccess('Question issue reported successfully. Admin will review it.');
+    }
+
+    /**
+     * View list of scheduled tests for tutor
+     */
+    public function scheduledTests()
+    {
+        // Get tutor's batches
+        $bids = TeacherBatch::where("tid", Auth::user()->id)->pluck('bid')->toArray();
+        
+        $schedules = MockTestSchedule::whereIn('batch_id', $bids)
+            ->with(['mockTest', 'batch', 'results'])
+            ->orderBy('scheduled_date', 'desc')
+            ->get();
+
+        return view('backend.tutor.mocktests.scheduled', compact('schedules'));
+    }
+}

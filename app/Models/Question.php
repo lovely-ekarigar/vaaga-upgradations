@@ -19,7 +19,7 @@ class Question extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['question', 'question_image', 'score'];
+    protected $fillable = ['question', 'question_json', 'question_image', 'score'];
 
     protected static function boot()
     {

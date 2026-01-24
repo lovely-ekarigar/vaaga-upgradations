@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class MockTest extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'title',
+        'slug',
+        'description',
+        'published',
+        'course_id',
+        'created_by'
+    ];
+
+    protected $casts = [
+        'published' => 'boolean',
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        if(auth()->check()) {
+            if (auth()->user()->hasRole('teacher')) {
+                static::addGlobalScope('filter', function (Builder $builder) {
+                    $builder->whereHas('course', function ($q) {
+                        $q->whereHas('teachers', function ($t) {
+                            $t->where('course_user.user_id', '=', auth()->user()->id);
+                        });
+                    });
+                });
+            }
+        }
+        
+        static::creating(function ($mockTest) {
+            if (auth()->check() && !$mockTest->created_by) {
+                $mockTest->created_by = auth()->id();
+            }
+        });
+    }
+
+    /**
+     * Set to null if empty
+     * @param $input
+     */
+    public function setCourseIdAttribute($input)
+    {
+        $this->attributes['course_id'] = $input ? $input : null;
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class, 'course_id')->withTrashed();
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(Auth\User::class, 'created_by');
+    }
+
+    public function questions()
+    {
+        return $this->belongsToMany(Question::class, 'mock_test_question')
+            ->withPivot('sequence')
+            ->withTimestamps()
+            ->orderBy('sequence')
+            ->withTrashed();
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(MockTestSchedule::class);
+    }
+
+    public function activeSchedules()
+    {
+        return $this->hasMany(MockTestSchedule::class)
+            ->whereIn('status', ['scheduled', 'active']);
+    }
+}
