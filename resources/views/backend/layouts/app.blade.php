@@ -15,7 +15,7 @@
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
             <meta name="csrf-token" content="{{ csrf_token() }}">
             <!-- <title>@yield('title', app_name())</title> -->
-            <title>{{env('APP_NAME')}}</title>
+            <title>@yield('title', env('APP_NAME'))</title>
             <meta name="description" content="@yield('meta_description', 'Laravel 5 Boilerplate')">
             <meta name="author" content="@yield('meta_author', 'Anthony Rappa')">
             @if(config('favicon_image') != "")
@@ -65,8 +65,7 @@ span.red-text {
 
         <!-- Check if the language is set to RTL, so apply the RTL layouts -->
             <!-- Otherwise apply the normal LTR layouts -->
-            {!! style(mix('css/backend.css')) !!}
-
+            @vite(['resources/sass/backend/app.scss', 'resources/js/backend.js'])
 
             @stack('after-styles')
 
@@ -113,9 +112,6 @@ span.red-text {
 
         <!-- Scripts -->
         @stack('before-scripts')
-        {!! script(mix('js/manifest.js')) !!}
-        {!! script(mix('js/vendor.js')) !!}
-        {!! script(mix('js/backend.js')) !!}
         <script>
             //Route for message notification
             var messageNotificationRoute = '{{route('admin.messages.unread')}}'
