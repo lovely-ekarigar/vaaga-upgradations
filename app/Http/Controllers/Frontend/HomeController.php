@@ -850,47 +850,33 @@ if($location->countryName!='India'){
       $validator = Validator::make($request->all(), [
             'email' => 'required|email|max:255',
             'password' => 'required|min:6',
-            'g-recaptcha-response' => (config('access.captcha.registration') ? ['required',new CaptchaRule] : ''),
-        ],[
+            'g-recaptcha-response' => (config('access.captcha.registration') ? ['required', new CaptchaRule] : 'nullable'),
+        ], [
             'g-recaptcha-response.required' => __('validation.attributes.frontend.captcha'),
-        ]); 
+        ]);
 
-        if($validator->passes()){
-            $credentials = $request->only('email', 'password');
-            $authSuccess = \Illuminate\Support\Facades\Auth::attempt($credentials, $request->has('remember'));
-            if($authSuccess) {
-                $request->session()->regenerate();
-                // if(auth()->user()->active > 0){
-                    if(auth()->user()->isAdmin()){
-                        $redirect = '/user/dashboard';
-                    }else{
-                        if($request->redirect){
-                        $redirect = $request->redirect;
-                        }else{
-                          $redirect = '/user';  
-                        }
-                        
-                    }
-                    return redirect()->intended($redirect)->with('successx', true);
-                    // return redirect($redirect)->with('success', true);
-                    
-                // }else{
-                //     \Illuminate\Support\Facades\Auth::logout();
-
-               
-                        
-                //          return redirect('/userlogin')->with('message', 'Login failed. Account is not active');
-                // }
-            }else{
-                
-                    
-                      return redirect('/userlogin')->with('message', 'Login failed. Account not found');
-            }
-
+        if ($validator->fails()) {
+            $redirectParam = $request->get('redirect') ? '?redirect=' . urlencode($request->get('redirect')) : '';
+            return redirect('/userlogin' . $redirectParam)
+                ->withErrors($validator)
+                ->withInput($request->only('email', 'remember'));
         }
 
+        $credentials = $request->only('email', 'password');
+        $authSuccess = \Illuminate\Support\Facades\Auth::attempt($credentials, $request->has('remember'));
 
-         return redirect('/userlogin')->with('message', 'Something went wrong');
+        if ($authSuccess) {
+            $request->session()->regenerate();
+            if (auth()->user()->isAdmin()) {
+                $redirect = '/user/dashboard';
+            } else {
+                $redirect = $request->get('redirect', '/user');
+            }
+            return redirect()->to($redirect)->with('successx', true);
+        }
+
+        $redirectParam = $request->get('redirect') ? '?redirect=' . urlencode($request->get('redirect')) : '';
+        return redirect('/userlogin' . $redirectParam)->with('message', 'Login failed. Account not found');
   }
    public function register(Request $request){
     $red=$request->redirect;

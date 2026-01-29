@@ -29,24 +29,50 @@
                      <h3 class="mb-2">Login</h3>
                      <p>Sign in to your account to continue.</p>
                   </div>
-                  <form action="/userlogin" method="post" id="loginForm">
-                    	<input type="hidden" name="_token" value="{{ csrf_token() }}">
-			             @if(Session::has('message'))      
-							<div class="form-group col-sm-12" style="text-align:center;">
-							<div class="alert alert-danger">{!! Session::get('message') !!}</div>
+                  <form action="{{ url('/userlogin') }}" method="post" id="loginForm">
+                    	@csrf
+                    	@if(request()->get('redirect'))
+                    		<input type="hidden" name="redirect" value="{{ request()->get('redirect') }}">
+                    	@endif
+			             @if(Session::has('message'))
+							<div class="form-group col-sm-12 mb-3">
+								<div class="alert alert-danger">{!! Session::get('message') !!}</div>
 							</div>
-							@endif 
+							@endif
+							@if($errors->any())
+							<div class="form-group col-sm-12 mb-3">
+								<div class="alert alert-danger">
+									<ul class="mb-0 list-unstyled">
+										@foreach($errors->all() as $error)
+											<li>{{ $error }}</li>
+										@endforeach
+									</ul>
+								</div>
+							</div>
+							@endif
                       <div class="form-group mb-3">
                         <label class="form-label">Email address</label>
-                        <input type="email" class="form-control" name="email" placeholder="Enter your email address">
+                        <input type="email" class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}" name="email" value="{{ old('email') }}" placeholder="Enter your email address" autocomplete="email">
+                        @error('email')
+                          <span class="invalid-feedback d-block">{{ $message }}</span>
+                        @enderror
                       </div>
                       <div class="form-group mb-3" style="position: relative;">
                         <label class="form-label">Password</label>
-                        <input type="password" class="form-control pass-input" name="password" placeholder="Enter your password">
-
+                        <input type="password" class="form-control pass-input {{ $errors->has('password') ? 'is-invalid' : '' }}" name="password" placeholder="Enter your password" autocomplete="current-password">
+                        @error('password')
+                          <span class="invalid-feedback d-block">{{ $message }}</span>
+                        @enderror
                         <i class="bi bi-eye pwdView"></i>
-          
                       </div>
+                      @if(config('access.captcha.registration'))
+                      <div class="form-group mb-3">
+                        <div class="g-recaptcha" data-sitekey="{{ config('no-captcha.sitekey') }}"></div>
+                        @error('g-recaptcha-response')
+                          <span class="text-danger small d-block mt-1">{{ $message }}</span>
+                        @enderror
+                      </div>
+                      @endif
                       <div class="form-group mb-3" >
                         <div class="form-check">
                           <a class="forgot-link" href="/forgot/password">Forgot Password ?</a>
@@ -54,18 +80,18 @@
                       </div>
                       <div class="form-group mb-3">
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" name="remember" value="1" id="flexCheckDefault">
-                          <label class="form-check-label" for="flexCheckDefault">Remember me 
+                          <input class="form-check-input" type="checkbox" name="remember" value="1" id="flexCheckDefault" {{ old('remember') ? 'checked' : '' }}>
+                          <label class="form-check-label" for="flexCheckDefault">Remember me
                           </label>
                         </div>
                       </div>
                       <div class="pt-2">
                         <button class="btn btn-primary w-100" type="submit">Sign in</button>
                       </div>
-                      
+
                       <div class="mt-3 text-center">
                         <small>Not registered?</small>
-                        <a href="/userregister?redirect={{$red}}" class="small fw-700">Create account</a>
+                        <a href="/userregister?redirect={{ $red ?? '' }}" class="small fw-700">Create account</a>
                       </div>
                     </form>
                </div>
