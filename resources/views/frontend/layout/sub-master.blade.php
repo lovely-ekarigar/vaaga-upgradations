@@ -11,26 +11,35 @@
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <meta name="google-site-verification" content="xR0mS6EihuUzIvoKKOFDXdBCvh4JP8tstqV9Ea7tVyI" />
   <!-- Favicon -->
-  <link rel="shortcut icon" href="{{asset('newassets/img/favicon.png')}}">
-  <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"> -->
-
-  <!-- CSS Template -->
-  <link href="/newassets/css/theme.css" rel="stylesheet">
+  <link rel="shortcut icon" href="{{ asset('newassets/img/favicon.png') }}">
+  <!-- Bootstrap 5 CSS (fallback when newassets is missing) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <!-- CSS Template (theme - loads when public/newassets exists) -->
+  <link href="{{ asset('newassets/css/theme.css') }}" rel="stylesheet">
+  @if(file_exists(public_path('css/frontend.css')))
+  <link href="{{ asset('css/frontend.css') }}" rel="stylesheet">
+  @endif
 
   <link href="https://icons.getbootstrap.com/assets/font/bootstrap-icons.min.css" rel="stylesheet" defer>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" defer />
 
   @yield('page_css')
   <style>
+    /* === Single source: layout & CSS fixes (do not duplicate elsewhere) === */
+    .wrapper { min-height: 100vh; display: flex; flex-direction: column; }
+    main { flex: 1; padding-top: 76px; }
+    .main-header .container { display: flex; flex-wrap: wrap; align-items: center; }
     .main-header.headroom--unpinned {
       transform: translateY(0%) !important;
     }
-    .bg-cover{
-        object-fit: cover;
-    }
-.logo-mob-sub-header{
-    object-fit: cover;
-}
+    .bg-cover{ object-fit: cover; }
+    .logo-mob-sub-header{ object-fit: contain; max-height: 50px; }
+    /* Footer when theme.css missing */
+    .footer { background: #2d3748; color: #e2e8f0; }
+    .footer .link-white, .footer a.link-white { color: #e2e8f0; text-decoration: none; }
+    .footer .link-white:hover { color: #fff; }
+    .btn-outline-white { color: #fff; border-color: #fff; background: transparent; }
+    .btn-outline-white:hover { color: #000; background: #fff; border-color: #fff; }
     .bg-cover {
       background-position-x: center;
       background-position-y: -78%;
@@ -189,33 +198,22 @@
     ========================
     -->
   <!-- script start -->
-  <!-- Theme JS -->
-  <script src="/newassets/js/jquery-3.5.1.min.js"></script>
-  <!--bootstrap-->
-  <script src="/newassets/vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
-  <!-- headroom JS -->
-  <script src="/newassets/vendor/headroom/headroom.min.js" defer></script>
-  <!-- swiper JS -->
-  <script src="/newassets/vendor/swiper/swiper-bundle.min.js" defer></script>
-  <!-- purecounter JS -->
-  <script src="/newassets/vendor/purecounter/purecounter_vanilla.js" defer></script>
-  <!-- isotope JS -->
-  <script src="/newassets/vendor/isotope/isotope.pkgd.min.js" defer></script>
-  <!-- magnific JS -->
-  <script src="/newassets/vendor/magnific/jquery.magnific-popup.min.js" defer></script>
-  <!-- magnific JS -->
-  <script src="/newassets/vendor/highlight/highlight.min.js" defer></script>
-  <!-- magnific JS -->
-  <script src="/newassets/vendor/typed/typed.js" defer></script>
-  <!-- svginjector JS -->
-  <script src="/newassets/vendor/svginjector/svg-injector.min.js" defer></script>
-  <!-- wow JS -->
-  <script src="/newassets/vendor/wow/wow.min.js" defer></script>
-  <script src="/newassets/vendor/one-page/scrollIt.min.js" defer></script>
-
-  <script src="/newassets/js/theme-jquery.js" defer></script>
-  <!-- Theme JS -->
-  <script src="/newassets/js/theme.js"></script>
+  <!-- jQuery & Bootstrap from CDN (works when newassets folder is missing) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <!-- Theme JS from newassets (optional - when folder exists) -->
+  <script src="{{ asset('newassets/vendor/headroom/headroom.min.js') }}" defer></script>
+  <script src="{{ asset('newassets/vendor/swiper/swiper-bundle.min.js') }}" defer></script>
+  <script src="{{ asset('newassets/vendor/purecounter/purecounter_vanilla.js') }}" defer></script>
+  <script src="{{ asset('newassets/vendor/isotope/isotope.pkgd.min.js') }}" defer></script>
+  <script src="{{ asset('newassets/vendor/magnific/jquery.magnific-popup.min.js') }}" defer></script>
+  <script src="{{ asset('newassets/vendor/highlight/highlight.min.js') }}" defer></script>
+  <script src="{{ asset('newassets/vendor/typed/typed.js') }}" defer></script>
+  <script src="{{ asset('newassets/vendor/svginjector/svg-injector.min.js') }}" defer></script>
+  <script src="{{ asset('newassets/vendor/wow/wow.min.js') }}" defer></script>
+  <script src="{{ asset('newassets/vendor/one-page/scrollIt.min.js') }}" defer></script>
+  <script src="{{ asset('newassets/js/theme-jquery.js') }}" defer></script>
+  <script src="{{ asset('newassets/js/theme.js') }}"></script>
   <!-- End script start -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" defer></script>
@@ -223,28 +221,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
   <script>
-            $(document).on("click",".enquiry",function(){
-         
-         $("#enquiryModal").modal('show')   
-            
-        })
-        $(document).on("click",".close",function(){
-            $("#enquiryModal").modal('hide')   
-            
-        })
-        
-        
-//         document.addEventListener("DOMContentLoaded", () => {
-//     setTimeout(() => {
-//         const myModal = new bootstrap.Modal(document.getElementById('enquiryModal'));
-//         myModal.show();
-//     }, 1000); 
-//     $(document).on('click','.close', function(){
-//       <?php Session::put('modelClose',true) ?>
-//       console.log('now Session stored');
-//       $('#enquiryModal').modal('hide');
-//     });
-// }); 
+    $(document).on("click", ".enquiry", function(){
+      var el = document.getElementById('enquiryModal');
+      if (el && typeof bootstrap !== 'undefined') {
+        var m = bootstrap.Modal.getOrCreateInstance(el);
+        m.show();
+      }
+    });
+    $(document).on("click", ".close", function(){
+      var el = document.getElementById('enquiryModal');
+      if (el && typeof bootstrap !== 'undefined') {
+        var m = bootstrap.Modal.getInstance(el);
+        if (m) m.hide();
+      }
+    });
   </script>
   <!--Start of Tawk.to Script-->
 

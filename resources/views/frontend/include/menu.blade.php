@@ -7,7 +7,24 @@
 .navbar-expand-lg .navbar-nav .dropdown-menu .dropdown>.dropdown-item {
     position: relative;
     padding-right: 36px;
-}}
+}
+/* Desktop: Logo | Nav | Search | Dashboard */
+.navbar .header-search { order: 3; }
+.navbar .navbar-toggler { order: 4; }
+.navbar .collapse.navbar-collapse { order: 2; flex: 1; }
+.navbar .nav.flex-column.flex-lg-row { order: 5; }
+}
+/* Live-style header CTA: dark purple */
+.header-dashboard-btn {
+  background-color: #4a2a51 !important;
+  border-color: #4a2a51 !important;
+  color: #fff !important;
+}
+.header-dashboard-btn:hover {
+  background-color: #3d2342 !important;
+  border-color: #3d2342 !important;
+  color: #fff !important;
+}
    </style>
 <!-- Mobile Toggle -->
 <div class="header-search ms-lg-4 ms-auto pe-lg-5">
@@ -92,13 +109,7 @@
        @endforeach
    </ul>
 </li>
-  <li class="nav-item dropdown">
-   <a href="#" class="nav-link">Study</a> <label class="px-dropdown-toggle mob-menu bi bi-chevron-down"></label>
-   <ul class="dropdown-menu left list-unstyled">
-        <li><a class="dropdown-item" href="/our-classes">Our Classes</a></li>
-        <li><a class="dropdown-item" href="{{ route('frontend.note.categories') }}">Study Material</a></li>
-       </ul>
-       </li>
+  <li class="nav-item active"><a href="/our-classes" class="nav-link">Test Series</a></li>
        
       <!--<li class="nav-item active"><a href="/our-classes" class="nav-link">Our Classes</a></li>-->
       <li class="nav-item active"><a href="/become-tutor" class="nav-link">Join as Tutor</a></li>
@@ -119,11 +130,11 @@
    <ul class="navbar-nav ms-auto align-items-center">
       @if(auth()->check())
       <li class="nav-item">
-         <a href="/user/dashboard" class="btn btn-sm btn-primary mb-0 ms-2 text-nowrap">Dashboard</a>
+         <a href="/user/dashboard" class="btn btn-sm btn-primary header-dashboard-btn mb-0 ms-2 text-nowrap">Dashboard</a>
       </li>
       @else
       <li class="nav-item">
-         <a href="/userlogin" class="btn btn-sm btn-primary mb-0 ms-2 text-nowrap">Login</a>
+         <a href="/userlogin" class="btn btn-sm btn-primary header-dashboard-btn mb-0 ms-2 text-nowrap">Login</a>
       </li>
       <li class="nav-item">
          <a href="/userregister" class="btn btn-sm btn-warning mb-0 ms-2 text-nowrap" style="color: #000;">Register</a>

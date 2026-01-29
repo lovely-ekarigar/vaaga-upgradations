@@ -37,7 +37,7 @@ use Illuminate\Support\Str;
 @stop
 @section('page_css')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" defer />
-<link href="/public/style.css" rel="stylesheet">
+<link href="{{ asset('style.css') }}" rel="stylesheet">
 
 <script type="application/ld+json">
 {
@@ -359,6 +359,67 @@ use Illuminate\Support\Str;
    .info-text {
       text-align: justify;
    }
+
+   /* Live-style hero */
+   .hero-live {
+      background-color: #1e3a5f;
+      min-height: 70vh;
+      position: relative;
+      overflow: hidden;
+   }
+   .hero-live::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Ctext x='0' y='40' font-size='12' fill='%23ffffff' fill-opacity='0.06' font-family='monospace'%3Ey=2x² π%3C/text%3E%3C/svg%3E");
+      opacity: 1;
+      pointer-events: none;
+   }
+   .hero-live .container { position: relative; z-index: 1; }
+   .hero-live .hero-headline { color: #fff; font-weight: 700; line-height: 1.2; }
+   .btn-hero-join {
+      background-color: #ffbe3d !important;
+      border-color: #ffbe3d !important;
+      color: #000 !important;
+      font-weight: 600;
+      padding: 0.6rem 1.5rem;
+   }
+   .btn-hero-join:hover {
+      background-color: #e5ab35 !important;
+      border-color: #e5ab35 !important;
+      color: #000 !important;
+   }
+   .hero-trophy-wrap { color: #ffbe3d; }
+   .hero-trophy-wrap .bi-trophy-fill { font-size: clamp(6rem, 15vw, 10rem); filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+   @media (max-width: 991px) {
+      .hero-live { min-height: auto; padding: 3rem 0; }
+      .hero-trophy-wrap { order: -1; margin-bottom: 1rem; }
+   }
+
+   /* Live-style Olympiad cards + Book Now */
+   .olympiad-card { background: #fff; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.08); overflow: hidden; height: 100%; display: flex; flex-direction: column; }
+   .olympiad-card .card-body { flex: 1; padding: 1.5rem; }
+   .olympiad-card .olympiad-icon { font-size: 3rem; color: #4a2a51; margin-bottom: 0.75rem; }
+   .olympiad-card .card-title { font-weight: 700; color: #333; margin-bottom: 0.5rem; }
+   .olympiad-card .card-text { font-size: 0.9rem; color: #666; margin-bottom: 1rem; }
+   .btn-book-now {
+      background-color: #4a2a51 !important;
+      border-color: #4a2a51 !important;
+      color: #fff !important;
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+   }
+   .btn-book-now:hover {
+      background-color: #3d2342 !important;
+      border-color: #3d2342 !important;
+      color: #fff !important;
+   }
+   @media (max-width: 767px) {
+      .olympiad-card .card-body { padding: 1.25rem; }
+      .olympiad-card .olympiad-icon { font-size: 2.5rem; }
+   }
+
    .Video {
   position: relative;
   width: 100%;
@@ -384,7 +445,8 @@ use Illuminate\Support\Str;
 @section('content')
 
 <main>
-   <!-- Home Banner -->
+   <!-- Home Banner (with fallback when no slider) -->
+   @if(isset($slider) && count($slider) > 0)
    <div class="swiper swiper-container " data-swiper-options='{
            "slidesPerView": 1,
            "spaceBetween": 0,
@@ -406,21 +468,24 @@ use Illuminate\Support\Str;
 
          @endphp
          <div class="swiper-slide">
-            <div class="bg-cover bg-no-repeat effect-section slider-height-responsx slide-image" style="background-image: url({{asset('/storage/uploads/'.$sl->bg_image)}} );background-position: center center; ">
+            <div class="bg-cover bg-no-repeat effect-section slider-height-responsx slide-image hero-live" style="background-image: url({{asset('/storage/uploads/'.$sl->bg_image)}} );background-position: center center; background-color: #1e3a5f;">
                <div class="mask bg-blackx opacity-5"></div>
                <div class="container position-relative px-5 px-lg-3 mobile">
-                  <div class="row align-items-center py-8 justify-content-center">
-                     <div class="col-lg-8 slider-content-padding text-center ">
-                        <p class="display-4 lh-sm text-white mb-3">{{$slider_data->hero_text}}</p>
-                        <div class="w-lg-90 mx-auto slider-p-padding mb-2">
-                           <p class="lead text-white text-opacity-65">{{$slider_data->sub_text}}</p>
+                  <div class="row align-items-center py-8">
+                     <div class="col-lg-7 slider-content-padding text-center text-lg-start">
+                        <p class="display-4 lh-sm hero-headline text-white mb-3">{{$slider_data->hero_text}}</p>
+                        <div class="slider-p-padding mb-2">
+                           <p class="lead text-white text-opacity-90">{{$slider_data->sub_text}}</p>
                         </div>
                         @if($slider_data->hero_text!="" && $slider_data->sub_text!="")
                         <div class="pt-3">
-                           <a class="btn btn-outline-white me-3" href="/about">About</a>
-                           <a class="btn btn-outline-white" href="#our-courses">Our Courses</a>
+                           <a class="btn btn-hero-join btn-lg me-2" href="#our-courses">JOIN NOW</a>
+                           <a class="btn btn-outline-white" href="/about">About</a>
                         </div>
                         @endif
+                     </div>
+                     <div class="col-lg-5 text-center hero-trophy-wrap d-none d-lg-block">
+                        <i class="bi bi-trophy-fill d-inline-block" aria-hidden="true"></i>
                      </div>
                   </div>
                </div>
@@ -432,33 +497,71 @@ use Illuminate\Support\Str;
       <div class="swiper-arrow-style-01 swiper-next swiper-next-01"><i class="bi bi-chevron-right"></i></div>
       <div class="swiper-arrow-style-01 swiper-prev swiper-prev-01"><i class="bi bi-chevron-left"></i></div>
    </div>
+   @else
+   <!-- Hero fallback: live-style (dark blue, JOIN NOW, trophy) -->
+   <div class="hero-live">
+      <div class="container px-4 py-5 py-lg-5">
+         <div class="row align-items-center">
+            <div class="col-lg-7 text-center text-lg-start">
+               <h1 class="hero-headline display-4 mb-3">Time to Start<br>Olympiad Journey</h1>
+               <p class="lead text-white text-opacity-90 mb-4">Join expert-led Olympiad classes and unlock your potential.</p>
+               <div class="pt-2">
+                  <a class="btn btn-hero-join btn-lg" href="#our-courses">JOIN NOW</a>
+               </div>
+            </div>
+            <div class="col-lg-5 text-center hero-trophy-wrap">
+               <i class="bi bi-trophy-fill d-inline-block" aria-hidden="true"></i>
+            </div>
+         </div>
+      </div>
+   </div>
+   @endif
 
 
 
    <section class="section pt-5 pb-5">
       <div class="container">
-         <div class="row justify-content-center section-heading">
-            <div class="col-lg-8 text-center text-lg-left">
-             
-            </div>
-         </div>
-         <div class="row justify-content-center gy-4">
-            <div class="col-md-6">
-               <div class="card hover scale">
-                 <div class="card-body p-3">
-                     <a href="javascript:void(0)">
-                   <img src="{{asset('/frontend/assets/img/home/1.png')}}" loading="lazy" class="img-fluid enquiry" alt="Science Olympiad">
-                   </a>
-                 </div>
+         <div class="row justify-content-center gy-4 gx-4">
+            <div class="col-md-6 col-lg-4">
+               <div class="card olympiad-card hover scale">
+                  <div class="card-body p-3 d-flex flex-column">
+                     <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                           <h5 class="card-title">Science Online Olympiad Class</h5>
+                           <p class="card-text">Enroll today and unlock your child's true potential.</p>
+                        </div>
+                        <i class="bi bi-flask olympiad-icon flex-shrink-0" aria-hidden="true"></i>
+                     </div>
+                     <a href="javascript:void(0)" class="btn btn-book-now btn-sm mt-auto enquiry align-self-start">Book Now</a>
+                  </div>
                </div>
             </div>
-            <div class="col-md-6">
-               <div class="card hover scale">
-                 <div class="card-body p-3">
-                      <a href="javascript:void(0)">
-                   <img src="{{asset('/frontend/assets/img/home/2.png')}}" loading="lazy" class="img-fluid enquiry" alt="Math Olympiad">
-                   </a>
-                 </div>
+            <div class="col-md-6 col-lg-4">
+               <div class="card olympiad-card hover scale">
+                  <div class="card-body p-3 d-flex flex-column">
+                     <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                           <h5 class="card-title">Maths Online Olympiad Class</h5>
+                           <p class="card-text">Enroll today and unlock your child's true potential.</p>
+                        </div>
+                        <i class="bi bi-calculator olympiad-icon flex-shrink-0" aria-hidden="true"></i>
+                     </div>
+                     <a href="javascript:void(0)" class="btn btn-book-now btn-sm mt-auto enquiry align-self-start">Book Now</a>
+                  </div>
+               </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+               <div class="card olympiad-card hover scale">
+                  <div class="card-body p-3 d-flex flex-column">
+                     <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                           <h5 class="card-title">English Online Olympiad Class</h5>
+                           <p class="card-text">Enroll today and unlock your child's true potential.</p>
+                        </div>
+                        <i class="bi bi-journal-text olympiad-icon flex-shrink-0" aria-hidden="true"></i>
+                     </div>
+                     <a href="javascript:void(0)" class="btn btn-book-now btn-sm mt-auto enquiry align-self-start">Book Now</a>
+                  </div>
                </div>
             </div>
          </div>

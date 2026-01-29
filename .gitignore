@@ -65,13 +65,10 @@ pnpm-debug.log
 /public/storage
 /public/build/
 /public/mix-manifest.json
-/public/js/
-/public/css/
 /public/fonts/
 /public/assets/
 /public/assets-rtl/
 /public/frontend/
-/public/newassets/
 /public/ng/
 /public/nglive/
 /public/plugins/
