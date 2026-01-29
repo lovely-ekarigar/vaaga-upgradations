@@ -582,13 +582,26 @@ if (!function_exists('getCurrency')) {
     function getCurrency($short_code)
     {
         $currencies = config('currencies');
-        $currency = "";
+        $currency = null;
+        if (!empty($short_code)) {
             foreach ($currencies as $key => $val) {
-                if ($val['short_code'] == $short_code) {
+                if (isset($val['short_code']) && $val['short_code'] == $short_code) {
                     $currency = $val;
+                    break;
                 }
             }
-       return $currency;
+        }
+        // Default to INR (Indian Rupee) when not found or empty - app is India-focused
+        if (empty($currency) && !empty($currencies)) {
+            foreach ($currencies as $val) {
+                if (isset($val['short_code']) && $val['short_code'] === 'INR') {
+                    $currency = $val;
+                    break;
+                }
+            }
+            $currency = $currency ?: reset($currencies);
+        }
+        return is_array($currency) ? $currency : ['short_code' => 'INR', 'symbol' => '₹', 'name' => 'Indian Rupees', 'country' => 'India'];
     }
 }
 

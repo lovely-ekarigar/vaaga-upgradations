@@ -25,6 +25,8 @@
             @yield('meta')
             <link rel="stylesheet" href="{{asset('css/select2.min.css')}}">
             <link rel="stylesheet" href="{{asset('assets/css/fontawesome-all.css')}}">
+            {{-- Simple Line Icons: sidebar/menu icons (font not bundled by Vite, load from CDN) --}}
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css" crossorigin="anonymous">
 
             <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 

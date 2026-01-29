@@ -182,6 +182,8 @@ class AppServiceProvider extends ServiceProvider
 
 
         view()->composer(['backend.*'], function ($view) {
+            // Force INR (₹) for backend dashboard and all admin views - app is India-focused
+            $view->with('appCurrency', getCurrency('INR'));
             try {
                 $locale_full_name = 'English';
                 $locale =  \App\Locale::where('short_name','=',config('app.locale'))->first();
