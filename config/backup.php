@@ -36,6 +36,16 @@ return [
                  * Determines if symlinks should be followed.
                  */
                 'follow_links' => false,
+
+                /*
+                 * Ignore unreadable directories.
+                 */
+                'ignore_unreadable_directories' => false,
+
+                /*
+                 * Relative path for backup source.
+                 */
+                'relative_path' => null,
             ],
 
             /*
