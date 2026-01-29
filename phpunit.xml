@@ -38,5 +38,10 @@
                 ./tests/Feature
             </directory>
         </testsuite>
+        <testsuite name="Property">
+            <directory suffix="Test.php">
+                ./tests/Property
+            </directory>
+        </testsuite>
     </testsuites>
 </phpunit>
