@@ -39,6 +39,7 @@ use Illuminate\Support\Str;
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" defer />
 <link href="/public/style.css" rel="stylesheet">
 
+@verbatim
 <script type="application/ld+json">
 {
   "@context": "http://schema.org/",
@@ -57,6 +58,7 @@ use Illuminate\Support\Str;
     ]
 }
 </script>
+@endverbatim
 
 
 <style type="text/css">
@@ -99,7 +101,7 @@ use Illuminate\Support\Str;
    }
 
    /* Extra small devices (phones, 600px and down) */
-   @media only screen and (max-width: 600px) {
+   @@media only screen and (max-width: 600px) {
       .slider-height-respons {
          height: 450px !important;
       }
@@ -116,7 +118,7 @@ use Illuminate\Support\Str;
    }
 
    /* Small devices (portrait tablets and large phones, 600px and up) */
-   @media only screen and (min-width: 600px) {
+   @@media only screen and (min-width: 600px) {
       .slider-height-respons {
          height: 450px !important;
       }
@@ -132,7 +134,7 @@ use Illuminate\Support\Str;
    }
 
    /* Medium devices (landscape tablets, 768px and up) */
-   @media only screen and (min-width: 768px) {
+   @@media only screen and (min-width: 768px) {
       .slider-height-respons {
          height: 450px !important;
       }
@@ -148,7 +150,7 @@ use Illuminate\Support\Str;
    }
 
    /* Large devices (laptops/desktops, 992px and up) */
-   @media only screen and (min-width: 992px) {
+   @@media only screen and (min-width: 992px) {
       .slider-height-respons {
          height: 100vh !important;
       }
@@ -163,7 +165,7 @@ use Illuminate\Support\Str;
    }
 
    /* Extra large devices (large laptops and desktops, 1200px and up) */
-   @media only screen and (min-width: 1200px) {
+   @@media only screen and (min-width: 1200px) {
       .slider-height-respons {
          height: 100vh !important;
       }
@@ -248,7 +250,7 @@ use Illuminate\Support\Str;
    }
 
 
-   @media only screen and (max-width: 600px) {
+   @@media only screen and (max-width: 600px) {
       .slide-image {
          height: 150px;
          margin-top: 68px;
@@ -282,7 +284,7 @@ use Illuminate\Support\Str;
    }
 
    /* Small devices (portrait tablets and large phones, 600px and up) */
-   @media only screen and (min-width: 600px) {
+   @@media only screen and (min-width: 600px) {
       .slide-image {
          height: 150px;
          margin-top: 68px;
@@ -294,7 +296,7 @@ use Illuminate\Support\Str;
    }
 
    /* Medium devices (landscape tablets, 768px and up) */
-   @media only screen and (min-width: 768px) {
+   @@media only screen and (min-width: 768px) {
       .slide-image {
          height: 250px;
          margin-top: 68px;
@@ -306,7 +308,7 @@ use Illuminate\Support\Str;
    }
 
    /* Large devices (laptops/desktops, 992px and up) */
-   @media only screen and (min-width: 992px) {
+   @@media only screen and (min-width: 992px) {
       .slide-image {
          height: 450px;
          margin-top: 68px;
@@ -318,7 +320,7 @@ use Illuminate\Support\Str;
    }
 
    /* Extra large devices (large laptops and desktops, 1200px and up) */
-   @media only screen and (min-width: 1200px) {
+   @@media only screen and (min-width: 1200px) {
       .slide-image {
          height: 450px;
          margin-top: 68px;
