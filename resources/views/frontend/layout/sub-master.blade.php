@@ -10,18 +10,20 @@
   @yield('meta')
   <meta name="csrf-token" content="{{ csrf_token() }}" />
   <meta name="google-site-verification" content="xR0mS6EihuUzIvoKKOFDXdBCvh4JP8tstqV9Ea7tVyI" />
-  <!-- Favicon -->
-  <link rel="shortcut icon" href="{{ asset('newassets/img/favicon.png') }}">
-  <!-- Bootstrap 5 CSS (fallback when newassets is missing) -->
+  <!-- Favicon (path-only = same origin on localhost and production) -->
+  <link rel="shortcut icon" href="{{ file_exists(public_path('newassets/img/favicon.png')) ? '/newassets/img/favicon.png' : '/favicon.ico' }}">
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <!-- CSS Template (theme - loads when public/newassets exists) -->
-  <link href="{{ asset('newassets/css/theme.css') }}" rel="stylesheet">
+  <!-- Theme CSS (path-only + cache-bust so design loads on localhost) -->
+  @if(file_exists(public_path('newassets/css/theme.css')))
+  <link href="/newassets/css/theme.css?v={{ filemtime(public_path('newassets/css/theme.css')) }}" rel="stylesheet">
+  @endif
   @if(file_exists(public_path('css/frontend.css')))
-  <link href="{{ asset('css/frontend.css') }}" rel="stylesheet">
+  <link href="/css/frontend.css" rel="stylesheet">
   @endif
 
-  <link href="https://icons.getbootstrap.com/assets/font/bootstrap-icons.min.css" rel="stylesheet" defer>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" defer />
+  <link href="https://icons.getbootstrap.com/assets/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet">
 
   @yield('page_css')
   <style>
@@ -201,19 +203,19 @@
   <!-- jQuery & Bootstrap from CDN (works when newassets folder is missing) -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-  <!-- Theme JS from newassets (optional - when folder exists) -->
-  <script src="{{ asset('newassets/vendor/headroom/headroom.min.js') }}" defer></script>
-  <script src="{{ asset('newassets/vendor/swiper/swiper-bundle.min.js') }}" defer></script>
-  <script src="{{ asset('newassets/vendor/purecounter/purecounter_vanilla.js') }}" defer></script>
-  <script src="{{ asset('newassets/vendor/isotope/isotope.pkgd.min.js') }}" defer></script>
-  <script src="{{ asset('newassets/vendor/magnific/jquery.magnific-popup.min.js') }}" defer></script>
-  <script src="{{ asset('newassets/vendor/highlight/highlight.min.js') }}" defer></script>
-  <script src="{{ asset('newassets/vendor/typed/typed.js') }}" defer></script>
-  <script src="{{ asset('newassets/vendor/svginjector/svg-injector.min.js') }}" defer></script>
-  <script src="{{ asset('newassets/vendor/wow/wow.min.js') }}" defer></script>
-  <script src="{{ asset('newassets/vendor/one-page/scrollIt.min.js') }}" defer></script>
-  <script src="{{ asset('newassets/js/theme-jquery.js') }}" defer></script>
-  <script src="{{ asset('newassets/js/theme.js') }}"></script>
+  <!-- Theme JS from newassets (path-only = same origin) -->
+  <script src="/newassets/vendor/headroom/headroom.min.js" defer></script>
+  <script src="/newassets/vendor/swiper/swiper-bundle.min.js" defer></script>
+  <script src="/newassets/vendor/purecounter/purecounter_vanilla.js" defer></script>
+  <script src="/newassets/vendor/isotope/isotope.pkgd.min.js" defer></script>
+  <script src="/newassets/vendor/magnific/jquery.magnific-popup.min.js" defer></script>
+  <script src="/newassets/vendor/highlight/highlight.min.js" defer></script>
+  <script src="/newassets/vendor/typed/typed.js" defer></script>
+  <script src="/newassets/vendor/svginjector/svg-injector.min.js" defer></script>
+  <script src="/newassets/vendor/wow/wow.min.js" defer></script>
+  <script src="/newassets/vendor/one-page/scrollIt.min.js" defer></script>
+  <script src="/newassets/js/theme-jquery.js" defer></script>
+  <script src="/newassets/js/theme.js"></script>
   <!-- End script start -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" defer></script>

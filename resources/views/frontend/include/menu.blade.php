@@ -42,9 +42,7 @@
 <!-- Menu -->
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
    <ul class="navbar-nav m-auto">
-      <li class="nav-item active"><a href="/" class="nav-link">Home</a></li>
-      
-     
+      <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
      <li class="nav-item dropdown">
    <a href="#" class="nav-link">Courses</a> <label class="px-dropdown-toggle mob-menu bi bi-chevron-down"></label>
    <ul class="dropdown-menu left list-unstyled">
@@ -109,18 +107,16 @@
        @endforeach
    </ul>
 </li>
-  <li class="nav-item active"><a href="/our-classes" class="nav-link">Test Series</a></li>
-       
-      <!--<li class="nav-item active"><a href="/our-classes" class="nav-link">Our Classes</a></li>-->
-      <li class="nav-item active"><a href="/become-tutor" class="nav-link">Join as Tutor</a></li>
-      <li class="nav-item active"><a href="/about" class="nav-link">About Us</a></li>
-      <!--<li class="nav-item active"><a href="{{ route('frontend.note.categories') }}" class="nav-link">Study Material</a></li>-->
-      <li class="nav-item active"><a href="/contact" class="nav-link">Contact Us</a></li>
+      <li class="nav-item"><a href="/about" class="nav-link">About Us</a></li>
+      <li class="nav-item"><a href="/contact" class="nav-link">Contact Us</a></li>
+      <li class="nav-item"><a href="/blog" class="nav-link">Blog</a></li>
+      <li class="nav-item"><a href="/our-classes" class="nav-link">Test Series</a></li>
+      <li class="nav-item"><a href="/become-tutor" class="nav-link">Join as Tutor</a></li>
       @if(auth()->check())
       <li class="nav-item active d-xl-none d-lg-none"><a href="/user/dashboard" class="nav-link">Dashboard</a></li>
       @else
       <li class="nav-item active d-xl-none d-lg-none"><a href="/userlogin" class="nav-link">Login</a></li>
-      <li class="nav-item active d-xl-none d-lg-none"><a href="/userregister" class="nav-link">Register</a></li>
+      <li class="nav-item active d-xl-none d-lg-none"><a href="/userregister" class="nav-link">Sign Up</a></li>
       @endif
      
    </ul>
@@ -137,7 +133,7 @@
          <a href="/userlogin" class="btn btn-sm btn-primary header-dashboard-btn mb-0 ms-2 text-nowrap">Login</a>
       </li>
       <li class="nav-item">
-         <a href="/userregister" class="btn btn-sm btn-warning mb-0 ms-2 text-nowrap" style="color: #000;">Register</a>
+         <a href="/userregister" class="btn btn-sm btn-primary header-dashboard-btn rounded-pill px-3 mb-0 ms-2 text-nowrap">Sign Up</a>
       </li>
       @endif
    </ul>

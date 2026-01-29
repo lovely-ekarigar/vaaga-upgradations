@@ -380,15 +380,17 @@ use Illuminate\Support\Str;
    .btn-hero-join {
       background-color: #ffbe3d !important;
       border-color: #ffbe3d !important;
-      color: #000 !important;
+      color: #fff !important;
       font-weight: 600;
       padding: 0.6rem 1.5rem;
    }
    .btn-hero-join:hover {
       background-color: #e5ab35 !important;
       border-color: #e5ab35 !important;
-      color: #000 !important;
+      color: #fff !important;
    }
+   .section-title-gold { color: #ffbe3d !important; }
+   .section-title-orange { color: #ffbe3d !important; }
    .hero-trophy-wrap { color: #ffbe3d; }
    .hero-trophy-wrap .bi-trophy-fill { font-size: clamp(6rem, 15vw, 10rem); filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
    @media (max-width: 991px) {
@@ -419,6 +421,42 @@ use Illuminate\Support\Str;
       .olympiad-card .card-body { padding: 1.25rem; }
       .olympiad-card .olympiad-icon { font-size: 2.5rem; }
    }
+   .program-cards-section {
+      background: linear-gradient(180deg, #4a2a5140 0%, #f7f7f7 100%);
+   }
+   .olympiad-test-series-bg {
+      background: linear-gradient(90deg, #e8e0f0 0%, #4a2a51 100%);
+   }
+   .categories-section {
+      background-color: #4a2a51;
+   }
+   .course-filter-bar .course-filter-btn {
+      background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #fff;
+   }
+   .course-filter-bar .course-filter-btn:hover,
+   .course-filter-bar .course-filter-btn.active { background: rgba(255,255,255,0.2); color: #fff; border-color: #ffbe3d; }
+   .course-filter-bar .course-filter-btn.active { border-width: 2px; border-color: #ffbe3d; }
+   .branding-block {
+      background-color: #000;
+   }
+   .branding-title {
+      color: #ffbe3d;
+      font-weight: 700;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      letter-spacing: 0.02em;
+   }
+   .branding-tagline {
+      color: rgba(255,255,255,0.9);
+      font-size: 1.1rem;
+   }
+   .trending-courses-section {
+      background-color: #fff;
+   }
+   .trending-courses-section .section-heading .h1 { color: #333 !important; }
+   .trending-courses-section .arrow { color: #4a2a51; }
+   .trending-courses-section .card { background: #fff; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+   .trending-view-all { color: #4a2a51; font-weight: 600; }
+   .star-tutors-section { background-color: #4a2a51; }
 
    .Video {
   position: relative;
@@ -519,59 +557,102 @@ use Illuminate\Support\Str;
 
 
 
-   <section class="section pt-5 pb-5">
+   <section class="section pt-5 pb-5 bg-white">
       <div class="container">
          <div class="row justify-content-center gy-4 gx-4">
             <div class="col-md-6 col-lg-4">
-               <div class="card olympiad-card hover scale">
+               <div class="card olympiad-card hover scale shadow-sm">
                   <div class="card-body p-3 d-flex flex-column">
                      <div class="d-flex justify-content-between align-items-start">
                         <div>
-                           <h5 class="card-title">Science Online Olympiad Class</h5>
-                           <p class="card-text">Enroll today and unlock your child's true potential.</p>
+                           <h5 class="card-title">Olympiad Preparation</h5>
+                           <p class="card-text">Structured courses and study material for Olympiad exams. Start your preparation with expert guidance.</p>
                         </div>
-                        <i class="bi bi-flask olympiad-icon flex-shrink-0" aria-hidden="true"></i>
+                        <i class="bi bi-journal-check olympiad-icon flex-shrink-0" aria-hidden="true"></i>
                      </div>
-                     <a href="javascript:void(0)" class="btn btn-book-now btn-sm mt-auto enquiry align-self-start">Book Now</a>
+                     <a href="#our-courses" class="btn btn-book-now btn-sm mt-auto align-self-start">Know More</a>
                   </div>
                </div>
             </div>
             <div class="col-md-6 col-lg-4">
-               <div class="card olympiad-card hover scale">
+               <div class="card olympiad-card hover scale shadow-sm">
                   <div class="card-body p-3 d-flex flex-column">
                      <div class="d-flex justify-content-between align-items-start">
                         <div>
-                           <h5 class="card-title">Maths Online Olympiad Class</h5>
-                           <p class="card-text">Enroll today and unlock your child's true potential.</p>
+                           <h5 class="card-title">Live Classes</h5>
+                           <p class="card-text">Live interactive classes with certified tutors. Doubt-solving sessions and personalised attention.</p>
                         </div>
-                        <i class="bi bi-calculator olympiad-icon flex-shrink-0" aria-hidden="true"></i>
+                        <i class="bi bi-camera-video olympiad-icon flex-shrink-0" aria-hidden="true"></i>
                      </div>
-                     <a href="javascript:void(0)" class="btn btn-book-now btn-sm mt-auto enquiry align-self-start">Book Now</a>
+                     <a href="#our-courses" class="btn btn-book-now btn-sm mt-auto align-self-start">Know More</a>
                   </div>
                </div>
             </div>
             <div class="col-md-6 col-lg-4">
-               <div class="card olympiad-card hover scale">
+               <div class="card olympiad-card hover scale shadow-sm">
                   <div class="card-body p-3 d-flex flex-column">
                      <div class="d-flex justify-content-between align-items-start">
                         <div>
-                           <h5 class="card-title">English Online Olympiad Class</h5>
-                           <p class="card-text">Enroll today and unlock your child's true potential.</p>
+                           <h5 class="card-title">Certificate After Complete</h5>
+                           <p class="card-text">Receive a certificate of completion after finishing your course. Track progress and achieve your goals.</p>
                         </div>
-                        <i class="bi bi-journal-text olympiad-icon flex-shrink-0" aria-hidden="true"></i>
+                        <i class="bi bi-award olympiad-icon flex-shrink-0" aria-hidden="true"></i>
                      </div>
-                     <a href="javascript:void(0)" class="btn btn-book-now btn-sm mt-auto enquiry align-self-start">Book Now</a>
+                     <a href="#our-courses" class="btn btn-book-now btn-sm mt-auto align-self-start">Know More</a>
                   </div>
                </div>
             </div>
          </div>
    </section>
-   <section class="section pt-5 pb-5">
+   <!-- Olympiad Test Series card -->
+   <section class="section pt-4 pb-5 olympiad-test-series-bg">
       <div class="container">
-         <div class="row justify-content-center section-heading">
-            <div class="col-lg-8 text-center text-lg-left">
-               <h1 class="h1 mb-0 text-center text-lg-left f24">Excel in Math & Science Olympiads with Expert Online Classes</h1>
+         <div class="row justify-content-center">
+            <div class="col-lg-10">
+               <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                  <div class="card-body p-4 p-lg-5">
+                     <div class="text-center mb-3"><i class="bi bi-journal-text text-primary" style="font-size: 2rem;"></i></div>
+                     <h3 class="h4 mb-3 text-center text-dark" style="color: #4a2a51 !important;">Olympiad Test Series</h3>
+                     <p class="text-muted text-center mb-4">The best study material and mock tests to ace your Olympiad exams. Practice in a fun way and test yourself from home.</p>
+                     <div class="row text-center mb-4">
+                        <div class="col-md-4 mb-3">
+                           <i class="bi bi-journal-text text-primary" style="font-size: 2rem;"></i>
+                           <h6 class="mt-2 fw-bold">The Best Study</h6>
+                           <p class="small text-muted mb-0">Comprehensive study material and guides.</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                           <i class="bi bi-clock text-success" style="font-size: 2rem;"></i>
+                           <h6 class="mt-2 fw-bold">Time to Start</h6>
+                           <p class="small text-muted mb-0">Flexible schedules to learn at your pace.</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                           <i class="bi bi-bullseye text-danger" style="font-size: 2rem;"></i>
+                           <h6 class="mt-2 fw-bold">Get Best Results</h6>
+                           <p class="small text-muted mb-0">Practice tests and performance analysis.</p>
+                        </div>
+                     </div>
+                     <div class="text-center">
+                        <a href="/our-classes" class="btn btn-book-now">Join Now</a>
+                     </div>
+                  </div>
+               </div>
             </div>
+         </div>
+      </div>
+   </section>
+   <section class="section pt-5 pb-5 categories-section">
+      <div class="container">
+         <div class="row justify-content-center section-heading mb-4">
+            <div class="col-lg-8 text-center text-lg-left">
+               <h1 class="h1 mb-0 text-center text-lg-left f24 text-white">Excel in Math & Science Olympiads with Expert Online Classes</h1>
+            </div>
+         </div>
+         <div class="row justify-content-center gy-2 gx-2 mb-4 course-filter-bar">
+            <div class="col-auto"><a href="/courses" class="btn btn-sm rounded-pill px-3 py-2 course-filter-btn active"><i class="bi bi-grid me-1"></i>All Classes</a></div>
+            <div class="col-auto"><a href="/courses?type=live" class="btn btn-sm rounded-pill px-3 py-2 course-filter-btn"><i class="bi bi-camera-video me-1"></i>Live Classes</a></div>
+            <div class="col-auto"><a href="/courses?type=recorded" class="btn btn-sm rounded-pill px-3 py-2 course-filter-btn"><i class="bi bi-play-circle me-1"></i>Recorded Classes</a></div>
+            <div class="col-auto"><a href="/our-classes" class="btn btn-sm rounded-pill px-3 py-2 course-filter-btn"><i class="bi bi-trophy me-1"></i>Olympiad</a></div>
+            <div class="col-auto"><a href="/courses?cat=iit-jee" class="btn btn-sm rounded-pill px-3 py-2 course-filter-btn"><i class="bi bi-mortarboard me-1"></i>IIT-JEE</a></div>
          </div>
          <div class="row justify-content-center gy-4">
 
@@ -592,13 +673,15 @@ use Illuminate\Support\Str;
 
 
    <!-- Section -->
-   <section class="section bg-gray-100 effect-section" id="our-courses">
+   <section class="section trending-courses-section effect-section" id="our-courses">
       <div class="particles-box" id="particles-box"><canvas class="particles-js-canvas-el" width="1343" height="1054" style="width: 100%; height: 100%;"></canvas></div>
       <div class="container">
-         <div class="row section-heading justify-content-center text-center wow fadeInUp mb-2" data-wow-duration="0.5s" data-wow-delay="0.1s">
-            <div class="col-lg-8 col-xl-6">
-               <h3 class="h1 bg-000-after after-50px pb-3 mb-0 text-warning">Trending Courses</h3>
-
+         <div class="row section-heading justify-content-between align-items-center wow fadeInUp mb-2" data-wow-duration="0.5s" data-wow-delay="0.1s">
+            <div class="col-auto">
+               <h3 class="h1 bg-000-after after-50px pb-3 mb-0 section-title-orange">Trending Courses</h3>
+            </div>
+            <div class="col-auto">
+               <a href="/courses" class="trending-view-all fw-semibold">View All</a>
             </div>
          </div>
          <div class="arrow">
@@ -698,8 +781,7 @@ $catx = Category::find($course->category->parent);
 
                      </div>
                      
-                     <div class="card-footer" style="display: flex;
-    align-items: center;">
+                     <div class="card-footer d-flex flex-wrap align-items-center">
 
 
                         <?php
@@ -751,11 +833,13 @@ $catx = Category::find($course->category->parent);
 
                                     @endif
 
-
-
-                                 </div>
-                                 
-                              </div>
+                        <div class="mt-2 w-100">
+                           @if($cp)
+                           <a href="{{ route('courses.show', [$course->slug]) }}?coupon={{$cp->code}}" class="btn btn-book-now btn-sm">View Course</a>
+                           @else
+                           <a href="{{ route('courses.show', [$course->slug]) }}" class="btn btn-book-now btn-sm">View Course</a>
+                           @endif
+                        </div>
 
                      </div>
 
@@ -775,28 +859,24 @@ $catx = Category::find($course->category->parent);
    <!-- End Section -->
 
 
-   <section class="section">
+   <section class="section why-choose-section">
       <div class="container">
          <div class="row align-items-center justify-content-between ">
             <div class="col-lg-6 my-3 wow fadeInLeft" data-wow-duration="0.5s" data-wow-delay="0.1s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInLeft;">
-               <h2 class="h2"> Why Choose Our Math & Science Olympiad Online Classes</h2>
-               <p class="lead" style="text-align: justify;">Our Math & Science Olympiad online classes provide expert-led coaching with a comprehensive syllabus, interactive live sessions, and personalized learning plans to help students excel. Learn from experienced faculty, access 24/7 study materials, and practice with mock tests designed to simulate real Olympiad exams. With a structured approach and tailored guidance, our program ensures concept clarity and problem-solving skills for top performance. Enroll today and boost your Olympiad success! 🚀</p>
+               <h2 class="h2">Why Choose Our Olympiad, Science & Maths, NTSE, SOF, and Other Exams</h2>
+               <p class="lead" style="text-align: justify;">Our Math & Science Olympiad online classes provide expert-led coaching with a comprehensive syllabus, interactive live sessions, and personalized learning plans to help students excel. Learn from experienced faculty, access 24/7 study materials, and practice with mock tests designed to simulate real Olympiad exams. With a structured approach and tailored guidance, our program ensures concept clarity and problem-solving skills for top performance. Enroll today and boost your Olympiad success!</p>
                <ul class="list-type-03 mb-4 list-unstyled">
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Personalised and interactive Live Private and Group classes</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Notes and Assessments for every topic</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Video recordings to view later</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Experienced and Well qualified Tutors</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Tutor replacement guarantee</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Best education at comfort and safety of your home</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Comprehensive Learning Programs</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Regular progress reporting to parents</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Secure Payment Gateway and Flexible payment options</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Learn from certified experts</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Flexible Learning</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Easy To Understand</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Practice questions</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Detailed solutions</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Performance analysis</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Live interactive classes</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-success me-2"></i>Secure Payment Gateway and Flexible payment options</li>
                </ul>
 
-
-
-               <a class="btn btn-primary" href="/about">About</a>
-               <a class="btn btn-warning" href="/contact">Contact</a>
+               <a class="btn btn-hero-join btn-lg" href="/about">READ MORE</a>
 
             </div>
             <div class="col-lg-6 my-3 wow fadeInRight text-center" data-wow-duration="0.5s" data-wow-delay="0.1s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInRight;"><img src="{{asset('newassets/img/about/about01.gif')}}" loading="lazy" width="400" height="400" title="" alt="About vaagaacademy"></div>
@@ -823,12 +903,19 @@ $catx = Category::find($course->category->parent);
       </div>
    </section>
 
+   <section class="section py-5 py-lg-6 branding-block">
+      <div class="container text-center">
+         <h2 class="branding-title mb-2">Vaaga ACADEMY</h2>
+         <p class="branding-tagline mb-0">Nurturing The Future Online</p>
+      </div>
+   </section>
+
    <section class="section  effect-section" style="background: #f7f7f759;">
 
       <div class="container">
          <div class="row">
             <div class="col-md-12 mb-5 text-center">
-               <h3 class="h1 bg-000-after after-50px  text-warning"> What Makes us Unique</h3>
+               <h3 class="h1 bg-000-after after-50px section-title-orange">What Makes Us Unique</h3>
 
             </div>
             <div class="col-md-12 text-center">
@@ -843,20 +930,21 @@ $catx = Category::find($course->category->parent);
             <?php
 
             $irls = array(
-               "Online Classes for Every Student",        "Recorded Video Sessions",
-               "Online Tuitions for Class 2 to 12",           "All Subjects & Boards ",
-               "Live Private and Group Classes ",        "Comprehensive Subject coverage"
-
+               "24/7 Mentoring Support",
+               "Learn At Your Pace",
+               "Accurate & Reliable Data",
+               "Regular Doubt Sessions",
+               "Unlimited Practice",
+               "Affordable Fees",
+               "Dedicated Mentors"
             );
 
             $colorsClass = array(
-
-               "bg-info", "bg-primary", "bg-warning", "bg-black", "bg-success", "bg-danger"
+               "bg-info", "bg-primary", "bg-warning", "bg-black", "bg-success", "bg-danger", "bg-secondary"
             );
 
             $iconsClass = array(
-
-               "fa fa-chalkboard-user", "fa fa-video", "bi bi-microsoft-teams", "fa fa-rectangle-list", "fa fa-group-arrows-rotate", "fa fa-compress"
+               "fa fa-headphones", "fa fa-clock", "fa fa-chart-line", "fa fa-comments", "fa fa-repeat", "fa fa-rupee-sign", "fa fa-user-graduate"
             );
             ?>
 
@@ -994,7 +1082,7 @@ $catx = Category::find($course->category->parent);
       <div class="container">
          <div class="row">
             <div class="col-md-12 mb-5 text-center">
-               <h3 class="h1 bg-000-after after-50px pb-3 mb-3 text-warning"> How Our Classes Work</h3>
+               <h3 class="h1 bg-000-after after-50px pb-3 mb-3 section-title-orange">How Our Classes Work</h3>
             </div>
             <div class="col-md-12">
 
@@ -1003,20 +1091,17 @@ $catx = Category::find($course->category->parent);
                      <span class="timeline-content">
                         <span class="year"><i class="bi-mortarboard-fill" style="font-size: 26px;"></i></span>
                         <div class="inner-content">
-                           <h3 class="title">Register with us</h3>
-                           <p class="description">
-                              Join the world of fantastic resources and strong mentor support that will greatly enrich your academic journey.
-                           </p>
+                           <h3 class="title">REGISTER WITH US</h3>
+                           <p class="description">Sign Up for free & Get Start.</p>
                         </div>
                      </span>
                   </div>
                   <div class="timeline wowx fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s">
                      <span class="timeline-content">
-                        <span class="year"><i class="bi bi-book-half" style="font-size: 26px;"></i></span>
+                        <span class="year"><i class="bi bi-people" style="font-size: 26px;"></i></span>
                         <div class="inner-content">
-                           <h3 class="title">Choose the subjects</h3>
-                           <p class="description">
-                              Choose the subjects for your academic journey to shape your future in a way that aligns with your passions and strengths. </p>
+                           <h3 class="title">JOIN THE CLASS</h3>
+                           <p class="description">Attend your class with no hassle.</p>
                         </div>
                      </span>
                   </div>
@@ -1024,41 +1109,17 @@ $catx = Category::find($course->category->parent);
                      <span class="timeline-content">
                         <span class="year"><i class="bi bi-clipboard-check" style="font-size: 26px;"></i></span>
                         <div class="inner-content">
-                           <h3 class="title">Book a Free Demo</h3>
-                           <p class="description">
-                              Book a free demo now to experience personalized learning, expert guidance, and the tools you need for academic success.
+                           <h3 class="title">COMPLETE HOMEWORK</h3>
+                           <p class="description">Revise the lessons and do your tasks.</p>
                         </div>
                      </span>
                   </div>
                   <div class="timeline wowx fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.8s">
                      <span class="timeline-content">
-                        <span class="year"><i class="bi bi-bag-heart" style="font-size: 26px;"></i></span>
+                        <span class="year"><i class="bi bi-award" style="font-size: 26px;"></i></span>
                         <div class="inner-content">
-                           <h3 class="title">Purchase the Course</h3>
-                           <p class="description">
-                              It’s your key to success, providing essential knowledge and skills to excel in academics and beyond.
-                           </p>
-                        </div>
-                     </span>
-                  </div>
-                  <div class="timeline wowx fadeInUp" data-wow-duration="0.5s" data-wow-delay="1.2s">
-                     <span class="timeline-content">
-                        <span class="year"><i class="bi bi-calendar2-week" style="font-size: 26px;"></i></span>
-                        <div class="inner-content">
-                           <h3 class="title">Expert Tutor Assigned</h3>
-                           <p class="description">
-
-                              Assigning an expert Tutor to provide personalized guidance and boosting academic performance to excel. </p>
-                        </div>
-                     </span>
-                  </div>
-                  <div class="timeline wowx fadeInUp" data-wow-duration="0.5s" data-wow-delay="1.6s">
-                     <span class="timeline-content">
-                        <span class="year"> <i class="bi bi-rocket-takeoff" style="font-size: 26px;"></i></span>
-                        <div class="inner-content">
-                           <h3 class="title">Let’s start your Learning Journey!!</h3>
-                           <p class="description">
-                              Join us today to kickstart your exciting learning adventure with VaaGa Academy and let's make it truly remarkable! 🚀 </p>
+                           <h3 class="title">GET CERTIFICATE</h3>
+                           <p class="description">Receive a certificate of completion.</p>
                         </div>
                      </span>
                   </div>
@@ -1075,7 +1136,7 @@ $catx = Category::find($course->category->parent);
       <div class="container">
          <div class="row section-heading justify-content-center text-center wow fadeInUp" data-wow-duration="0.5s">
             <div class="col-lg-8 col-xl-6">
-               <h3 class="h1 bg-000-after after-50px pb-3 mb-3">Recent Reviews from Students</h3>
+               <h3 class="h1 bg-000-after after-50px pb-3 mb-3 section-title-gold">Browse Reviews from Students</h3>
 
             </div>
             
@@ -1142,7 +1203,7 @@ $catx = Category::find($course->category->parent);
                
                <div class="swiper-pagination position-relative mt-2"></div>
             </div>
-            <div class="pb-5 text-center"><a class="btn btn-primary" href="{{route('home.testimonials')}}">View All</a></div>
+            <div class="pb-5 text-center"><a class="btn btn-hero-join" href="{{route('home.testimonials')}}">VIEW ALL</a></div>
          </div>
    </section>
    <!-- End Section -->
@@ -1233,18 +1294,21 @@ $catx = Category::find($course->category->parent);
 
    @if(count($tutors)>0)
 
-   <section class="section bg-gray-100 effect-section ">
+   <section class="section star-tutors-section effect-section">
       <div class="particles-box" id="particles-box-01"><canvas class="particles-js-canvas-el" width="1343" height="1054" style="width: 100%; height: 100%;"></canvas></div>
 
       <div class="container">
 
-         <div class="row section-heading justify-content-center text-center wow fadeInUp" data-wow-duration="0.3s" style="visibility: visible; animation-duration: 0.3s; animation-name: fadeInUp;">
-            <div class="col-lg-8 col-xl-6">
-               <h3 class="h1 bg-000-after after-50px text-warning">Star Tutors</h3>
+         <div class="row section-heading justify-content-between align-items-center wow fadeInUp" data-wow-duration="0.3s" style="visibility: visible; animation-duration: 0.3s; animation-name: fadeInUp;">
+            <div class="col-auto">
+               <h3 class="h1 bg-000-after after-50px text-white mb-0">Star Tutors</h3>
+            </div>
+            <div class="col-auto">
+               <a href="/become-tutor" class="text-white fw-semibold">View All</a>
             </div>
          </div>
 
-         <div class="arrow">
+         <div class="arrow text-white">
             <div class=" swiper-prev swiper-prev-01x d-inline-block"><i class="bi bi-chevron-left"></i>PRV </div>
             <div class=" swiper-next swiper-next-01x d-inline-block"> NXT<i class="bi bi-chevron-right"></i></div>
 
@@ -1343,38 +1407,44 @@ $catx = Category::find($course->category->parent);
 
          <div class="row section-heading justify-content-center text-center wow fadeInUp" data-wow-duration="0.3s" style="visibility: visible; animation-duration: 0.3s; animation-name: fadeInUp;">
             <div class="col-lg-8 col-xl-6">
-               <h3 class="h1 bg-000-after after-50px pb-3 mb-3">{{env('PROJECT_NAME')}} Achievement</h3>
+               <h3 class="h1 bg-000-after after-50px pb-3 mb-3 section-title-orange">Vaaga Academy Achievement</h3>
             </div>
          </div>
 
-         <div class="row">
-            <div class="col-6 col-lg-3 col-md-6 my-3">
-               <!-- <div class="border-2 bg-white line-hover p-4 rounded text-center"> -->
+         <div class="row justify-content-center">
+            <div class="col-6 col-lg col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #ffbe3d4a;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-laptop"></i></div>
                   <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->courses_offered : 0}}">{{$achievement ? $achievement->courses_offered : 0}}</span>+</h6>
                   <span>Courses offered </span>
                </div>
             </div>
-            <div class="col-6 col-lg-3 col-md-6 my-3">
+            <div class="col-6 col-lg col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #4a2a514f;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-people-fill"></i></div>
                   <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->happy_students : 0}}">{{$achievement ? $achievement->happy_students : 0}}</span>+</h6>
-                  <span>Happy Students </span>
+                  <span>Students Enrolled </span>
                </div>
             </div>
-            <div class="col-6 col-lg-3 col-md-6 my-3">
+            <div class="col-6 col-lg col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #50b5ff30;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-person"></i></div>
                   <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->expert_tutor : 0}}">{{$achievement ? $achievement->expert_tutor : 0}}</span>+</h6>
                   <span>Expert Tutors </span>
                </div>
             </div>
-            <div class="col-6 col-lg-3 col-md-6 my-3">
+            <div class="col-6 col-lg col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #5cc9a747;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-chat"></i></div>
                   <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->hours_taught : 0}}">{{$achievement ? $achievement->hours_taught : 0}}</span>+</h6>
                   <span>Hours taught</span>
+               </div>
+            </div>
+            <div class="col-6 col-lg col-md-6 my-3">
+               <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #ffb3474a;">
+                  <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-award"></i></div>
+                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement && isset($achievement->certificates_issued) ? $achievement->certificates_issued : 500}}">{{$achievement && isset($achievement->certificates_issued) ? $achievement->certificates_issued : 500}}</span>+</h6>
+                  <span>Certificates Issued</span>
                </div>
             </div>
          </div>

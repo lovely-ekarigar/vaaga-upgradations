@@ -21,71 +21,33 @@
                 </p>
               </div>
               <div class="col-6 col-lg-2 my-3">
-                <h5 class="footer-title-02 text-white">For Tutor</h5>
+                <h5 class="footer-title-02 text-white">Company</h5>
                 <ul class="list-unstyled footer-link-01 m-0">
-                  <li>
-                    <a class="link-white" href="https://vaagaacademy.com/user/dashboard">Profile</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="https://vaagaacademy.com/userlogin">Login</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="https://vaagaacademy.com/become-tutor">Register</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="https://vaagaacademy.com/become-tutor#faqs">Tutor FAQs</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="https://vaagaacademy.com/blog">Blogs</a>
-                  </li>
-                  
+                  <li><a class="link-white" href="/about">About Us</a></li>
+                  <li><a class="link-white" href="/contact">Contact Us</a></li>
+                  <li><a class="link-white" href="/blog">Blog</a></li>
+                  <li><a class="link-white" href="{{route('frontend.ourTeams')}}">Gallery</a></li>
+                  <li><a class="link-white" href="/courses">Pricing</a></li>
+                  <li><a class="link-white" href="/contact#faqs">FAQ</a></li>
                 </ul>
               </div>
               <div class="col-6 col-lg-2 my-3">
-                <h5 class="footer-title-02 text-white">For Student</h5>
+                <h5 class="footer-title-02 text-white">Support</h5>
                 <ul class="list-unstyled footer-link-01 m-0">
-                  <li>
-                    <a class="link-white" href="https://vaagaacademy.com/user/dashboard">Profile</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="https://vaagaacademy.com/userlogin">Login</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="https://vaagaacademy.com/userregister">Register</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="https://vaagaacademy.com/userregister#faqs">Student FAQs</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="{{route('home.testimonials')}}">Testimonials</a>
-                  </li>
-                 
+                  <li><a class="link-white" href="/become-tutor">Career</a></li>
+                  <li><a class="link-white" href="/become-tutor">Become Instructor</a></li>
+                  <li><a class="link-white" href="/courses">Course</a></li>
+                  <li><a class="link-white" href="https://vaagaacademy.com/userlogin">Login</a></li>
+                  <li><a class="link-white" href="https://vaagaacademy.com/userregister">Register</a></li>
                 </ul>
               </div>
               <div class="col-6 col-lg-2 my-3">
-                <h6 class="footer-title-02 text-white">Quick Links</h6>
-                <ul class="list-unstyled footer-link-01 m-0">
-                    <li>
-                    <a class="link-white" href="{{route('frontend.ourTeams')}}">Our Teams</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="{{ route('frontend.note.categories') }}">Study Material</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="/terms-and-conditions">Terms and Conditions</a>
-                  </li>
-                  
-                  <li>
-                    <a class="link-white" href="/privacy">Privacy and Policy</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="/refund-policy">Refund Policy</a>
-                  </li>
-                  <li>
-                    <a class="link-white" href="{{route('support-and-helpdesk')}}">Support and Helpdesk</a>
-                  </li>
-                  
-                </ul>
+                <h6 class="footer-title-02 text-white">Download Apps</h6>
+                <p class="link-white small mb-2">Get the app for mobile learning.</p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <a class="link-white" href="#" aria-label="App Store"><i class="bi bi-apple" style="font-size: 1.5rem;"></i></a>
+                  <a class="link-white" href="#" aria-label="Play Store"><i class="bi bi-google-play" style="font-size: 1.5rem;"></i></a>
+                </div>
               </div>
             </div>
           </div>
@@ -95,9 +57,7 @@
           <div class="row py-3 gy-3 align-items-center">
             
             <div class="col-md-12 text-center">
-              <p class="small m-0 text-white text-opacity-85">&copy; {{date("Y")}} VaaGa Academy
-. All rights reserved.</a>
-              </p>
+              <p class="small m-0 text-white text-opacity-85">Copyright {{date("Y")}} Vaaga Academy | All Rights Reserved.</p>
             </div>
           </div>
         </div>
