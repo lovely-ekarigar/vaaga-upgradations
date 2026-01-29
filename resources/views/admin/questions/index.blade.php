@@ -2,7 +2,57 @@
 
 use App\Models\Lesson;
 use App\Models\Course;
+use App\Models\Question;
 use Illuminate\Support\Str;
+
+// ============================================
+// COUNT LOGIC - Used for badges and Verify button
+// ============================================
+// Total Questions: All questions in database
+$totalQuestionsCount = isset($totalQuestionsCount) ? $totalQuestionsCount : Question::count();
+
+// Pending Verification Count: Questions that need verification
+// Only count questions with status = 'pending' (explicitly pending, not NULL)
+// This count is displayed in:
+//   - "Pending Verification" badge
+//   - "Verify Questions" button
+$pendingCount = isset($pendingCount) ? $pendingCount : Question::where('verification_status', 'pending')->count();
+
+// Approved Count: For reference (not displayed currently)
+$approvedCount = isset($approvedCount) ? $approvedCount : Question::where('verification_status', 'approved')->count();
+
+// Assign to variables used in view
+$totalQuestions = $totalQuestionsCount;
+$pendingVerificationCount = $pendingCount;
+
+// ============================================
+// FILTER LOGIC - Ensure filter matches count logic
+// ============================================
+// If verification_status filter is 'pending', re-query with pending filter only (matches count)
+if (request('verification_status') == 'pending') {
+    // Re-query with pending filter only (matches count logic)
+    $query = Question::where('verification_status', 'pending');
+    
+    // Apply other filters if present (preserve subject, chapter, difficulty, search)
+    if (request('subject_id')) {
+        $query->where('course_id', request('subject_id'));
+    }
+    if (request('chapter_id')) {
+        $query->where('chapter_id', request('chapter_id'));
+    }
+    if (request('difficulty')) {
+        $query->where('difficulty', request('difficulty'));
+    }
+    if (request('key')) {
+        $query->where(function($q) {
+            $q->where('id', 'like', '%' . request('key') . '%')
+              ->orWhere('question_text', 'like', '%' . request('key') . '%');
+        });
+    }
+    
+    // Get paginated results (25 per page)
+    $questions = $query->orderBy('created_at', 'desc')->paginate(25)->appends(request()->all());
+}
 
 ?>
 @extends('backend.layouts.app')
@@ -97,10 +147,10 @@ Question Bank | {{ env('APP_NAME') }}
 
                 <!-- Actions -->
                 <div class="d-flex gap-2" style="gap: 8px;">
-                    <!-- Verify Questions Button -->
+                    <!-- Verify Questions Button (shows pending count - same as Pending Verification badge & filter) -->
                     <button type="button" class="btn btn-sm btn-verify" id="verifyQuestionsBtn" 
-                            {{ ($pendingVerificationCount ?? 0) > 0 ? '' : 'disabled' }}>
-                        <i class="fas fa-check-circle"></i> Verify Questions ({{ $pendingVerificationCount ?? 0 }})
+                            {{ ($pendingCount ?? 0) > 0 ? '' : 'disabled' }}>
+                        <i class="fas fa-check-circle"></i> Verify Questions ({{ $pendingCount ?? 0 }})
                     </button>
                     
                     <a href="{{ route('admin.admin.exams.questions.import') }}" class="btn btn-sm btn-primary me-2">Import Questions</a>
@@ -175,10 +225,10 @@ Question Bank | {{ env('APP_NAME') }}
                 @if($questions->count() > 0)
                 <div style="width:50%;" class="mb-4">
                     <div class="input-group">
-                            <input type="text"  placeholder="Enter " class="form-control" id="key" value="{{request('key')}}" />
+                            <input type="text" name="key" placeholder="Enter search term" class="form-control" id="key" value="{{request('key')}}" />
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-primary" id="search">
-                                    <i class="fas fa-search"></i> Search
+                                    <i class="fas fa-search"></i> Q Search
                                 </button>
                             </div>
                         </div>
@@ -466,6 +516,8 @@ Question Bank | {{ env('APP_NAME') }}
     let currentQuestionIndex = 0;
     let currentCourseId = null;
     let currentCourseName = '';
+    // Pending count from server - used for badge & Verify button (same as Verification Status = Pending filter)
+    const pendingCountFromServer = {{ $pendingCount ?? 0 }};
 
     // Auto-submit form when any filter changes
     function setupFilterAutoSubmit() {
@@ -488,9 +540,10 @@ Question Bank | {{ env('APP_NAME') }}
         });
 
         // Also submit when pressing Enter in search field
-        $('input[name="search"]').on('keypress', function(e) {
+        $('#key').on('keypress', function(e) {
             if (e.which === 13) { // Enter key
-                $('#filterForm').submit();
+                e.preventDefault();
+                $('#search').click();
             }
         });
     }
@@ -499,33 +552,43 @@ Question Bank | {{ env('APP_NAME') }}
     setupFilterAutoSubmit();
 
     // Load pending questions for verification based on course
-    function loadPendingQuestions(courseId = null) {
+    // onLoadedCallback: optional function() called after load - use to open modal after fetching list
+    function loadPendingQuestions(courseId = null, onLoadedCallback = null) {
         let url = "{{ route('admin.admin.exams.questions.pending') }}";
-     
-            url += '?course_id={{request("subject_id")}}' ;
-        
+        url += '?course_id={{ request("subject_id") }}';
 
         $.get(url, function(response) {
             pendingQuestions = response.questions || [];
             $('#pendingCount').text(pendingQuestions.length);
-            
+
+            // Update button: show pending count (same as badge), update disabled state
             if (pendingQuestions.length > 0) {
-                $('#verifyQuestionsBtn').prop('disabled', false).html('<i class="fas fa-check-circle"></i> Verify Questions (' + pendingQuestions.length + ')');
+                $('#verifyQuestionsBtn').prop('disabled', false)
+                    .html('<i class="fas fa-check-circle"></i> Verify Questions (' + pendingQuestions.length + ')');
                 currentCourseId = courseId;
                 currentCourseName = response.course_name || 'All Courses';
-                
-                // Show success message
-                showAlert('success', 'Loaded ' + pendingQuestions.length + ' pending questions for verification.');
-            } else {
-                $('#verifyQuestionsBtn').prop('disabled', true).html('<i class="fas fa-check-circle"></i> Verify Questions (0)');
-                if (courseId) {
-                    showAlert('info', 'No pending questions found for the selected course.');
-                } else {
-                    showAlert('info', 'No pending questions found.');
+                if (!onLoadedCallback) {
+                    showAlert('success', 'Loaded ' + pendingQuestions.length + ' pending questions for verification.');
                 }
+            } else {
+                $('#verifyQuestionsBtn').prop('disabled', true)
+                    .html('<i class="fas fa-check-circle"></i> Verify Questions (' + pendingQuestions.length + ')');
+                if (!onLoadedCallback) {
+                    if (courseId) {
+                        showAlert('info', 'No pending questions found for the selected course.');
+                    } else {
+                        showAlert('info', 'No pending questions found.');
+                    }
+                }
+            }
+            if (typeof onLoadedCallback === 'function') {
+                onLoadedCallback();
             }
         }).fail(function() {
             showAlert('danger', 'Error loading pending questions.');
+            if (typeof onLoadedCallback === 'function') {
+                onLoadedCallback();
+            }
         });
     }
 
@@ -586,23 +649,37 @@ Question Bank | {{ env('APP_NAME') }}
         pendingQuestions = [];
         currentCourseId = null;
         currentCourseName = '';
-        $('#pendingCount').text('0');
-        $('#verifyQuestionsBtn').prop('disabled', true).html('<i class="fas fa-check-circle"></i> Verify Questions (0)');
+        $('#pendingCount').text(pendingCountFromServer); // Reset to server count
+        $('#verifyQuestionsBtn').prop('disabled', pendingCountFromServer === 0)
+            .html('<i class="fas fa-check-circle"></i> Verify Questions (' + pendingCountFromServer + ')');
         showAlert('info', 'Verification filter reset.');
     });
 
-    // Start verification process
+    // Start verification process - load pending questions first if needed, then open popup
     $('#verifyQuestionsBtn').click(function() {
-        if (pendingQuestions.length === 0) {
-            showAlert('warning', 'No questions pending verification for the selected course.');
+        if (pendingCountFromServer === 0) {
+            showAlert('warning', 'No questions pending verification.');
             return;
         }
-        
-        currentQuestionIndex = 0;
-        loadQuestionForVerification();
-        $('#currentCourseBadge').text(currentCourseName);
-        $('#verificationCourseId').val(currentCourseId);
-        $('#verificationModal').modal('show');
+        function openVerificationModal() {
+            if (pendingQuestions.length === 0) {
+                showAlert('info', 'No pending questions found to verify.');
+                return;
+            }
+            currentQuestionIndex = 0;
+            loadQuestionForVerification();
+            $('#currentCourseBadge').text(currentCourseName);
+            $('#verificationCourseId').val(currentCourseId);
+            $('#verificationModal').modal('show');
+        }
+        if (pendingQuestions.length > 0) {
+            openVerificationModal();
+        } else {
+            // Fetch pending list then open modal
+            loadPendingQuestions({{ request('subject_id') ? request('subject_id') : 'null' }}, function() {
+                openVerificationModal();
+            });
+        }
     });
 
     // Verify single question
@@ -636,7 +713,7 @@ Question Bank | {{ env('APP_NAME') }}
         if (currentQuestionIndex >= pendingQuestions.length) {
             $('#verificationModal').modal('hide');
             showAlert('success', 'All questions have been processed!');
-            loadPendingQuestions({{request('subject_id')}}); // Refresh counts
+            loadPendingQuestions({{ request('subject_id') ? request('subject_id') : 'null' }}); // Refresh counts
             return;
         }
 
@@ -811,8 +888,8 @@ Question Bank | {{ env('APP_NAME') }}
         });
     @endif
 
-    // Auto-load pending questions count on page load
-    loadPendingQuestions();
+    // Counts come from server (PHP) - no API call on page load
+    // Both "Pending Verification" badge and "Verify Questions" button show pending count (pending + NULL status)
 
     // Prevent form submission on Enter key in filter form (except search field)
     $('#filterForm').on('keypress', function(e) {
