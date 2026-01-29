@@ -16,6 +16,7 @@
 
   <!-- CSS Template -->
   <link href="/newassets/css/theme.css" rel="stylesheet">
+  @vite(['resources/sass/frontend/app.scss'])
 
   <link href="https://icons.getbootstrap.com/assets/font/bootstrap-icons.min.css" rel="stylesheet" defer>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" defer />
@@ -189,7 +190,11 @@
     ========================
     -->
   <!-- script start -->
-  <!-- Theme JS -->
+  <!-- Theme JS: CDN fallback when newassets is missing -->
+  @if(!\Illuminate\Support\Facades\File::exists(public_path('newassets/js/jquery-3.5.1.min.js')))
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  @endif
   <script src="/newassets/js/jquery-3.5.1.min.js"></script>
   <!--bootstrap-->
   <script src="/newassets/vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
@@ -223,28 +228,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
   <script>
-            $(document).on("click",".enquiry",function(){
-         
-         $("#enquiryModal").modal('show')   
-            
-        })
-        $(document).on("click",".close",function(){
-            $("#enquiryModal").modal('hide')   
-            
-        })
-        
-        
-//         document.addEventListener("DOMContentLoaded", () => {
-//     setTimeout(() => {
-//         const myModal = new bootstrap.Modal(document.getElementById('enquiryModal'));
-//         myModal.show();
-//     }, 1000); 
-//     $(document).on('click','.close', function(){
-//       <?php Session::put('modelClose',true) ?>
-//       console.log('now Session stored');
-//       $('#enquiryModal').modal('hide');
-//     });
-// }); 
+    document.addEventListener("DOMContentLoaded", function() {
+      var enquiryModalEl = document.getElementById('enquiryModal');
+      if (enquiryModalEl && typeof bootstrap !== 'undefined') {
+        var enquiryModal = new bootstrap.Modal(enquiryModalEl);
+        document.querySelectorAll('.enquiry').forEach(function(btn) {
+          btn.addEventListener('click', function() { enquiryModal.show(); });
+        });
+        enquiryModalEl.querySelectorAll('.close[data-bs-dismiss="modal"]').forEach(function(btn) {
+          btn.addEventListener('click', function() { enquiryModal.hide(); });
+        });
+      } else if (typeof $ !== 'undefined') {
+        $(document).on("click", ".enquiry", function() { $("#enquiryModal").modal('show'); });
+        $(document).on("click", ".close", function() { $("#enquiryModal").modal('hide'); });
+      }
+    });
   </script>
   <!--Start of Tawk.to Script-->
 

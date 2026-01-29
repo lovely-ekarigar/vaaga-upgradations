@@ -45,7 +45,7 @@
    <div class="modal fade" id="enquiryModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">×</button>
             <div class="row no-gutters">
                 <!-- Left Side with Image -->
                 
