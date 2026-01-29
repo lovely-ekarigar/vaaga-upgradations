@@ -7,25 +7,34 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Redirect students and teachers from admin mocktest routes to their correct dashboards.
- * Prevents 401 when they hit /user/mocktests (admin index) instead of /user/student/mocktests or /user/tutor/mocktests.
+ * Redirect non-admins from /user/mocktests to the correct page so they never get 401.
+ * Only administrators reach the mocktest admin controller; students/teachers/others are redirected.
  */
 class RedirectMockTestsByRole
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user()) {
+        $user = $request->user();
+
+        if (! $user) {
             return $next($request);
         }
 
-        if ($request->user()->hasRole('student')) {
+        // Only administrators go through to the admin mocktest controller
+        if ($user->isAdmin()) {
+            return $next($request);
+        }
+
+        // Everyone else: redirect by role so the controller is never hit (no 401)
+        if ($user->hasRole('student')) {
             return redirect()->route('student.mocktests.dashboard');
         }
 
-        if ($request->user()->hasRole('teacher')) {
+        if ($user->hasRole('teacher')) {
             return redirect()->route('tutor.mocktests.available');
         }
 
-        return $next($request);
+        // Author or any other role: send to dashboard
+        return redirect()->route('admin.dashboard');
     }
 }

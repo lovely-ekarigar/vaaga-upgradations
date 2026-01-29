@@ -107,7 +107,7 @@ class FormBuilder
 
     public function select($name, $list = [], $selected = null, array $options = [])
     {
-        $selected = $selected ?? $this->old($name) ?? ($this->model ? $this->model->{$name} ?? null) : null;
+        $selected = $selected ?? $this->old($name) ?? ($this->model ? ($this->model->{$name} ?? null) : null);
         $options['name'] = $name;
         $html = '<select' . $this->htmlAttributes($options) . '>';
         foreach ($list as $key => $label) {
