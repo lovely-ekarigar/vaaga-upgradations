@@ -10,11 +10,16 @@ class MockTest extends Model
 {
     use SoftDeletes;
 
+    const STATUS_DRAFT = 'draft';
+    const STATUS_REVIEWED = 'reviewed';
+    const STATUS_PUBLISHED = 'published';
+
     protected $fillable = [
         'title',
         'slug',
         'description',
         'published',
+        'status',
         'course_id',
         'created_by'
     ];
@@ -94,5 +99,25 @@ class MockTest extends Model
     {
         return $this->hasMany(MockTestSchedule::class)
             ->whereIn('status', ['scheduled', 'active']);
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('status', self::STATUS_PUBLISHED);
+    }
+
+    public function scopeDraft($query)
+    {
+        return $query->where('status', self::STATUS_DRAFT);
+    }
+
+    public function scopeReviewed($query)
+    {
+        return $query->where('status', self::STATUS_REVIEWED);
+    }
+
+    public function isPublishable(): bool
+    {
+        return $this->status === self::STATUS_PUBLISHED;
     }
 }

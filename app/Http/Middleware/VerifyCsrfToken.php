@@ -15,6 +15,10 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        'api/*','payment/*','pay-confirm/*'
+        'api/*',
+        'payment/*',
+        'pay-confirm/*',
+        'user/upload-image-editorjs', // Editor.js ImageTool upload (auth still required)
+        'user/upload-image-ckeditor', // CKEditor 4 image upload (auth still required)
     ];
 }

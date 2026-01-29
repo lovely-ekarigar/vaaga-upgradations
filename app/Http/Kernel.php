@@ -80,5 +80,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'cors' => \App\Http\Middleware\Cors::class,
         'isverified' => \App\Http\Middleware\IsVerified::class,
+        'redirect.mocktests.by.role' => \App\Http\Middleware\RedirectMockTestsByRole::class,
     ];
 }

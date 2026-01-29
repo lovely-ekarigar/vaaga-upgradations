@@ -230,6 +230,7 @@ Route::group(['prefix' => 'user/tutor', 'as' => 'tutor.', 'middleware' => ['auth
     Route::get('mocktests/available', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'availableTests'])->name('mocktests.available');
     Route::get('mocktests/scheduled', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'scheduledTests'])->name('mocktests.scheduled');
     Route::get('mocktests/preview/{id}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'previewTest'])->name('mocktests.preview');
+    Route::post('mocktests/approve/{id}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'approveTest'])->name('mocktests.approve');
     Route::get('mocktests/schedule/{id}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'scheduleForm'])->name('mocktests.schedule_form');
     Route::post('mocktests/schedule', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'scheduleTest'])->name('mocktests.schedule');
     Route::get('mocktests/reschedule/{scheduleId}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'rescheduleForm'])->name('mocktests.reschedule_form');

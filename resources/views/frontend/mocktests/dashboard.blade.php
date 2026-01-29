@@ -86,6 +86,7 @@
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-header bg-white">
                             <strong>Completed</strong>
+                            <span class="small text-muted d-block">Mock tests do not allow retakes.</span>
                         </div>
                         <div class="card-body">
                             @forelse($completedTests as $schedule)

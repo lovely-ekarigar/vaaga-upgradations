@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Helpers\Frontend\Auth\Socialite;
-use App\Locale;
+use App\Models\Locale;
 use App\Models\Blog;
 use App\Models\Config;
 use App\Models\Course;
@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View;
+use App\Helpers\FormBuilder;
 use App\Resolvers\SocialUserResolver;
 use Coderello\SocialGrant\Resolvers\SocialUserResolverInterface;
 
@@ -186,7 +187,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('appCurrency', getCurrency('INR'));
             try {
                 $locale_full_name = 'English';
-                $locale =  \App\Locale::where('short_name','=',config('app.locale'))->first();
+                $locale = Locale::where('short_name','=',config('app.locale'))->first();
                 if($locale){
                     $locale_full_name = $locale->name;
                 }
@@ -220,6 +221,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->singleton('form', function ($app) {
+            return new FormBuilder();
+        });
+
         /*
          * Sets third party service providers that are only needed on local/testing environments
          */

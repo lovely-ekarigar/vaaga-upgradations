@@ -20,7 +20,7 @@ class Test extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['title', 'description','slug', 'published', 'course_id', 'lesson_id'];
+    protected $fillable = ['title', 'description', 'slug', 'published', 'course_id', 'lesson_id', 'batch_id'];
 
 
     protected static function boot()
@@ -68,6 +68,11 @@ class Test extends Model
     public function lesson()
     {
         return $this->belongsTo(Lesson::class, 'lesson_id')->withTrashed();
+    }
+
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class, 'batch_id');
     }
     
     public function questions()

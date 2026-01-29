@@ -100,10 +100,17 @@ class NotificationService
     }
 
     /**
-     * Send notification when test is rescheduled
+     * Send notification when test is rescheduled.
+     *
+     * @param MockTestSchedule $schedule
+     * @param string $reason
+     * @param bool|null $notifyAdmin If true, notify admins (Tutor reschedule). If false, skip. If null, infer from auth user role.
      */
-    public function sendMockTestRescheduled(MockTestSchedule $schedule, $reason)
+    public function sendMockTestRescheduled(MockTestSchedule $schedule, $reason, $notifyAdmin = null)
     {
+        if ($notifyAdmin === null && auth()->check()) {
+            $notifyAdmin = auth()->user()->hasRole('teacher');
+        }
         $mockTest = $schedule->mockTest;
         $formattedDate = $schedule->scheduled_date->format('d M Y');
         
@@ -131,8 +138,8 @@ class NotificationService
             $this->aisensyService->sendMockTestRescheduled($st->uid, $schedule, $reason);
         }
 
-        // Notify admin if rescheduled by tutor
-        if (auth()->user()->hasRole('teacher')) {
+        // Notify admin only when rescheduled by tutor
+        if ($notifyAdmin) {
             $this->notifyAdminOfReschedule($schedule, $reason);
         }
 

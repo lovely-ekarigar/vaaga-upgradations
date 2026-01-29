@@ -17,7 +17,7 @@ class TeacherAttendance extends Model
      * @var array
      */
     protected $fillable = [
-        'teacher_id', 'hours', 'batches', 'date'
+        'teacher_id', 'batch_id', 'hours', 'fees', 'date'
     ];
 
     /**

@@ -13,6 +13,7 @@ use App\Models\QuestionsOption;
 use App\Models\TeacherBatch;
 use App\Models\StudentTeacherBatch;
 use App\Models\Auth\User;
+use App\Events\Backend\MockTestRescheduled;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -191,12 +192,16 @@ class MockTestController extends Controller
 
         $courseIds = array_values(array_unique(array_filter($request->input('course_ids', []))));
 
-        $mockTest = MockTest::create([
-            'course_id' => $courseIds[0] ?? null, // legacy primary course
+        $data = [
+            'course_id' => $courseIds[0] ?? null,
             'title' => $request->title,
             'description' => $request->description,
             'published' => (int) ($request->published ?? 0),
-        ]);
+        ];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('mock_tests', 'status')) {
+            $data['status'] = $request->status ?? ($data['published'] ? MockTest::STATUS_PUBLISHED : MockTest::STATUS_DRAFT);
+        }
+        $mockTest = MockTest::create($data);
         $mockTest->slug = str_slug($request->title);
         $mockTest->save();
         $mockTest->courses()->sync($courseIds);
@@ -267,12 +272,16 @@ class MockTestController extends Controller
 
         $courseIds = array_values(array_unique(array_filter($request->input('course_ids', []))));
 
-        $mockTest->update([
-            'course_id' => $courseIds[0] ?? null, // legacy primary course
+        $updateData = [
+            'course_id' => $courseIds[0] ?? null,
             'title' => $request->title,
             'description' => $request->description,
             'published' => (int) ($request->published ?? 0),
-        ]);
+        ];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('mock_tests', 'status')) {
+            $updateData['status'] = $request->status ?? ($updateData['published'] ? MockTest::STATUS_PUBLISHED : MockTest::STATUS_DRAFT);
+        }
+        $mockTest->update($updateData);
         $mockTest->slug = str_slug($request->title);
         $mockTest->save();
         $mockTest->courses()->sync($courseIds);
@@ -328,6 +337,13 @@ class MockTestController extends Controller
         ]);
 
         $mockTest = MockTest::findOrFail($request->mock_test_id);
+
+        $canAssign = \Illuminate\Support\Facades\Schema::hasColumn('mock_tests', 'status')
+            ? $mockTest->status === MockTest::STATUS_PUBLISHED
+            : (bool) $mockTest->published;
+        if (!$canAssign) {
+            return redirect()->back()->withFlashDanger('Only published mock tests can be assigned to a batch. Please publish the mock test first.');
+        }
         
         // Check if already scheduled for this batch
         $existingSchedule = MockTestSchedule::where('mock_test_id', $request->mock_test_id)
@@ -383,6 +399,44 @@ class MockTestController extends Controller
         }
 
         return view('backend.mocktests.schedules', compact('mockTest', 'schedules', 'batch_list'));
+    }
+
+    /**
+     * Show reschedule form for a schedule (Admin).
+     */
+    public function rescheduleForm($scheduleId)
+    {
+        if (! Gate::allows('mocktest_edit')) {
+            return abort(401);
+        }
+        $schedule = MockTestSchedule::with(['mockTest', 'batch'])->findOrFail($scheduleId);
+        return view('backend.mocktests.reschedule', compact('schedule'));
+    }
+
+    /**
+     * Reschedule a mock test (Admin).
+     */
+    public function reschedule(Request $request)
+    {
+        if (! Gate::allows('mocktest_edit')) {
+            return abort(401);
+        }
+        $this->validate($request, [
+            'schedule_id' => 'required|exists:mock_test_schedules,id',
+            'scheduled_date' => 'required|date|after_or_equal:today',
+            'reschedule_reason' => 'required|string|max:500',
+        ]);
+        $schedule = MockTestSchedule::findOrFail($request->schedule_id);
+        if ($schedule->results()->count() > 0) {
+            return redirect()->back()->withFlashWarning('Cannot reschedule. Some students have already attempted this test.');
+        }
+        $schedule->scheduled_date = $request->scheduled_date;
+        $schedule->rescheduled_at = now();
+        $schedule->rescheduled_by = Auth::id();
+        $schedule->reschedule_reason = $request->reschedule_reason;
+        $schedule->save();
+        event(new MockTestRescheduled($schedule, $request->reschedule_reason, false));
+        return redirect()->route('admin.mocktests.schedules', $schedule->mock_test_id)->withFlashSuccess('Mock test rescheduled successfully. Students have been notified.');
     }
 
     /**

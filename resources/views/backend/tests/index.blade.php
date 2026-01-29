@@ -23,8 +23,6 @@ use App\Models\Course;
             <div class="row">
                 <div class="col-12 col-lg-6 form-group">
                     {!! Form::label('course_id', trans('labels.backend.lessons.fields.course'), ['class' => 'control-label']) !!}
-                    <!-- {!! Form::select('course_id', $courses,  (request('course_id')) ? request('course_id') : old('course_id'), ['class' => 'form-control js-example-placeholder-single select2 ', 'id' => 'course_id']) !!} -->
-
                      <select class="form-control js-example-placeholder-single select2" id="course_id" name="course_id">
                         <option value="">Please select</option>
                         @foreach($courses as $k=>$c)

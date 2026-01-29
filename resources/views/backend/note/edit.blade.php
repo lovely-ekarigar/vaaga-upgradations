@@ -11,25 +11,10 @@ Edit Notes - {{ env('APP_NAME') }}
         display: none;
     }
 
-    .editorjs-holder {
+    .ckeditor-holder {
         min-height: 400px;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        background: #fff;
-        padding: 1rem;
-        transition: border-color .15s ease, box-shadow .15s ease;
     }
-    .editorjs-holder:focus-within {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-    .editorjs-holder .ce-block__content,
-    .editorjs-holder .ce-toolbar__content {
-        max-width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .ce-inline-tool { color: inherit; }
+    .cke_contents { min-height: 380px !important; }
 </style>
 @stop
 @section('content')
@@ -113,15 +98,10 @@ Edit Notes - {{ env('APP_NAME') }}
                 </div>
             
             <div class="col-12 col-lg-12 form-group">
-                  <label for="editor" class="form-label">Description<span class="text-danger">*</span></label>
-                   <!-- Enhanced Editor Container -->
-                    <div class="form-group shadow-sm border rounded-lg bg-white overflow-hidden mb-3">
-                        <div class="bg-gray-50 px-4 py-2 border-b text-sm font-semibold text-gray-600" style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; padding: 0.5rem 1rem;">
-                            Note Description
-                        </div>
-                        <div id="editorjs" class="p-4 prose max-w-none editorjs-holder" style="border:none; box-shadow:none;"></div>
+                  <label for="description" class="form-label">Description<span class="text-danger">*</span></label>
+                    <div class="form-group shadow-sm border rounded-lg bg-white overflow-hidden mb-3 ckeditor-holder">
+                        <textarea name="description" id="description" class="form-control" rows="15">{{ old('description', $note->description) }}</textarea>
                     </div>
-                    <input type="hidden" name="description" id="description_input" value="{{ old('description', $note->description) }}">
             </div>
         </div>
          <div class="row pt-3">
@@ -139,23 +119,16 @@ Edit Notes - {{ env('APP_NAME') }}
 
 @endsection
 @section('page_js')
-
- <script src="https://cdn.tiny.cloud/1/vlr81mg0cx8hu4bcrhk8jjmunq6xq5ycvurgvcbth7scst88/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 <script>
-
-
-    tinymce.init({
-      selector: '#editor',
-      menubar: false,
-      plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount fullscreen',
-      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat | fullscreen',
-      tinycomments_mode: 'embedded',
-      tinycomments_author: 'Author name',
-      images_upload_url:'/user/upload-image?_token={{csrf_token()}}'
-
- 
-
+    CKEDITOR.replace('description', {
+        height: 400,
+        filebrowserUploadUrl: '{{ route("admin.uploadImageCkEditor") }}',
+        filebrowserUploadMethod: 'form',
+        extraAllowedContent: 'img[src,alt,width,height]'
     });
-  </script>
-
+    document.querySelector('form').addEventListener('submit', function () {
+        if (CKEDITOR.instances.description) CKEDITOR.instances.description.updateElement();
+    });
+</script>
 @stop

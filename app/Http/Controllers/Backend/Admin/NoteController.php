@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Session;
 use Auth;
 use Illuminate\Support\Str;
@@ -42,6 +43,54 @@ class NoteController extends Controller
 	    "errorcode" => "406"
         ]);
     }
+    }
+
+    /**
+     * Upload image for Editor.js ImageTool. Returns JSON format expected by Editor.js.
+     */
+    public function uploadImageEditorJs(Request $request)
+    {
+        $file = $request->file('image') ?? $request->file('file');
+        if (!$file || !$file->isValid()) {
+            return response()->json(['success' => 0], 422);
+        }
+        $ext = strtolower($file->getClientOriginalExtension());
+        $allowed = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+        if (!in_array($ext, $allowed) || $file->getSize() > 5 * 1024 * 1024) {
+            return response()->json(['success' => 0], 422);
+        }
+        $path = $file->store('editorjs/' . date('Y') . '/' . date('m'), 'public');
+        $url = asset('storage/' . $path);
+        return response()->json([
+            'success' => 1,
+            'file' => ['url' => $url],
+        ]);
+    }
+
+    /**
+     * Upload image for CKEditor 4. Stores in public/uploads and returns script for CKEditor callback.
+     */
+    public function uploadImageCkEditor(Request $request)
+    {
+        $file = $request->file('upload');
+        if (!$file || !$file->isValid()) {
+            return response('<script>window.parent.CKEDITOR.tools.callFunction(' . (int) $request->input('CKEditorFuncNum') . ', "", "Upload failed.");</script>', 422);
+        }
+        $ext = strtolower($file->getClientOriginalExtension());
+        $allowed = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+        if (!in_array($ext, $allowed) || $file->getSize() > 5 * 1024 * 1024) {
+            return response('<script>window.parent.CKEDITOR.tools.callFunction(' . (int) $request->input('CKEditorFuncNum') . ', "", "Invalid file or size &gt; 5MB.");</script>', 422);
+        }
+        $dir = 'uploads/' . date('Y') . '/' . date('m');
+        $path = public_path($dir);
+        if (!is_dir($path)) {
+            mkdir($path, 0755, true);
+        }
+        $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file->getClientOriginalName());
+        $file->move($path, $filename);
+        $url = asset($dir . '/' . $filename);
+        $funcNum = (int) $request->input('CKEditorFuncNum');
+        return response('<script type="text/javascript">window.parent.CKEDITOR.tools.callFunction(' . $funcNum . ', "' . addslashes($url) . '", "");</script>');
     }
     
   public function categories()

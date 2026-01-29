@@ -70,6 +70,9 @@
                                     <td>{{ $s->status }}</td>
                                     <td>
                                         <a class="btn btn-sm btn-info" href="{{ route('admin.mocktests.results', $s->id) }}">Results</a>
+                                        @if($s->results()->count() === 0)
+                                            <a class="btn btn-sm btn-outline-primary ml-1" href="{{ route('admin.mocktests.schedules.reschedule_form', $s->id) }}">Reschedule</a>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

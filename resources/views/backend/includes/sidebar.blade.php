@@ -168,13 +168,13 @@ use App\Models\UserNotification;
                     <ul class="nav-dropdown-items">
                         <li class="nav-item">
                             <a class="nav-link {{ $request->segment(2) == 'questions-bank' || $request->segment(2) == 'questions' ? 'active' : '' }}"
-                                href="/user/questions-bank">
+                                href="{{ route('admin.questions-bank.index') }}">
                                 <span class="title">Question Bank</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ $request->segment(2) == 'test-series' || $request->segment(2) == 'tests' ? 'active' : '' }}"
-                                href="/user/test-series">
+                                href="{{ route('admin.test-series.index') }}">
                                 <span class="title">Test Series</span>
                             </a>
                         </li>
@@ -190,7 +190,7 @@ use App\Models\UserNotification;
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ $request->segment(2) == 'purchase' || $request->segment(2) == 'purchase-list' ? 'active' : '' }}"
-                                href="/user/purchase/test-series">
+                                href="{{ route('admin.purchase.test-series') }}">
                                 <span class="title">Purchase List</span>
                             </a>
                         </li>

@@ -11,6 +11,7 @@ use App\Models\TeacherBatch;
 use App\Models\StudentTeacherBatch;
 use App\Models\Auth\User;
 use App\Services\NotificationService;
+use App\Events\Backend\MockTestRescheduled;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Auth;
@@ -19,7 +20,7 @@ class TutorMockTestController extends Controller
 {
     protected $notificationService;
 
-    public function __construct(NotificationService $notificationService)
+    public function __construct(\App\Services\NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
     }
@@ -32,13 +33,17 @@ class TutorMockTestController extends Controller
         // Get tutor's batches
         $bids = TeacherBatch::where("tid", Auth::user()->id)->pluck('bid')->toArray();
         
-        // Get all mock tests for courses that tutor teaches
+        // Get all mock tests for courses that tutor teaches (draft, reviewed, published so tutor can preview/approve or schedule)
         $mockTests = MockTest::whereHas('courses', function($q) {
             $q->whereHas('teachers', function($t) {
                 $t->where('course_user.user_id', '=', Auth::user()->id);
             });
         })
-        ->where('published', 1)
+        ->when(\Illuminate\Support\Facades\Schema::hasColumn('mock_tests', 'status'), function ($q) {
+            $q->whereIn('status', [MockTest::STATUS_DRAFT, MockTest::STATUS_REVIEWED, MockTest::STATUS_PUBLISHED]);
+        }, function ($q) {
+            $q->where('published', 1);
+        })
         ->with(['courses', 'course', 'questions'])
         ->get();
 
@@ -68,6 +73,34 @@ class TutorMockTestController extends Controller
         $questions = $mockTest->questions()->with('options')->get();
 
         return view('backend.tutor.mocktests.preview', compact('mockTest', 'questions'));
+    }
+
+    /**
+     * Tutor approves a mock test (sets status to reviewed so it can be scheduled).
+     */
+    public function approveTest(Request $request, $id)
+    {
+        $mockTest = MockTest::findOrFail($id);
+
+        $hasCourseAccess = $mockTest->courses()
+            ->whereHas('teachers', function ($t) {
+                $t->where('course_user.user_id', '=', Auth::user()->id);
+            })
+            ->exists();
+
+        if (!$hasCourseAccess) {
+            return abort(403, 'You do not have access to this mock test.');
+        }
+
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('mock_tests', 'status')) {
+            return redirect()->back()->withFlashWarning('Status column not available. Run migrations.');
+        }
+
+        $mockTest->status = MockTest::STATUS_REVIEWED;
+        $mockTest->save();
+
+        return redirect()->route('tutor.mocktests.preview', $id)
+            ->withFlashSuccess('Mock test approved. You can now schedule it for a batch.');
     }
 
     /**
@@ -103,6 +136,17 @@ class TutorMockTestController extends Controller
             'scheduled_date' => 'required|date|after_or_equal:today',
             'timezone' => 'nullable|string'
         ]);
+
+        $mockTest = MockTest::find($request->mock_test_id);
+        if (!$mockTest) {
+            return redirect()->back()->withFlashDanger('Mock test not found.');
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('mock_tests', 'status')) {
+            $allowed = [\App\Models\MockTest::STATUS_PUBLISHED, \App\Models\MockTest::STATUS_REVIEWED];
+            if (!in_array($mockTest->status, $allowed, true)) {
+                return redirect()->back()->withFlashDanger('Mock test must be approved (or published by admin) before scheduling. Use "Approve" on the preview page.');
+            }
+        }
 
         // Verify tutor has access to this batch
         $hasBatch = TeacherBatch::where('tid', Auth::user()->id)
@@ -191,8 +235,7 @@ class TutorMockTestController extends Controller
         $schedule->reschedule_reason = $request->reschedule_reason;
         $schedule->save();
 
-        // Send notifications
-        $this->notificationService->sendMockTestRescheduled($schedule, $request->reschedule_reason);
+        event(new MockTestRescheduled($schedule, $request->reschedule_reason, true));
 
         return redirect()->route('tutor.mocktests.available')
             ->withFlashSuccess('Mock test rescheduled successfully. Students and admin have been notified.');

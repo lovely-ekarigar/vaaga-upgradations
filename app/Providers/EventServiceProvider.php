@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\Backend\MockTestRescheduled;
+use App\Listeners\SendRescheduleNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 /**
@@ -15,7 +17,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        //
+        MockTestRescheduled::class => [
+            SendRescheduleNotification::class,
+        ],
     ];
 
     /**

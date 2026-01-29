@@ -146,36 +146,29 @@ class PageController extends Controller
             $page->slug = $request->slug;
         }
         $message = $request->get('content');
-        $dom = new \DOMDocument();
-        $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        $images = $dom->getElementsByTagName('img');
-
-        // foreach <img> in the submitted message
-        foreach ($images as $img) {
-
-            $src = $img->getAttribute('src');
-            // if the img source is 'data-url'
-            if (preg_match('/data:image/', $src)) {
-                // get the mimetype
-                preg_match('/data:image\/(?<mime>.*?)\;/', $src, $groups);
-                $mimetype = $groups['mime'];
-                // Generating a random filename
-                $filename = uniqid();
-                $filepath = storage_path("/app/public/uploads/page/$filename.$mimetype");
-                // @see http://image.intervention.io/api/
-                $image = \Image::make($src)
-                    // resize if required
-                    /* ->resize(300, 200) */
-                    ->encode($mimetype, 100)// encode file to the specified mimetype
-                    ->save($filepath);
-                $new_src = asset("storage/uploads/$filename.$mimetype");
-                $dirname = dirname($filename);
-
-                $img->removeAttribute('src');
-                $img->setAttribute('src', $new_src);
-            } // <!--endif
-        } // <!-
-        $page->content = $dom->saveHTML();
+        // Editor.js JSON: save as-is for editorjs-parser
+        $decoded = json_decode($message, true);
+        if (is_array($decoded) && isset($decoded['blocks'])) {
+            $page->content = $message;
+        } else {
+            $dom = new \DOMDocument();
+            $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $images = $dom->getElementsByTagName('img');
+            foreach ($images as $img) {
+                $src = $img->getAttribute('src');
+                if (preg_match('/data:image/', $src)) {
+                    preg_match('/data:image\/(?<mime>.*?)\;/', $src, $groups);
+                    $mimetype = $groups['mime'];
+                    $filename = uniqid();
+                    $filepath = storage_path("/app/public/uploads/page/$filename.$mimetype");
+                    $image = \Image::make($src)->encode($mimetype, 100)->save($filepath);
+                    $new_src = asset("storage/uploads/$filename.$mimetype");
+                    $img->removeAttribute('src');
+                    $img->setAttribute('src', $new_src);
+                }
+            }
+            $page->content = $dom->saveHTML();
+        }
 
         $request = $this->saveFiles($request);
         $page->user_id = auth()->user()->id;
@@ -250,36 +243,31 @@ class PageController extends Controller
         }
 
         $message = $request->get('content');
-        libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
-        $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'));
-        $images = $dom->getElementsByTagName('img');
-        // foreach <img> in the submited message
-        foreach ($images as $img) {
-            $src = $img->getAttribute('src');
-            // if the img source is 'data-url'
-            if (preg_match('/data:image/', $src)) {
-                // get the mimetype
-                preg_match('/data:image\/(?<mime>.*?)\;/', $src, $groups);
-                $mimetype = $groups['mime'];
-                // Generating a random filename
-                $filename = uniqid();
-                info($filename);
-                $filepath = storage_path("/app/public/uploads/page/$filename.$mimetype");
-                // @see http://image.intervention.io/api/
-                $image = Image::make($src)
-                    ->encode($mimetype, 100)// encode file to the specified mimetype
-                    ->save($filepath);
-                $new_src = asset("storage/uploads/$filename.$mimetype");
-            } // <!--endif
-            else {
-                $new_src = $src;
+        $decoded = json_decode($message, true);
+        if (is_array($decoded) && isset($decoded['blocks'])) {
+            $page->content = $message;
+        } else {
+            libxml_use_internal_errors(true);
+            $dom = new \DOMDocument();
+            $dom->loadHtml(mb_convert_encoding($message,  'HTML-ENTITIES', 'UTF-8'));
+            $images = $dom->getElementsByTagName('img');
+            foreach ($images as $img) {
+                $src = $img->getAttribute('src');
+                if (preg_match('/data:image/', $src)) {
+                    preg_match('/data:image\/(?<mime>.*?)\;/', $src, $groups);
+                    $mimetype = $groups['mime'];
+                    $filename = uniqid();
+                    $filepath = storage_path("/app/public/uploads/page/$filename.$mimetype");
+                    $image = Image::make($src)->encode($mimetype, 100)->save($filepath);
+                    $new_src = asset("storage/uploads/$filename.$mimetype");
+                } else {
+                    $new_src = $src;
+                }
+                $img->removeAttribute('src');
+                $img->setAttribute('src', $new_src);
             }
-            $img->removeAttribute('src');
-            $img->setAttribute('src', $new_src);
-        } // <!
-        //-
-        $page->content = $dom->saveHTML();
+            $page->content = $dom->saveHTML();
+        }
 
         if($request->featured_image != ""){
             $request = $this->saveFiles($request);

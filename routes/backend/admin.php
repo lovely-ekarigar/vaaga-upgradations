@@ -292,6 +292,8 @@ Route::group(['middleware' => 'role:administrator'], function () {
     Route::post('edit-note/{id}', [NoteController::class, 'update'])->name('note.update');
 
     Route::post('/upload-image', [NoteController::class, 'imageUpload'])->name('admin.uploadImage');
+    Route::post('/upload-image-editorjs', [NoteController::class, 'uploadImageEditorJs'])->name('admin.uploadImageEditorJs');
+    Route::post('/upload-image-ckeditor', [NoteController::class, 'uploadImageCkEditor'])->name('admin.uploadImageCkEditor');
 
 
     //====== Note Routes =====//   
@@ -520,6 +522,7 @@ Route::delete('questions_options_perma_del/{id}', ['uses' => 'Admin\QuestionsOpt
 Route::resource('tests', 'Admin\TestsController');
 Route::post('tests/assign-batch', ['uses' => 'Admin\TestsController@assignBatch', 'as' => 'tests.assign_batch']);
 Route::get('test-result/{id}', ['uses' => 'Admin\TestsController@testResult', 'as' => 'tests.result']);
+Route::get('tests/{id}/export-results-pdf', ['uses' => 'Admin\TestsController@exportResultsPdf', 'as' => 'tests.export_results_pdf']);
 Route::get('test-analysis/{id}/{sid}', ['uses' => 'Admin\TestsController@testAnalysis', 'as' => 'tests.analysis']);
 Route::get('get-tests-data', ['uses' => 'Admin\TestsController@getData', 'as' => 'tests.get_data']);
 // Route::get('get-tests-resultdata', ['uses' => 'Admin\TestsController@getData', 'as' => 'tests.get_result_data']);
@@ -529,7 +532,7 @@ Route::delete('tests_perma_del/{id}', ['uses' => 'Admin\TestsController@perma_de
 
 
 //===== Mock Tests Routes =====//
-Route::group(['prefix' => 'mocktests', 'as' => 'mocktests.'], function () {
+Route::group(['prefix' => 'mocktests', 'as' => 'mocktests.', 'middleware' => ['redirect.mocktests.by.role']], function () {
     Route::get('/', ['uses' => 'Admin\MockTestController@index', 'as' => 'index']);
     Route::get('create', ['uses' => 'Admin\MockTestController@create', 'as' => 'create']);
     Route::post('/', ['uses' => 'Admin\MockTestController@store', 'as' => 'store']);
@@ -540,6 +543,8 @@ Route::group(['prefix' => 'mocktests', 'as' => 'mocktests.'], function () {
     Route::delete('{id}', ['uses' => 'Admin\MockTestController@destroy', 'as' => 'destroy']);
     Route::post('assign-batch', ['uses' => 'Admin\MockTestController@assignBatch', 'as' => 'assign_batch']);
     Route::get('schedules/{id}', ['uses' => 'Admin\MockTestController@viewSchedules', 'as' => 'schedules']);
+    Route::get('schedules/{scheduleId}/reschedule', ['uses' => 'Admin\MockTestController@rescheduleForm', 'as' => 'schedules.reschedule_form']);
+    Route::post('schedules/reschedule', ['uses' => 'Admin\MockTestController@reschedule', 'as' => 'schedules.reschedule']);
     Route::get('results/{scheduleId}', ['uses' => 'Admin\MockTestController@viewResults', 'as' => 'results']);
     Route::get('analysis/{scheduleId}/{studentId}', ['uses' => 'Admin\MockTestController@testAnalysis', 'as' => 'analysis']);
     Route::get('question-reports', ['uses' => 'Admin\MockTestController@questionReports', 'as' => 'question_reports']);
@@ -554,6 +559,9 @@ Route::group(['prefix' => 'mocktests', 'as' => 'mocktests.'], function () {
 
 //===== Media Routes =====//
 Route::post('media/remove', ['uses' => 'Admin\MediaController@destroy', 'as' => 'media.destroy']);
+
+//===== Editor image upload (CKEditor / Editor.js) =====//
+Route::post('editor/upload-image', ['uses' => 'Admin\EditorUploadController@handleImageUpload', 'as' => 'editor.upload_image']);
 
 
 //===== User Account Routes =====//

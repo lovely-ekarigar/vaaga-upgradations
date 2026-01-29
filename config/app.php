@@ -301,8 +301,7 @@ return [
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
-
-
+        'Form' => App\Facades\Form::class,
 
     ],
 
