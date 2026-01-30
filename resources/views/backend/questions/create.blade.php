@@ -279,11 +279,25 @@
                     class: ImageTool,
                     config: {
                         uploader: {
-                            uploadByFile(file) {
-                                return fileToDataUrl(file).then((url) => ({
-                                    success: 1,
-                                    file: { url }
-                                }));
+                            async uploadByFile(file) {
+                                const formData = new FormData();
+                                formData.append('image', file);
+                                formData.append('_token', '{{ csrf_token() }}');
+                                try {
+                                    const res = await fetch('{{ route("admin.editor.upload_image") }}', {
+                                        method: 'POST',
+                                        body: formData
+                                    });
+                                    const json = await res.json();
+                                    if (json.success) return json;
+                                    return { success: 0, error: json.error?.message || 'Upload failed' };
+                                } catch (e) {
+                                    // Fallback to DataURL if server upload fails
+                                    return fileToDataUrl(file).then((url) => ({
+                                        success: 1,
+                                        file: { url }
+                                    }));
+                                }
                             }
                         }
                     }

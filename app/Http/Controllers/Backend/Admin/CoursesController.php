@@ -11,7 +11,6 @@ use App\Models\Media;
 use App\Models\Lesson;
 use App\Models\Board;
 use App\Models\CourseContent;
-use function foo\func;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -278,7 +277,7 @@ $cc->save();
                 return "<input type='number' class='form-control sort_order' style='width:80px;' data-id='".$q->id."' value='".$q->sort_order."'  />";
             })
             ->addColumn('category', function ($q) {
-                return $q->category->name;
+                return $q->category ? $q->category->name : 'N/A';
             })
             ->rawColumns(['teachers', 'lessons', 'course_image', 'actions', 'status','sort_order'])
             ->make();

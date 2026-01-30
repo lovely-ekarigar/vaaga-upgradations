@@ -64,43 +64,46 @@ class ReportController extends Controller
 
 public function getCourseDataSubs(Request $request){
 
-    $courses = Course::all();
-    $final=[];
-    foreach($courses as $course){
+    $courses = Course::ofTeacher()->pluck('id');
 
-        $orderItems = OrderItem::with('order')->where('item_id',$course->id)->get();
-            
-        $total = 0;    
-        foreach($orderItems as $oi){
-            if($oi->order){
-            if($oi->order->status=='1'){
+    $course_orders = OrderItem::where('item_type','=',Course::class)
+        ->whereIn('item_id',$courses)
+        ->join('courses', 'order_items.item_id', '=', 'courses.id')
+        ->join('orders', 'orders.id', '=', 'order_items.order_id')
+        ->where('orders.status','=',1)
+        ->where('orders.course_mode','like','%monthly%')
+        ->select('item_id', DB::raw('count(*) as orders, sum(orders.amount) as earnings, courses.title as name, courses.id as cid, courses.slug'))
+        ->groupBy('item_id', 'courses.title', 'courses.id', 'courses.slug')
+        ->get();
 
-                if(str_contains($oi->order->course_mode,"monthly")){
-                    $total += $oi->price;
-                }
-            }
-        }
-        }
-        $course->earnings = $total;
-        $final[] = $course;
-    }
-
-
+    return \DataTables::of($course_orders)
+        ->addIndexColumn()
+        ->editColumn('name', function ($q) {
+            $cr = new Course();
+            return $cr->getCouseNameWithCat($q->cid);
+        })
+        ->addColumn('course', function ($q) {
+            $course_name = $q->name ?? '';
+            $course_slug = $q->slug ?? '';
+            $link = "<a href='".route('courses.show', [$course_slug])."' target='_blank'>".$course_name."</a>";
+            return $link;
+        })
+        ->rawColumns(['course'])
+        ->make();
 }
     public function getCourseData(Request $request)
     {
 
         $courses = Course::ofTeacher()->pluck('id');
 
-        $course_orders = OrderItem::whereHas('order',function ($q){
-            $q->where('status','=',1);
-        })->where('item_type','=',Course::class)
+        $course_orders = OrderItem::where('item_type','=',Course::class)
             ->whereIn('item_id',$courses)
-            ->where('orders.course_mode','like','%full%')
             ->join('courses', 'order_items.item_id', '=', 'courses.id')
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status','=',1)
+            ->where('orders.course_mode','like','%full%')
             ->select('item_id', DB::raw('count(*) as orders, sum(orders.amount) as earnings, courses.title as name, courses.id as cid, courses.slug'))
-            ->groupBy('item_id')
+            ->groupBy('item_id', 'courses.title', 'courses.id', 'courses.slug')
             ->get();
 
         
@@ -112,8 +115,8 @@ public function getCourseDataSubs(Request $request){
                 return $cr->getCouseNameWithCat($q->cid);
             })
             ->addColumn('course', function ($q) {
-                $course_name = $q->title;
-                $course_slug = $q->slug;
+                $course_name = $q->name ?? '';
+                $course_slug = $q->slug ?? '';
                 $link = "<a href='".route('courses.show', [$course_slug])."' target='_blank'>".$course_name."</a>";
                 return $link;
             })

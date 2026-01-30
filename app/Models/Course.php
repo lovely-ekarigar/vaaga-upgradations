@@ -92,6 +92,9 @@ return $expired;
                 
                 if( $course){
                 $cat = Category::find($course->category_id);
+                if(!$cat){
+                    return $course->title;
+                }
                 if($cat->board_id==0){
                     $pat = Category::find($cat->parent);
                     if($pat){
@@ -104,8 +107,10 @@ return $expired;
           
                 }else{
                     $board = Board::find($cat->board_id);
-                  return
-              $board->name." | ". $cat->name." | ".$course->title;  
+                    if($board){
+                        return $board->name." | ". $cat->name." | ".$course->title;
+                    }
+                    return $cat->name." | ".$course->title;  
                 }
                 }else{
                     return "";

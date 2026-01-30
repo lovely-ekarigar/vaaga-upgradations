@@ -41,12 +41,17 @@ class CartController extends Controller
     public function __construct()
     {
         /** PayPal api context **/
-        $paypal_conf = \Config::get('paypal');
-        $this->_api_context = new ApiContext(new OAuthTokenCredential(
-                $paypal_conf['client_id'],
-                $paypal_conf['secret'])
-        );
-        $this->_api_context->setConfig($paypal_conf['settings']);
+        // Only initialize PayPal if SDK is available
+        if (class_exists(\PayPal\Rest\ApiContext::class)) {
+            $paypal_conf = \Config::get('paypal');
+            $this->_api_context = new ApiContext(new OAuthTokenCredential(
+                    $paypal_conf['client_id'],
+                    $paypal_conf['secret'])
+            );
+            $this->_api_context->setConfig($paypal_conf['settings']);
+        } else {
+            $this->_api_context = null;
+        }
 
         $path = 'frontend';
         if (session()->has('display_type')) {

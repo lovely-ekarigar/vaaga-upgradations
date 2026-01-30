@@ -96,11 +96,15 @@ class EarningHelper
      **/
 
     public function totalWithdrawal($id = null){
+        // Check if withdraws table exists
+        if (!\Illuminate\Support\Facades\Schema::hasTable('withdraws')) {
+            return 0;
+        }
         if($id){
             $user = User::find($id);
-            return $user->withdraws->where('status', '=', 1)->sum('amount');
+            return $user ? $user->withdraws->where('status', '=', 1)->sum('amount') : 0;
         }
-        return Auth::user()->withdraws->where('status', '=', 1)->sum('amount');
+        return Auth::check() ? Auth::user()->withdraws->where('status', '=', 1)->sum('amount') : 0;
     }
 
     /**
@@ -109,11 +113,15 @@ class EarningHelper
      **/
 
     public function totalWithdrawalPending($id = null){
+        // Check if withdraws table exists
+        if (!\Illuminate\Support\Facades\Schema::hasTable('withdraws')) {
+            return 0;
+        }
         if($id){
             $user = User::find($id);
-            return $user->withdraws->where('status', '=', 0)->sum('amount');
+            return $user ? $user->withdraws->where('status', '=', 0)->sum('amount') : 0;
         }
-        return Auth::user()->withdraws->where('status', '=', 0)->sum('amount');
+        return Auth::check() ? Auth::user()->withdraws->where('status', '=', 0)->sum('amount') : 0;
     }
 
     /**
