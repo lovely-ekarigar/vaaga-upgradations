@@ -667,3 +667,5 @@ if (!class_exists('HieuLe\Active\Facades\Active')) {
 if (!class_exists('HieuLe\Active\Facades\Active')) {
     class_alias('Active', 'HieuLe\Active\Facades\Active');
 }
+}
+
