@@ -23,19 +23,21 @@
                       href="{{asset('newassets/img/favicon.png')}}"/>
             @endif
             @yield('meta')
-            <link rel="stylesheet" href="{{asset('css/select2.min.css')}}">
+            {{-- jQuery must load BEFORE Vite (which uses defer). Body scripts (DataTables, Select2, main.js) need jQuery immediately. --}}
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" crossorigin="anonymous" />
             <link rel="stylesheet" href="{{asset('assets/css/fontawesome-all.css')}}">
             {{-- Simple Line Icons: sidebar/menu icons (font not bundled by Vite, load from CDN) --}}
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.4.1/css/simple-line-icons.min.css" crossorigin="anonymous">
 
-            <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+            <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
             <link rel="stylesheet"
-                  href="//cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css"/>
+                  href="https://cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css"/>
             <link rel="stylesheet"
                   href="https://cdn.datatables.net/select/1.2.0/css/select.dataTables.min.css"/>
             <link rel="stylesheet"
-                  href="//cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css"/>
+                  href="https://cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css"/>
             {{--<link rel="stylesheet"--}}
             {{--href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.5.0/css/bootstrap-datepicker.standalone.min.css"/>--}}
             {{-- See https://laravel.com/docs/5.5/blade#stacks for usage --}}
@@ -118,10 +120,11 @@ span.red-text {
             //Route for message notification
             var messageNotificationRoute = '{{route('admin.messages.unread')}}'
         </script>
-        <script src="//cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
-        <script src="//cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
-        <script src="//cdn.datatables.net/buttons/1.2.4/js/buttons.flash.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+        {{-- DataTables + plugins: must load BEFORE main.js and page scripts --}}
+        <script src="https://cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.flash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
         <script src="{{asset('js/pdfmake.min.js')}}"></script>
         <script src="{{asset('js/vfs_fonts.js')}}"></script>
         <script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.html5.min.js"></script>
@@ -130,9 +133,8 @@ span.red-text {
         <script src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js"></script>
         <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
-
-        <script src="{{asset('js/select2.full.min.js')}}" type="text/javascript"></script>
+        {{-- Select2: must load BEFORE main.js (which calls $('.select2').select2()) --}}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js" crossorigin="anonymous"></script>
         
          @yield('page_js')
         

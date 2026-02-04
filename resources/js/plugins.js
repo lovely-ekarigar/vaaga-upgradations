@@ -24,7 +24,9 @@ function addDeleteForms() {
 
 /**
  * Place any jQuery/helper plugins in here.
+ * Use window.jQuery for module compatibility (Vite/ES modules).
  */
+const $ = window.jQuery || window.$;
 $(function () {
     /**
      * Add the data-method="delete" forms to all delete links

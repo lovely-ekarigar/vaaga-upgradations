@@ -31,9 +31,16 @@ import 'bootstrap';
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
  * for JavaScript based Bootstrap features such as modals and tabs. This
  * code may be modified to fit the specific needs of your application.
+ *
+ * IMPORTANT: Do NOT overwrite window.jQuery if it already exists (e.g. from CDN
+ * in backend layout). DataTables, Select2 etc. attach to the first jQuery;
+ * overwriting would break them. Use existing global jQuery when available.
  */
-
-window.$ = window.jQuery = $;
+if (typeof window.jQuery === 'undefined' || !window.jQuery.fn) {
+    window.$ = window.jQuery = $;
+} else {
+    window.$ = window.jQuery = window.jQuery;
+}
 window.swal = swal;
 window._ = _; // Lodash
 

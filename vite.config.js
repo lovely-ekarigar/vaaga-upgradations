@@ -28,6 +28,7 @@ export default defineConfig({
         alias: {
             '@': '/resources/js',
             '~': path.resolve(__dirname, 'node_modules'),
+            'jquery': path.resolve(__dirname, 'node_modules/jquery/dist/jquery.js'),
         },
     },
     css: {

@@ -1,5 +1,6 @@
 // Here you can add other styles
-@import 'simple-line-icons/scss/simple-line-icons';
+// Simple-line-icons: Use CDN in layout instead - SCSS import causes font 404s (paths resolve to /build/fonts/ which doesn't exist)
+// @import 'simple-line-icons/scss/simple-line-icons';
 
 // Fix mobile footer
 .app-footer {
