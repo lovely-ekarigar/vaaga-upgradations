@@ -505,13 +505,46 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
         $order->amount = $request->amount;
         $order->discount = $request->discount ?? 0;
         $order->gst = $request->gst ?? 0;
-        $order->course_mode = $request->course_mode;
+        // Ensure course_mode is properly saved (convert empty string to null)
+        $order->course_mode = !empty($request->course_mode) ? $request->course_mode : null;
         $order->payment_type = $request->payment_type;
+        
+        // Set payment_method based on payment_type
+        $paymentMethods = [
+            0 => null,
+            1 => 'stripe',
+            2 => 'paypal',
+            3 => 'offline',
+            4 => 'razorpay'
+        ];
+        $order->payment_method = $paymentMethods[$request->payment_type] ?? null;
+        
+        // Set payment_cycle based on course_mode (if column exists)
+        if (str_contains($request->course_mode ?? '', 'monthly')) {
+            $order->payment_cycle = 'monthly';
+        } else {
+            $order->payment_cycle = 'full';
+        }
+        
         $order->status = $request->status;
         $order->end_date = $request->end_date;
         $order->total_cycle = $request->total_cycle;
         $order->paid_cycle = $request->paid_cycle ?? 0;
         $order->is_manual = 1; // Mark as manually created
+        
+        // Generate unique order_id for manually created orders (similar to Razorpay format: order_XXXXXXXXXXXXXX)
+        // Format: order_ + 14 character alphanumeric string (uppercase letters and numbers)
+        do {
+            $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            $orderIdSuffix = '';
+            for ($i = 0; $i < 14; $i++) {
+                $orderIdSuffix .= $characters[rand(0, strlen($characters) - 1)];
+            }
+            $generatedOrderId = 'order_' . $orderIdSuffix;
+        } while (Order::where('order_id', $generatedOrderId)->exists());
+        
+        $order->order_id = $generatedOrderId;
+        
         $order->save();
 
         // Update reference_no to use unique order ID after saving
@@ -532,10 +565,14 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
                     $price = $course->monthly_price_1;
                 } elseif ($request->course_mode == 'onetomany_full' && isset($course->price)) {
                     $price = $course->price;
+                } elseif ($request->course_mode == 'onetomany_monthly' && isset($course->monthly_price)) {
+                    $price = $course->monthly_price;
                 } elseif ($request->course_mode == 'full' && isset($course->full_price)) {
                     $price = $course->full_price;
                 } elseif ($request->course_mode == 'quarterly' && isset($course->quarterly_price)) {
                     $price = $course->quarterly_price;
+                } elseif ($request->course_mode == 'monthly' && isset($course->monthly_price)) {
+                    $price = $course->monthly_price;
                 } elseif (isset($course->monthly_price)) {
                     $price = $course->monthly_price;
                 } elseif (isset($course->price)) {
@@ -613,8 +650,27 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
         $order->amount = $request->amount;
         $order->discount = $request->discount ?? 0;
         $order->gst = $request->gst ?? 0;
-        $order->course_mode = $request->course_mode;
+        // Ensure course_mode is properly saved (convert empty string to null)
+        $order->course_mode = !empty($request->course_mode) ? $request->course_mode : null;
         $order->payment_type = $request->payment_type;
+        
+        // Set payment_method based on payment_type
+        $paymentMethods = [
+            0 => null,
+            1 => 'stripe',
+            2 => 'paypal',
+            3 => 'offline',
+            4 => 'razorpay'
+        ];
+        $order->payment_method = $paymentMethods[$request->payment_type] ?? null;
+        
+        // Set payment_cycle based on course_mode (if column exists)
+        if (str_contains($request->course_mode ?? '', 'monthly')) {
+            $order->payment_cycle = 'monthly';
+        } else {
+            $order->payment_cycle = 'full';
+        }
+        
         $order->status = $request->status;
         $order->end_date = $request->end_date;
         $order->total_cycle = $request->total_cycle;
@@ -627,10 +683,34 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
         foreach ($request->course_ids as $courseId) {
             $course = Course::find($courseId);
             if ($course) {
+                // Calculate price per course based on course mode
+                $price = $request->amount / count($request->course_ids);
+                
+                // Try to get course-specific price based on course_mode
+                if ($request->course_mode == 'onetoone_full' && isset($course->price_1)) {
+                    $price = $course->price_1;
+                } elseif ($request->course_mode == 'onetoone_monthly' && isset($course->monthly_price_1)) {
+                    $price = $course->monthly_price_1;
+                } elseif ($request->course_mode == 'onetomany_full' && isset($course->price)) {
+                    $price = $course->price;
+                } elseif ($request->course_mode == 'onetomany_monthly' && isset($course->monthly_price)) {
+                    $price = $course->monthly_price;
+                } elseif ($request->course_mode == 'full' && isset($course->full_price)) {
+                    $price = $course->full_price;
+                } elseif ($request->course_mode == 'quarterly' && isset($course->quarterly_price)) {
+                    $price = $course->quarterly_price;
+                } elseif ($request->course_mode == 'monthly' && isset($course->monthly_price)) {
+                    $price = $course->monthly_price;
+                } elseif (isset($course->monthly_price)) {
+                    $price = $course->monthly_price;
+                } elseif (isset($course->price)) {
+                    $price = $course->price;
+                }
+                
                 $order->items()->create([
                     'item_id' => $courseId,
                     'item_type' => Course::class,
-                    'price' => $course->price ?? $request->amount / count($request->course_ids)
+                    'price' => ceil($price)
                 ]);
             }
         }
