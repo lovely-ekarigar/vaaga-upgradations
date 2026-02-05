@@ -120,7 +120,7 @@ Team VaaGa';
 
     public function subscriptionReports(Request $request){
 
-           $orders = Order::where("course_mode","like","%_monthly%")->where('status','1')->orderBy('updated_at', 'desc')->whereRaw("total_cycle > paid_cycle");
+           $orders = Order::where("course_mode","like","%monthly%")->where('status','1')->orderBy('updated_at', 'desc')->whereRaw("total_cycle > paid_cycle");
 
         if($request->type=='7days'){
             $orders->where("end_date","<=",date("Y-m-d",strtotime("+7 Days",time())));
@@ -144,21 +144,21 @@ $orders->where("end_date","<=",date("Y-m-d"));
     }
 
     public function subscriptionReportsData(Request $request){
-        $orders = Order::where("course_mode","like","%_monthly%")->where('status','1')->orderBy('updated_at', 'desc');
+        $orders = Order::with(['user', 'items.item'])
+            ->where("course_mode","like","%monthly%")
+            ->where('status','1')
+            ->orderBy('updated_at', 'desc');
 
         if($request->type=='7days'){
             $orders->where("end_date","<=",date("Y-m-d",strtotime("+7 Days",time())))->whereRaw("total_cycle > paid_cycle");
 
         }
         if($request->type=='15days'){
-$orders->where("end_date","<=",date("Y-m-d",strtotime("+15 Days",time())))->whereRaw("total_cycle > paid_cycle");
+            $orders->where("end_date","<=",date("Y-m-d",strtotime("+15 Days",time())))->whereRaw("total_cycle > paid_cycle");
         }
         if($request->type=='pending'){
-$orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycle");
+            $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycle");
         }
-
-
-        $orders = $orders->get();
 
          return DataTables::of($orders)
             ->addIndexColumn()
@@ -171,7 +171,7 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
                 }
 
                 $view .= view('backend.datatable.action-view')
-                    ->with(['route' => route('admin.subscription.detailsInfo', ['order' => $q->id])])->render();
+                    ->with(['route' => route('admin.subscription.detailsInfo', ['id' => $q->id])])->render();
 
                
 
@@ -232,10 +232,15 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
 
     public function getDataSubscription(Request $request){
         if (request('offline_requests') == 1) {
-
-            $orders = Order::where('payment_type', '=', 3)->where('status','1')->where("course_mode","like","%_monthly%")->orderBy('updated_at', 'desc')->get();
+            $orders = Order::with(['user', 'items.item'])
+                ->where('payment_type', '=', 3)
+                ->where('status','1')
+                ->where("course_mode","like","%monthly%")
+                ->orderBy('updated_at', 'desc');
         } else {
-            $orders = Order::where("course_mode","like","%_monthly%")->orderBy('updated_at', 'desc')->get();
+            $orders = Order::with(['user', 'items.item'])
+                ->where("course_mode","like","%monthly%")
+                ->orderBy('updated_at', 'desc');
         }
 
         return DataTables::of($orders)
@@ -299,7 +304,10 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
             ->addColumn('date', function ($q) {
                 return $q->updated_at->format('d M, Y | h:i A');
             })
-            
+            ->addColumn('amount', function ($q) {
+                $currency = getCurrency(config('app.currency'));
+                return ($currency['symbol'] ?? '₹') . number_format(floatval($q->amount), 2);
+            })
             ->addColumn('payment', function ($q) {
                 if ($q->status == 0) {
                     $payment_status = trans('labels.backend.orders.fields.payment_status.pending');
@@ -334,10 +342,12 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
     public function getData(Request $request)
     {
         if (request('offline_requests') == 1) {
-
-            $orders = Order::where('payment_type', '=', 3)->orderBy('updated_at', 'desc')->get();
+            $orders = Order::with(['user', 'items.item'])
+                ->where('payment_type', '=', 3)
+                ->orderBy('updated_at', 'desc');
         } else {
-            $orders = Order::orderBy('updated_at', 'desc')->get();
+            $orders = Order::with(['user', 'items.item'])
+                ->orderBy('updated_at', 'desc');
         }
 
         return DataTables::of($orders)
