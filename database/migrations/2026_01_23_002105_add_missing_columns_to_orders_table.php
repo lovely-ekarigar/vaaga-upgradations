@@ -36,6 +36,9 @@ return new class extends Migration
             if (!Schema::hasColumn('orders', 'order_id')) {
                 $table->string('order_id')->nullable()->after('reference_no')->comment('Razorpay Order ID');
             }
+            if (!Schema::hasColumn('orders', 'is_manual')) {
+                $table->boolean('is_manual')->default(0)->after('status')->comment('1 - Manually created by admin');
+            }
         });
     }
 
@@ -68,6 +71,9 @@ return new class extends Migration
             }
             if (Schema::hasColumn('orders', 'order_id')) {
                 $table->dropColumn('order_id');
+            }
+            if (Schema::hasColumn('orders', 'is_manual')) {
+                $table->dropColumn('is_manual');
             }
         });
     }

@@ -165,7 +165,12 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
             ->addColumn('actions', function ($q) use ($request) {
                 $view = "";
 
-                $view = view('backend.datatable.action-view')
+                // Add manual order badge at the beginning - styled as informational badge
+                if ($q->is_manual == 1) {
+                    $view .= '<span class="badge badge-info" style="display: inline-block; background-color: #17a2b8; color: white; font-size: 10px; font-weight: 500; padding: 3px 7px; margin-right: 8px; margin-bottom: 3px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle;">Order Manually Created</span><br style="display: block; margin-bottom: 3px;">';
+                }
+
+                $view .= view('backend.datatable.action-view')
                     ->with(['route' => route('admin.subscription.detailsInfo', ['order' => $q->id])])->render();
 
                
@@ -213,11 +218,11 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
              ->addColumn('course_mode', function ($q) {
                 return getCourseType($q->course_mode);
             })
-             ->editColumn('reference_no', function ($q) {
-                return 'ORD-' .$q->id;
-            })
-            ->addColumn('user_email', function ($q) {
+             ->addColumn('user_email', function ($q) {
                 return $q->user ? $q->user->email : '';
+            })
+             ->editColumn('reference_no', function ($q) {
+                return $q->reference_no ?: 'ORD-' . $q->id;
             })
            
            
@@ -238,7 +243,12 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
             ->addColumn('actions', function ($q) use ($request) {
                 $view = "";
 
-                $view = view('backend.datatable.action-view')
+                // Add manual order badge at the beginning - styled as informational badge
+                if ($q->is_manual == 1) {
+                    $view .= '<span class="badge badge-info" style="display: inline-block; background-color: #17a2b8; color: white; font-size: 10px; font-weight: 500; padding: 3px 7px; margin-right: 8px; margin-bottom: 3px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle;">Order Manually Created</span><br style="display: block; margin-bottom: 3px;">';
+                }
+
+                $view .= view('backend.datatable.action-view')
                     ->with(['route' => route('admin.orders.show', ['order' => $q->id])])->render();
 
                 $edit = view('backend.datatable.action-edit')
@@ -305,7 +315,12 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
                 return ($currency['symbol'] ?? '₹') . floatval($q->price);
             })
             ->editColumn('reference_no', function ($q) {
-                return 'ORD-' .$q->id;
+                $referenceNo = $q->reference_no ?: 'ORD-' . $q->id;
+                $badge = '';
+                if ($q->is_manual == 1) {
+                    $badge = ' <span class="badge badge-info" style="background-color: #17a2b8; color: white; font-size: 10px; padding: 3px 6px;">Manual</span>';
+                }
+                return $referenceNo . $badge;
             })
             ->rawColumns(['items', 'actions'])
             ->make();
@@ -330,7 +345,12 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
             ->addColumn('actions', function ($q) use ($request) {
                 $view = "";
 
-                $view = view('backend.datatable.action-view')
+                // Add manual order badge at the beginning - styled as informational badge
+                if ($q->is_manual == 1) {
+                    $view .= '<span class="badge badge-info" style="display: inline-block; background-color: #17a2b8; color: white; font-size: 10px; font-weight: 500; padding: 3px 7px; margin-right: 8px; margin-bottom: 3px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: middle;">Order Manually Created</span><br style="display: block; margin-bottom: 3px;">';
+                }
+
+                $view .= view('backend.datatable.action-view')
                     ->with(['route' => route('admin.orders.show', ['order' => $q->id])])->render();
 
                 $edit = view('backend.datatable.action-edit')
@@ -396,7 +416,7 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
                 return ($currency['symbol'] ?? '₹') . floatval($q->price);
             })
              ->editColumn('reference_no', function ($q) {
-                return 'ORD-'. $q->id;
+                return $q->reference_no ?: 'ORD-' . $q->id;
             })
             ->rawColumns(['items', 'actions'])
             ->make();
@@ -482,7 +502,6 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
 
         $order = new Order();
         $order->user_id = $request->user_id;
-        $order->reference_no = str_random(8);
         $order->amount = $request->amount;
         $order->discount = $request->discount ?? 0;
         $order->gst = $request->gst ?? 0;
@@ -492,16 +511,41 @@ $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycl
         $order->end_date = $request->end_date;
         $order->total_cycle = $request->total_cycle;
         $order->paid_cycle = $request->paid_cycle ?? 0;
+        $order->is_manual = 1; // Mark as manually created
         $order->save();
 
-        // Add order items
+        // Update reference_no to use unique order ID after saving
+        $order->reference_no = 'ORD-' . $order->id;
+        $order->save();
+
+        // Add order items - ensure all courses are properly inserted
         foreach ($request->course_ids as $courseId) {
             $course = Course::find($courseId);
             if ($course) {
+                // Calculate price per course based on course mode
+                $price = $request->amount / count($request->course_ids);
+                
+                // Try to get course-specific price based on course_mode
+                if ($request->course_mode == 'onetoone_full' && isset($course->price_1)) {
+                    $price = $course->price_1;
+                } elseif ($request->course_mode == 'onetoone_monthly' && isset($course->monthly_price_1)) {
+                    $price = $course->monthly_price_1;
+                } elseif ($request->course_mode == 'onetomany_full' && isset($course->price)) {
+                    $price = $course->price;
+                } elseif ($request->course_mode == 'full' && isset($course->full_price)) {
+                    $price = $course->full_price;
+                } elseif ($request->course_mode == 'quarterly' && isset($course->quarterly_price)) {
+                    $price = $course->quarterly_price;
+                } elseif (isset($course->monthly_price)) {
+                    $price = $course->monthly_price;
+                } elseif (isset($course->price)) {
+                    $price = $course->price;
+                }
+                
                 $order->items()->create([
                     'item_id' => $courseId,
                     'item_type' => Course::class,
-                    'price' => $course->price ?? $request->amount / count($request->course_ids)
+                    'price' => ceil($price)
                 ]);
             }
         }
