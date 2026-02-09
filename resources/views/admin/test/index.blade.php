@@ -202,7 +202,7 @@ Test Series Management | {{ env('APP_NAME') }}
 <div class="modal fade" id="addTestSeriesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form id="addTestSeriesForm" action="{{ route('admin.testseries.store') }}" method="POST">
+            <form id="addTestSeriesForm" action="{{ route('admin.test-series.store') }}" method="POST">
                 @csrf
                 <div class="modal-header">
                     <h5 class="modal-title">Add New Test Series</h5>

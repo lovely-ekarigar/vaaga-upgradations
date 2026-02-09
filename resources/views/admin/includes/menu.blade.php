@@ -23,7 +23,7 @@ use App\Helpers\Helper;
     <ul>
         @if(Helper::can('view admission'))
         <li>
-            <a href="{{route('admin.admission.list')}}" class="{{request()->segment(1)=='admission-list' ? 'active' :''}}">
+            <a href="{{route('admin.students.index')}}" class="{{request()->segment(1)=='admission-list' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>New Admissions
             </a>
         </li>
@@ -31,7 +31,7 @@ use App\Helpers\Helper;
 
         @if(Helper::can('view student'))
         <li>
-            <a href="{{route('admin.admission-list')}}" class="{{request()->segment(1)=='user-list' ? 'active' :''}}">
+            <a href="{{route('admin.students.index')}}" class="{{request()->segment(1)=='user-list' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>All Students
             </a>
         </li>
@@ -39,7 +39,7 @@ use App\Helpers\Helper;
 
         @if(Helper::can('manage id card'))
         <li>
-            <a href="{{route('admin.card')}}" class="{{request()->segment(1)=='cards' ? 'active' :''}}">
+            <a href="{{'#'}}" class="{{request()->segment(1)=='cards' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>ID Cards
             </a>
         </li>
@@ -60,7 +60,7 @@ use App\Helpers\Helper;
     <ul>
         @if(Helper::can('view course'))
         <li>
-            <a href="{{route('admin.listCourse')}}" class="{{request()->segment(1)=='course' ? 'active' :''}}">
+            <a href="{{route('admin.courses.index')}}" class="{{request()->segment(1)=='course' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>Courses
             </a>
         </li>
@@ -68,7 +68,7 @@ use App\Helpers\Helper;
 
         @if(Helper::can('view batch'))
         <li>
-            <a href="{{route('admin.batch.list')}}" class="{{request()->segment(1)=='batches' ? 'active' :''}}">
+            <a href="{{route('admin.batch')}}" class="{{request()->segment(1)=='batches' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>Batches
             </a>
         </li>
@@ -102,12 +102,12 @@ use App\Helpers\Helper;
         </a>
         <ul>
             <li>
-                <a href="{{route('admin.admission-enquiry')}}" class="{{request()->segment(1)=='admission-enquiry' ? 'active' :''}}">
+                <a href="{{route('admin.demo_requests')}}" class="{{request()->segment(1)=='admission-enquiry' ? 'active' :''}}">
                     <i class='bx bx-radio-circle'></i>Admission Enquiry
                 </a>
             </li>
             <li>
-                <a href="{{route('admin.listContact')}}" class="{{request()->segment(1)=='listContact' ? 'active' :''}}">
+                <a href="{{route('admin.contact-requests.index')}}" class="{{request()->segment(1)=='listContact' ? 'active' :''}}">
                     <i class='bx bx-radio-circle'></i>Contact Enquiry
                 </a>
             </li>
@@ -124,12 +124,12 @@ use App\Helpers\Helper;
         </a>
         <ul>
             <li>
-                <a href="{{route('admin.listTeacher')}}" class="{{request()->segment(1)=='teacher' ? 'active' :''}}">
+                <a href="{{route('admin.teachers.index')}}" class="{{request()->segment(1)=='teacher' ? 'active' :''}}">
                     <i class='bx bx-radio-circle'></i>Teachers
                 </a>
             </li>
             <li>
-                <a href="{{route('admin.listStaff')}}" class="{{request()->segment(1)=='staff' ? 'active' :''}}">
+                <a href="{{'#'}}" class="{{request()->segment(1)=='staff' ? 'active' :''}}">
                     <i class='bx bx-radio-circle'></i>Staff
                 </a>
             </li>
@@ -146,32 +146,32 @@ use App\Helpers\Helper;
         </a>
         <ul>
             <li>
-                <a href="{{route('admin.report.payment')}}">
+                <a href="{{route('admin.reports.sales')}}">
                     <i class='bx bx-radio-circle'></i>Payment Report
                 </a>
             </li>
             <li>
-                <a href="{{route('admin.report.dues')}}">
+                <a href="{{route('admin.subscription.report')}}">
                     <i class='bx bx-radio-circle'></i>Due Report
                 </a>
             </li>
             <li>
-                <a href="{{route('admin.report.overemi')}}">
+                <a href="{{route('admin.gst.report')}}">
                     <i class='bx bx-radio-circle'></i>EMI Overdue
                 </a>
             </li>
             <li>
-                <a href="{{route('admin.report.admission')}}">
+                <a href="{{route('admin.students.index')}}">
                     <i class='bx bx-radio-circle'></i>Admission Report
                 </a>
             </li>
             <li>
-                <a href="{{route('admin.report.enquiry')}}">
+                <a href="{{route('admin.demo_requests')}}">
                     <i class='bx bx-radio-circle'></i>Enquiry Report
                 </a>
             </li>
             <li>
-                <a href="{{route('admin.report.visitor')}}">
+                <a href="{{route('admin.contact-requests.index')}}">
                     <i class='bx bx-radio-circle'></i>Visitor Report
                 </a>
             </li>
@@ -196,7 +196,7 @@ use App\Helpers\Helper;
     <ul>
         @if(Helper::can('view notice'))
         <li>
-            <a href="{{route('admin.listNotice')}}" class="{{request()->segment(1)=='notice' ? 'active' :''}}">
+            <a href="{{route('admin.notifications')}}" class="{{request()->segment(1)=='notice' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>Notices
             </a>
         </li>
@@ -204,7 +204,7 @@ use App\Helpers\Helper;
 
         @if(Helper::can('view festival'))
         <li>
-            <a href="{{route('admin.listFestival')}}" class="{{request()->segment(1)=='festival' ? 'active' :''}}">
+            <a href="{{route('admin.trainings')}}" class="{{request()->segment(1)=='festival' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>Festivals
             </a>
         </li>
@@ -212,7 +212,7 @@ use App\Helpers\Helper;
 
         @if(Helper::can('view gallery'))
         <li>
-            <a href="{{route('admin.listGallery')}}" class="{{request()->segment(1)=='gallery' ? 'active' :''}}">
+            <a href="{{route('admin.resource.index')}}" class="{{request()->segment(1)=='gallery' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>Gallery
             </a>
         </li>
@@ -220,7 +220,7 @@ use App\Helpers\Helper;
 
         @if(Helper::can('view testimonial'))
         <li>
-            <a href="{{route('admin.listTestimonial')}}" class="{{request()->segment(1)=='testimonial' ? 'active' :''}}">
+            <a href="{{route('admin.testimonials.index')}}" class="{{request()->segment(1)=='testimonial' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>Testimonials
             </a>
         </li>
@@ -228,7 +228,7 @@ use App\Helpers\Helper;
 
         @if(Helper::can('view blog'))
         <li>
-            <a href="{{route('admin.listBlog')}}" class="{{request()->segment(1)=='blog' ? 'active' :''}}">
+            <a href="{{route('admin.blogs.index')}}" class="{{request()->segment(1)=='blog' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>Blogs
             </a>
         </li>
@@ -236,7 +236,7 @@ use App\Helpers\Helper;
 
         @if(Helper::can('view affiliation'))
         <li>
-            <a href="{{route('admin.listAffiliation')}}" class="{{request()->segment(1)=='affiliation' ? 'active' :''}}">
+            <a href="{{route('admin.affiliate')}}" class="{{request()->segment(1)=='affiliation' ? 'active' :''}}">
                 <i class='bx bx-radio-circle'></i>Affiliations
             </a>
         </li>
@@ -256,28 +256,28 @@ use App\Helpers\Helper;
         <ul>
             @if(Helper::can('view slider'))
             <li>
-                <a href="{{route('admin.listSlider')}}" class="{{request()->segment(1)=='setting' ? 'active' :''}}">
+                <a href="{{route('admin.sliders.index')}}" class="{{request()->segment(1)=='setting' ? 'active' :''}}">
                     <i class='bx bx-radio-circle'></i>Slider
                 </a>
             </li>
             @endif
             @if(Helper::can('view general'))
             <li>
-                <a href="{{route('admin.listGeneralSetting')}}" class="{{request()->segment(1)=='setting' ? 'active' :''}}">
+                <a href="{{route('admin.general-settings')}}" class="{{request()->segment(1)=='setting' ? 'active' :''}}">
                     <i class='bx bx-radio-circle'></i>General
                 </a>
             </li>
             @endif
             @if(Helper::can('view page'))
             <li>
-                <a href="{{route('admin.listPage')}}" class="{{request()->segment(1)=='page' ? 'active' :''}}">
+                <a href="{{route('admin.pages.index')}}" class="{{request()->segment(1)=='page' ? 'active' :''}}">
                     <i class='bx bx-radio-circle'></i>Pages
                 </a>
             </li>
             @endif
             @if(Helper::can('manage role'))
             <li>
-                <a href="{{route('admin.rolePermission')}}">
+                <a href="{{route('admin.auth.role.index')}}">
                     <i class='bx bx-radio-circle'></i>Roles & Permissions
                 </a>
             </li>
@@ -315,7 +315,7 @@ use App\Helpers\Helper;
 				<div class="py-2">
 					<div class="d-flex align-items-center">
 						<div class="ms-3">
-							<h5 class="mb-0 text-white"><a href="{{ route('admin.loginAsAdmin') }}"
+							<h5 class="mb-0 text-white"><a href="{{ route('admin.auth.user.login-as') }}"
 									class="btn btn-outline-primary px-5">Login as Admin</a></h5>
 						</div>
 					</div>
@@ -343,11 +343,11 @@ use App\Helpers\Helper;
 					</div>
 				</a>
 				<ul class="dropdown-menu dropdown-menu-end">
-					<li><a class="dropdown-item d-flex align-items-center" href="{{ route('admin.profile')}}"><i
+					<li><a class="dropdown-item d-flex align-items-center" href="{{ route('admin.account')}}"><i
 								class="bx bx-user fs-5"></i><span>Profile</span></a>
 					</li>
 				
-					<li><a class="dropdown-item d-flex align-items-center" href="{{ route('admin.changePassword')}}"><i
+					<li><a class="dropdown-item d-flex align-items-center" href="{{ route('admin.account')}}"><i
 								class="bx bx-cog fs-5"></i><span>Change Password</span></a>
 					</li>
 				
