@@ -22,7 +22,7 @@ class SliderController extends Controller
         $slides_list = Slider::OrderBy('sequence','asc')->get();
 
         return view('backend.slider.index', compact('slides_list'));
-    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -167,4 +167,3 @@ class SliderController extends Controller
         $slide->status = $slide->status == 1? 0 : 1;
         $slide->save();
     }
-}

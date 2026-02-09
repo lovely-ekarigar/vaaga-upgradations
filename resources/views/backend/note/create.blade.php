@@ -58,7 +58,7 @@ Add New Notes - {{ env('APP_NAME') }}
 
 <div class="card">
     <div class="card-header">
-        <h3 class="page-title float-left mb-0">Add New Note</h3>
+        <h3 class="page-title float-left mb-0">Add New Notes</h3>
         <div class="float-right">
             <a href="{{ route('admin.note.list') }}" class="btn btn-success">View Notes</a>
         </div>

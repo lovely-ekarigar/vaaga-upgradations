@@ -39,7 +39,7 @@ public function viewInvoicestudent($id,$type){
     $order = Order::findOrFail($id);
     $subscription = Subscription::findOrFail($sid);
    showInvoiceSubs($order,$subscription,$type);
-    }
+    
 
     /**
      * Download order invoice

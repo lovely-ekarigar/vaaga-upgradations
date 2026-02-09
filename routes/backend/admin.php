@@ -56,6 +56,7 @@ use App\Http\Controllers\Backend\Admin\PageController;
 use App\Http\Controllers\Backend\Admin\ReasonController;
 use App\Http\Controllers\Backend\Admin\ForumController;
 use App\Http\Controllers\Backend\Admin\FeedbackController;
+use App\Http\Controllers\Backend\Admin\MockTestController;
 use App\Http\Controllers\MessagesController;
 /*
  * All route names are prefixed with 'admin.'.
@@ -380,7 +381,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::post('edit-team/{id}', [TeamController::class, 'update'])->name('team.update');
 
 
-    //====== Note Routes =====//   
+    //====== Study Material Routes =====//   
 
 
     //====== BtoB Routes =====//   
@@ -395,7 +396,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
 
 
 
-    //====== BtoB Routes =====//   
+    //====== Study Material Routes =====//   
 
     Route::get('notes', [NoteController::class, 'index'])->name('note.list');
     Route::get('create-note', [NoteController::class, 'create'])->name('note.create');
@@ -406,7 +407,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::post('/upload-image', [NoteController::class, 'imageUpload'])->name('uploadImage');
 
 
-    //====== Note Routes =====//   
+    //====== Study Material Category Routes =====//   
 
     Route::get('note-categories', [NoteCategoryController::class, 'index'])->name('note.category.list');
     Route::get('create-category', [NoteCategoryController::class, 'create'])->name('note.category.create');
@@ -618,6 +619,10 @@ Route::get('get-questions-data', [QuestionsController::class, 'getData'])->name(
 Route::post('questions_mass_destroy', [QuestionsController::class, 'massDestroy'])->name('questions.mass_destroy');
 Route::post('questions_restore/{id}', [QuestionsController::class, 'restore'])->name('questions.restore');
 Route::delete('questions_perma_del/{id}', [QuestionsController::class, 'perma_del'])->name('questions.perma_del');
+Route::post('questions/bulk-assign-mocktests', [QuestionsController::class, 'bulkAssignMockTests'])->name('questions.bulk_assign_mocktests');
+
+//===== Editor Upload Route =====//
+Route::post('editor/upload-image', [QuestionsController::class, 'uploadEditorImage'])->name('editor.upload_image');
 
 
 //===== Questions Options Routes =====//
@@ -658,6 +663,26 @@ Route::group(['middleware' => ['auth', 'password_expires']], function () {
     Route::patch('profile/update', [ProfileController::class, 'update'])->name('profile.update');
 });
 
+
+//===== Mock Tests Routes =====//
+Route::group(['middleware' => 'role:administrator|teacher'], function () {
+    Route::get('mocktests', [MockTestController::class, 'index'])->name('mocktests.index');
+    Route::get('mocktests/get-data', [MockTestController::class, 'getData'])->name('mocktests.get_data');
+    Route::get('mocktests/create', [MockTestController::class, 'create'])->name('mocktests.create');
+    Route::post('mocktests', [MockTestController::class, 'store'])->name('mocktests.store');
+    Route::get('mocktests/{id}/edit', [MockTestController::class, 'edit'])->name('mocktests.edit');
+    Route::put('mocktests/{id}', [MockTestController::class, 'update'])->name('mocktests.update');
+    Route::get('mocktests/{id}', [MockTestController::class, 'show'])->name('mocktests.show');
+    Route::delete('mocktests/{id}', [MockTestController::class, 'destroy'])->name('mocktests.destroy');
+    Route::post('mocktests/assign-batch', [MockTestController::class, 'assignBatch'])->name('mocktests.assign_batch');
+    Route::get('mocktests/{id}/schedules', [MockTestController::class, 'viewSchedules'])->name('mocktests.schedules');
+    Route::get('mocktests/{scheduleId}/results', [MockTestController::class, 'viewResults'])->name('mocktests.results');
+    Route::get('mocktests/schedules/{scheduleId}/analysis/{studentId}', [MockTestController::class, 'testAnalysis'])->name('mocktests.analysis');
+    Route::get('mocktests/schedules/{scheduleId}/reschedule', [MockTestController::class, 'rescheduleForm'])->name('mocktests.schedules.reschedule_form');
+    Route::post('mocktests/schedules/reschedule', [MockTestController::class, 'reschedule'])->name('mocktests.schedules.reschedule');
+    Route::post('mocktests/{mockTestId}/detach-question/{questionId}', [MockTestController::class, 'detachQuestion'])->name('mocktests.detach_question');
+    Route::get('mocktests/question-reports', [MockTestController::class, 'questionReports'])->name('mocktests.question_reports');
+});
 
 Route::group(['middleware' => 'role:teacher'], function () {
     //====== Review Routes =====//

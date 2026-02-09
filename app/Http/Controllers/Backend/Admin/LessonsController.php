@@ -38,7 +38,7 @@ if($request->course_id){
 $contents=CourseContent::where("course_id",$request->course_id)->orderBy("sort_order","asc")->get();
 }
         return view('backend.lessons.index', compact('courses','contents'));
-    }
+    
 
     /**
      * Display a listing of Lessons via ajax DataTable.

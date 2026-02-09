@@ -97,7 +97,6 @@ $message = "Dear Student,<br> <b>".$test->title.'</b> Quiz has been assigned. Ki
 
     return redirect()->back()->withFlashSuccess('Batch has been assigned to test.');
 
-}
 
 
     /**

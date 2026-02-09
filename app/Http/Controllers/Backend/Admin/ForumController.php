@@ -19,7 +19,7 @@ class ForumController extends Controller
         $forum_categories = ChatterCategory::orderBy('created_at', 'desc')
             ->get();
         return view('backend.forum-categories.index', compact('forum_categories'));
-    }
+    
 
     /**
      * Show the form for creating a new resource.

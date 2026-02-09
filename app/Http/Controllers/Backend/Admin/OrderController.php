@@ -810,5 +810,13 @@ $orders->where("end_date","<=",date("Y-m-d"));
         }
     }
 
-
+    /**
+     * Permanently delete an order
+     */
+    public function perma_del($id)
+    {
+        $order = Order::onlyTrashed()->findOrFail($id);
+        $order->forceDelete();
+        return redirect()->route('admin.orders.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
+    }
 }

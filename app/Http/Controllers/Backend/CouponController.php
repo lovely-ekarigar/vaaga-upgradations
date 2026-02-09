@@ -19,7 +19,7 @@ class CouponController extends Controller
         $coupons = Coupon::orderBy('created_at', 'desc')
             ->get();
         return view('backend.coupons.index',compact('coupons'));
-    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -160,4 +160,3 @@ class CouponController extends Controller
         $coupon->status = $coupon->status == 1? 0 : 1;
         $coupon->save();
     }
-}

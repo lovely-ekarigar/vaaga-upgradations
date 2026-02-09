@@ -27,8 +27,7 @@ class PageController extends Controller
         // Show the page
         return view('backend.pages.index', compact('pages'));
 
-    }
-
+    
 
     /**
      * Display a listing of Lessons via ajax DataTable.

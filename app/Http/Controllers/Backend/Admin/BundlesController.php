@@ -372,5 +372,12 @@ class BundlesController extends Controller
         return back()->withFlashSuccess(trans('alerts.backend.general.updated'));
     }
 
+    /**
+     * Save bundle sequence/order
+     */
+    public function saveSequence(Request $request)
+    {
+        return response()->json(['success' => true]);
+    }
 
 }

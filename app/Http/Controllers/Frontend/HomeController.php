@@ -1234,5 +1234,14 @@ if($location->countryName!='India'){
         $q = $request->q;
         return view($this->path . '.search-result.blogs', compact('blogs', 'q', 'categories', 'popular_tags'));
     }
+
+    /**
+     * Handle Google OAuth callback
+     */
+    public function google(Request $request)
+    {
+        // TODO: Implement Google OAuth logic
+        return redirect()->route('home.index');
+    }
 }
 

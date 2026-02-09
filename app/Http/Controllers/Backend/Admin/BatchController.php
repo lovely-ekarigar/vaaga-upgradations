@@ -553,6 +553,61 @@ $teacher = User::find($request->teachersid);
     }
 
 
+    /**
+     * Update batch progress list
+     */
+    public function updatebatchprogressList($id, Request $request)
+    {
+        return redirect()->back()->withFlashSuccess('Progress updated');
+    }
+
+    /**
+     * Get available mock tests for a batch
+     */
+    public function availableMockTests($id)
+    {
+        return view('backend.batch.mock-tests', compact('id'));
+    }
+
+    /**
+     * Save mock tests for a batch
+     */
+    public function saveMockTests($id, Request $request)
+    {
+        return redirect()->back()->withFlashSuccess('Mock tests saved');
+    }
+
+    /**
+     * Get mock results for a batch
+     */
+    public function mockResults($id)
+    {
+        return view('backend.batch.mock-results', compact('id'));
+    }
+
+    /**
+     * Get students list for a batch
+     */
+    public function getStudentsList($id)
+    {
+        return response()->json(['students' => []]);
+    }
+
+    /**
+     * Get mock tests list for a batch
+     */
+    public function getMockTestsList($id)
+    {
+        return response()->json(['tests' => []]);
+    }
+
+    /**
+     * Get student mock result
+     */
+    public function getStudentMockResult($student_id, $mock_id)
+    {
+        return view('backend.batch.student-mock-result', compact('student_id', 'mock_id'));
+    }
+
+
 }
-
-

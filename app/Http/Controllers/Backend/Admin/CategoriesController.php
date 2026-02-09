@@ -74,7 +74,7 @@ class CategoriesController extends Controller
             $cat->sort_order = $request->sort;
             $cat->update();
         }
-    }
+    
 
     /**
      * Display a listing of Courses via ajax DataTable.

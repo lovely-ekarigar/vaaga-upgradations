@@ -944,4 +944,14 @@ class MockSeriesController extends Controller
             \Log::error('Error in autoSaveMockQuestions: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Show the form for editing the specified mock series.
+     */
+    public function edit($id)
+    {
+        $mockSeries = \App\Models\MockSeries::findOrFail($id);
+        $courses = \App\Models\Course::where('published', '=', 1)->get();
+        return view('admin.mock.edit', compact('mockSeries', 'courses'));
+    }
 }

@@ -536,5 +536,14 @@ $blog->meta_keywords = $request->meta_keywords;
         }
     }
 
+    /**
+     * Restore a deleted blog
+     */
+    public function restore($id)
+    {
+        $blog = Blog::onlyTrashed()->findOrFail($id);
+        $blog->restore();
+        return redirect()->route('admin.blogs.index')->withFlashSuccess(__('alerts.backend.general.restored'));
+    }
 
 }

@@ -17,7 +17,7 @@ class ReviewController extends Controller
     public function index()
     {
         return view('backend.reviews.index');
-    }
+    
 
     /**
      * Display a listing of Courses via ajax DataTable.

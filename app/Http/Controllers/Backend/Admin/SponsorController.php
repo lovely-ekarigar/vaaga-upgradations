@@ -25,7 +25,7 @@ class SponsorController extends Controller
         $sponsors = Sponsor::all();
         
         return view('backend.sponsors.index', compact('sponsors'));
-    }
+    
 
     /**
      * Display a listing of Courses via ajax DataTable.
@@ -197,5 +197,3 @@ class SponsorController extends Controller
         $sponsor->status = $sponsor->status == 1? 0 : 1;
         $sponsor->save();
     }
-
-}

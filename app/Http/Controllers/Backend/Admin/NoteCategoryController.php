@@ -186,6 +186,6 @@ class NoteCategoryController extends Controller
     {
         //
     }
+
+
 }
-
-

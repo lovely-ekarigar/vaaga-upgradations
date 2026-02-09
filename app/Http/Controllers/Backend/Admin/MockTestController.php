@@ -28,7 +28,7 @@ class MockTestController extends Controller
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
-    }
+    
 
     /**
      * Display a listing of Mock Tests.

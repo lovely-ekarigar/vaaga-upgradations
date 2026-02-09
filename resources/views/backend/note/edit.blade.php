@@ -21,7 +21,7 @@ Edit Notes - {{ env('APP_NAME') }}
 
 <div class="card">
         <div class="card-header">
-            <h3 class="page-title float-left mb-0">Edit Note</h3>
+            <h3 class="page-title float-left mb-0">Edit Notes</h3>
             <div class="float-right">
                 <a href="{{ route('admin.note.list') }}"
                    class="btn btn-success">View Notes</a>

@@ -3237,4 +3237,32 @@ return ['status' => 'failure', 'message' => 'Kindly update the App to Apply coup
         }
         return false;
     }
+
+    /**
+     * Search messages in threads
+     */
+    public function searchMessages(Request $request)
+    {
+        $query = $request->input('q');
+        $threads = [];
+        
+        if ($query) {
+            // Search through user's threads
+            foreach (auth()->user()->threads as $thread) {
+                $matchingMessages = $thread->messages()
+                    ->where('body', 'LIKE', '%' . $query . '%')
+                    ->get();
+                
+                if ($matchingMessages->count() > 0) {
+                    $threads[] = [
+                        'thread_id' => $thread->id,
+                        'title' => $thread->title,
+                        'matches' => $matchingMessages
+                    ];
+                }
+            }
+        }
+        
+        return response()->json(['status' => 'success', 'threads' => $threads]);
+    }
 }

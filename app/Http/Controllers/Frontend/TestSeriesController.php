@@ -1146,4 +1146,14 @@ return $rd["id"];
 
      
   }
+
+    /**
+     * Show the form for editing the specified test series.
+     */
+    public function edit($id)
+    {
+        $testSeries = TestSeries::findOrFail($id);
+        $courses = Course::where('published', '=', 1)->get();
+        return view('admin.test.edit', compact('testSeries', 'courses'));
+    }
 }

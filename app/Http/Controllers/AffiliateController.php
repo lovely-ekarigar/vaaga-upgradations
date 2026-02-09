@@ -207,4 +207,22 @@ public function forgot(Request $request){
      
      return view('aff.forgot');
 } 
+
+    /**
+     * Handle affiliate form submission from admin
+     */
+    public function vaffiliate(Request $request)
+    {
+        // TODO: Implement admin affiliate update logic
+        return redirect()->back()->with('flash_message', 'Affiliate updated');
+    }
+
+    /**
+     * Save affiliate settings
+     */
+    public function saveAff(Request $request)
+    {
+        // TODO: Implement save affiliate logic
+        return redirect()->back()->with('flash_message', 'Affiliate settings saved');
+    }
 }   

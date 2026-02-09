@@ -361,7 +361,8 @@ public function getDataTeacher(Request $request)
      */
     public function demoBatch()
     {
-        return view('backend.demo.batch_index');
+        $batches = \App\Models\Batch::with('teachers', 'students', 'course')->get();
+        return view('backend.demo.batch_index', compact('batches'));
     }
 
     /**
@@ -413,5 +414,23 @@ public function getDataTeacher(Request $request)
     {
         // TODO: Implement student update logic
         return redirect()->route('admin.demo_batch.student', $id)->withFlashSuccess('Students updated successfully');
+    }
+
+    /**
+     * Join a demo class (for students)
+     */
+    public function join($id)
+    {
+        $demo = DemoRequest::findOrFail($id);
+        return view('backend.demo.join', compact('demo'));
+    }
+
+    /**
+     * Check and verify demo join request
+     */
+    public function joinCheck($id)
+    {
+        $demo = DemoRequest::findOrFail($id);
+        return response()->json(['status' => $demo->demo_status, 'api_class_id' => $demo->api_class_id]);
     }
 }

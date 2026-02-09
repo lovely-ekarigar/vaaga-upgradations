@@ -7,7 +7,7 @@ Notes - {{ env('APP_NAME') }}
    <div class="card-header">
       <h3 class="page-title d-inline">Notes</h3>
       <div class="float-right">
-         <a href="{{ route('admin.note.create') }}" class="btn btn-success">Add new</a>
+         <a href="{{ route('admin.note.create') }}" class="btn btn-success">Add Notes</a>
       </div>
    </div>
    <div class="card-body">

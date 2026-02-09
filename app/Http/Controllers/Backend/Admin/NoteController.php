@@ -168,7 +168,7 @@ class NoteController extends Controller
          $team = Note::find($request->del);
             if($team){
                 $team->delete();
-                return redirect()->back()->withFlashSuccess("Note deleted successfully");
+                return redirect()->back()->withFlashSuccess("Notes deleted successfully");
             }
             
        return view('backend.note.list',compact('notes'));
@@ -251,7 +251,7 @@ class NoteController extends Controller
 
         $co->save();
 
-        return redirect()->route('admin.note.list')->withFlashSuccess("Note added");
+        return redirect()->route('admin.note.list')->withFlashSuccess("Notes added");
        
     }
 
@@ -349,7 +349,7 @@ class NoteController extends Controller
 
         $co->update();
 
-        return redirect()->route('admin.note.list')->withFlashSuccess("Note updated");
+        return redirect()->route('admin.note.list')->withFlashSuccess("Notes updated");
        
     }
 
@@ -364,5 +364,3 @@ class NoteController extends Controller
         //
     }
 }
-
-

@@ -26,7 +26,7 @@ class PermissionsController extends Controller
                 $permissions = Permission::all();
 
         return view('backend.permissions.index', compact('permissions'));
-    }
+    
 
     /**
      * Show the form for creating new Permission.

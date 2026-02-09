@@ -373,4 +373,37 @@ class QuestionsController extends Controller
 
         return redirect()->route('admin.questions.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
     }
+
+    /**
+     * Upload image for Editor.js
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function uploadEditorImage(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        try {
+            $file = $request->file('image');
+            $filename = time() . '_' . str_random(10) . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/uploads', $filename);
+            
+            return response()->json([
+                'success' => 1,
+                'file' => [
+                    'url' => asset('storage/uploads/' . $filename)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => 0,
+                'error' => [
+                    'message' => 'Upload failed: ' . $e->getMessage()
+                ]
+            ], 500);
+        }
+    }
 }

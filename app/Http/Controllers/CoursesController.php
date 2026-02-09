@@ -1734,4 +1734,21 @@ return redirect('/thank-you');
         return abort(404);
     }
 
+    /**
+     * Course details page (alias for show)
+     */
+    public function details($slug)
+    {
+        return $this->show(request(), $slug);
+    }
+
+    /**
+     * Process course payment
+     */
+    public function payment(Request $request)
+    {
+        // TODO: Implement payment processing
+        return redirect()->back()->with('error', 'Payment processing not implemented');
+    }
+
 }

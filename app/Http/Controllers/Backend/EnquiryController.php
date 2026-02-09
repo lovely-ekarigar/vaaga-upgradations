@@ -33,5 +33,21 @@ class EnquiryController extends Controller
         return view('backend.enquiries.index', compact('enquiries'));
     }
 
-    
+    /**
+     * Show the form for editing an enquiry
+     */
+    public function edit($id)
+    {
+        $enquiry = Enquiry::findOrFail($id);
+        return view('backend.enquiries.edit', compact('enquiry'));
+    }
+
+    /**
+     * Store a new enquiry
+     */
+    public function store(Request $request)
+    {
+        // TODO: Implement enquiry storage
+        return redirect()->back()->withFlashSuccess('Enquiry stored');
+    }
 }

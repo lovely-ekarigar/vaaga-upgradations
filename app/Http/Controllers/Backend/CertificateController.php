@@ -26,7 +26,7 @@ class CertificateController extends Controller
             $path = 'frontend-rtl';
         }
         $this->path = $path;
-    }
+    
 
     /**
      * Get certificates lost for purchased courses.
@@ -124,4 +124,3 @@ class CertificateController extends Controller
         return back()->with(['data' => $data]);
 
     }
-}

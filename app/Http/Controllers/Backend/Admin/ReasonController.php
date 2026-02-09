@@ -27,7 +27,7 @@ class ReasonController extends Controller
         }
 
         return view('backend.reasons.index');
-    }
+    
 
     /**
      * Display a listing of Courses via ajax DataTable.
@@ -255,4 +255,3 @@ class ReasonController extends Controller
         $reason->status = $reason->status == 1? 0 : 1;
         $reason->save();
     }
-}

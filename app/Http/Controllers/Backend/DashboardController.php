@@ -282,4 +282,12 @@ class DashboardController extends Controller
              'teacher_profile_list', 'balance','batch'));
         }
     }
+
+    /**
+     * Get tutor details
+     */
+    public function Details()
+    {
+        return response()->json(['details' => []]);
+    }
 }

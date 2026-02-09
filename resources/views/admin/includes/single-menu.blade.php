@@ -50,10 +50,10 @@
 							</div>
 						</a>
 						<ul class="dropdown-menu dropdown-menu-end">
-							<li><a class="dropdown-item d-flex align-items-center" href="{{ route('admin.profile')}}"><i class="bx bx-user fs-5"></i><span>Profile</span></a>
+							<li><a class="dropdown-item d-flex align-items-center" href="{{ route('admin.account')}}"><i class="bx bx-user fs-5"></i><span>Profile</span></a>
 							</li>
 							@if((Auth::user()->type) != 'admin')
-							<li><a class="dropdown-item d-flex align-items-center" href="{{ route('admin.changePassword')}}"><i class="bx bx-cog fs-5"></i><span>Change Password</span></a>
+							<li><a class="dropdown-item d-flex align-items-center" href="{{ route('admin.change.password')}}"><i class="bx bx-cog fs-5"></i><span>Change Password</span></a>
 							</li>
 							@endif
 

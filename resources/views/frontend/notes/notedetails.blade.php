@@ -36,7 +36,7 @@ use App\Models\Note;
               <ol class="breadcrumb breadcrumb-light">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
                 <li class="breadcrumb-item ">
-                    <a href="#">Study Material
+                    <a href="#">Notes
                     </a>
                     
                     </li>
