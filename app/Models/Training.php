@@ -3,11 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Training extends Model
 {
-    protected  $guarded = [];
+    use SoftDeletes;
 
-    protected $table = 'trainings';
+    protected $fillable = [
+        'training_for',
+        'title',
+        'file_path',
+    ];
 
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
 }

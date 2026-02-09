@@ -12,6 +12,11 @@ class Batch extends Model
 
 
 
+    public function teachers()
+    {
+        return $this->belongsToMany(\App\Models\Auth\User::class, 'teacher_batches', 'bid', 'tid');
+    }
+
     public function bacthCompletion($batch_id,$tid=null){
 
         $batch = Batch::find($batch_id);

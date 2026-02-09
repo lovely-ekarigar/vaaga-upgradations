@@ -355,4 +355,63 @@ public function getDataTeacher(Request $request)
     }
      
 
+
+    /**
+     * Display demo batch list
+     */
+    public function demoBatch()
+    {
+        return view('backend.demo.batch_index');
+    }
+
+    /**
+     * Show form to add demo batch
+     */
+    public function demoBatchAdd()
+    {
+        return view('backend.demo.batch_add');
+    }
+
+    /**
+     * Save new demo batch
+     */
+    public function demoBatchSave(Request $request)
+    {
+        // TODO: Implement save logic
+        return redirect()->route('admin.demo_batch')->withFlashSuccess('Demo batch created successfully');
+    }
+
+    /**
+     * Show form to edit demo batch
+     */
+    public function demoBatchEdit($id)
+    {
+        return view('backend.demo.batch_edit', compact('id'));
+    }
+
+    /**
+     * Update demo batch
+     */
+    public function demoBatchUpdate(Request $request, $id)
+    {
+        // TODO: Implement update logic
+        return redirect()->route('admin.demo_batch')->withFlashSuccess('Demo batch updated successfully');
+    }
+
+    /**
+     * Display students for a demo batch
+     */
+    public function demoBatchStudent($id)
+    {
+        return view('backend.demo.batch_student', compact('id'));
+    }
+
+    /**
+     * Update demo batch students
+     */
+    public function demoBatchStudentUpdate(Request $request, $id)
+    {
+        // TODO: Implement student update logic
+        return redirect()->route('admin.demo_batch.student', $id)->withFlashSuccess('Students updated successfully');
+    }
 }
