@@ -35,7 +35,8 @@ class QuestionsController extends Controller
             if (!Gate::allows('question_delete')) {
                 return abort(401);
             }
-            $questions = Question::onlyTrashed()->get();
+            // SoftDeletes removed - return empty collection for deleted items
+            $questions = collect(); // No soft deleted questions available
         } else {
             $questions = Question::orderBy('created_at', 'desc')->get();
         }
@@ -76,7 +77,8 @@ class QuestionsController extends Controller
             if (!Gate::allows('question_delete')) {
                 return abort(401);
             }
-            $questions->onlyTrashed();
+            // SoftDeletes removed - return empty query for deleted items
+            $questions->whereRaw('1 = 0'); // Return no results
         }
 
 
@@ -337,6 +339,7 @@ class QuestionsController extends Controller
 
     /**
      * Restore Question from storage.
+     * NOTE: SoftDeletes removed - restore functionality disabled
      *
      * @param  int $id
      * @return \Illuminate\Http\Response
@@ -346,14 +349,13 @@ class QuestionsController extends Controller
         if (!Gate::allows('question_delete')) {
             return abort(401);
         }
-        $question = Question::onlyTrashed()->findOrFail($id);
-        $question->restore();
-
-        return redirect()->route('admin.questions.index')->withFlashSuccess(trans('alerts.backend.general.restored'));
+        // SoftDeletes removed - restore not available
+        return redirect()->route('admin.questions.index')->withFlashWarning('Restore functionality is not available - soft deletes are disabled.');
     }
 
     /**
      * Permanently delete Question from storage.
+     * NOTE: SoftDeletes removed - this now does regular delete
      *
      * @param  int $id
      * @return \Illuminate\Http\Response
@@ -363,8 +365,9 @@ class QuestionsController extends Controller
         if (!Gate::allows('question_delete')) {
             return abort(401);
         }
-        $question = Question::onlyTrashed()->findOrFail($id);
-        $question->forceDelete();
+        // SoftDeletes removed - just do regular delete
+        $question = Question::findOrFail($id);
+        $question->delete();
 
         return redirect()->route('admin.questions.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
     }

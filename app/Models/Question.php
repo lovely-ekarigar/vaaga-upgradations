@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+// use Illuminate\Database\Eloquent\SoftDeletes; // Removed - deleted_at column doesn't exist in live database
 use Illuminate\Support\Facades\File;
 use App\Models\MockTest;
 
@@ -18,7 +18,7 @@ use App\Models\MockTest;
  */
 class Question extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes; // Removed - deleted_at column doesn't exist in live database
 
     protected $fillable = ['question', 'question_json', 'question_image', 'score'];
 
@@ -46,10 +46,9 @@ class Question extends Model
         }
 
         static::deleting(function ($question) { // before delete() method call this
-            if ($question->isForceDeleting()) {
-                if (File::exists(public_path('/storage/uploads/' . $question->question_image))) {
-                    File::delete(public_path('/storage/uploads/' . $question->question_image));
-                }
+            // Hard delete - remove file when question is deleted
+            if (File::exists(public_path('/storage/uploads/' . $question->question_image))) {
+                File::delete(public_path('/storage/uploads/' . $question->question_image));
             }
         });
 
