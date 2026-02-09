@@ -168,29 +168,19 @@ use App\Models\UserNotification;
                     <ul class="nav-dropdown-items">
                         <li class="nav-item">
                             <a class="nav-link {{ $request->segment(2) == 'questions-bank' || $request->segment(2) == 'questions' ? 'active' : '' }}"
-                                href="{{ route('admin.questions-bank.index') }}">
+                                href="{{ route('admin.exams.questions.index') }}">
                                 <span class="title">Question Bank</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ $request->segment(2) == 'test-series' || $request->segment(2) == 'tests' ? 'active' : '' }}"
-                                href="{{ route('admin.test-series.index') }}">
+                                href="{{ route('admin.testseries.index') }}">
                                 <span class="title">Test Series</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ ($request->segment(2) == 'mocktests' || $request->segment(3) == 'mocktests') ? 'active' : '' }}"
-                                href="{{ $logged_in_user->isAdmin()
-                                    ? route('admin.mocktests.index')
-                                    : ($logged_in_user->hasRole('teacher')
-                                        ? route('tutor.mocktests.available')
-                                        : route('student.mocktests.dashboard')) }}">
-                                <span class="title">Mock Tests Management <span class="badge badge-success">NEW</span></span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link {{ $request->segment(2) == 'purchase' || $request->segment(2) == 'purchase-list' ? 'active' : '' }}"
-                                href="{{ route('admin.purchase.test-series') }}">
+                                href="{{ route('admin.testseries.purchaseList') }}">
                                 <span class="title">Purchase List</span>
                             </a>
                         </li>

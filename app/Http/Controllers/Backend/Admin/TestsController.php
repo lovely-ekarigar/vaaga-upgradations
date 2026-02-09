@@ -15,7 +15,6 @@ use App\Models\Auth\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTestsRequest;
 use App\Http\Requests\Admin\UpdateTestsRequest;
@@ -24,7 +23,6 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\Notification;
 use App\Models\UserNotification;
 use Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
 class TestsController extends Controller
 {
     /**
@@ -64,18 +62,12 @@ $batch_list = Batch::whereIn("id",$bids)->orderBy('id','desc')->get();
         return view('backend.tests.index', compact('tests','courses','batch_list'));
     }
 
-public function assignBatch(Request $request)
-{
-    $request->validate([
-        'test_id' => 'required|exists:tests,id',
-        'batch_id' => 'required|exists:batches,id',
-    ]);
+public function assignBatch(Request $request){
 
-    $test = Test::findOrFail($request->test_id);
-    if (Schema::hasColumn('tests', 'batch_id')) {
-        $test->batch_id = $request->batch_id;
-        $test->update();
-    }
+    // dd($request->all());
+    $test = Test::find($request->test_id);
+    $test->batch_id = $request->batch_id;
+    $test->update();
 
 
 $message = "Dear Student,<br> <b>".$test->title.'</b> Quiz has been assigned. Kindly visit classes module to check.';
@@ -187,9 +179,7 @@ $message = "Dear Student,<br> <b>".$test->title.'</b> Quiz has been assigned. Ki
                 return ($q->course) ? $q->course->title : "N/A";
             })
             ->editColumn('batch',function ($q){
-                if (!Schema::hasColumn('tests', 'batch_id')) {
-                    return '';
-                }
+                
                 $batch = Batch::find($q->batch_id);
                 return $batch ? $batch->name : "";
             })
@@ -261,9 +251,6 @@ if(!$test){
 return abort(404);
 }
 
-if (!Schema::hasColumn('tests', 'batch_id')) {
-    return redirect()->back()->withFlashDanger('Batch assignment is not available. Please run migrations.');
-}
 $batch = Batch::find($test->batch_id);
 
 if(!$batch){
@@ -437,44 +424,6 @@ return view('backend.tests.result', compact('test','users'));
         return view('backend.tests.show', compact('test'));
     }
 
-
-    /**
-     * Export student results for a test to PDF.
-     *
-     * @param  int  $id  Test ID
-     * @return \Illuminate\Http\Response
-     */
-    public function exportResultsPdf($id)
-    {
-        if (! Gate::allows('test_view') && ! Gate::allows('test_access')) {
-            return abort(401);
-        }
-        $test = Test::find($id);
-        if (!$test) {
-            return abort(404);
-        }
-        if (!Schema::hasColumn('tests', 'batch_id')) {
-            return redirect()->back()->withFlashDanger('Batch assignment is not available. Please run migrations.');
-        }
-        $batch = Batch::find($test->batch_id);
-        if (!$batch) {
-            return redirect()->back()->withFlashDanger('Batch not assigned or batch not found.');
-        }
-        $stbs = StudentTeacherBatch::where('bid', $batch->id)->get();
-        $uids = $stbs->pluck('uid')->toArray();
-        $students = User::whereIn('id', $uids)->get();
-        $users = [];
-        foreach ($students as $st) {
-            $testx = TestResponse::where('user_id', $st->id)->where('test_id', $id);
-            $st->totalQuestion = $testx->count();
-            $st->isAttempted = $testx->count() > 0;
-            $st->totalCorrect = $testx->where('is_correct', '1')->count();
-            $st->totalUnattempted = $testx->where('is_correct', '0')->whereNull('response_option_id')->count();
-            $users[] = $st;
-        }
-        $pdf = Pdf::loadView('backend.tests.result-pdf', compact('test', 'users'));
-        return $pdf->download('test-results-' . $test->slug . '-' . $id . '.pdf');
-    }
 
     /**
      * Remove Test from storage.

@@ -4,17 +4,59 @@ use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\Auth\User\AccountController;
 use App\Http\Controllers\Backend\Auth\User\ProfileController;
 use \App\Http\Controllers\Backend\Auth\User\UserPasswordController;
-use \App\Http\Controllers\Backend\Auth\User\VideoLinkController;
+use App\Http\Controllers\Backend\Admin\VideoLinkController;
 use App\Http\Controllers\AffiliateController;
 use App\Http\Controllers\Backend\StudentController;
 
-use App\Http\Controllers\Backend\Admin\DemoController;
 use App\Http\Controllers\Backend\Admin\NoteController;
 use App\Http\Controllers\Backend\Admin\TeamController;
 use App\Http\Controllers\Backend\Admin\NoteCategoryController;
-use App\Http\Controllers\Backend\Admin\OrderController;
 use App\Http\Controllers\Backend\EnquiryController;
+use App\Http\Controllers\Backend\QuestionController;
 use App\Http\Controllers\Backend\BtoBController;
+use App\Http\Controllers\Frontend\TestSeriesController;
+use App\Http\Controllers\Backend\Admin\DemoController;
+use App\Http\Controllers\Backend\Admin\CategoriesController;
+use App\Http\Controllers\Backend\Admin\TeachersController;
+use App\Http\Controllers\Backend\Admin\BatchController;
+use App\Http\Controllers\Backend\Admin\TrainingController;
+use App\Http\Controllers\Backend\NotificationController;
+use App\Http\Controllers\Backend\Admin\OrderController;
+use App\Http\Controllers\Backend\Admin\CoursesController;
+use App\Http\Controllers\Backend\Admin\AssessmentController;
+use App\Http\Controllers\Backend\Admin\ConfigController;
+use App\Http\Controllers\Backend\Admin\SliderController;
+use App\Http\Controllers\Backend\Admin\SponsorController;
+use App\Http\Controllers\Backend\Admin\TestimonialController;
+use App\Http\Controllers\Backend\Admin\FaqController;
+use App\Http\Controllers\Backend\ContactController;
+use App\Http\Controllers\Backend\TaxController;
+use App\Http\Controllers\Backend\CouponController;
+use App\Http\Controllers\Backend\UpdateController;
+use App\Http\Controllers\Backend\BackupController;
+use App\Http\Controllers\Backend\Admin\ApiClientController;
+use App\Http\Controllers\Backend\SitemapController;
+use App\Http\Controllers\Backend\LangController;
+use App\Http\Controllers\Backend\ReportController;
+use App\Http\Controllers\Backend\Admin\MyclassController;
+use App\Http\Controllers\Backend\PaymentController;
+use App\Http\Controllers\Backend\MenuController;
+use App\Http\Controllers\Backend\Admin\BoardsController;
+use App\Http\Controllers\Backend\Admin\BundlesController;
+use App\Http\Controllers\Backend\Admin\LessonsController;
+use App\Http\Controllers\Backend\Admin\QuestionsController;
+use App\Http\Controllers\Backend\Admin\QuestionsOptionsController;
+use App\Http\Controllers\Backend\Admin\TestsController;
+use App\Http\Controllers\Backend\Admin\MediaController;
+use App\Http\Controllers\Backend\ReviewController;
+use App\Http\Controllers\Backend\CertificateController;
+use App\Http\Controllers\Backend\Admin\InvoiceController;
+use App\Http\Controllers\Backend\Admin\BlogController;
+use App\Http\Controllers\Backend\Admin\PageController;
+use App\Http\Controllers\Backend\Admin\ReasonController;
+use App\Http\Controllers\Backend\Admin\ForumController;
+use App\Http\Controllers\Backend\Admin\FeedbackController;
+use App\Http\Controllers\MessagesController;
 /*
  * All route names are prefixed with 'admin.'.
  */
@@ -32,59 +74,118 @@ Route::get('btob-users', [BtoBController::class, 'users'])->name('btob.user.list
 
 
 Route::group(['middleware' => 'role:teacher|administrator|author'], function () {
-    Route::resource('orders', '\App\Http\Controllers\Backend\Admin\OrderController');
+    Route::resource('orders', OrderController::class);
 
     //===== Demo Request Routes =====//
     Route::get('demo-requests-teacher', [DemoController::class, 'indexTeacher'])->name('demo_requests_teacher');
 
-    Route::get('update-sort', ['uses' => 'Admin\CategoriesController@updateSort', 'as' => 'update_sort']);
+    Route::get('update-sort', [CategoriesController::class, 'updateSort'])->name('update_sort');
     Route::get('demo-requests', [DemoController::class, 'index'])->name('demo_requests');
     Route::post('demo-requests', [DemoController::class, 'scheduleDemo'])->name('demo_requests_post');
     Route::get('get-demo-requests-data', [DemoController::class, 'getData'])->name('demo_requests.get_data');
     Route::get('get-demo-requests-data-teacher', [DemoController::class, 'getDataTeacher'])->name('demo_requests.get_data_teacher');
 
     Route::post('demo-requests/status-update', [DemoController::class, 'statusUpdate'])->name('demo_requests_status_update');
+    
+    
+     Route::get('demo-batch', [DemoController::class, 'demoBatch'])->name('demo_batch');
+     Route::get('demo-batch-add', [DemoController::class, 'demoBatchAdd'])->name('demo_batch.add');
+     Route::post('demo-batch-add', [DemoController::class, 'demoBatchSave'])->name('demo_batch.save');
+     
+     Route::get('demo-batch-edit/{id}', [DemoController::class, 'demoBatchEdit'])->name('demo_batch.edit');
+     Route::post('demo-batch-edit/{id}', [DemoController::class, 'demoBatchUpdate'])->name('demo_batch.update');
+     
+     
+         Route::get('demo-batch-student/{id}', [DemoController::class, 'demoBatchStudent'])->name('demo_batch.student');
+     Route::post('demo-batch-student/{id}', [DemoController::class, 'demoBatchStudentUpdate'])->name('demo_batch.student.update');
+     
 
-    Route::get('teacher-course-list', ['uses' => 'Admin\TeachersController@teachercourseList'])->name('teacher-course-list');
-    Route::get('teacher-student-list', ['uses' => 'Admin\TeachersController@teacherstudentList'])->name('teacher-student-list');
+    Route::get('teacher-course-list', [TeachersController::class, 'teachercourseList'])->name('teacher-course-list');
+    Route::get('teacher-student-list', [TeachersController::class, 'teacherstudentList'])->name('teacher-student-list');
 
-    Route::get('teacher-attendance', ['uses' => 'Admin\TeachersController@teacherattendanceList'])->name('teacher_attendance');
-    Route::get('teacher-fees/{id}', ['uses' => 'Admin\TeachersController@teacherFees'])->name('teacher_fees');
-    Route::post('teacher-fees/{id}', ['uses' => 'Admin\TeachersController@teacherFeescreate'])->name('teacher_fees');
-    Route::get('teacher-fees-delete/{id}', ['uses' => 'Admin\TeachersController@teacherFeesdelete'])->name('teacher_fees_delete');
-    // Route::get('teacher-attendance-create', ['uses' => 'Admin\TeachersController@teacherattendanceCreate'])->name('teacher_attendance_create');
-    // Route::post('teacher-attendance-store', ['uses' => 'Admin\TeachersController@teacherattendanceStore'])->name('teacher_attendance_store');
-    Route::post('teacher-bank-details-create', ['uses' => 'Admin\TeachersController@teacherbankdetailStore'])->name('teacher_bank_details_create');
-    Route::post('teacher-document-approof-create', ['uses' => 'Admin\TeachersController@teacherdocumentapproofStore'])->name('teacher_document_approof_create');
-    Route::post('teacher-ppt-video-store', ['uses' => 'Admin\TeachersController@teacherpptVideoStore'])->name('teacher-ppt-video-store');
-    Route::get('delete/{id}', ['uses' => 'Admin\TeachersController@teacherpptVideoDelete'])->name('teacher-ppt-delete');
+    Route::get('teacher-attendance', [TeachersController::class, 'teacherattendanceList'])->name('teacher_attendance');
+    Route::get('teacher-fees/{id}', [TeachersController::class, 'teacherFees'])->name('teacher_fees');
+    Route::post('teacher-fees/{id}', [TeachersController::class, 'teacherFeescreate'])->name('teacher_fees');
+    Route::get('teacher-fees-delete/{id}', [TeachersController::class, 'teacherFeesdelete'])->name('teacher_fees_delete');
+    // Route::get('teacher-attendance-create', [TeachersController::class, 'teacherattendanceCreate'])->name('teacher_attendance_create');
+    // Route::post('teacher-attendance-store', [TeachersController::class, 'teacherattendanceStore'])->name('teacher_attendance_store');
+    Route::post('teacher-bank-details-create', [TeachersController::class, 'teacherbankdetailStore'])->name('teacher_bank_details_create');
+    Route::post('teacher-document-approof-create', [TeachersController::class, 'teacherdocumentapproofStore'])->name('teacher_document_approof_create');
+    Route::post('teacher-ppt-video-store', [TeachersController::class, 'teacherpptVideoStore'])->name('teacher-ppt-video-store');
+    Route::get('delete/{id}', [TeachersController::class, 'teacherpptVideoDelete'])->name('teacher-ppt-delete');
 
-    Route::get('batch/batch-progress-list/{id}', ['uses' => 'Admin\BatchController@batchprogressList'])->name('batch-progress-list');
+    Route::get('batch/batch-progress-list/{id}', [BatchController::class, 'batchprogressList'])->name('batch-progress-list');
 
-    Route::get('batch-progress-list-teacher/{id}', ['uses' => 'Admin\BatchController@batchprogressteacherList'])->name('batch-progress-list-teacher');
+    Route::get('batch-progress-list-teacher/{id}', [BatchController::class, 'batchprogressteacherList'])->name('batch-progress-list-teacher');
 });
+
+
 Route::group(['middleware' => 'role:administrator'], function () {
 
 
 
 
+
+
+
+// Generate questions
+Route::post('questions-bank/generate', [QuestionController::class, 'generate'])->name('exams.questions.generate'); 
+
+// Questions index
+Route::get('questions-bank', [QuestionController::class, 'index'])->name('exams.questions.index');
+
+// Show form to create a question for an exam
+Route::get('exams/{exam}/questions/create', [QuestionController::class, 'create'])->name('exams.questions.create');
+
+// Store a new question for an exam
+Route::post('exams/{exam}/questions', [QuestionController::class, 'store'])->name('exams.questions.store');
+
+// Show form to edit a question
+Route::get('questions-bank/{question}/edit', [QuestionController::class, 'edit'])->name('exams.questions.edit');
+
+
+Route::put('questions-bank/{question}/edit', [QuestionController::class, 'update'])->name('exams.questions.edit');
+Route::get('questions-bank/question/add', [QuestionController::class, 'add'])->name('exams.questions.add');
+Route::post('questions-bank/question/add', [QuestionController::class, 'saveQuestion'])->name('exams.questions.add');
+Route::get('questions-bank/import', [QuestionController::class, 'import'])->name('exams.questions.import'); 
+
+Route::post('questions-bank/import', [QuestionController::class, 'importNow'])->name('exams.questions.import'); 
+// Update a question
+Route::put('questions-bank/{question}', [QuestionController::class, 'update'])->name('exams.questions.update');
+Route::get('questions-bank/pending-verification', [QuestionController::class, 'getPendingVerification'])->name('exams.questions.pending');
+    
+    Route::get('questions-bank/{question}/preview', [QuestionController::class, 'preview'])->name('exams.questions.preview');
+    
+    Route::post('questions-bank/verify', [QuestionController::class, 'verify'])->name('exams.questions.verify');
+ Route::get('questions-bank/questions/{id}/preview', [QuestionController::class, 'preview'])->name('exams.questions.preview');
+// Delete a question
+Route::delete('questions-bank/{question}', [QuestionController::class, 'destroy'])->name('exams.questions.destroy');
+
+
+// Update question chapter
+Route::post('exams/update-question-chapter', [QuestionController::class, 'updateQuestionChapter'])->name('exams.questions.updateChapter');
+
+// Get chapters by subject
+Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySubject'])->name('exams.questions.getBySubject');  
+
+
     // enquiry route
-    Route::get('enquiry-list', ['uses' => 'EnquiryController@index', 'as' => 'endquiryIndex'])->name('admin.endquiryIndex');
-    Route::get('enquiry-edit/{id}', ['uses' => 'EnquiryController@edit', 'as' => 'endquiryEdit']);
-    Route::get('store-enquiry', ['uses' => 'EnquiryController@store'])->name('admin.store.enquiry');
+    Route::get('enquiry-list', [EnquiryController::class, 'index'])->name('endquiryIndex');
+    Route::get('enquiry-edit/{id}', [EnquiryController::class, 'edit'])->name('endquiryEdit');
+    Route::get('store-enquiry', [EnquiryController::class, 'store'])->name('store.enquiry');
 
 
 
 
     // end enquiry route
-    Route::get('notifications-list', ['uses' => 'NotificationController@index', 'as' => 'notifications']);
-    Route::get('notifications-create', ['uses' => 'NotificationController@create', 'as' => 'create_notification']);
-    Route::post('notifications-create', ['uses' => 'NotificationController@save', 'as' => 'save_notification']);
-    Route::post('notifications-delete', ['uses' => 'NotificationController@destroy', 'as' => 'delete_notification']);
+    Route::get('notifications-list', [NotificationController::class, 'index'])->name('notifications');
+    Route::get('notifications-create', [NotificationController::class, 'create'])->name('create_notification');
+    Route::post('notifications-create', [NotificationController::class, 'save'])->name('save_notification');
+    Route::post('notifications-delete', [NotificationController::class, 'destroy'])->name('delete_notification');
 
-    Route::get('trainings-list', ['uses' => 'Admin\TrainingController@index'])->name('trainings');
-    Route::post('trainings-list-store', ['uses' => 'Admin\TrainingController@Store'])->name('training-store');
-    Route::get('trainings-list-delete/{id}', ['uses' => 'Admin\TrainingController@delete'])->name('training-delete');
+    Route::get('trainings-list', [TrainingController::class, 'index'])->name('trainings');
+    Route::post('trainings-list-store', [TrainingController::class, 'Store'])->name('training-store');
+    Route::get('trainings-list-delete/{id}', [TrainingController::class, 'delete'])->name('training-delete');
 
 
     Route::get('demo-history/{id}', [DemoController::class, 'demoHistory'])->name('demo_history');
@@ -92,92 +193,103 @@ Route::group(['middleware' => 'role:administrator'], function () {
     Route::post('demo-feedback-list/{id}', [DemoController::class, 'senddemoEmail'])->name('demo_feedback_list');
 
     //===== Teachers Routes =====//
-    Route::resource('teachers', 'Admin\TeachersController');
-    Route::get('teachers-availability', ['uses' => 'Admin\TeachersController@courseAvailability', 'as' => 'teachers_course_availability']);
+    Route::resource('teachers', TeachersController::class);
+    Route::get('teachers-availability', [TeachersController::class, 'courseAvailability'])->name('teachers_course_availability');
 
-    Route::get('teachers/u/delete/{id}', ['uses' => 'Admin\TeachersController@rmUnavail', 'as' => 'teachers_availability_rm']);
-    Route::get('teachers/{id}/availability', ['uses' => 'Admin\TeachersController@availability', 'as' => 'teachers_availability']);
-    Route::post('teachers/{id}/availability', ['uses' => 'Admin\TeachersController@markUnavailability', 'as' => 'teachers_availability']);
-    Route::get('teachers/{id}/availability/edit', ['uses' => 'Admin\TeachersController@editAvailability', 'as' => 'teachers_editavailability']);
-    Route::post('teachers/{id}/availability/edit', ['uses' => 'Admin\TeachersController@updateAvailability', 'as' => 'teachers_editavailability']);
-    Route::get('get-teachers-data', ['uses' => 'Admin\TeachersController@getData', 'as' => 'teachers.get_data']);
-    Route::post('teachers_mass_destroy', ['uses' => 'Admin\TeachersController@massDestroy', 'as' => 'teachers.mass_destroy']);
-    Route::post('teachers_restore/{id}', ['uses' => 'Admin\TeachersController@restore', 'as' => 'teachers.restore']);
-    Route::delete('teachers_perma_del/{id}', ['uses' => 'Admin\TeachersController@perma_del', 'as' => 'teachers.perma_del']);
-    Route::post('teacher/status', ['uses' => 'Admin\TeachersController@updateStatus', 'as' => 'teachers.status']);
-    Route::get('teacher-batch-list/{id}', ['uses' => 'Admin\TeachersController@teacherBatchlist'])->name('teacher_batch_list');
-    Route::get('teacher-ppt-list/{id}', ['uses' => 'Admin\TeachersController@teacherPptlist'])->name('teacher-ppt-list');
-    Route::get('teacher-payment-list/{id}', ['uses' => 'Admin\TeachersController@teacherWisepayment'])->name('teacher_wise_payment');
-    Route::post('teacher-payment-list/{id}', ['uses' => 'Admin\TeachersController@teacherWisepaymentRequest'])->name('teacher_wise_payment_request');
-    Route::get('teacher-payments', ['uses' => 'Admin\TeachersController@teacherPaymentslist'])->name('teacher_payments');
-    Route::get('teacher-payments-create', ['uses' => 'Admin\TeachersController@teacherPaymentscreate'])->name('teacher_payment_create');
-    Route::post('teacher-payments-store', ['uses' => 'Admin\TeachersController@teacherPaymentstore'])->name('teacher_payments_store');
-    Route::get('teacher-payment-destroy/{id}', ['uses' => 'Admin\TeachersController@teacherPaymentdestroy'])->name('teacher_payment_destroy');
-    Route::get('teacher-payment-edit/{id}', ['uses' => 'Admin\TeachersController@teacherPaymentdedit'])->name('teacher_payment_edit');
-    Route::post('teacher-payment-edit/{id}', ['uses' => 'Admin\TeachersController@teacherPaymentupdate'])->name('teacher_payment_edit');
-
-
+    Route::get('teachers/u/delete/{id}', [TeachersController::class, 'rmUnavail'])->name('teachers_availability_rm');
+    Route::get('teachers/{id}/availability', [TeachersController::class, 'availability'])->name('teachers_availability');
+    Route::post('teachers/{id}/availability', [TeachersController::class, 'markUnavailability'])->name('teachers_availability');
+    Route::get('teachers/{id}/availability/edit', [TeachersController::class, 'editAvailability'])->name('teachers_editavailability');
+    Route::post('teachers/{id}/availability/edit', [TeachersController::class, 'updateAvailability'])->name('teachers_editavailability');
+    Route::get('get-teachers-data', [TeachersController::class, 'getData'])->name('teachers.get_data');
+    Route::post('teachers_mass_destroy', [TeachersController::class, 'massDestroy'])->name('teachers.mass_destroy');
+    Route::post('teachers_restore/{id}', [TeachersController::class, 'restore'])->name('teachers.restore');
+    Route::delete('teachers_perma_del/{id}', [TeachersController::class, 'perma_del'])->name('teachers.perma_del');
+    Route::post('teacher/status', [TeachersController::class, 'updateStatus'])->name('teachers.status');
+    Route::get('teacher-batch-list/{id}', [TeachersController::class, 'teacherBatchlist'])->name('teacher_batch_list');
+    Route::get('teacher-ppt-list/{id}', [TeachersController::class, 'teacherPptlist'])->name('teacher-ppt-list');
+    Route::get('teacher-payment-list/{id}', [TeachersController::class, 'teacherWisepayment'])->name('teacher_wise_payment');
+    Route::post('teacher-payment-list/{id}', [TeachersController::class, 'teacherWisepaymentRequest'])->name('teacher_wise_payment_request');
+    Route::get('teacher-payments', [TeachersController::class, 'teacherPaymentslist'])->name('teacher_payments');
+    Route::get('teacher-payments-create', [TeachersController::class, 'teacherPaymentscreate'])->name('teacher_payment_create');
+    Route::post('teacher-payments-store', [TeachersController::class, 'teacherPaymentstore'])->name('teacher_payments_store');
+    Route::get('teacher-payment-destroy/{id}', [TeachersController::class, 'teacherPaymentdestroy'])->name('teacher_payment_destroy');
+    Route::get('teacher-payment-edit/{id}', [TeachersController::class, 'teacherPaymentdedit'])->name('teacher_payment_edit');
+    Route::post('teacher-payment-edit/{id}', [TeachersController::class, 'teacherPaymentupdate'])->name('teacher_payment_edit');
 
 
 
-    Route::get('payments-stat', ['uses' => 'PaymentController@stats'])->name('teacher_payments_stats');
+
+
+    Route::get('payments-stat', [PaymentController::class, 'stats'])->name('teacher_payments_stats');
 
 
 
-    Route::get('students', ['uses' => 'StudentController@index'])->name('students.index');
-    Route::get('students/orders/{id}', ['uses' => 'StudentController@orders'])->name('students.orders');
-    Route::get('students/{id}', ['uses' => 'StudentController@updatestatus'])->name('students.updatestatus');
+    Route::get('students', [StudentController::class, 'index'])->name('students.index');
+    Route::get('students/orders/{id}', [StudentController::class, 'orders'])->name('students.orders');
+    Route::get('students/{id}', [StudentController::class, 'updatestatus'])->name('students.updatestatus');
 
-    Route::get('student-recover/{id}', ['uses' => 'StudentController@studentRecover'])->name('students_recover');
-    Route::get('student-show/{id}', ['uses' => 'StudentController@studentShow'])->name('students_show');
-    Route::get('student-edit/{id}', ['uses' => 'StudentController@studentEdit'])->name('students_edit');
-    Route::post('student-edit/{id}', ['uses' => 'StudentController@studentUpdate'])->name('students_edit');
-    Route::get('student-delete/{id}', ['uses' => 'StudentController@studentDelete'])->name('students_delete');
+    Route::get('student-recover/{id}', [StudentController::class, 'studentRecover'])->name('students_recover');
+    Route::get('student-show/{id}', [StudentController::class, 'studentShow'])->name('students_show');
+    Route::get('student-edit/{id}', [StudentController::class, 'studentEdit'])->name('students_edit');
+    Route::post('student-edit/{id}', [StudentController::class, 'studentUpdate'])->name('students_edit');
+    Route::get('student-delete/{id}', [StudentController::class, 'studentDelete'])->name('students_delete');
 
-    Route::get('student_batch_list/{id}', ['uses' => 'StudentController@studentBatchlist'])->name('student_batch_list');
+    Route::get('student_batch_list/{id}', [StudentController::class, 'studentBatchlist'])->name('student_batch_list');
 
 
-    Route::get('feedback-list', ['uses' => 'Admin\FeedbackController@index'])->name('feedback-list');
+    Route::get('feedback-list', [FeedbackController::class, 'index'])->name('feedback-list');
 
     //===== FORUMS Routes =====//
-    Route::resource('forums-category', 'Admin\ForumController');
-    Route::get('forums-category/status/{id}', 'Admin\ForumController@status')->name('forums-category.status');
+    Route::resource('forums-category', ForumController::class);
+    Route::get('forums-category/status/{id}', [ForumController::class, 'status'])->name('forums-category.status');
 
 
     //===== Orders Routes =====//
-    Route::get('subscription-reports-details/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@subscriptionDetails', 'as' => 'subscription.detailsInfo']);
-    Route::post('subscription-reports-details/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@triggerEmail', 'as' => 'subscription.triggerEmail']);
-    Route::get('subscription-reports', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@subscriptionReports', 'as' => 'subscription.report']);
-    Route::get('gst-reports', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@gstReport', 'as' => 'gst.report']);
-    Route::get('subscription-reports-data', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@subscriptionReportsData', 'as' => 'subscription.report_data']);
-    Route::get('subscriptions', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@subscriptions', 'as' => 'subscription.index']);
-    Route::get('get-subscriptions-data', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@getDataSubscription', 'as' => 'subscription.get_data']);
-    Route::get('get-orders-data', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@getData', 'as' => 'orders.get_data']);
+    Route::get('subscription-reports-details/{id}', [OrderController::class, 'subscriptionDetails'])->name('subscription.detailsInfo');
+    Route::post('subscription-reports-details/{id}', [OrderController::class, 'triggerEmail'])->name('subscription.triggerEmail');
+    Route::get('subscription-reports', [OrderController::class, 'subscriptionReports'])->name('subscription.report');
+    Route::get('gst-reports', [OrderController::class, 'gstReport'])->name('gst.report');
+    Route::get('subscription-reports-data', [OrderController::class, 'subscriptionReportsData'])->name('subscription.report_data');
+    Route::get('subscriptions', [OrderController::class, 'subscriptions'])->name('subscription.index');
+    Route::get('get-subscriptions-data', [OrderController::class, 'getDataSubscription'])->name('subscription.get_data');
+    Route::get('get-orders-data', [OrderController::class, 'getData'])->name('orders.get_data');
 
-    Route::get('view-invoice/{oid}/{type}', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@viewInvoice']);
-    Route::post('orders_mass_destroy', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@massDestroy', 'as' => 'orders.mass_destroy']);
-    Route::post('orders/complete', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@complete', 'as' => 'orders.complete']);
-    Route::delete('orders_perma_del/{id}', ['uses' => '\App\Http\Controllers\Backend\Admin\OrderController@perma_del', 'as' => 'orders.perma_del']);
+    Route::get('view-invoice/{oid}/{type}', [OrderController::class, 'viewInvoice']);
+    Route::post('orders_mass_destroy', [OrderController::class, 'massDestroy'])->name('orders.mass_destroy');
+    Route::post('orders/complete', [OrderController::class, 'complete'])->name('orders.complete');
+    Route::delete('orders_perma_del/{id}', [OrderController::class, 'perma_del'])->name('orders.perma_del');
 
     //===Batch Routes===//
-    Route::get('batches', ['uses' => 'Admin\BatchController@index', 'as' => 'batch']);
-    Route::post('batches/onesignal', ['uses' => 'Admin\BatchController@onesignal', 'as' => 'onesignal']);
-    Route::get('batch/create', ['uses' => 'Admin\BatchController@create', 'as' => 'batch.create']);
-    Route::post('batch/create', ['uses' => 'Admin\BatchController@saveBatch', 'as' => 'batch.save']);
-    Route::get('batch/edit/{id}', ['uses' => 'Admin\BatchController@editBatch', 'as' => 'batch.edit']);
-    Route::post('batch/update', ['uses' => 'Admin\BatchController@updateBatch', 'as' => 'batch.update']);
-    Route::get('batchassign/{id}', ['uses' => 'Admin\BatchController@batchassign', 'as' => 'batch.batchassign']);
-    Route::post('batchassign', ['uses' => 'Admin\BatchController@batchAssignsave', 'as' => 'batch.batchassign.save']);
-    Route::get('course', ['uses' => 'Admin\BatchController@Course', 'as' => 'batch.course']);
-    Route::post('course', ['uses' => 'Admin\BatchController@courseSave', 'as' => 'batch.course.save']);
-    Route::get('batch/delete/{id}', ['uses' => 'Admin\BatchController@deleteBatch', 'as' => 'batch.delete']);
+    Route::get('batches', [BatchController::class, 'index'])->name('batch');
+    Route::post('batches/onesignal', [BatchController::class, 'onesignal'])->name('onesignal');
+    Route::get('batch/create', [BatchController::class, 'create'])->name('batch.create');
+    Route::post('batch/create', [BatchController::class, 'saveBatch'])->name('batch.save');
+    Route::get('batch/edit/{id}', [BatchController::class, 'editBatch'])->name('batch.edit');
+    Route::post('batch/update', [BatchController::class, 'updateBatch'])->name('batch.update');
+    Route::get('batchassign/{id}', [BatchController::class, 'batchassign'])->name('batch.batchassign');
+    Route::post('batchassign', [BatchController::class, 'batchAssignsave'])->name('batch.batchassign.save');
+    Route::get('course', [BatchController::class, 'Course'])->name('batch.course');
+    Route::post('course', [BatchController::class, 'courseSave'])->name('batch.course.save');
+    Route::get('batch/delete/{id}', [BatchController::class, 'deleteBatch'])->name('batch.delete');
 
-    Route::get('batch/batch-progress-list/{id}', ['uses' => 'Admin\BatchController@batchprogressList'])->name('batch-progress-list');
-    Route::get('batch/batch-is-completed/{id}', ['uses' => 'Admin\BatchController@batchisCompleted'])->name('batch-is-completed');
+    Route::get('batch/batch-progress-list/{id}', [BatchController::class, 'batchprogressList'])->name('batch-progress-list');
+    Route::post('batch/batch-progress-list/{id}', [BatchController::class, 'updatebatchprogressList'])->name('batch-progress-list');
+    
+    
+    Route::get('batch/batch-is-completed/{id}', [BatchController::class, 'batchisCompleted'])->name('batch-is-completed');
 
-    Route::get('batch/batch-recordings/{id}', ['uses' => 'Admin\MyclassController@adminRecordings'])->name('batch-recording-list');
-    Route::get('batch/batch-feedback/{id}', ['uses' => 'Admin\MyclassController@batchFeedback'])->name('batch-feedback-list');
-    Route::post('batch/batch-feedback/{id}', ['uses' => 'Admin\MyclassController@sendBatchEmail'])->name('batch-email-list');
+    Route::get('batch/batch-recordings/{id}', [MyclassController::class, 'adminRecordings'])->name('batch-recording-list');
+    Route::get('batch/batch-feedback/{id}', [MyclassController::class, 'batchFeedback'])->name('batch-feedback-list');
+    Route::post('batch/batch-feedback/{id}', [MyclassController::class, 'sendBatchEmail'])->name('batch-email-list');
+    
+    // Batch Mock Tests Routes
+    Route::get('batch/{id}/available-mock-tests', [BatchController::class, 'availableMockTests'])->name('batch.available-mock-tests');
+    Route::post('batch/{id}/save-mock-tests', [BatchController::class, 'saveMockTests'])->name('batch.save-mock-tests');
+    Route::get('batch/{id}/mock-results', [BatchController::class, 'mockResults'])->name('batch.mockResults');
+    Route::get('batch/{id}/students-list', [BatchController::class, 'getStudentsList'])->name('batch.studentsList');
+    Route::get('batch/{id}/mock-tests-list', [BatchController::class, 'getMockTestsList'])->name('batch.mockTestsList');
+    Route::get('batch/student-mock-result/{student_id}/{mock_id}', [BatchController::class, 'getStudentMockResult'])->name('batch.studentMockResult');
 
 
 
@@ -186,77 +298,77 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
 
 
-    Route::get('assessment', ['uses' => 'Admin\AssessmentController@index', 'as' => 'assessment']);
-    Route::get('assessment/create', ['uses' => 'Admin\AssessmentController@create', 'as' => 'assessment.create']);
-    Route::post('assessment/create', ['uses' => 'Admin\AssessmentController@save', 'as' => 'assessment.save']);
-    Route::get('assessment/delete/{id}', ['uses' => 'Admin\AssessmentController@deleteAssessment', 'as' => 'assessment.delete']);
-    Route::get('assessment/edit/{id}', ['uses' => 'Admin\AssessmentController@edit', 'as' => 'assessment.edit']);
-    Route::post('assessment/edit/{id}', ['uses' => 'Admin\AssessmentController@update', 'as' => 'assessment.update']);
+    Route::get('assessment', [AssessmentController::class, 'index'])->name('assessment');
+    Route::get('assessment/create', [AssessmentController::class, 'create'])->name('assessment.create');
+    Route::post('assessment/create', [AssessmentController::class, 'save'])->name('assessment.save');
+    Route::get('assessment/delete/{id}', [AssessmentController::class, 'deleteAssessment'])->name('assessment.delete');
+    Route::get('assessment/edit/{id}', [AssessmentController::class, 'edit'])->name('assessment.edit');
+    Route::post('assessment/edit/{id}', [AssessmentController::class, 'update'])->name('assessment.update');
 
 
     //===== Assessment Question Routes =====//
 
 
-    Route::get('assessment/ques/list/{id}', ['uses' => 'Admin\AssessmentController@questionList', 'as' => 'assessment.question.list']);
-    Route::get('assessment/ques/{id}', ['uses' => 'Admin\AssessmentController@question', 'as' => 'assessment.question']);
-    Route::post('assessment/ques/{id}', ['uses' => 'Admin\AssessmentController@questionCreate', 'as' => 'assessment.question.create']);
-    Route::get('assessment/ques/edit/{id}', ['uses' => 'Admin\AssessmentController@questionEdit', 'as' => 'assessment.question.edit']);
-    Route::post('assessment/ques/edit/{id}', ['uses' => 'Admin\AssessmentController@questionUpdate', 'as' => 'assessment.question.update']);
-    Route::get('assessment/ques/delete/{id}', ['uses' => 'Admin\AssessmentController@deleteAssQuestion', 'as' => 'assessment.question.delete']);
+    Route::get('assessment/ques/list/{id}', [AssessmentController::class, 'questionList'])->name('assessment.question.list');
+    Route::get('assessment/ques/{id}', [AssessmentController::class, 'question'])->name('assessment.question');
+    Route::post('assessment/ques/{id}', [AssessmentController::class, 'questionCreate'])->name('assessment.question.create');
+    Route::get('assessment/ques/edit/{id}', [AssessmentController::class, 'questionEdit'])->name('assessment.question.edit');
+    Route::post('assessment/ques/edit/{id}', [AssessmentController::class, 'questionUpdate'])->name('assessment.question.update');
+    Route::get('assessment/ques/delete/{id}', [AssessmentController::class, 'deleteAssQuestion'])->name('assessment.question.delete');
 
-    Route::get('assessment/users/list/{id}', ['uses' => 'Admin\AssessmentController@userList', 'as' => 'assessment.users.list']);
+    Route::get('assessment/users/list/{id}', [AssessmentController::class, 'userList'])->name('assessment.users.list');
 
     //===== Settings Routes =====//
-    Route::get('settings/general', ['uses' => 'Admin\ConfigController@getGeneralSettings', 'as' => 'general-settings']);
+    Route::get('settings/general', [ConfigController::class, 'getGeneralSettings'])->name('general-settings');
 
-    Route::post('settings/general', ['uses' => 'Admin\ConfigController@saveGeneralSettings'])->name('general-settings');
+    Route::post('settings/general', [ConfigController::class, 'saveGeneralSettings'])->name('general-settings');
 
-    Route::get('settings/social', ['uses' => 'Admin\ConfigController@getSocialSettings'])->name('social-settings');
+    Route::get('settings/social', [ConfigController::class, 'getSocialSettings'])->name('social-settings');
 
-    Route::post('settings/social', ['uses' => 'Admin\ConfigController@saveSocialSettings'])->name('social-settings');
+    Route::post('settings/social', [ConfigController::class, 'saveSocialSettings'])->name('social-settings');
 
-    Route::get('contact', ['uses' => 'Admin\ConfigController@getContact'])->name('contact-settings');
+    Route::get('contact', [ConfigController::class, 'getContact'])->name('contact-settings');
 
-    Route::get('footer', ['uses' => 'Admin\ConfigController@getFooter'])->name('footer-settings');
+    Route::get('footer', [ConfigController::class, 'getFooter'])->name('footer-settings');
 
-    Route::get('newsletter', ['uses' => 'Admin\ConfigController@getNewsletterConfig'])->name('newsletter-settings');
+    Route::get('newsletter', [ConfigController::class, 'getNewsletterConfig'])->name('newsletter-settings');
 
-    Route::post('newsletter/sendgrid-lists', ['uses' => 'Admin\ConfigController@getSendGridLists'])->name('newsletter.getSendGridLists');
+    Route::post('newsletter/sendgrid-lists', [ConfigController::class, 'getSendGridLists'])->name('newsletter.getSendGridLists');
 
 
     //===== Slider Routes =====/
-    Route::resource('sliders', 'Admin\SliderController');
-    Route::get('sliders/status/{id}', 'Admin\SliderController@status')->name('sliders.status', 'id');
-    Route::post('sliders/save-sequence', ['uses' => 'Admin\SliderController@saveSequence', 'as' => 'sliders.saveSequence']);
-    Route::post('sliders/status', ['uses' => 'Admin\SliderController@updateStatus', 'as' => 'sliders.status']);
+    Route::resource('sliders', SliderController::class);
+    Route::get('sliders/status/{id}', [SliderController::class, 'status'])->name('sliders.status');
+    Route::post('sliders/save-sequence', [SliderController::class, 'saveSequence'])->name('sliders.saveSequence');
+    Route::post('sliders/status', [SliderController::class, 'updateStatus'])->name('sliders.status');
 
 
     //===== Sponsors Routes =====//
-    Route::resource('sponsors', 'Admin\SponsorController');
-    Route::get('get-sponsors-data', ['uses' => 'Admin\SponsorController@getData', 'as' => 'sponsors.get_data']);
-    Route::post('sponsors_mass_destroy', ['uses' => 'Admin\SponsorController@massDestroy', 'as' => 'sponsors.mass_destroy']);
-    Route::get('sponsors/status/{id}', 'Admin\SponsorController@status')->name('sponsors.status', 'id');
-    Route::post('sponsors/status', ['uses' => 'Admin\SponsorController@updateStatus', 'as' => 'sponsors.status']);
+    Route::resource('sponsors', SponsorController::class);
+    Route::get('get-sponsors-data', [SponsorController::class, 'getData'])->name('sponsors.get_data');
+    Route::post('sponsors_mass_destroy', [SponsorController::class, 'massDestroy'])->name('sponsors.mass_destroy');
+    Route::get('sponsors/status/{id}', [SponsorController::class, 'status'])->name('sponsors.status');
+    Route::post('sponsors/status', [SponsorController::class, 'updateStatus'])->name('sponsors.status');
 
     //===== Testimonials Routes =====//
-    Route::resource('testimonials', 'Admin\TestimonialController');
-    Route::get('get-testimonials-data', ['uses' => 'Admin\TestimonialController@getData', 'as' => 'testimonials.get_data']);
-    Route::post('testimonials_mass_destroy', ['uses' => 'Admin\TestimonialController@massDestroy', 'as' => 'testimonials.mass_destroy']);
-    Route::get('testimonials/status/{id}', 'Admin\TestimonialController@status')->name('testimonials.status', 'id');
-    Route::post('testimonials/status', ['uses' => 'Admin\TestimonialController@updateStatus', 'as' => 'testimonials.status']);
+    Route::resource('testimonials', TestimonialController::class);
+    Route::get('get-testimonials-data', [TestimonialController::class, 'getData'])->name('testimonials.get_data');
+    Route::post('testimonials_mass_destroy', [TestimonialController::class, 'massDestroy'])->name('testimonials.mass_destroy');
+    Route::get('testimonials/status/{id}', [TestimonialController::class, 'status'])->name('testimonials.status');
+    Route::post('testimonials/status', [TestimonialController::class, 'updateStatus'])->name('testimonials.status');
 
 
     //===== FAQs Routes =====//
-    Route::resource('faqs', 'Admin\FaqController');
-    Route::get('affiliate/withdrawl', ['uses' => 'AffiliateController@withdrawl', 'as' => 'withdrawl']);
-    Route::post('affiliate/withdrawl', ['uses' => 'AffiliateController@vwithdrawl', 'as' => 'vwithdrawl']);
-    Route::get('affiliate', ['uses' => 'AffiliateController@index', 'as' => 'affiliate']);
-    Route::post('affiliate', ['uses' => 'AffiliateController@vaffiliate', 'as' => 'vaffiliate']);
-    Route::post('save-affiliate', ['uses' => 'AffiliateController@saveAff', 'as' => 'saveAff']);
-    Route::get('get-faqs-data', ['uses' => 'Admin\FaqController@getData', 'as' => 'faqs.get_data']);
-    Route::post('faqs_mass_destroy', ['uses' => 'Admin\FaqController@massDestroy', 'as' => 'faqs.mass_destroy']);
-    Route::get('faqs/status/{id}', 'Admin\FaqController@status')->name('faqs.status');
-    Route::post('faqs/status', ['uses' => 'Admin\FaqController@updateStatus', 'as' => 'faqs.status']);
+    Route::resource('faqs', FaqController::class);
+    Route::get('affiliate/withdrawl', [AffiliateController::class, 'withdrawl'])->name('withdrawl');
+    Route::post('affiliate/withdrawl', [AffiliateController::class, 'vwithdrawl'])->name('vwithdrawl');
+    Route::get('affiliate', [AffiliateController::class, 'index'])->name('affiliate');
+    Route::post('affiliate', [AffiliateController::class, 'vaffiliate'])->name('vaffiliate');
+    Route::post('save-affiliate', [AffiliateController::class, 'saveAff'])->name('saveAff');
+    Route::get('get-faqs-data', [FaqController::class, 'getData'])->name('faqs.get_data');
+    Route::post('faqs_mass_destroy', [FaqController::class, 'massDestroy'])->name('faqs.mass_destroy');
+    Route::get('faqs/status/{id}', [FaqController::class, 'status'])->name('faqs.status');
+    Route::post('faqs/status', [FaqController::class, 'updateStatus'])->name('faqs.status');
 
 
     //====== Teams Routes =====//
@@ -291,9 +403,7 @@ Route::group(['middleware' => 'role:administrator'], function () {
     Route::get('edit-note/{id}', [NoteController::class, 'edit'])->name('note.edit');
     Route::post('edit-note/{id}', [NoteController::class, 'update'])->name('note.update');
 
-    Route::post('/upload-image', [NoteController::class, 'imageUpload'])->name('admin.uploadImage');
-    Route::post('/upload-image-editorjs', [NoteController::class, 'uploadImageEditorJs'])->name('admin.uploadImageEditorJs');
-    Route::post('/upload-image-ckeditor', [NoteController::class, 'uploadImageCkEditor'])->name('admin.uploadImageCkEditor');
+    Route::post('/upload-image', [NoteController::class, 'imageUpload'])->name('uploadImage');
 
 
     //====== Note Routes =====//   
@@ -305,22 +415,22 @@ Route::group(['middleware' => 'role:administrator'], function () {
     Route::post('edit-category/{id}', [NoteCategoryController::class, 'update'])->name('note.category.update');
 
     //====== Contacts Routes =====//
-    Route::resource('contact-requests', 'ContactController');
-    Route::get('get-contact-requests-data', ['uses' => 'ContactController@getData', 'as' => 'contact_requests.get_data']);
+    Route::resource('contact-requests', ContactController::class);
+    Route::get('get-contact-requests-data', [ContactController::class, 'getData'])->name('contact_requests.get_data');
 
-    Route::get('achievement', ['uses' => 'ContactController@achievement', 'as' => 'achievement.achievement']);
-    Route::post('achievement', ['uses' => 'ContactController@achievementUpdate', 'as' => 'achievement.achievement']);
+    Route::get('achievement', [ContactController::class, 'achievement'])->name('achievement.achievement');
+    Route::post('achievement', [ContactController::class, 'achievementUpdate'])->name('achievement.achievement');
 
     //====== Tax Routes =====//
-    Route::resource('tax', 'TaxController');
-    Route::get('tax/status/{id}', 'TaxController@status')->name('tax.status', 'id');
-    Route::post('tax/status', 'TaxController@updateStatus')->name('tax.status');
+    Route::resource('tax', TaxController::class);
+    Route::get('tax/status/{id}', [TaxController::class, 'status'])->name('tax.status');
+    Route::post('tax/status', [TaxController::class, 'updateStatus'])->name('tax.status');
 
 
     //====== Coupon Routes =====//
-    Route::resource('coupons', 'CouponController');
-    Route::get('coupons/status/{id}', 'CouponController@status')->name('coupons.status', 'id');
-    Route::post('coupons/status', 'CouponController@updateStatus')->name('coupons.status');
+    Route::resource('coupons', CouponController::class);
+    Route::get('coupons/status/{id}', [CouponController::class, 'status'])->name('coupons.status');
+    Route::post('coupons/status', [CouponController::class, 'updateStatus'])->name('coupons.status');
 
 
     //==== Remove Locale FIle ====//
@@ -332,64 +442,35 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
 
     //==== Update Theme Routes ====//
-    Route::get('update-theme', 'UpdateController@index')->name('update-theme');
-    Route::post('update-theme', 'UpdateController@updateTheme')->name('update-files');
-    Route::post('list-files', 'UpdateController@listFiles')->name('list-files');
-    Route::get('backup', 'BackupController@index')->name('backup');
-    Route::get('generate-backup', 'BackupController@generateBackup')->name('generate-backup');
+    Route::get('update-theme', [UpdateController::class, 'index'])->name('update-theme');
+    Route::post('update-theme', [UpdateController::class, 'updateTheme'])->name('update-files');
+    Route::post('list-files', [UpdateController::class, 'listFiles'])->name('list-files');
+    Route::get('backup', [BackupController::class, 'index'])->name('backup');
+    Route::get('generate-backup', [BackupController::class, 'generateBackup'])->name('generate-backup');
 
-    Route::post('backup', 'BackupController@storeBackup')->name('backup.store');
+    Route::post('backup', [BackupController::class, 'storeBackup'])->name('backup.store');
 
 
     //===Trouble shoot ====//
-    Route::get('troubleshoot', 'Admin\ConfigController@troubleshoot')->name('troubleshoot');
+    Route::get('troubleshoot', [ConfigController::class, 'troubleshoot'])->name('troubleshoot');
 
 
     //==== API Clients Routes ====//
     Route::prefix('api-client')->group(function () {
-        Route::get('all', 'Admin\ApiClientController@all')->name('api-client.all');
-        Route::post('generate', 'Admin\ApiClientController@generate')->name('api-client.generate');
-        Route::post('status', 'Admin\ApiClientController@status')->name('api-client.status');
+        Route::get('all', [ApiClientController::class, 'all'])->name('api-client.all');
+        Route::post('generate', [ApiClientController::class, 'generate'])->name('api-client.generate');
+        Route::post('status', [ApiClientController::class, 'status'])->name('api-client.status');
     });
 
 
     //==== Sitemap Routes =====//
-    Route::get('sitemap', 'SitemapController@getIndex')->name('sitemap.index');
-    Route::post('sitemap', 'SitemapController@saveSitemapConfig')->name('sitemap.config');
-    Route::get('sitemap/generate', 'SitemapController@generateSitemap')->name('sitemap.generate');
+    Route::get('sitemap', [SitemapController::class, 'getIndex'])->name('sitemap.index');
+    Route::post('sitemap', [SitemapController::class, 'saveSitemapConfig'])->name('sitemap.config');
+    Route::get('sitemap/generate', [SitemapController::class, 'generateSitemap'])->name('sitemap.generate');
 
 
-    Route::post('translations/locales/add', 'LangController@postAddLocale');
-    Route::post('translations/locales/remove', 'LangController@postRemoveLocaleFolder')->name('delete-locale-folder');
-
-    //===== Marketing Routes =====//
-    Route::get('marketing', ['uses' => 'Admin\MarketingController@index', 'as' => 'marketing.index']);
-    Route::get('marketing/leads', ['uses' => 'Admin\MarketingController@leads', 'as' => 'marketing.leads']);
-    Route::get('marketing/list', ['uses' => 'Admin\MarketingController@list', 'as' => 'marketing.list']);
-    Route::post('marketing/store-lead', ['uses' => 'Admin\MarketingController@storeLead', 'as' => 'marketing.store-lead']);
-    Route::post('marketing/store-campaign', ['uses' => 'Admin\MarketingController@storeCampaign', 'as' => 'marketing.store-campaign']);
-    Route::post('marketing/import-leads', ['uses' => 'Admin\MarketingController@importLeads', 'as' => 'marketing.import-leads']);
-    Route::get('marketing/download-template', ['uses' => 'Admin\MarketingController@downloadTemplate', 'as' => 'marketing.download-template']);
-    Route::post('marketing/assign-list', ['uses' => 'Admin\MarketingController@assignList', 'as' => 'marketing.assign-list']);
-
-    //===== Purchase List Routes =====//
-    Route::get('purchase-list', ['uses' => 'Admin\PurchaseController@index', 'as' => 'purchase.index']);
-
-    //===== Question Reports Routes =====//
-    Route::get('question-reports', ['uses' => 'Admin\QuestionReportController@index', 'as' => 'question-reports.index']);
-
-    //===== Live Tracking Routes =====//
-    Route::get('live-class-tracking', ['uses' => 'Admin\MyclassController@trackLive', 'as' => 'live-class-tracking']);
-    Route::get('live-exam-tracking', ['uses' => 'Admin\MyclassController@trackLiveExam', 'as' => 'live-exam-tracking']);
-
-    //===== Route Aliases for Live Site URLs =====//
-    Route::get('questions-bank', ['uses' => 'Admin\QuestionsController@index', 'as' => 'questions-bank.index']);
-    Route::get('test-series', ['uses' => 'Admin\TestsController@index', 'as' => 'test-series.index']);
-    Route::get('purchase/test-series', ['uses' => 'Admin\PurchaseController@index', 'as' => 'purchase.test-series']);
-    Route::get('question/report', ['uses' => 'Admin\QuestionReportController@index', 'as' => 'question.report']);
-    Route::get('track/batch', ['uses' => 'Admin\MyclassController@trackLive', 'as' => 'track.batch']);
-    Route::get('track/exam', ['uses' => 'Admin\MyclassController@trackLiveExam', 'as' => 'track.exam']);
-    Route::get('demo-batch', ['uses' => 'Admin\BatchController@demoBatch', 'as' => 'demo-batch.index']);
+    Route::post('translations/locales/add', [LangController::class, 'postAddLocale']);
+    Route::post('translations/locales/remove', [LangController::class, 'postRemoveLocaleFolder'])->name('delete-locale-folder');
 });
 
 
@@ -397,171 +478,170 @@ Route::group(['middleware' => 'role:administrator'], function () {
 Route::group(['middleware' => 'role:administrator|teacher'], function () {
 
     //====== Reports Routes =====// 
-    Route::get('report/sales', ['uses' => 'ReportController@getSalesReport', 'as' => 'reports.sales']);
-    Route::get('report/students', ['uses' => 'ReportController@getStudentsReport', 'as' => 'reports.students']);
+    Route::get('report/sales', [ReportController::class, 'getSalesReport'])->name('reports.sales');
+    Route::get('report/students', [ReportController::class, 'getStudentsReport'])->name('reports.students');
 
-    Route::get('get-course-reports-data', ['uses' => 'ReportController@getCourseData', 'as' => 'reports.get_course_data']);
-    Route::get('get-course-reports-data-subs', ['uses' => 'ReportController@getCourseDataSubs', 'as' => 'reports.get_course_data_subs']);
-    Route::get('get-bundle-reports-data', ['uses' => 'ReportController@getBundleData', 'as' => 'reports.get_bundle_data']);
-    Route::get('get-students-reports-data', ['uses' => 'ReportController@getStudentsData', 'as' => 'reports.get_students_data']);
-    Route::get('course-sort-order', ['uses' => 'Admin\CoursesController@sortOrder', 'as' => 'course.sort_order']);
+    Route::get('get-course-reports-data', [ReportController::class, 'getCourseData'])->name('reports.get_course_data');
+    Route::get('get-course-reports-data-subs', [ReportController::class, 'getCourseDataSubs'])->name('reports.get_course_data_subs');
+    Route::get('get-bundle-reports-data', [ReportController::class, 'getBundleData'])->name('reports.get_bundle_data');
+    Route::get('get-students-reports-data', [ReportController::class, 'getStudentsData'])->name('reports.get_students_data');
+    Route::get('course-sort-order', [CoursesController::class, 'sortOrder'])->name('course.sort_order');
 
     //===MyClass Routes===//
 
-    Route::get('availability', ['uses' => 'Admin\MyclassController@availability', 'as' => 'availability']);
-    Route::post('availability', ['uses' => 'Admin\MyclassController@saveAvailability', 'as' => 'availabilitysave']);
-    Route::get('myclass', ['uses' => 'Admin\MyclassController@index', 'as' => 'myclass']);
-    Route::get('calendar', ['uses' => 'Admin\MyclassController@calendar', 'as' => 'myclass.calendar']);
-    Route::post('calendar', ['uses' => 'Admin\MyclassController@markUnavail', 'as' => 'myclass.calendar.un']);
+    Route::get('availability', [MyclassController::class, 'availability'])->name('availability');
+    Route::post('availability', [MyclassController::class, 'saveAvailability'])->name('availabilitysave');
+    Route::get('myclass', [MyclassController::class, 'index'])->name('myclass');
+    
+     Route::post('myclass/suspend', [MyclassController::class, 'suspend'])->name('myclass.suspend');
+     
+     // Mock Test Routes
+     Route::get('myclass/mock-tests/{batch_id}', [MyclassController::class, 'mockTestsPage'])->name('myclass.mockTestsPage');
+     Route::get('myclass/get-mock-tests', [MyclassController::class, 'getMockTests'])->name('myclass.getMockTests');
+     Route::post('myclass/toggle-mock-status', [MyclassController::class, 'toggleMockStatus'])->name('myclass.toggleMockStatus');
+     Route::post('myclass/schedule-mock', [MyclassController::class, 'scheduleMock'])->name('myclass.scheduleMock');
+     Route::get('myclass/mock-test-questions/{mock_id}', [MyclassController::class, 'mockTestQuestions'])->name('myclass.mockTestQuestions');
+     Route::post('myclass/submit-mock/{mock_id}', [MyclassController::class, 'submitMock'])->name('myclass.submitMock');
+     Route::post('myclass/refresh-question', [MyclassController::class, 'refreshQuestion'])->name('myclass.refreshQuestion');
+     Route::post('myclass/report-question', [MyclassController::class, 'reportQuestion'])->name('myclass.reportQuestion');
+     
+     // Mock Results Routes
+     Route::get('myclass/mock-results/{batch_id}', [MyclassController::class, 'mockResults'])->name('myclass.mockResults');
+     Route::get('myclass/{batch_id}/students-list', [MyclassController::class, 'getStudentsList'])->name('myclass.studentsList');
+     Route::get('myclass/{batch_id}/mock-tests-list', [MyclassController::class, 'getMockTestsList'])->name('myclass.mockTestsList');
+     Route::get('myclass/student-mock-result/{student_id}/{mock_id}', [MyclassController::class, 'getStudentMockResult'])->name('myclass.studentMockResult');
+     
+     
+    Route::get('calendar', [MyclassController::class, 'calendar'])->name('myclass.calendar');
+    Route::post('calendar', [MyclassController::class, 'markUnavail'])->name('myclass.calendar.un');
 
-    Route::get('myclass/{id}', ['uses' => 'Admin\MyclassController@details', 'as' => 'myclass.details']);
-    Route::get('course-tracking/{id}', ['uses' => 'Admin\MyclassController@courseTracking'])->name('course-tracking');
-    Route::post('course-tracking/{id}', ['uses' => 'Admin\MyclassController@courseTrackingValidate'])->name('course-tracking');
+    Route::get('myclass/{id}', [MyclassController::class, 'details'])->name('myclass.details');
+    Route::get('course-tracking/{id}', [MyclassController::class, 'courseTracking'])->name('course-tracking');
+    Route::post('course-tracking/{id}', [MyclassController::class, 'courseTrackingValidate'])->name('course-tracking');
 
     // Route::get('myclass/upload/{id}', function(){ dd('pass');});
-    Route::get('myclass/upload/{id}', ['uses' => 'Admin\MyclassController@upload', 'as' => 'myclass.upload']);
-    Route::post('myclass/uploadfile', ['uses' => 'Admin\MyclassController@uploadFile', 'as' => 'myclass.uploadfile']);
-    Route::post('myclass/rmfile', ['uses' => 'Admin\MyclassController@rmFile', 'as' => 'myclass.rmfile']);
-    Route::get('myclass/recordings/{id}', ['uses' => 'Admin\MyclassController@recordings', 'as' => 'myclass.recordings']);
-    Route::post('getFacultyLaunch', ['uses' => 'Admin\MyclassController@getLaunchURL', 'as' => 'myclass.flaunch']);
-    Route::post('getDemoLaunchURL', ['uses' => 'Admin\MyclassController@getDemoLaunchURL', 'as' => 'myclass.demoflaunch']);
-    Route::post('getDemoLaunchURLAdmin', ['uses' => 'Admin\MyclassController@getDemoLaunchURLAdmin', 'as' => 'myclass.demoflaunchAdmin']);
+    Route::get('myclass/upload/{id}', [MyclassController::class, 'upload'])->name('myclass.upload');
+    Route::post('myclass/uploadfile', [MyclassController::class, 'uploadFile'])->name('myclass.uploadfile');
+    Route::post('myclass/rmfile', [MyclassController::class, 'rmFile'])->name('myclass.rmfile');
+    Route::get('myclass/recordings/{id}', [MyclassController::class, 'recordings'])->name('myclass.recordings');
+    
+    Route::get('myclass/class-waiting', [MyclassController::class, 'tutorwaiting'])->name('myclass.tutorwaiting');
+     
+    Route::post('getFacultyLaunch', [MyclassController::class, 'getLaunchURL'])->name('myclass.flaunch');
+    Route::post('getDemoLaunchURL', [MyclassController::class, 'getDemoLaunchURL'])->name('myclass.demoflaunch');
+    Route::post('getDemoLaunchURLAdmin', [MyclassController::class, 'getDemoLaunchURLAdmin'])->name('myclass.demoflaunchAdmin');
 
-    Route::get('myclass/attendance/{id}', ['uses' => 'Admin\MyclassController@Attendance', 'as' => 'myclass.attendance']);
+    Route::get('myclass/attendance/{id}', [MyclassController::class, 'Attendance'])->name('myclass.attendance');
 
-    Route::get('myclass/assignment/{id}', ['uses' => 'Admin\MyclassController@Assignment', 'as' => 'myclass.assignment']);
-    Route::get('myclass/assignment/{id}/uploads', ['uses' => 'Admin\MyclassController@AssignmentUploads', 'as' => 'myclass.assignmentuploads']);
-    Route::post('myclass/assignment/{id}/uploads', ['uses' => 'Admin\MyclassController@AssignmentUploadsRemarks', 'as' => 'myclass.assignmentuploadsremarks']);
-    Route::post('myclass/assignment/{id}', ['uses' => 'Admin\MyclassController@AssignmentCreate', 'as' => 'myclass.assignment']);
-
-
-    Route::get('myclass/exam/{id}', ['uses' => 'Admin\MyclassController@MyExam', 'as' => 'myclass.exam']);
-    Route::get('myclass/exam/{id}/uploads', ['uses' => 'Admin\MyclassController@MyExamUploads', 'as' => 'myclass.examuploads']);
-    Route::post('myclass/exam/{id}/uploads', ['uses' => 'Admin\MyclassController@MyExamUploadsRemarks', 'as' => 'myclass.examuploadsremarks']);
-    Route::post('myclass/exam/{id}', ['uses' => 'Admin\MyclassController@MyExamCreate', 'as' => 'myclass.exam']);
-    Route::get('myclass/exam/{id}/delete', ['uses' => 'Admin\MyclassController@MyExamDelete', 'as' => 'myclass.examdelete']);
+    Route::get('myclass/assignment/{id}', [MyclassController::class, 'Assignment'])->name('myclass.assignment');
+    Route::get('myclass/assignment/{id}/uploads', [MyclassController::class, 'AssignmentUploads'])->name('myclass.assignmentuploads');
+    Route::post('myclass/assignment/{id}/uploads', [MyclassController::class, 'AssignmentUploadsRemarks'])->name('myclass.assignmentuploadsremarks');
+    Route::post('myclass/assignment/{id}', [MyclassController::class, 'AssignmentCreate'])->name('myclass.assignment');
 
 
-    Route::get('myclass/attend/{id}', ['uses' => 'Admin\MyclassController@attend', 'as' => 'myclass.attend']);
-    Route::get('myclass/fees/{id}', ['uses' => 'Admin\MyclassController@batchFees', 'as' => 'myclass.fees']);
-    Route::post('myclass/fees/{id}', ['uses' => 'Admin\MyclassController@batchFeesUpdate', 'as' => 'myclass.updatefees']);
+    Route::get('myclass/exam/{id}', [MyclassController::class, 'MyExam'])->name('myclass.exam');
+     Route::get('myclass/upload-exam/{id}', [MyclassController::class, 'MyExamUpload'])->name('myclass.exam.upload');
+     Route::post('myclass/upload-exam/{id}', [MyclassController::class, 'MyExamUploadGenerate'])->name('myclass.exam.upload.generate');
+    Route::get('myclass/exam/{id}/uploads', [MyclassController::class, 'MyExamUploads'])->name('myclass.examuploads');
+    Route::post('myclass/exam/{id}/uploads', [MyclassController::class, 'MyExamUploadsRemarks'])->name('myclass.examuploadsremarks');
+    Route::post('myclass/exam/{id}', [MyclassController::class, 'MyExamCreate'])->name('myclass.exam');
+    Route::get('myclass/exam/{id}/delete', [MyclassController::class, 'MyExamDelete'])->name('myclass.examdelete');
+
+
+    Route::get('myclass/attend/{id}', [MyclassController::class, 'attend'])->name('myclass.attend');
+    Route::get('myclass/fees/{id}', [MyclassController::class, 'batchFees'])->name('myclass.fees');
+    Route::post('myclass/fees/{id}', [MyclassController::class, 'batchFeesUpdate'])->name('myclass.updatefees');
+    Route::get('track/batch', [MyclassController::class, 'runningStatus'])->name('myclass.runningStatus');
+     Route::get('track/exam', [MyclassController::class, 'runningStatusExam'])->name('myclass.runningStatus.exam');
+   
+    
+    
     //====== Wallet  =====//
-    Route::get('payments', ['uses' => 'PaymentController@index', 'as' => 'payments']);
-    Route::get('get-earning-data', ['uses' => 'PaymentController@getEarningData', 'as' => 'payments.get_earning_data']);
-    Route::get('get-withdrawal-data', ['uses' => 'PaymentController@getwithdrawalData', 'as' => 'payments.get_withdrawal_data']);
-    Route::get('payments/withdraw-request', ['uses' => 'PaymentController@createRequest', 'as' => 'payments.withdraw_request']);
-    Route::post('payments/withdraw-store', ['uses' => 'PaymentController@storeRequest', 'as' => 'payments.withdraw_store']);
-    Route::get('payments-requests', ['uses' => 'PaymentController@paymentRequest', 'as' => 'payments.requests']);
-    Route::get('get-payment-request-data', ['uses' => 'PaymentController@getPaymentRequestData', 'as' => 'payments.get_payment_request_data']);
-    Route::post('payments-request-update', ['uses' => 'PaymentController@paymentsRequestUpdate', 'as' => 'payments.payments_request_update']);
+    Route::get('payments', [PaymentController::class, 'index'])->name('payments');
+    Route::get('get-earning-data', [PaymentController::class, 'getEarningData'])->name('payments.get_earning_data');
+    Route::get('get-withdrawal-data', [PaymentController::class, 'getwithdrawalData'])->name('payments.get_withdrawal_data');
+    Route::get('payments/withdraw-request', [PaymentController::class, 'createRequest'])->name('payments.withdraw_request');
+    Route::post('payments/withdraw-store', [PaymentController::class, 'storeRequest'])->name('payments.withdraw_store');
+    Route::get('payments-requests', [PaymentController::class, 'paymentRequest'])->name('payments.requests');
+    Route::get('get-payment-request-data', [PaymentController::class, 'getPaymentRequestData'])->name('payments.get_payment_request_data');
+    Route::post('payments-request-update', [PaymentController::class, 'paymentsRequestUpdate'])->name('payments.payments_request_update');
 
 
-    Route::get('menu-manager', ['uses' => 'MenuController@index'])->name('menu-manager');
+    Route::get('menu-manager', [MenuController::class, 'index'])->name('menu-manager');
 });
 
 
 //===== Boards Routes =====//
-Route::resource('boards', 'Admin\BoardsController');
-Route::get('delete-boards/{id}', ['uses' => 'Admin\BoardsController@delete'])->name('boards_delete');
+Route::resource('boards', BoardsController::class);
+Route::get('delete-boards/{id}', [BoardsController::class, 'delete'])->name('boards_delete');
 
 
 //===== Categories Routes =====//
-Route::resource('categories', 'Admin\CategoriesController');
-Route::get('get-categories-data', ['uses' => 'Admin\CategoriesController@getData', 'as' => 'categories.get_data']);
-Route::post('categories_mass_destroy', ['uses' => 'Admin\CategoriesController@massDestroy', 'as' => 'categories.mass_destroy']);
-Route::post('categories_restore/{id}', ['uses' => 'Admin\CategoriesController@restore', 'as' => 'categories.restore']);
-Route::delete('categories_perma_del/{id}', ['uses' => 'Admin\CategoriesController@perma_del', 'as' => 'categories.perma_del']);
+Route::resource('categories', CategoriesController::class);
+Route::get('get-categories-data', [CategoriesController::class, 'getData'])->name('categories.get_data');
+Route::post('categories_mass_destroy', [CategoriesController::class, 'massDestroy'])->name('categories.mass_destroy');
+Route::post('categories_restore/{id}', [CategoriesController::class, 'restore'])->name('categories.restore');
+Route::delete('categories_perma_del/{id}', [CategoriesController::class, 'perma_del'])->name('categories.perma_del');
 
 
 //===== Courses Routes =====//
-Route::resource('courses', 'Admin\CoursesController');
-Route::get('get-courses-data', ['uses' => 'Admin\CoursesController@getData', 'as' => 'courses.get_data']);
-Route::post('courses_mass_destroy', ['uses' => 'Admin\CoursesController@massDestroy', 'as' => 'courses.mass_destroy']);
-Route::post('courses_restore/{id}', ['uses' => 'Admin\CoursesController@restore', 'as' => 'courses.restore']);
-Route::delete('courses_perma_del/{id}', ['uses' => 'Admin\CoursesController@perma_del', 'as' => 'courses.perma_del']);
-Route::post('course-save-sequence', ['uses' => 'Admin\CoursesController@saveSequence', 'as' => 'courses.saveSequence']);
-Route::get('course-publish/{id}', ['uses' => 'Admin\CoursesController@publish', 'as' => 'courses.publish']);
+Route::resource('courses', CoursesController::class);
+Route::get('get-courses-data', [CoursesController::class, 'getData'])->name('courses.get_data');
+Route::post('courses_mass_destroy', [CoursesController::class, 'massDestroy'])->name('courses.mass_destroy');
+Route::post('courses_restore/{id}', [CoursesController::class, 'restore'])->name('courses.restore');
+Route::delete('courses_perma_del/{id}', [CoursesController::class, 'perma_del'])->name('courses.perma_del');
+Route::post('course-save-sequence', [CoursesController::class, 'saveSequence'])->name('courses.saveSequence');
+Route::get('course-publish/{id}', [CoursesController::class, 'publish'])->name('courses.publish');
 
 
 //===== Bundles Routes =====//
-Route::resource('bundles', 'Admin\BundlesController');
-Route::get('get-bundles-data', ['uses' => 'Admin\BundlesController@getData', 'as' => 'bundles.get_data']);
-Route::post('bundles_mass_destroy', ['uses' => 'Admin\BundlesController@massDestroy', 'as' => 'bundles.mass_destroy']);
-Route::post('bundles_restore/{id}', ['uses' => 'Admin\BundlesController@restore', 'as' => 'bundles.restore']);
-Route::delete('bundles_perma_del/{id}', ['uses' => 'Admin\BundlesController@perma_del', 'as' => 'bundles.perma_del']);
-Route::post('bundle-save-sequence', ['uses' => 'Admin\BundlesController@saveSequence', 'as' => 'bundles.saveSequence']);
-Route::get('bundle-publish/{id}', ['uses' => 'Admin\BundlesController@publish', 'as' => 'bundles.publish']);
+Route::resource('bundles', BundlesController::class);
+Route::get('get-bundles-data', [BundlesController::class, 'getData'])->name('bundles.get_data');
+Route::post('bundles_mass_destroy', [BundlesController::class, 'massDestroy'])->name('bundles.mass_destroy');
+Route::post('bundles_restore/{id}', [BundlesController::class, 'restore'])->name('bundles.restore');
+Route::delete('bundles_perma_del/{id}', [BundlesController::class, 'perma_del'])->name('bundles.perma_del');
+Route::post('bundle-save-sequence', [BundlesController::class, 'saveSequence'])->name('bundles.saveSequence');
+Route::get('bundle-publish/{id}', [BundlesController::class, 'publish'])->name('bundles.publish');
 
 
 //===== Lessons Routes =====//
-Route::resource('lessons', 'Admin\LessonsController');
-Route::get('get-lessons-data', ['uses' => 'Admin\LessonsController@getData', 'as' => 'lessons.get_data']);
-Route::post('lessons_mass_destroy', ['uses' => 'Admin\LessonsController@massDestroy', 'as' => 'lessons.mass_destroy']);
-Route::post('lessons_restore/{id}', ['uses' => 'Admin\LessonsController@restore', 'as' => 'lessons.restore']);
-Route::delete('lessons_perma_del/{id}', ['uses' => 'Admin\LessonsController@perma_del', 'as' => 'lessons.perma_del']);
+Route::resource('lessons', LessonsController::class);
+Route::get('get-lessons-data', [LessonsController::class, 'getData'])->name('lessons.get_data');
+Route::post('lessons_mass_destroy', [LessonsController::class, 'massDestroy'])->name('lessons.mass_destroy');
+Route::post('lessons_restore/{id}', [LessonsController::class, 'restore'])->name('lessons.restore');
+Route::delete('lessons_perma_del/{id}', [LessonsController::class, 'perma_del'])->name('lessons.perma_del');
 
 
 //===== Questions Routes =====//
-Route::resource('questions', 'Admin\QuestionsController');
-Route::get('get-questions-data', ['uses' => 'Admin\QuestionsController@getData', 'as' => 'questions.get_data']);
-Route::post('questions/bulk-assign-mocktest', ['uses' => 'Admin\QuestionsController@bulkAssignMockTests', 'as' => 'questions.bulk_assign_mocktests']);
-Route::post('questions_mass_destroy', ['uses' => 'Admin\QuestionsController@massDestroy', 'as' => 'questions.mass_destroy']);
-Route::post('questions_restore/{id}', ['uses' => 'Admin\QuestionsController@restore', 'as' => 'questions.restore']);
-Route::delete('questions_perma_del/{id}', ['uses' => 'Admin\QuestionsController@perma_del', 'as' => 'questions.perma_del']);
+Route::resource('questions', QuestionsController::class);
+Route::get('get-questions-data', [QuestionsController::class, 'getData'])->name('questions.get_data');
+Route::post('questions_mass_destroy', [QuestionsController::class, 'massDestroy'])->name('questions.mass_destroy');
+Route::post('questions_restore/{id}', [QuestionsController::class, 'restore'])->name('questions.restore');
+Route::delete('questions_perma_del/{id}', [QuestionsController::class, 'perma_del'])->name('questions.perma_del');
 
 
 //===== Questions Options Routes =====//
-Route::resource('questions_options', 'Admin\QuestionsOptionsController');
-Route::get('get-qo-data', ['uses' => 'Admin\QuestionsOptionsController@getData', 'as' => 'questions_options.get_data']);
-Route::post('questions_options_mass_destroy', ['uses' => 'Admin\QuestionsOptionsController@massDestroy', 'as' => 'questions_options.mass_destroy']);
-Route::post('questions_options_restore/{id}', ['uses' => 'Admin\QuestionsOptionsController@restore', 'as' => 'questions_options.restore']);
-Route::delete('questions_options_perma_del/{id}', ['uses' => 'Admin\QuestionsOptionsController@perma_del', 'as' => 'questions_options.perma_del']);
+Route::resource('questions_options', QuestionsOptionsController::class);
+Route::get('get-qo-data', [QuestionsOptionsController::class, 'getData'])->name('questions_options.get_data');
+Route::post('questions_options_mass_destroy', [QuestionsOptionsController::class, 'massDestroy'])->name('questions_options.mass_destroy');
+Route::post('questions_options_restore/{id}', [QuestionsOptionsController::class, 'restore'])->name('questions_options.restore');
+Route::delete('questions_options_perma_del/{id}', [QuestionsOptionsController::class, 'perma_del'])->name('questions_options.perma_del');
 
 
 //===== Tests Routes =====//
-Route::resource('tests', 'Admin\TestsController');
-Route::post('tests/assign-batch', ['uses' => 'Admin\TestsController@assignBatch', 'as' => 'tests.assign_batch']);
-Route::get('test-result/{id}', ['uses' => 'Admin\TestsController@testResult', 'as' => 'tests.result']);
-Route::get('tests/{id}/export-results-pdf', ['uses' => 'Admin\TestsController@exportResultsPdf', 'as' => 'tests.export_results_pdf']);
-Route::get('test-analysis/{id}/{sid}', ['uses' => 'Admin\TestsController@testAnalysis', 'as' => 'tests.analysis']);
-Route::get('get-tests-data', ['uses' => 'Admin\TestsController@getData', 'as' => 'tests.get_data']);
-// Route::get('get-tests-resultdata', ['uses' => 'Admin\TestsController@getData', 'as' => 'tests.get_result_data']);
-Route::post('tests_mass_destroy', ['uses' => 'Admin\TestsController@massDestroy', 'as' => 'tests.mass_destroy']);
-Route::post('tests_restore/{id}', ['uses' => 'Admin\TestsController@restore', 'as' => 'tests.restore']);
-Route::delete('tests_perma_del/{id}', ['uses' => 'Admin\TestsController@perma_del', 'as' => 'tests.perma_del']);
-
-
-//===== Mock Tests Routes =====//
-Route::group(['prefix' => 'mocktests', 'as' => 'mocktests.', 'middleware' => ['redirect.mocktests.by.role']], function () {
-    Route::get('/', ['uses' => 'Admin\MockTestController@index', 'as' => 'index']);
-    Route::get('create', ['uses' => 'Admin\MockTestController@create', 'as' => 'create']);
-    Route::post('/', ['uses' => 'Admin\MockTestController@store', 'as' => 'store']);
-    Route::get('{id}/edit', ['uses' => 'Admin\MockTestController@edit', 'as' => 'edit']);
-    Route::put('{id}', ['uses' => 'Admin\MockTestController@update', 'as' => 'update']);
-    Route::post('{mockTestId}/questions/{questionId}/detach', ['uses' => 'Admin\MockTestController@detachQuestion', 'as' => 'detach_question']);
-    Route::get('{id}', ['uses' => 'Admin\MockTestController@show', 'as' => 'show']);
-    Route::delete('{id}', ['uses' => 'Admin\MockTestController@destroy', 'as' => 'destroy']);
-    Route::post('assign-batch', ['uses' => 'Admin\MockTestController@assignBatch', 'as' => 'assign_batch']);
-    Route::get('schedules/{id}', ['uses' => 'Admin\MockTestController@viewSchedules', 'as' => 'schedules']);
-    Route::get('schedules/{scheduleId}/reschedule', ['uses' => 'Admin\MockTestController@rescheduleForm', 'as' => 'schedules.reschedule_form']);
-    Route::post('schedules/reschedule', ['uses' => 'Admin\MockTestController@reschedule', 'as' => 'schedules.reschedule']);
-    Route::get('results/{scheduleId}', ['uses' => 'Admin\MockTestController@viewResults', 'as' => 'results']);
-    Route::get('analysis/{scheduleId}/{studentId}', ['uses' => 'Admin\MockTestController@testAnalysis', 'as' => 'analysis']);
-    Route::get('question-reports', ['uses' => 'Admin\MockTestController@questionReports', 'as' => 'question_reports']);
-    Route::post('resolve-report/{id}', ['uses' => 'Admin\MockTestController@resolveReport', 'as' => 'resolve_report']);
-    Route::get('get-data', ['uses' => 'Admin\MockTestController@getData', 'as' => 'get_data']);
-    Route::post('mass_destroy', ['uses' => 'Admin\MockTestController@massDestroy', 'as' => 'mass_destroy']);
-    Route::post('restore/{id}', ['uses' => 'Admin\MockTestController@restore', 'as' => 'restore']);
-    Route::delete('perma_del/{id}', ['uses' => 'Admin\MockTestController@perma_del', 'as' => 'perma_del']);
-});
-
+Route::resource('tests', TestsController::class);
+Route::post('tests/assign-batch', [TestsController::class, 'assignBatch'])->name('tests.assign_batch');
+Route::get('test-result/{id}', [TestsController::class, 'testResult'])->name('tests.result');
+Route::get('test-analysis/{id}/{sid}', [TestsController::class, 'testAnalysis'])->name('tests.analysis');
+Route::get('get-tests-data', [TestsController::class, 'getData'])->name('tests.get_data');
+// Route::get('get-tests-resultdata', [TestsController::class, 'getData'])->name('tests.get_result_data');
+Route::post('tests_mass_destroy', [TestsController::class, 'massDestroy'])->name('tests.mass_destroy');
+Route::post('tests_restore/{id}', [TestsController::class, 'restore'])->name('tests.restore');
+Route::delete('tests_perma_del/{id}', [TestsController::class, 'perma_del'])->name('tests.perma_del');
 
 
 //===== Media Routes =====//
-Route::post('media/remove', ['uses' => 'Admin\MediaController@destroy', 'as' => 'media.destroy']);
-
-//===== Editor image upload (CKEditor / Editor.js) =====//
-Route::post('editor/upload-image', ['uses' => 'Admin\EditorUploadController@handleImageUpload', 'as' => 'editor.upload_image']);
+Route::post('media/remove', [MediaController::class, 'destroy'])->name('media.destroy');
 
 
 //===== User Account Routes =====//
@@ -572,6 +652,8 @@ Route::group(['middleware' => ['auth', 'password_expires']], function () {
     Route::get('password', [AccountController::class, 'changePassword'])->name('change.password');
     Route::post('password', [AccountController::class, 'updatePassword'])->name('update.password');
 
+
+
     Route::patch('account/{email?}', [UserPasswordController::class, 'update'])->name('account.post');
     Route::patch('profile/update', [ProfileController::class, 'update'])->name('profile.update');
 });
@@ -579,74 +661,74 @@ Route::group(['middleware' => ['auth', 'password_expires']], function () {
 
 Route::group(['middleware' => 'role:teacher'], function () {
     //====== Review Routes =====//
-    Route::get('/training', ['uses' => 'Admin\TeachersController@teacherTraining', 'as' => 'teacherTraining']);
-    Route::get('notifications-info', ['uses' => 'NotificationController@teacher', 'as' => 'teacher_notifications']);
+    Route::get('/training', [TeachersController::class, 'teacherTraining'])->name('teacherTraining');
+    Route::get('notifications-info', [NotificationController::class, 'teacher'])->name('teacher_notifications');
 
-    Route::resource('reviews', 'ReviewController');
-    Route::get('get-reviews-data', ['uses' => 'ReviewController@getData', 'as' => 'reviews.get_data']);
+    Route::resource('reviews', ReviewController::class);
+    Route::get('get-reviews-data', [ReviewController::class, 'getData'])->name('reviews.get_data');
 });
 
 
 Route::group(['middleware' => 'role:student'], function () {
 
     //==== Certificates ====//
-    Route::get('certificates', 'CertificateController@getCertificates')->name('certificates.index');
-    Route::post('certificates/generate', 'CertificateController@generateCertificate')->name('certificates.generate');
-    Route::get('certificates/download', ['uses' => 'CertificateController@download', 'as' => 'certificates.download']);
+    Route::get('certificates', [CertificateController::class, 'getCertificates'])->name('certificates.index');
+    Route::post('certificates/generate', [CertificateController::class, 'generateCertificate'])->name('certificates.generate');
+    Route::get('certificates/download', [CertificateController::class, 'download'])->name('certificates.download');
 });
 
 
 //==== Messages Routes =====//
-Route::get('messages', ['uses' => 'MessagesController@index', 'as' => 'messages']);
-Route::post('messages/unread', ['uses' => 'MessagesController@getUnreadMessages', 'as' => 'messages.unread']);
-Route::post('messages/send', ['uses' => 'MessagesController@send', 'as' => 'messages.send']);
-Route::post('messages/reply', ['uses' => 'MessagesController@reply', 'as' => 'messages.reply']);
+Route::get('messages', [MessagesController::class, 'index'])->name('messages');
+Route::post('messages/unread', [MessagesController::class, 'getUnreadMessages'])->name('messages.unread');
+Route::post('messages/send', [MessagesController::class, 'send'])->name('messages.send');
+Route::post('messages/reply', [MessagesController::class, 'reply'])->name('messages.reply');
 
 
 //=== Invoice Routes =====//
-Route::get('invoice/download', ['uses' => 'Admin\InvoiceController@getInvoice', 'as' => 'invoice.download']);
-Route::get('invoices', ['uses' => 'Admin\InvoiceController@getIndex', 'as' => 'invoices.index']);
+Route::get('invoice/download', [InvoiceController::class, 'getInvoice'])->name('invoice.download');
+Route::get('invoices', [InvoiceController::class, 'getIndex'])->name('invoices.index');
 
-Route::get('student-view-invoice/{oid}/{type}', ['uses' => 'Admin\InvoiceController@viewInvoicestudent']);
-Route::get('student-view-invoice/{oid}/{type}/{sid}', ['uses' => 'Admin\InvoiceController@viewSubsInvoicestudent']);
+Route::get('student-view-invoice/{oid}/{type}', [InvoiceController::class, 'viewInvoicestudent']);
+Route::get('student-view-invoice/{oid}/{type}/{sid}', [InvoiceController::class, 'viewSubsInvoicestudent']);
 
 
 //======= Blog Routes =====//
 Route::group(['prefix' => 'blog'], function () {
-    Route::get('/create', 'Admin\BlogController@create');
-    Route::post('/create', 'Admin\BlogController@store');
-    Route::get('delete/{id}', 'Admin\BlogController@destroy')->name('blogs.delete');
-    Route::get('edit/{id}', 'Admin\BlogController@edit')->name('blogs.edit');
-    Route::post('edit/{id}', 'Admin\BlogController@update');
-    Route::get('view/{id}', 'Admin\BlogController@show');
-    //        Route::get('{blog}/restore', 'BlogController@restore')->name('blog.restore');
-    Route::post('{id}/storecomment', 'Admin\BlogController@storeComment')->name('storeComment');
+    Route::get('/create', [BlogController::class, 'create']);
+    Route::post('/create', [BlogController::class, 'store']);
+    Route::get('delete/{id}', [BlogController::class, 'destroy'])->name('blogs.delete');
+    Route::get('edit/{id}', [BlogController::class, 'edit'])->name('blogs.edit');
+    Route::post('edit/{id}', [BlogController::class, 'update']);
+    Route::get('view/{id}', [BlogController::class, 'show']);
+    //        Route::get('{blog}/restore', [BlogController::class, 'restore'])->name('blog.restore');
+    Route::post('{id}/storecomment', [BlogController::class, 'storeComment'])->name('storeComment');
 });
-Route::resource('blogs', 'Admin\BlogController');
-Route::get('get-blogs-data', ['uses' => 'Admin\BlogController@getData', 'as' => 'blogs.get_data']);
-Route::post('blogs_mass_destroy', ['uses' => 'Admin\BlogController@massDestroy', 'as' => 'blogs.mass_destroy']);
-Route::get('blog-categories', ['uses' => 'Admin\BlogController@cat', 'as' => 'blogs-cat.index']);
-Route::get('add-blog-category', ['uses' => 'Admin\BlogController@addCat', 'as' => 'blogs-cat.add']);
-Route::post('add-blog-category', ['uses' => 'Admin\BlogController@saveCat', 'as' => 'blogs-cat.add']);
+Route::resource('blogs', BlogController::class);
+Route::get('get-blogs-data', [BlogController::class, 'getData'])->name('blogs.get_data');
+Route::post('blogs_mass_destroy', [BlogController::class, 'massDestroy'])->name('blogs.mass_destroy');
+Route::get('blog-categories', [BlogController::class, 'cat'])->name('blogs-cat.index');
+Route::get('add-blog-category', [BlogController::class, 'addCat'])->name('blogs-cat.add');
+Route::post('add-blog-category', [BlogController::class, 'saveCat'])->name('blogs-cat.add');
 
-Route::get('edit-blog-category/{id}', ['uses' => 'Admin\BlogController@editCat', 'as' => 'blogs-cat.edit']);
-Route::post('edit-blog-category/{id}', ['uses' => 'Admin\BlogController@updateCat', 'as' => 'blogs-cat.update']);
+Route::get('edit-blog-category/{id}', [BlogController::class, 'editCat'])->name('blogs-cat.edit');
+Route::post('edit-blog-category/{id}', [BlogController::class, 'updateCat'])->name('blogs-cat.update');
 
 //======= Pages Routes =====//
-Route::resource('pages', 'Admin\PageController');
-Route::get('get-pages-data', ['uses' => 'Admin\PageController@getData', 'as' => 'pages.get_data']);
-Route::post('pages_mass_destroy', ['uses' => 'Admin\PageController@massDestroy', 'as' => 'pages.mass_destroy']);
-Route::post('pages_restore/{id}', ['uses' => 'Admin\PageController@restore', 'as' => 'pages.restore']);
-Route::delete('pages_perma_del/{id}', ['uses' => 'Admin\PageController@perma_del', 'as' => 'pages.perma_del']);
+Route::resource('pages', PageController::class);
+Route::get('get-pages-data', [PageController::class, 'getData'])->name('pages.get_data');
+Route::post('pages_mass_destroy', [PageController::class, 'massDestroy'])->name('pages.mass_destroy');
+Route::post('pages_restore/{id}', [PageController::class, 'restore'])->name('pages.restore');
+Route::delete('pages_perma_del/{id}', [PageController::class, 'perma_del'])->name('pages.perma_del');
 
 
 //==== Reasons Routes ====//
-Route::resource('reasons', 'Admin\ReasonController');
-Route::get('get-reasons-data', ['uses' => 'Admin\ReasonController@getData', 'as' => 'reasons.get_data']);
-Route::post('reasons_mass_destroy', ['uses' => 'Admin\ReasonController@massDestroy', 'as' => 'reasons.mass_destroy']);
-Route::get('reasons/status/{id}', 'Admin\ReasonController@status')->name('reasons.status');
-Route::post('reasons/status', ['uses' => 'Admin\ReasonController@updateStatus', 'as' => 'reasons.status']);
+Route::resource('reasons', ReasonController::class);
+Route::get('get-reasons-data', [ReasonController::class, 'getData'])->name('reasons.get_data');
+Route::post('reasons_mass_destroy', [ReasonController::class, 'massDestroy'])->name('reasons.mass_destroy');
+Route::get('reasons/status/{id}', [ReasonController::class, 'status'])->name('reasons.status');
+Route::post('reasons/status', [ReasonController::class, 'updateStatus'])->name('reasons.status');
 
 //==== Home page video Routes ====//
-Route::get('video-link', ['uses' => 'Admin\VideoLinkController@homeVideo'])->name('homeVideo');
-Route::post('update-link', ['uses' => 'Admin\VideoLinkController@updateLink'])->name('updateLink');
+Route::get('video-link', [VideoLinkController::class, 'homeVideo'])->name('homeVideo');
+Route::post('update-link', [VideoLinkController::class, 'updateLink'])->name('updateLink');

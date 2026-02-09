@@ -1,50 +1,113 @@
+<?php
+use App\Models\Recording;
+use App\Models\Elearn;
+use App\Models\Auth\User;
+?>
 @inject('request', 'Illuminate\Http\Request')
 @extends('backend.layouts.app')
 @section('title','Class Details'.' | '.app_name())
 
 @section('content')
 <style>
-.loader {
-     border: 7px solid #f3f3f3;
+  .loader {
+    border: 7px solid #f3f3f3;
     border-radius: 50%;
     border-top: 7px solid #3498db;
     width: 21px;
     height: 20px;
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
-}
+  }
 
-/* Safari */
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
+  /* Safari */
+  @-webkit-keyframes spin {
+    0% {
+      -webkit-transform: rotate(0deg);
+    }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style>  
+    100% {
+      -webkit-transform: rotate(360deg);
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+<?php 
+ $canJoin = false;
+ $api_id='';
+ $url='';
+ $meetid=Recording::where("parent",$batch->parent_api_class_id)->where("created_at",">=",date("Y-m-d 00:00:00"))->orderBy("id","desc")->first();
  
-    <div class="card">
-        <div class="card-header">
-            <h3 class="page-title float-left mb-0">{{$batch->name}}</h3>
-          <button class="btn btn-primary" style="float:right;" data-toggle="modal" data-target="#lessionModal">Start Class</button>
+           if($meetid){
+                $canJoin = true;
+ $api_id=$meetid->api_class_id;
 
-        </div>
-        <div class="card-body">
-
-          <p>Course: <strong>{{$course->title}}</strong></p>
-          <p>
-            Batch Duration: <strong>{{$batch->start_date}}</strong> - <strong>{{$batch->end_date}}</strong>
+            }
             
-          </p>
-          <p>Class time: <strong><?=date("h:iA",strtotime(date("Y-m-d ").$batch->start_time))?></strong> - <strong>
-          <?=date("h:iA",strtotime(date("Y-m-d ").$batch->end_time))?></strong></p>
+            if($canJoin){
+                
+                $user=User::find(auth()->user()->id); 
 
-          <p>
-            Weekdays: <strong>
-            <?php
+    $lin=array(
+            "meetingID"=>$api_id,
+            "password"=>"mp",
+            "fullName"=>$user->first_name." ".$user->last_name,
+            "redirect"=>'true',
+        );
+    $e=new Elearn;
+$launch=$e->getLaunch($lin);
+$url = $launch["url"];
+
+
+  
+    $el = new Elearn();
+    
+    
+    $meeting =$el->eClass("getMeetingInfo",["meetingID"=>$api_id]);
+    if($meeting['returncode']=='FAILED'){
+       $canJoin=false; 
+    }
+            }
+ ?>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="page-title float-left mb-0">{{$batch->name}}</h3>
+    @if($canJoin)
+    <a href="{{$url}}" target="_blank" class="btn btn-primary" style="float:right;">Start Class</a>
+    @else
+    <button class="btn btn-primary" style="float:right;" data-toggle="modal" data-target="#lessionModal">Start
+      Class</button>
+
+    @endif
+
+
+  </div>
+  <div class="card-body">
+
+    <p>Course: <strong>{{$course->title}}</strong></p>
+    <p>
+      Batch Duration: <strong>{{$batch->start_date}}</strong> - <strong>{{$batch->end_date}}</strong>
+
+    </p>
+    <p>Class time: <strong>
+        <?=date("h:iA",strtotime(date("Y-m-d ").$batch->start_time))?>
+      </strong> - <strong>
+        <?=date("h:iA",strtotime(date("Y-m-d ").$batch->end_time))?>
+      </strong></p>
+
+    <p>
+      Weekdays: <strong>
+        <?php
             $days=array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
 
             $ind=json_decode($batch->occur,true);
@@ -55,54 +118,50 @@
 
 
             ?>
-          </strong>    
+      </strong>
 
-          </p> 
-          <a class="btn btn-success" style="margin-bottom:10px;" href="<?php echo route('admin.myclass.recordings', ['id' => $batch->id]); ?>">Recordings</a>
-          <a href="{{route('feedback',['id'=>$batch->id])}}" style="margin-bottom:10px;" class="btn btn-outline-info">Feedback</a>
-          <br>
-            <div class="table-responsive">
-               <table id="myTable" class="table table-bordered table-striped dt-select ">
-                    <thead>
-                    <tr>
+    </p>
+    <a class="btn btn-success" style="margin-bottom:10px;"
+      href="<?php echo route('admin.myclass.recordings', ['id' => $batch->id]); ?>">Recordings</a>
+    <a href="{{route('feedback',['id'=>$batch->id])}}" style="margin-bottom:10px;"
+      class="btn btn-outline-info">Feedback</a>
+    <br>
+    <div class="table-responsive">
+      <table id="myTable" class="table table-bordered table-striped dt-select ">
+        <thead>
+          <tr>
 
-                  
+            <th>@lang('labels.general.sr_no')</th>
 
-                        <th>@lang('labels.general.sr_no')</th>
+            <th>Name</th>
 
-                        <th>Name</th>
-                  
-                       
-                      
-                           
-                       
-                    </tr>
-                    </thead>
+          </tr>
+        </thead>
 
-                   <tbody>
-                       <?php $count=0; ?>
-                          @foreach($students as $l)
-                       
-                       <?php $count++; ?>
-   <tr data-entry-id="1" role="row" class="odd">
-     
-      
-      <td><?=$count?></td>
-      <td>{{$l->first_name}} {{$l->last_name}}</td>   
+        <tbody>
+          <?php $count=0; ?>
+          @foreach($students as $l)
 
-    
-      
-   </tr>
-   @endforeach
-</tbody>
-                </table>
-        
-              
-            </div>
-        </div>
+          <?php $count++; ?>
+          <tr data-entry-id="1" role="row" class="odd">
+
+
+            <td>
+              <?=$count?>
+            </td>
+            <td>{{$l->first_name}} {{$l->last_name}}</td>
+
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
+
+
     </div>
+  </div>
+</div>
 
-    <div class="modal fade" id="lessionModal" role="dialog" aria-labelledby="lessionTitle" aria-hidden="true">
+<div class="modal fade" id="lessionModal" role="dialog" aria-labelledby="lessionTitle" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -112,9 +171,9 @@
         </button>
       </div>
       <div class="modal-body">
-        
+
         <label>Select Lesson</label>
-        <select class="form-select form-control lname select2"  name="lname">
+        <select class="form-select form-control lname select2" name="lname">
           <option>Select</option>
           @foreach($lessons as $l)
           <option value="{{$l->id}}">{{$l->title}}</option>
@@ -133,9 +192,10 @@
 @stop
 
 @push('after-scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/x2js/1.2.0/xml2json.min.js" integrity="sha256-RbFvov4fXA9DW/RzOAcIC0ZHIDmghGdsoug5slJHMMI=" crossorigin="anonymous"></script>
-    <script>
-      $(".start-with-lession").on("click",function(){
+<script src="https://cdnjs.cloudflare.com/ajax/libs/x2js/1.2.0/xml2json.min.js"
+  integrity="sha256-RbFvov4fXA9DW/RzOAcIC0ZHIDmghGdsoug5slJHMMI=" crossorigin="anonymous"></script>
+<script>
+  $(".start-with-lession").on("click",function(){
         $(this).attr("disabled",true);
         $(this).html('<div class="loader"></div>');
 var lname=$(".lname").val();
@@ -169,6 +229,6 @@ $.ajax({
       });
 $('#myTable').DataTable();
 
-    </script>
+</script>
 
 @endpush

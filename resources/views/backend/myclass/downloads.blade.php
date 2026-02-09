@@ -45,7 +45,10 @@
                         </td>
                          <td>{{$st->file_name}}</td>
                          <td><?php echo date("Y-m-d",strtotime($st['created_at']));?></td>
-                         <td><a href="/{{$st->file_url}}" download="" class="btn btn-primary"><i class="bi bi-cloud-arrow-down"></i></a></td>
+                         <td>
+                          <a href="/{{$st->file_url}}" download="" class="btn btn-primary"><i class="bi bi-cloud-arrow-down"></i></a>
+                          <a href="/{{$st->file_url}}" target="_blank" class="btn btn-warning"><i class="bi bi-eye"></i></a>
+                        </td>
                          
                        </tr>
 
@@ -66,5 +69,9 @@
   </section>
   <!-- End Section -->
 </main>
-
+<script>
+setInterval(function(){
+window.location.reload();
+},20000);
+</script>
 @stop

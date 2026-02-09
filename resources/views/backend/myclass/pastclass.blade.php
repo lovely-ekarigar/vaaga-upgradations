@@ -16,17 +16,18 @@
                       <thead>
                         <tr>
                          
-                          <th>Lesson</th>
+                       <th>SN</th>
                           <th>Date</th>
                           <th>Action</th>
                         </tr>
                       </thead>
    <tbody>
             @foreach($list as $rec)
-
+@if(date("Y",strtotime($rec->recording_date))!='1970')
 <tr>
-    <td></td>
-    <td>{{date("d M Y",strtotime($rec->updated_at))}}</td>
+    <td>{{$loop->index+1}}</td>
+  
+    <td>{{date("d M Y",strtotime($rec->recording_date))}}</td>
     <td>
           <a href="https://asia-eu-2.meeting-recordings.com/playback/presentation/2.3/{{$rec->internal_id}}" target="_blank" class="btn btn-info btn-primary btn-sm">
      Watch Recording 
@@ -35,6 +36,7 @@
     </td>
            
         </tr>
+        @endif
             @endforeach
          </tbody>
          </table>

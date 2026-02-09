@@ -11,19 +11,26 @@ use App\Http\Controllers\Frontend\Auth\ResetPasswordController;
 use App\Http\Controllers\Backend\Admin\TeamController;
 use App\Http\Controllers\Backend\Admin\NoteController;
 use App\Http\Controllers\Backend\Admin\NoteCategoryController;
+use App\Http\Controllers\Backend\Admin\MyclassController;
+use App\Http\Controllers\Backend\Admin\MarketingController;
 use App\Http\Controllers\Frontend\EnquiryController;
+use App\Http\Controllers\Frontend\TestSeriesController;
+use App\Http\Controllers\WhiteboardController;
+use App\Http\Controllers\Backend\Admin\CoursesController as AdminCoursesController;
+use App\Http\Controllers\Backend\Admin\DemoController;
+use App\Http\Controllers\Frontend\AssesmentController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Backend\MessagesController;
-use App\Http\Controllers\Backend\Admin\CoursesController as AdminCoursesController;
-use App\Http\Controllers\Backend\Admin\MyclassController;
-use App\Http\Controllers\Backend\NotificationController;
+use App\Http\Controllers\Frontend\MockSeriesController;
 use App\Http\Controllers\Backend\CertificateController;
-use App\Http\Controllers\BlogController;
-use App\Http\Controllers\BundlesController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\Backend\MenuController;
+use App\Http\Controllers\BundlesController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\Backend\CertificateController as FrontendCertificateController;
 use App\Http\Controllers\Frontend\ContactController;
-use App\Http\Controllers\Frontend\AssesmentController;
+use App\Http\Controllers\Backend\MenuController;
+use App\Http\Controllers\Backend\NotificationController;
+
 /* 
  * Global Routes    
  * Routes that are used between both frontend and backend. 
@@ -31,6 +38,22 @@ use App\Http\Controllers\Frontend\AssesmentController;
 
 // Route::get('/check-otp', [HomeController::class, 'checkOtp'])->name('home.checkOtp');
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
+
+Route::get('/class-length', [MyclassController::class, 'getLengthOfClass'])->name('home.index');
+
+
+
+
+Route::get('test-series-purchase-cron', [TestSeriesController::class, 'purchaseCron']); 
+
+
+Route::post('/ajax-login', [TestSeriesController::class, 'ajaxLogin'])->name('frontend.login.ajax');
+Route::post('/ajax-register', [TestSeriesController::class, 'ajaxRegister'])->name('frontend.register.ajax');
+Route::get('/buy-test/{id}', [TestSeriesController::class, 'buyTest'])->name('frontend.buyTest');
+
+Route::get('/whiteboard/create', [WhiteboardController::class, 'createRoomAndToken']);
+Route::get('/whiteboard/view', [WhiteboardController::class, 'viewWhiteboard'])->name('whiteboard.view');
+
 Route::get('/run-attendance', [HomeController::class, 'cronAttendance'])->name('home.index');
 Route::get('/run-attendance-rec', [HomeController::class, 'cronAttendanceRec'])->name('home.index');
 Route::get('/run-subs-dues', [HomeController::class, 'cronSubscriptionDue'])->name('home.index');
@@ -59,13 +82,15 @@ Route::get('/affiliate/bank', [AffiliateController::class, 'bank'])->name('aff.b
 Route::post('/affiliate/bank', [AffiliateController::class, 'vbank'])->name('aff.vbank');
 Route::get('/affiliate/edit-profile', [AffiliateController::class, 'edit'])->name('aff.edit-profile');
 Route::post('/affiliate/edit-profile', [AffiliateController::class, 'vedit'])->name('aff.vedit-profile');
-
+ 
 
 Route::get('/usertraining', [HomeController::class, 'userTraining'])->name('frontend.userTraining');
 
 Route::get('/our-classes', [HomeController::class, 'ourClasses'])->name('frontend.our_classes');
 Route::get('/userlogin', [HomeController::class, 'login'])->name('frontend.auth.login');
 Route::post('/userlogin', [HomeController::class, 'dologin']);
+Route::post('/auth/google', [HomeController::class, 'google']);
+
 Route::get('/userregister', [HomeController::class, 'register'])->name('home.register');
 Route::post('/userregister', [HomeController::class, 'doregister']);
 Route::get('/become-tutor', [HomeController::class, 'becometeacherRegister']);
@@ -86,6 +111,10 @@ Route::get('note/category/{slug}',[NoteController::class, 'notes'])->name('front
 
 
 
+Route::get('/demo/{id}', [DemoController::class, 'join'])->name('demo.join');
+
+
+Route::get('/demo-check/{id}', [DemoController::class, 'joinCheck'])->name('demo.join.check');
 
 
 Route::get('/about', [HomeController::class, 'about'])->name('about');
@@ -94,6 +123,8 @@ Route::get('support-and-helpdesk', [HomeController::class, 'supportHelpdesk'])->
 // Start Course Sub Category
 
  Route::get('category/{slug}', [HomeController::class, 'category'])->name('category');
+ 
+ Route::get('test-series/{slug}', [TestSeriesController::class, 'category'])->name('testSeries.category');
  Route::get('academic/{slug}/{cat}', [HomeController::class, 'academicFind'])->name('academic');
  Route::get('academic-course/{board}/{slug}', [HomeController::class, 'academicCourse'])->name('academic-course');
 
@@ -147,7 +178,7 @@ Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
  * Backend Routes
  * Namespaces indicate folder structure
  */
-Route::group(['namespace' => 'App\Http\Controllers\Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => 'auth'], function () {
+Route::group(['prefix' => 'user', 'as' => 'admin.', 'middleware' => 'auth'], function () {
     /*
      * These routes need view-backend permission
      * (good if you want to allow more than one group in the backend,
@@ -159,17 +190,153 @@ Route::group(['namespace' => 'App\Http\Controllers\Backend', 'prefix' => 'user',
     include_route_files(__DIR__ . '/backend/');
 });
 
-Route::group(['namespace' => 'App\Http\Controllers\Backend', 'prefix' => 'user', 'as' => 'admin.', 'middleware' => 'auth'], function () {
+Route::group(['prefix' => 'user', 'as' => 'admin.', 'middleware' => 'auth'], function () {
 
 //==== Messages Routes =====//
     Route::get('messages', [MessagesController::class, 'index'])->name('messages');
     Route::post('messages/unread', [MessagesController::class, 'getUnreadMessages'])->name('messages.unread');
     Route::post('messages/send', [MessagesController::class, 'send'])->name('messages.send');
     Route::post('messages/reply', [MessagesController::class, 'reply'])->name('messages.reply');
+    
+    
+  
+
+});
+Route::group([ 'prefix' => 'user', 'as' => 'admin.', 'middleware' => 'auth'], function () {
+    
+    
+   // Marketing Routes
+Route::get('marketing', [MarketingController::class, 'index'])->name('marketing.index');
+
+Route::get('marketing/list', [MarketingController::class, 'list'])->name('marketing.list');
+
+
+Route::post('marketing/assign-list', [MarketingController::class, 'assignList'])->name('marketing.assign-list');
+
+
+Route::post('leads', [MarketingController::class, 'storeLead'])->name('marketing.store-lead');
+
+Route::post('campaigns', [MarketingController::class, 'storeCampaign'])->name('marketing.store-campaign');
+
+Route::post('import-leads', [MarketingController::class, 'importLeads'])->name('marketing.import-leads');
+
+Route::get('download-template', [MarketingController::class, 'downloadTemplate'])->name('marketing.download-template');
+
+// Lead Management Routes
+Route::get('leads', [MarketingController::class, 'leads'])->name('marketing.leads');
+
+Route::get('leads/{lead}/edit', [MarketingController::class, 'editLead'])->name('marketing.leads.edit');
+
+Route::put('leads/{lead}', [MarketingController::class, 'updateLead'])->name('marketing.leads.update');
+
+Route::delete('leads/{lead}', [MarketingController::class, 'destroyLead'])->name('marketing.leads.destroy');
+
+    
+    
+    
+  Route::get('test-series', [TestSeriesController::class, 'index'])->name('testseries.index'); 
+
+
+  Route::get('purchase/test-series', [TestSeriesController::class, 'purchaseList'])->name('testseries.purchaseList'); 
+
+
+ 
+
+  Route::get('question/report', [TestSeriesController::class, 'questionReport'])->name('testseries.questionReport'); 
+
+
+ Route::get('test-series/subjects/{id}', [TestSeriesController::class, 'subjects'])->name('testseries.subjects'); 
+
+ Route::get('test-series/chapters/{id}', [TestSeriesController::class, 'chapters'])->name('testseries.chapters'); 
+
+
+ Route::post('test-series/chapters/{id}', [TestSeriesController::class, 'chapterSave'])->name('testseries.chapters.save');
+
+ Route::post('test-series/subjects/{id}/save', [TestSeriesController::class, 'storeSubject'])->name('subjects.store'); 
+
+ Route::put('test-series/subjects/update/{id}', [TestSeriesController::class, 'updateSubject'])->name('subjects.update'); 
+
+
+ Route::delete('test-series/subjects/{id}/delete', [TestSeriesController::class, 'destroySubject'])->name('subjects.destroy'); 
+
+
+ Route::get('test-series', [TestSeriesController::class, 'index'])->name('testseries.index'); 
+
+ Route::post('test-series', [TestSeriesController::class, 'store'])->name('test-series.store'); 
+ Route::get('test-series/{id}/edit', [TestSeriesController::class, 'edit'])->name('testseries.edit'); 
+ Route::put('test-series/{id}', [TestSeriesController::class, 'update'])->name('test-series.update'); 
+Route::delete('test-series/{id}', [TestSeriesController::class, 'destroy'])->name('test-series.destroy'); 
+
+
+ Route::get('test-series/{id}/test-list', [TestSeriesController::class, 'testList'])->name('testseries.testlist'); 
+
+ Route::get('test-series/{id}/add-test', [TestSeriesController::class, 'addTest'])->name('testseries.add-test');
+   
+   
+   Route::delete('test-series/{id}/delete-test', [TestSeriesController::class, 'deleteTest'])->name('testseries.delete-test');
+
+
+    Route::get('test-series/{id}/edit-test', [TestSeriesController::class, 'editTest'])->name('testseries.edit-test');
+   
+      Route::put('test-series/{id}/edit-test', [TestSeriesController::class, 'updateTest'])->name('testseries.update-test');
+   
+   
+   
+   
+    Route::post('test-series/{id}/add-test', [TestSeriesController::class, 'saveTest'])->name('testseries.add-test');
+
+
+
 });
 
 
+// Mock Series Routes
+Route::group(['middleware' => ['auth', 'permission:lesson_create'], 'prefix' => 'user'], function () {
+    
+    Route::get('mock', [MockSeriesController::class, 'index'])->name('mockseries.index'); 
+    
+    Route::post('mock-series', [MockSeriesController::class, 'store'])->name('mock-series.store'); 
+    
+    Route::get('mock-series/{id}/edit', [MockSeriesController::class, 'edit'])->name('mockseries.edit'); 
+    
+    Route::put('mock-series/{id}', [MockSeriesController::class, 'update'])->name('mock-series.update'); 
+    
+    Route::delete('mock-series/{id}', [MockSeriesController::class, 'destroy'])->name('mock-series.destroy'); 
+    
+    Route::get('mock-series/{id}/test-list', [MockSeriesController::class, 'testList'])->name('mockseries.testlist'); 
+    
+    Route::get('mock-series/{id}/add-test', [MockSeriesController::class, 'addTest'])->name('mockseries.add-test-form');
+    
+    Route::post('mock-series/{id}/add-test', [MockSeriesController::class, 'saveTest'])->name('mockseries.save-test');
+    
+    Route::get('mock-series/{id}/subjects', [MockSeriesController::class, 'subjects'])->name('mockseries.subjects');
+    
+    Route::post('mock-series/{id}/subjects/store', [MockSeriesController::class, 'storeSubject'])->name('mockseries.subjects.store');
+    
+    Route::put('mock-series/subjects/update/{id}', [MockSeriesController::class, 'updateSubject'])->name('mockseries.subjects.update');
+    
+    Route::delete('mock-series/subjects/{id}', [MockSeriesController::class, 'destroySubject'])->name('mockseries.subjects.destroy');
+    
+    Route::get('mock-series/subjects/{id}/chapters', [MockSeriesController::class, 'chapters'])->name('mockseries.chapters');
+    
+    Route::post('mock-series/subjects/{id}/chapters/store', [MockSeriesController::class, 'storeChapters'])->name('mockseries.chapters.store');
+    
+    Route::delete('mock-series/{id}/delete-test', [MockSeriesController::class, 'deleteTest'])->name('mockseries.delete-test');
+    
+    Route::get('mock-series/{id}/edit-test', [MockSeriesController::class, 'editTest'])->name('mockseries.edit-test');
+    
+    Route::put('mock-series/{id}/edit-test', [MockSeriesController::class, 'updateTest'])->name('mockseries.update-test');
+
+});
+
+
+Route::post('pay-confirm-test/{id}', [TestSeriesController::class, 'payConfirm'])->name('test.payConfirm');
+Route::get('/purchase/success', [TestSeriesController::class, 'paySuccess'])->name('test.paySuccess'); 
 Route::group([ 'middleware' => 'auth'], function () {
+    
+    Route::post('user/report-question', [TestSeriesController::class, 'reportQuestion'])->name('question.report'); 
+
+
     Route::get('user/feedback/{id}', [HomeController::class, 'feedback'])->name('feedback');
     Route::get('user/demo-feedback/{id}', [HomeController::class, 'demoFeedback'])->name('demo-feedback');
     Route::post('user/demo-feedback/{id}', [HomeController::class, 'demofeedbackCreate'])->name('demo-feedback-create');
@@ -196,12 +363,22 @@ Route::get('/runclass', [LessonsController::class, 'runClass']);
 Route::post('completeOrder', [CoursesController::class, 'completeOrder'])->name('courses.completeOrder');
 
 Route::get('user/classes/{slug}', [MyclassController::class, 'studentClasses'])->name('classes.show'); 
-
+Route::get('user/waiting-area/{id}', [MyclassController::class, 'waitingArea'])->name('classes.waitingArea');
+Route::get('user/find-meeting', [MyclassController::class, 'meetingLink'])->name('classes.meetingLink');
+ 
 Route::get('user/lession-progress/{id}', [MyclassController::class, 'lessionProgress'])->name('lession-progress'); 
 Route::get('user/getLaunch/{id}/{meetid}', [MyclassController::class, 'joinClasss'])->name('myclass.slaunch');
+
+Route::get('user/waiting/{id}', [MyclassController::class, 'waiting'])->name('myclass.waiting');
+Route::get('user/check-waiting/{id}', [MyclassController::class, 'checkWaiting'])->name('myclass.checkWaiting');
+
 Route::get('user/getDemoLaunch/{id}/{meetid}', [MyclassController::class, 'joinDemoClasss'])->name('myclass.demoslaunch');
 Route::get('user/downloads/{id}/', [MyclassController::class, 'Downloads'])->name('myclass.sdownloads');
-Route::get('user/pastClasses/{id}/', [MyclassController::class, 'pastClasses'])->name('myclass.pastclass');
+Route::get('user/pastClass/{id}/', [MyclassController::class, 'pastClasses'])->name('myclass.pastclass');
+Route::get('user/commitment/{id}/', [MyclassController::class, 'commitment'])->name('myclass.commitment');
+
+Route::post('user/commitment-objection', [MyclassController::class, 'storeObjection'])->name('myclass.commitment.objection');
+
 Route::get('user/assignments/{id}/', [MyclassController::class, 'assignments'])->name('myclass.assignments');
 Route::get('user/assignments-upload/{id}/{bid}', [MyclassController::class, 'assignmentsUpload'])->name('myclass.assignmentsupload');
 Route::post('user/assignments-upload/{id}/{bid}', [MyclassController::class, 'assignmentsUploadSave'])->name('myclass.assignmentsuploadsave');
@@ -211,7 +388,13 @@ Route::get('user/sexams/{id}/', [MyclassController::class, 'exams'])->name('mycl
 Route::get('user/exams-upload/{id}/{bid}', [MyclassController::class, 'examsUpload'])->name('myclass.examuploads');
 Route::post('user/exams-upload/{id}/{bid}', [MyclassController::class, 'examsUploadSave'])->name('myclass.examsuploadsave');
 
+// Live Exam Tracking Route
+Route::get('user/track/exam', [MyclassController::class, 'runningStatusExam'])->name('myclass.trackLiveExam');
+
  Route::get('user/student-test/{id}', [MyclassController::class, 'testPages'])->name('student-test');
+ 
+  Route::get('user/exam/waiting/{batch}/{user}/{test}/{mytest}', [MyclassController::class, 'waitingExam'])->name('student-test-waiting');
+  
  Route::get('user/test-result-analysis/{id}', [MyclassController::class, 'testanalysis'])->name('student-test-analysis');
  Route::get('user/attempt-test/{id}', [MyclassController::class, 'attemptTest'])->name('student-test-attempt');
  Route::post('user/submit-test', [MyclassController::class, 'submitTest'])->name('student-test-submit');
@@ -221,38 +404,43 @@ Route::post('courses/{slug}/buy', [CoursesController::class, 'order'])->name('co
 Route::get('pay/{ref_id}', [CoursesController::class, 'pay'])->name('courses.pay');
 Route::post('pay-confirm/{ref_id}/{type}', [CoursesController::class, 'payConfirm'])->name('courses.payConfirm');
 // Route::get('payment/success/{ref_id}', [CoursesController::class, 'successPay'])->name('courses.successPay');
+ 
+
+
 
 Route::post('user/renew-subscription', [CoursesController::class, 'renew'])->name('subscription.renew'); 
 Route::get('user/my-notifications', [NotificationController::class, 'myNotifications'])->name('myNotifications.index');
 
-// Tutor Mock Test Routes
-Route::group(['prefix' => 'user/tutor', 'as' => 'tutor.', 'middleware' => ['auth', 'role:teacher']], function () {
-    Route::get('mocktests/available', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'availableTests'])->name('mocktests.available');
-    Route::get('mocktests/scheduled', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'scheduledTests'])->name('mocktests.scheduled');
-    Route::get('mocktests/preview/{id}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'previewTest'])->name('mocktests.preview');
-    Route::post('mocktests/approve/{id}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'approveTest'])->name('mocktests.approve');
-    Route::get('mocktests/schedule/{id}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'scheduleForm'])->name('mocktests.schedule_form');
-    Route::post('mocktests/schedule', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'scheduleTest'])->name('mocktests.schedule');
-    Route::get('mocktests/reschedule/{scheduleId}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'rescheduleForm'])->name('mocktests.reschedule_form');
-    Route::post('mocktests/reschedule', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'rescheduleTest'])->name('mocktests.reschedule');
-    Route::get('mocktests/batch-results/{scheduleId}', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'batchResults'])->name('mocktests.batch_results');
-    Route::post('mocktests/report-question', [\App\Http\Controllers\Backend\Tutor\TutorMockTestController::class, 'reportQuestion'])->name('mocktests.report_question');
-});
+// Live Exam Tracking - Ping Pong Route
+Route::post('user/ping-pong', [TestSeriesController::class, 'pingPong'])->name('exam.pingPong');
 
-// Student Mock Test Routes
-Route::group(['prefix' => 'user/student', 'as' => 'student.', 'middleware' => ['auth', 'role:student']], function () {
-    Route::get('mocktests', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'dashboard'])->name('mocktests.dashboard');
-    Route::get('mocktests/attempt/{scheduleId}', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'attemptTest'])->name('mocktests.attempt');
-    Route::post('mocktests/submit', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'submitTest'])->name('mocktests.submit');
-    Route::get('mocktests/result/{resultId}', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'viewResult'])->name('mocktests.result');
-});
+// Test Series Routes
+Route::get('user/my-test', [TestSeriesController::class, 'myTestSeries'])->name('myTestSeries.index');
+Route::get('user/my-test/{id}', [TestSeriesController::class, 'myTestList'])->name('myTestSeries.list');
+Route::get('user/my-test/{id}/{tsid}/attempt', [TestSeriesController::class, 'myAttempt'])->name('myTestSeries.myAttempt');
+Route::get('user/attempt/{id}', [TestSeriesController::class, 'startExam'])->name('myTestSeries.startExam');
+Route::get('user/take/{id}', [TestSeriesController::class, 'takeExam'])->name('myTestSeries.takeExam');
+Route::post('user/submit-exam', [TestSeriesController::class, 'submitExam'])->name('myTestSeries.submitExam');
+Route::get('user/exam/thank-you', [TestSeriesController::class, 'thankYou'])->name('myTestSeries.thankYou');
+Route::get('user/exam/result/{id}', [TestSeriesController::class, 'examResult'])->name('myTestSeries.examResult');
+
+// Mock Test Series Routes (attempt route must be before list so /x/y/attempt is not matched as list /x)
+Route::get('user/my-mock-series', [MockSeriesController::class, 'myMockSeries'])->name('myMockSeries.index');
+Route::get('user/my-mock-series/{mock_id}/{batch_mock_test_id}/attempt', [MockSeriesController::class, 'myMockAttempt'])->name('myMockSeries.myAttempt');
+Route::get('user/my-mock-series/{id}', [MockSeriesController::class, 'myMockList'])->name('myMockSeries.list');
+Route::get('user/mock-attempt/{id}', [MockSeriesController::class, 'startMockExam'])->name('myMockSeries.startExam');
+Route::get('user/mock-exam/{id}', [MockSeriesController::class, 'takeMockExam'])->name('myMockSeries.takeExam');
+Route::post('user/submit-mock-exam', [MockSeriesController::class, 'submitMockExam'])->name('myMockSeries.submitExam');
+Route::get('user/mock-exam-result/{id}', [MockSeriesController::class, 'mockExamResult'])->name('myMockSeries.result');
+Route::get('user/mock-exam-answer-key/{id}', [MockSeriesController::class, 'mockExamAnswerKey'])->name('myMockSeries.answerKey');
+Route::get('user/mock-thank-you', [MockSeriesController::class, 'mockThankYou'])->name('myMockSeries.thankYou');
 
 
 });
 Route::post('payment/success', [CoursesController::class, 'successPay'])->name('courses.successPay');
 Route::post('payment/fail', [CoursesController::class, 'failedPay'])->name('courses.failedPay');
-Route::get('certificates', [CertificateController::class, 'getCertificates'])->name('certificates.index');
-Route::post('certificates/generate', [CertificateController::class, 'generateCertificate'])->name('certificates.generate');
+Route::get('certificates', [FrontendCertificateController::class, 'getCertificates'])->name('certificates.index');
+Route::post('certificates/generate', [FrontendCertificateController::class, 'generateCertificate'])->name('certificates.generate');
 
 Route::get('category/{category}/blogs', [BlogController::class, 'getByCategory'])->name('blogs.category');
 Route::get('tag/{tag}/blogs', [BlogController::class, 'getByTag'])->name('blogs.tag');
@@ -275,7 +463,7 @@ Route::get('courses/{slug}', [CoursesController::class, 'show'])->name('courses.
 
 Route::post('courses/{slug}', [CoursesController::class, 'demoRequest'])->name('courses.demo');
 
-Route::get('courses-checkout/apply-coupon',[CoursesController::class, 'checkoutCoupon'])->name('courses.checkoutCoupon');
+Route::get('courses-checkout/apply-coupon', [CoursesController::class, 'checkoutCoupon'])->name('courses.checkoutCoupon');
 
 // Route::get('details', [CoursesController::class, 'details'])->name('courses.details');
 
@@ -340,8 +528,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cart', [CartController::class, 'index'])->name('cart.index');
     Route::get('cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::get('cart/remove', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('cart/apply-coupon',[CartController::class, 'applyCoupon'])->name('cart.applyCoupon');
-    Route::post('cart/remove-coupon',[CartController::class, 'removeCoupon'])->name('cart.removeCoupon');
+    Route::post('cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.applyCoupon');
+    Route::post('cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.removeCoupon');
     Route::post('cart/stripe-payment', [CartController::class, 'stripePayment'])->name('cart.stripe.payment');
     Route::post('cart/paypal-payment', [CartController::class, 'paypalPayment'])->name('cart.paypal.payment');
     Route::get('cart/paypal-payment/status', [CartController::class, 'getPaymentStatus'])->name('cart.paypal.status');
@@ -350,12 +538,12 @@ Route::group(['middleware' => 'auth'], function () {
         return view('frontend.cart.status');
     })->name('status');
     Route::post('cart/offline-payment', [CartController::class, 'offlinePayment'])->name('cart.offline.payment');
-    Route::post('cart/getnow',[CartController::class, 'getNow'])->name('cart.getnow');
+    Route::post('cart/getnow', [CartController::class, 'getNow'])->name('cart.getnow');
 });
 
 //============= Menu  Manager Routes ===============//
 Route::group(['namespace' => 'Backend', 'prefix' => 'admin', 'middleware' => config('menu.middleware')], function () {
-    //Route::get('wmenuindex', [\Harimayco\Menu\Controllers\MenuController::class, 'wmenuindex']);
+    //Route::get('wmenuindex', array('uses'=>'\Harimayco\Menu\Controllers\MenuController@wmenuindex'));
     Route::post('add-custom-menu', [MenuController::class, 'addcustommenu'])->name('haddcustommenu');
     Route::post('delete-item-menu', [MenuController::class, 'deleteitemmenu'])->name('hdeleteitemmenu');
     Route::post('delete-menug', [MenuController::class, 'deletemenug'])->name('hdeletemenug');
@@ -366,17 +554,18 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'admin', 'middleware' => con
     Route::post('change-location', [MenuController::class, 'updateLocation'])->name('update-location');
 });
 
-Route::get('certificate-verification',[CertificateController::class, 'getVerificationForm'])->name('frontend.certificates.getVerificationForm');
-Route::post('certificate-verification',[CertificateController::class, 'verifyCertificate'])->name('frontend.certificates.verify');
+Route::get('certificate-verification', [CertificateController::class, 'getVerificationForm'])->name('frontend.certificates.getVerificationForm');
+Route::post('certificate-verification', [CertificateController::class, 'verifyCertificate'])->name('frontend.certificates.verify');
 Route::get('certificates/download', [CertificateController::class, 'download'])->name('certificates.download');
 
 
 if(config('show_offers') == 1){
-    Route::get('offers',[CartController::class, 'getOffers'])->name('frontend.offers');
+    Route::get('offers', [CartController::class, 'getOffers'])->name('frontend.offers');
 }
-
+ Route::get('test-cron-missed', [MyclassController::class, 'testMissed'])->name('student-test-missed');
+ 
+ 
 Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
     Route::get('/{page?}', [HomeController::class, 'index'])->name('index');
 });
-// Auth::routes(['verify' => true]); // Commented out - using custom frontend auth routes instead
 

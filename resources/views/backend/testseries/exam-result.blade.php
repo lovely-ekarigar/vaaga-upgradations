@@ -10,6 +10,10 @@ use App\Models\QuestionReport;
   <title>Exam Result</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Prevent Tailwind preflight from overriding the site's existing theme styles
+    tailwind.config = { corePlugins: { preflight: false } };
+  </script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <style>
     body { font-size: 10pt; line-height: 1.3; margin: 0; padding: 0; background: white; color: #333; }
@@ -33,6 +37,124 @@ use App\Models\QuestionReport;
   </style>
 </head>
 <body class="min-h-screen">
+  @php
+    /**
+     * SAFETY: Prevent "Undefined offset" / "Undefined index" errors when option mapping differs.
+     * Some datasets store answers as 1..4 while correct_answer/options keys may be A/B/C/D (or vice-versa).
+     */
+    $optionMap = (isset($optionMap) && is_array($optionMap)) ? $optionMap : [];
+    if (count($optionMap) < 2) {
+      $optionMap = [
+        'A' => 1, 'B' => 2, 'C' => 3, 'D' => 4,
+        'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4,
+        1 => 1, 2 => 2, 3 => 3, 4 => 4,
+      ];
+    }
+
+    /**
+     * Normalize values to a 0-based option index (0..3) WITHOUT collisions.
+     *
+     * Some questions store option keys as 1..4, while others may use 0..3 or A-D.
+     * If we blindly treat numeric "3" as 0-based and numeric "4" as 1-based, both become index 3,
+     * causing "double correct tick". We fix this by detecting option key mode per question.
+     */
+    $coerceScalar = function ($value) {
+      if ($value === null) return null;
+      if (is_array($value)) $value = $value[0] ?? null;
+      if ($value === null) return null;
+      if (is_string($value) && str_contains($value, ',')) $value = trim(explode(',', $value)[0]);
+      return $value;
+    };
+
+    $letterToIndex = function ($value) {
+      if (!is_string($value)) return null;
+      $v = strtoupper(trim($value));
+      $letters = ['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3];
+      return $letters[$v] ?? null;
+    };
+
+    $detectOptionKeyMode = function (array $opts) {
+      $keys = array_keys($opts);
+      $hasLetters = false;
+      $nums = [];
+
+      foreach ($keys as $k) {
+        if (is_string($k)) {
+          $t = trim($k);
+          if (preg_match('/^[A-Da-d]$/', $t)) { $hasLetters = true; continue; }
+          if (preg_match('/^\d+$/', $t)) { $nums[] = (int) $t; continue; }
+        }
+        if (is_int($k) || is_float($k)) $nums[] = (int) $k;
+      }
+
+      if ($hasLetters) return 'letter';
+      if (empty($nums)) return 'unknown';
+
+      $min = min($nums);
+      $max = max($nums);
+      if ($min >= 1 && $max <= 4) return 'one';   // 1..4
+      if ($min >= 0 && $max <= 3) return 'zero';  // 0..3
+      return ($min >= 1) ? 'one' : 'zero';
+    };
+
+    $normalizeUserAnswerIndex = function ($value) use ($coerceScalar, $letterToIndex, $optionMap) {
+      $value = $coerceScalar($value);
+      if ($value === null || $value === '') return null;
+
+      if (is_numeric($value)) {
+        $n = (int) $value;
+        if ($n >= 0 && $n <= 3) return $n;       // current UI
+        if ($n >= 1 && $n <= 4) return $n - 1;   // legacy
+      }
+
+      $li = $letterToIndex($value);
+      if ($li !== null) return $li;
+
+      if (is_string($value) && array_key_exists($value, $optionMap) && is_numeric($optionMap[$value])) {
+        $m = (int) $optionMap[$value];
+        if ($m >= 0 && $m <= 3) return $m;
+        if ($m >= 1 && $m <= 4) return $m - 1;
+      }
+
+      return null;
+    };
+
+    $normalizeCorrectAnswerIndex = function ($value, string $mode) use ($coerceScalar, $letterToIndex, $optionMap) {
+      $value = $coerceScalar($value);
+      if ($value === null || $value === '') return null;
+
+      $li = $letterToIndex($value);
+      if ($li !== null) return $li;
+
+      if (is_numeric($value)) {
+        $n = (int) $value;
+        if ($mode === 'one' && $n >= 1 && $n <= 4) return $n - 1;
+        if ($mode === 'zero' && $n >= 0 && $n <= 3) return $n;
+        if ($n >= 1 && $n <= 4) return $n - 1;
+        if ($n >= 0 && $n <= 3) return $n;
+      }
+
+      if (is_string($value) && array_key_exists($value, $optionMap) && is_numeric($optionMap[$value])) {
+        $m = (int) $optionMap[$value];
+        if ($mode === 'one' && $m >= 1 && $m <= 4) return $m - 1;
+        if ($mode === 'zero' && $m >= 0 && $m <= 3) return $m;
+        if ($m >= 1 && $m <= 4) return $m - 1;
+        if ($m >= 0 && $m <= 3) return $m;
+      }
+
+      return null;
+    };
+
+    $normalizeOptionKeyIndex = function ($key, string $mode) use ($letterToIndex) {
+      $li = $letterToIndex($key);
+      if ($li !== null) return $li;
+      if (is_numeric($key)) {
+        $n = (int) $key;
+        return ($mode === 'one') ? ($n - 1) : $n;
+      }
+      return null;
+    };
+  @endphp
   <div class="no-print fixed top-4 right-4 z-10">
     <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow-md flex items-center">
       Print Result
@@ -115,12 +237,17 @@ use App\Models\QuestionReport;
             </h3>
             <div class="ml-1 flex-shrink-0 text-[10px]">
               @php
-                $userAnswer = $answers[$q->id] ?? null;
-                $correctAnswer = $q->correct_answer;
+                $userAnswerRaw = $answers[$q->id] ?? null;
+                $correctAnswerRaw = $q->correct_answer ?? null;
+                $opts = json_decode($q->options, true) ?? [];
+                $optionKeyMode = $detectOptionKeyMode(is_array($opts) ? $opts : []);
+
+                $userIndex = $normalizeUserAnswerIndex($userAnswerRaw);
+                $correctIndex = $normalizeCorrectAnswerIndex($correctAnswerRaw, $optionKeyMode);
               @endphp
-              @if(is_null($userAnswer))
+              @if(is_null($userAnswerRaw) || $userAnswerRaw === '')
                 <span class="px-1.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800">Not Attempted</span>
-              @elseif($userAnswer === $optionMap[$correctAnswer])
+              @elseif(!is_null($userIndex) && !is_null($correctIndex) && $userIndex === $correctIndex)
                 <span class="px-1.5 py-0.5 rounded-full bg-green-100 text-green-800">Correct</span>
               @else
                 <span class="px-1.5 py-0.5 rounded-full bg-red-100 text-red-800">Incorrect</span>
@@ -130,11 +257,12 @@ use App\Models\QuestionReport;
 
           <!-- Options -->
           <div class="mt-1 space-y-1">
-            @php $opts = json_decode($q->options, true); @endphp
             @foreach($opts as $key => $opt)
               @php
-                $isUser = $userAnswer === $optionMap[$key];
-                $isCorrect = $correctAnswer === $key;
+                $optionIndex = $normalizeOptionKeyIndex($key, $optionKeyMode);
+                $isUser = !is_null($optionIndex) && !is_null($userIndex) && $userIndex === $optionIndex;
+                $isCorrect = !is_null($optionIndex) && !is_null($correctIndex) && $correctIndex === $optionIndex;
+                $optText = is_array($opt) ? ($opt['en'] ?? reset($opt)) : $opt;
               @endphp
               <div class="p-1.5 border rounded flex items-center text-xs
                   @if($isUser && $isCorrect) bg-green-50 border-green-400
@@ -151,7 +279,7 @@ use App\Models\QuestionReport;
                   {{ $key }}
                 </div>
                 <div class="flex-1">
-                  <span>{!! $opt['en'] ?? reset($opt) !!}</span>
+                  <span>{!! $optText !!}</span>
                 </div>
                 <div class="ml-1 text-[9px] font-medium">
                   @if($isUser && $isCorrect) ✅

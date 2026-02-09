@@ -973,6 +973,32 @@ const currentGlobalNumber = getCurrentGlobalQuestionNumber();
 
     // Initialize the exam
     initExam();
+    
+    // Live tracking - Ping server every 10 seconds with current progress
+    setInterval(function() {
+      if (!examSubmitted) {
+        const globalQuestionNumber = getCurrentGlobalQuestionNumber();
+        
+        fetch('{{ route("exam.pingPong") }}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+          },
+          body: JSON.stringify({
+            eid: examData.student.my_exam_id,
+            qn: globalQuestionNumber
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Ping successful:', data);
+        })
+        .catch(error => {
+          console.error('Ping failed:', error);
+        });
+      }
+    }, 10000); // Ping every 10 seconds
   </script>
   
   

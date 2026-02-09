@@ -103,8 +103,8 @@ Question Bank | {{ env('APP_NAME') }}
                         <i class="fas fa-check-circle"></i> Verify Questions ({{ $pendingVerificationCount ?? 0 }})
                     </button>
                     
-                    <a href="{{ route('admin.admin.exams.questions.import') }}" class="btn btn-sm btn-primary me-2">Import Questions</a>
-                    <a href="{{ route('admin.admin.exams.questions.add') }}" class="btn btn-sm btn-info me-2">Add Question</a>
+                    <a href="{{ route('admin.exams.questions.import') }}" class="btn btn-sm btn-primary me-2">Import Questions</a>
+                    <a href="{{ route('admin.exams.questions.add') }}" class="btn btn-sm btn-info me-2">Add Question</a>
                     <!--<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#generateQuestionModal">-->
                     <!--    <i class="bx bx-bulb"></i> AI Generate Questions-->
                     <!--</button>-->
@@ -250,7 +250,7 @@ Question Bank | {{ env('APP_NAME') }}
                                     <td class="text-center">
                                         <div class="table-actions">
                                             <!-- Edit Button -->
-                                            <a href="{{ route('admin.admin.exams.questions.edit', ['question' => $question->id]) }}" 
+                                            <a href="{{ route('admin.exams.questions.edit', ['question' => $question->id]) }}" 
                                                class="btn btn-sm btn-warning" data-toggle="tooltip" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a> 
@@ -259,7 +259,7 @@ Question Bank | {{ env('APP_NAME') }}
 
                                          
                                             <!-- Delete Form -->
-                                            <form action="{{ route('admin.admin.exams.questions.destroy', ['question' => $question->id]) }}" 
+                                            <form action="{{ route('admin.exams.questions.destroy', ['question' => $question->id]) }}" 
                                                   method="POST" 
                                                   onsubmit="return confirm('Are you sure you want to delete this question?');" 
                                                   style="display:inline-block;">
@@ -500,7 +500,7 @@ Question Bank | {{ env('APP_NAME') }}
 
     // Load pending questions for verification based on course
     function loadPendingQuestions(courseId = null) {
-        let url = "{{ route('admin.admin.exams.questions.pending') }}";
+        let url = "{{ route('admin.exams.questions.pending') }}";
      
             url += '?course_id={{request("subject_id")}}' ;
         
@@ -684,7 +684,7 @@ Question Bank | {{ env('APP_NAME') }}
         // Disable buttons during submission
         $('#approveQuestionBtn, #rejectQuestionBtn, #skipQuestionBtn').prop('disabled', true);
 
-        $.post("{{ route('admin.admin.exams.questions.verify') }}", formData, function(response) {
+        $.post("{{ route('admin.exams.questions.verify') }}", formData, function(response) {
             if (response.success) {
                 showAlert('success', 'Question ' + status + ' successfully!');
                 currentQuestionIndex++;
@@ -735,7 +735,7 @@ Question Bank | {{ env('APP_NAME') }}
         let questionId = $(this).data('id');
         let chapterId = $(this).val();
 
-        $.post("{{ route('admin.admin.exams.questions.updateChapter') }}", {
+        $.post("{{ route('admin.exams.questions.updateChapter') }}", {
             _token: "{{ csrf_token() }}",
             question_id: questionId,
             chapter_id: chapterId
@@ -780,7 +780,7 @@ Question Bank | {{ env('APP_NAME') }}
         let formData = $(this).serialize();
 
         $.ajax({
-            url: "{{ route('admin.admin.exams.questions.generate') }}",
+            url: "{{ route('admin.exams.questions.generate') }}",
             method: "POST",
             data: formData,
             beforeSend: function(){

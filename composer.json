@@ -8,6 +8,7 @@
         "php": "^8.3.0",
         "appstract/laravel-blade-directives": "^0.4.4",
         "barryvdh/laravel-dompdf": "^3.0",
+        "barryvdh/laravel-translation-manager": "^0.6.8",
         "creativeorange/gravatar": "~1.0",
         "darryldecode/cart": "~4.0",
         "davejamesmiller/laravel-breadcrumbs": "^5.0",
@@ -25,6 +26,7 @@
         "maatwebsite/excel": "^3.1.48",
         "mtownsend/read-time": "^2.0",
         "paragonie/certainty": "^2",
+        "ramsey/uuid": "^4.7",
         "razorpay/razorpay": "2.*",
         "sendgrid/sendgrid": "~7",
         "spatie/laravel-backup": "^9.0",
@@ -34,7 +36,6 @@
         "stevebauman/location": "^7.5",
         "stripe/stripe-php": "^10.0|^11.0|^12.0|^13.0",
         "unisharp/laravel-filemanager": "~1.8",
-        "ramsey/uuid": "^4.7",
         "yajra/laravel-datatables-buttons": "^12.0",
         "yajra/laravel-datatables-oracle": "^12.0"
     },

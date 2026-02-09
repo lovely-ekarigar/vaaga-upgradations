@@ -69,14 +69,16 @@ use App\Models\Course;
             </div>
                
                <div class="row">
-                <div class="col-12 col-lg-6 form-group">
+                <div class="col-12 col-lg-3 form-group">
                     <label for="sbct" class="control-label">Batch start time</label>
                     <input class="form-control time" required="" placeholder="Enter batch start time" name="sbatchtime" type="text" id="sbct" value="{{$batch->start_time}}">
                 </div>
-                <div class="col-12 col-lg-6 form-group">
+                <div class="col-12 col-lg-3 form-group">
                     <label for="ebct" class="control-label">Batch end time</label>
                     <input class="form-control time" required="" placeholder="Enter batch end time" name="ebatchtime" type="text" id="ebct" value="{{$batch->end_time}}">
                 </div>
+                
+              
                
             </div>
 

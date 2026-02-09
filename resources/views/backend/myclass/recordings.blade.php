@@ -13,6 +13,9 @@
         <div class="card-body">
           <div class="row">
              @foreach($list as $rec)
+             
+             @if($rec->length > 0)
+             
             <div class="col-md-3" style="margin-bottom: 10px;">
               <div style="height: 100%;
     width: 100%;
@@ -24,10 +27,11 @@
               <h1 style="    font-size: 16px;
     text-align: center;">@if($rec->lesson) {{$rec->lesson->title}} @endif</h1>
               <p style="font-size: 10px;
-    text-align: center;">{{date("d M Y",strtotime($rec->created_at))}}</p>
+    text-align: center;">{{date("d M Y",strtotime($rec->recording_date))}}</p>
             </a>
           </div>
             </div>
+            @endif
             @endforeach
           </div>
            

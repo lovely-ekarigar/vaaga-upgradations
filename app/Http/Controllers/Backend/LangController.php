@@ -1,15 +1,18 @@
 <?php
 
 namespace App\Http\Controllers\Backend;
-// TranslationManager removed - this controller needs to be refactored
-// use Barryvdh\TranslationManager\Controller as Controller;
+use App\Http\Controllers\Controller;
 use App\Locale;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class LangController extends Controller
 {
-    // TranslationManager functionality removed - methods need to be reimplemented
+    protected $manager;
+    
+    public function __construct()
+    {
+        // Temporary constructor - Translation Manager not installed yet
+    }
     public function postAddLocale(Request $request)
     {
         $locales = $this->manager->getLocales();

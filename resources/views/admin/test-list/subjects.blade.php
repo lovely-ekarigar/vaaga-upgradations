@@ -67,7 +67,8 @@ Test Series Management | {{ env('APP_NAME') }}
                                     <button class="btn btn-sm btn-warning editSubjectBtn" 
                                             data-id="{{ $subject->id }}" 
                                             data-name="{{ $subject->name }}"
-                                            data-status="{{ $subject->status }}">
+                                            data-status="{{ $subject->status }}"
+                                            data-difficulty="{{ $subject->difficulty }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <form action="{{ route('admin.subjects.destroy', $subject->id) }}" 
@@ -157,6 +158,15 @@ Test Series Management | {{ env('APP_NAME') }}
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Difficulty</label>
+                    <select name="difficulty" id="editDifficulty" class="form-control form-select">
+                        <option value="">-- Select Difficulty --</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="submit" class="btn btn-primary">Update</button>
@@ -188,9 +198,11 @@ $(document).ready(function () {
         let id = $(this).data("id");
         let name = $(this).data("name");
         let status = $(this).data("status");
+        let difficulty = $(this).data("difficulty");
 
         $("#editName").val(name);
         $("#editStatus").val(status);
+        $("#editDifficulty").val(difficulty);
         $("#editSubjectForm").attr("action", "/user/test-series/subjects/update/" + id);
 
         $("#editSubjectModal").modal("show");

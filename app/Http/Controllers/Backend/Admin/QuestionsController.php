@@ -38,6 +38,8 @@ class QuestionsController extends Controller
             // SoftDeletes removed - return empty collection for deleted items
             $questions = collect(); // No soft deleted questions available
         } else {
+            // Question model doesn't use SoftDeletes, so query normally
+            // The global 'filter' scope will be applied automatically for teachers
             $questions = Question::orderBy('created_at', 'desc')->get();
         }
 

@@ -152,6 +152,7 @@
                                         @else
                                             <a href="{{ route('myTestSeries.myAttempt', ['id' => $test->id, 'tsid' => $tp->id]) }}" class="btn btn-primary btn-sm">
                                                 <i class="bi bi-play-circle"></i> Start Test
+                                                
                                             </a>
                                         @endif
                                     </div>
