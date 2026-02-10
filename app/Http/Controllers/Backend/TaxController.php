@@ -18,7 +18,7 @@ class TaxController extends Controller
         $tax = Tax::orderBy('created_at', 'desc')
             ->get();
         return view('backend.tax.index',compact('tax'));
-    
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -143,3 +143,4 @@ class TaxController extends Controller
         $tax->status = $tax->status == 1? 0 : 1;
         $tax->save();
     }
+}

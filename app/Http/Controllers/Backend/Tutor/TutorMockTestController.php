@@ -23,7 +23,7 @@ class TutorMockTestController extends Controller
     public function __construct(\App\Services\NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
-    
+    }
 
     /**
      * Display available mock tests for tutor's batches
@@ -327,3 +327,4 @@ class TutorMockTestController extends Controller
 
         return view('backend.tutor.mocktests.scheduled', compact('schedules'));
     }
+}

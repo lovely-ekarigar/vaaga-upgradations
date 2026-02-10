@@ -20,7 +20,7 @@ class TestimonialController extends Controller
     public function index()
     {
         return view('backend.testimonials.index');
-    
+    }
 
     /**
      * Display a listing of Testimonials via ajax DataTable.
@@ -175,3 +175,4 @@ class TestimonialController extends Controller
         $testimonial->status = $testimonial->status == 1? 0 : 1;
         $testimonial->save();
     }
+}

@@ -106,11 +106,11 @@
                                         }}
                                     </td>
                                     <td>
-                                        <a href="{{route('admin.coupons.show',['id'=>$item->id]) }}"
+                                        <a href="{{route('admin.coupons.show',['coupon'=>$item->id]) }}"
                                                class="btn btn-xs btn-primary mb-1"><i class="icon-eye"></i></a>
 
 
-                                        <a href="{{route('admin.coupons.edit',['id'=>$item->id]) }}"
+                                        <a href="{{route('admin.coupons.edit',['coupon'=>$item->id]) }}"
                                            class="btn btn-xs btn-info mb-1"><i class="icon-pencil"></i></a>
 
                                         <a data-method="delete" data-trans-button-cancel="Cancel"
@@ -121,7 +121,7 @@
                                                data-toggle="tooltip"
                                                data-placement="top" title=""
                                                data-original-title="Delete"></i>
-                                            <form action="{{route('admin.coupons.destroy',['id'=>$item->id])}}"
+                                            <form action="{{route('admin.coupons.destroy',['coupon'=>$item->id])}}"
                                                   method="POST" name="delete_item" style="display:none">
                                                 @csrf
                                                 {{method_field('DELETE')}}
@@ -190,7 +190,7 @@
             var id = $(this).data('id');
             $.ajax({
                 type: "POST",
-                url: "{{ route('admin.coupons.status') }}",
+                url: "{{ route('admin.coupons.updateStatus') }}",
                 data: {
                     _token:'{{ csrf_token() }}',
                     id: id,

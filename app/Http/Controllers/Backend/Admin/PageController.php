@@ -26,8 +26,7 @@ class PageController extends Controller
         $pages = Page::all();
         // Show the page
         return view('backend.pages.index', compact('pages'));
-
-    
+    }
 
     /**
      * Display a listing of Lessons via ajax DataTable.

@@ -17,7 +17,7 @@ class DashboardController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-    
+    }
 
     /**
      * Show the application dashboard.
@@ -29,3 +29,4 @@ class DashboardController extends Controller
 
         return view('home');
     }
+}

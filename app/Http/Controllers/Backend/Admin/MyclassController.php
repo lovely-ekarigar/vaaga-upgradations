@@ -1701,7 +1701,9 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
      */
     public function mockTestsPage($batch_id)
     {
-        return view('backend.myclass.mock-tests', compact('batch_id'));
+        $batch = \App\Models\Batch::find($batch_id);
+        $mockTests = []; // TODO: Get actual mock tests for this batch
+        return view('backend.myclass.mock-tests', compact('batch', 'mockTests'));
     }
 
     /**
@@ -1733,7 +1735,10 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
      */
     public function mockTestQuestions($mock_id)
     {
-        return view('backend.myclass.mock-questions', compact('mock_id'));
+        $mockTest = \App\Models\MockTest::find($mock_id);
+        $batchId = request('batch_id');
+        $sectionsData = []; // TODO: Get actual sections data
+        return view('backend.myclass.mock-questions', compact('mockTest', 'batchId', 'sectionsData'));
     }
 
     /**
@@ -1765,7 +1770,9 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
      */
     public function mockResults($batch_id)
     {
-        return view('backend.myclass.mock-results', compact('batch_id'));
+        $batch = \App\Models\Batch::find($batch_id);
+        $course = $batch ? \App\Models\Course::find($batch->cid) : null;
+        return view('backend.myclass.mock-results', compact('batch', 'course'));
     }
 
     /**

@@ -37,7 +37,7 @@ class RegisterController extends Controller
     public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
-    
+    }
 
     /**
      * Where to redirect users after login.

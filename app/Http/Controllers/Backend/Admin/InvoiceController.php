@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Response;
 use Auth;
+
 class InvoiceController extends Controller
 {
     /**
@@ -22,24 +23,24 @@ class InvoiceController extends Controller
         if(auth()->user()->hasRole('student')){
             $orders = Order::where('status','1')->where('user_id',Auth::user()->id)->orderBy("id","desc")->get();
             $subscriptions = Subscription::where('status','1')->where("user_id",Auth::user()->id)->orderBy("id","desc")->get();
- return view('backend.invoices.user_index',compact('orders','subscriptions'));
+            return view('backend.invoices.user_index',compact('orders','subscriptions'));
         }else{
-        return view('backend.invoices.index',compact('invoices'));
-    }
+            return view('backend.invoices.index',compact('invoices'));
+        }
     }
 
     
-public function viewInvoicestudent($id,$type){
-    $order = Order::findOrFail($id);
-   showInvoice($order,$type);
+    public function viewInvoicestudent($id,$type){
+        $order = Order::findOrFail($id);
+        showInvoice($order,$type);
     }
  
 
- public function viewSubsInvoicestudent($id,$type,$sid){
-    $order = Order::findOrFail($id);
-    $subscription = Subscription::findOrFail($sid);
-   showInvoiceSubs($order,$subscription,$type);
-    
+    public function viewSubsInvoicestudent($id,$type,$sid){
+        $order = Order::findOrFail($id);
+        $subscription = Subscription::findOrFail($sid);
+        showInvoiceSubs($order,$subscription,$type);
+    }
 
     /**
      * Download order invoice

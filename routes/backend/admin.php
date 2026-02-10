@@ -341,7 +341,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::resource('sliders', SliderController::class);
     Route::get('sliders/status/{id}', [SliderController::class, 'status'])->name('sliders.status');
     Route::post('sliders/save-sequence', [SliderController::class, 'saveSequence'])->name('sliders.saveSequence');
-    Route::post('sliders/status', [SliderController::class, 'updateStatus'])->name('sliders.status');
+    Route::post('sliders/status', [SliderController::class, 'updateStatus'])->name('sliders.updateStatus');
 
 
     //===== Sponsors Routes =====//
@@ -349,14 +349,14 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::get('get-sponsors-data', [SponsorController::class, 'getData'])->name('sponsors.get_data');
     Route::post('sponsors_mass_destroy', [SponsorController::class, 'massDestroy'])->name('sponsors.mass_destroy');
     Route::get('sponsors/status/{id}', [SponsorController::class, 'status'])->name('sponsors.status');
-    Route::post('sponsors/status', [SponsorController::class, 'updateStatus'])->name('sponsors.status');
+    Route::post('sponsors/status', [SponsorController::class, 'updateStatus'])->name('sponsors.updateStatus');
 
     //===== Testimonials Routes =====//
     Route::resource('testimonials', TestimonialController::class);
     Route::get('get-testimonials-data', [TestimonialController::class, 'getData'])->name('testimonials.get_data');
     Route::post('testimonials_mass_destroy', [TestimonialController::class, 'massDestroy'])->name('testimonials.mass_destroy');
     Route::get('testimonials/status/{id}', [TestimonialController::class, 'status'])->name('testimonials.status');
-    Route::post('testimonials/status', [TestimonialController::class, 'updateStatus'])->name('testimonials.status');
+    Route::post('testimonials/status', [TestimonialController::class, 'updateStatus'])->name('testimonials.updateStatus');
 
 
     //===== FAQs Routes =====//
@@ -369,7 +369,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::get('get-faqs-data', [FaqController::class, 'getData'])->name('faqs.get_data');
     Route::post('faqs_mass_destroy', [FaqController::class, 'massDestroy'])->name('faqs.mass_destroy');
     Route::get('faqs/status/{id}', [FaqController::class, 'status'])->name('faqs.status');
-    Route::post('faqs/status', [FaqController::class, 'updateStatus'])->name('faqs.status');
+    Route::post('faqs/status', [FaqController::class, 'updateStatus'])->name('faqs.updateStatus');
 
 
     //====== Teams Routes =====//
@@ -425,13 +425,13 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     //====== Tax Routes =====//
     Route::resource('tax', TaxController::class);
     Route::get('tax/status/{id}', [TaxController::class, 'status'])->name('tax.status');
-    Route::post('tax/status', [TaxController::class, 'updateStatus'])->name('tax.status');
+    Route::post('tax/status', [TaxController::class, 'updateStatus'])->name('tax.updateStatus');
 
 
     //====== Coupon Routes =====//
     Route::resource('coupons', CouponController::class);
     Route::get('coupons/status/{id}', [CouponController::class, 'status'])->name('coupons.status');
-    Route::post('coupons/status', [CouponController::class, 'updateStatus'])->name('coupons.status');
+    Route::post('coupons/status', [CouponController::class, 'updateStatus'])->name('coupons.updateStatus');
 
 
     //==== Remove Locale FIle ====//

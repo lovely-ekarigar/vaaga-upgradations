@@ -21,7 +21,7 @@ class FaqController extends Controller
     public function index()
     {
         return view('backend.faqs.index');
-    
+    }
 
     /**
      * Display a listing of Testimonials via ajax DataTable.
@@ -186,3 +186,4 @@ class FaqController extends Controller
         $faq->status = $faq->status == 1? 0 : 1;
         $faq->save();
     }
+}

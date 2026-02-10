@@ -49,7 +49,7 @@ class UserController extends Controller
 
         return view('backend.auth.user.index',compact('roles'))
             ->withUsers($this->userRepository->getActivePaginated(25, 'id', 'asc'));
-    
+    }
 
     /**
      * Display a listing of Courses via ajax DataTable.
@@ -205,3 +205,4 @@ class UserController extends Controller
 
         return redirect()->route('admin.auth.user.index')->withFlashSuccess(__('alerts.backend.users.deleted'));
     }
+}

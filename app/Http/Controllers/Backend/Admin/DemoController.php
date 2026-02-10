@@ -53,7 +53,8 @@ class DemoController extends Controller
            }
         //   dd($arr);
       
-        return view('backend.demo.index', compact('users','demo_request'));
+        $locale_full_name = \App\Models\Locale::where('short_name', app()->getLocale())->value('name') ?? 'English';
+        return view('backend.demo.index', compact('users','demo_request', 'locale_full_name'));
        
     }
         
@@ -75,14 +76,16 @@ class DemoController extends Controller
            $arr[] = $drr->course_id;
            }
         //   dd($arr);
-      
-        return view('backend.demo.index', compact('users','demo_request'));
+        
+        $locale_full_name = \App\Models\Locale::where('short_name', app()->getLocale())->value('name') ?? 'English';
+        return view('backend.demo.index', compact('users','demo_request', 'locale_full_name'));
        
     }elseif(auth()->user()->hasRole('administrator')){
 
         $users = User::where('active',true)->role('teacher')->get();
 
-        return view('backend.demo.index', compact('users'));
+        $locale_full_name = \App\Models\Locale::where('short_name', app()->getLocale())->value('name') ?? 'English';
+        return view('backend.demo.index', compact('users', 'locale_full_name'));
        
     }
 
@@ -370,7 +373,8 @@ public function getDataTeacher(Request $request)
      */
     public function demoBatchAdd()
     {
-        return view('backend.demo.batch_add');
+        $teachers = User::role('teacher')->where('active', true)->get();
+        return view('backend.demo.batch_add', compact('teachers'));
     }
 
     /**
@@ -387,7 +391,9 @@ public function getDataTeacher(Request $request)
      */
     public function demoBatchEdit($id)
     {
-        return view('backend.demo.batch_edit', compact('id'));
+        $batch = \App\Models\Batch::find($id);
+        $teachers = User::role('teacher')->where('active', true)->get();
+        return view('backend.demo.batch_edit', compact('batch', 'teachers'));
     }
 
     /**
@@ -404,7 +410,20 @@ public function getDataTeacher(Request $request)
      */
     public function demoBatchStudent($id)
     {
-        return view('backend.demo.batch_student', compact('id'));
+        $batch = \App\Models\Batch::find($id);
+        
+        // Get demo requests that haven't been assigned to any batch yet
+        $requestList = \App\Models\DemoRequest::with('user', 'course')
+            ->where('demo_status', 'pending')
+            ->orWhere('batch_id', $id)
+            ->get();
+            
+        // Get already assigned user IDs for this batch
+        $assigneduid = \App\Models\StudentTeacherBatch::where('bid', $id)
+            ->pluck('uid')
+            ->toArray();
+        
+        return view('backend.demo.batch_student', compact('batch', 'requestList', 'assigneduid'));
     }
 
     /**

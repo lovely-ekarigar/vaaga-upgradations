@@ -430,7 +430,7 @@ $teacher = User::find($request->user_id);
         $teacher_name = User::find($id);
 
         return view('backend.teachers.ppt-list',compact('teacher_ppt','teacher_name'));
-    
+    }
 
     /**
      * Display a listing of Courses via ajax DataTable.

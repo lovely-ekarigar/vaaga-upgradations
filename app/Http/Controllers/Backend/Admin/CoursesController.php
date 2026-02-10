@@ -281,6 +281,7 @@ $cc->save();
             })
             ->rawColumns(['teachers', 'lessons', 'course_image', 'actions', 'status','sort_order'])
             ->make();
+    }
     
 
     /**

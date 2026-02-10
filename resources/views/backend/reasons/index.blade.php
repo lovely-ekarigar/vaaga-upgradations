@@ -155,7 +155,7 @@
             var id = $(this).data('id');
             $.ajax({
                 type: "POST",
-                url: "{{ route('admin.reasons.status') }}",
+                url: "{{ route('admin.reasons.updateStatus') }}",
                 data: {
                     _token:'{{ csrf_token() }}',
                     id: id,

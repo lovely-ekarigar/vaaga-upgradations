@@ -35,7 +35,7 @@ class PaymentController extends Controller
         $tas = TeacherBatch::where('tid',Auth::user()->id)->orderBy("id","desc")->get();
 
         return view('backend.payments.payment', compact('total_earnings', 'total_withdrawal', 'total_withdrawal_pending', 'total_balance','tas'));
-    
+    }
 
     /**
      * Get teacher earning data

@@ -21,7 +21,7 @@ class ContactController extends Controller
         $contacts = Contact::all();
 
         return view('backend.contacts.index', compact('contacts'));
-    
+    }
 
     /**
      * Display a listing of Courses via ajax DataTable.
@@ -66,3 +66,4 @@ class ContactController extends Controller
 
           return redirect()->back()->withFlashSuccess(trans('alerts.backend.general.updated'));
     }
+}

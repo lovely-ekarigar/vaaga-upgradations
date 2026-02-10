@@ -74,6 +74,7 @@ class CategoriesController extends Controller
             $cat->sort_order = $request->sort;
             $cat->update();
         }
+    }
     
 
     /**
