@@ -660,6 +660,7 @@ if($request->date){
 }
      $reusr=StudentTeacherBatch::where("bid",$id)->get();
 
+$students = [];
 foreach($reusr as $u){
     $st=User::find($u->uid);
     $is=StudentJoin::where("uid",$u->uid)->where("date",date("Y-m-d",strtotime($date)))->first();
