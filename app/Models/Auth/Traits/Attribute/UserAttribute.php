@@ -139,20 +139,17 @@ trait UserAttribute
      */
     public function getLoginAsButtonAttribute()
     {
-        /*
-         * If the admin is currently NOT spoofing a user
-         */
-        if (! session()->has('admin_user_id') || ! session()->has('temp_user_id')) {
-            //Won't break, but don't let them "Login As" themselves
-            if ($this->id != auth()->id()) {
-                return '<a href="'.route(
-                    'admin.auth.user.login-as',
-                        $this
-                ).'" class="dropdown-item">'.__('buttons.backend.access.users.login_as', ['user' => e($this->full_name)]).'</a> ';
-            }
+        // Don't let them login as themselves
+        if ($this->id == auth()->id()) {
+            return '';
         }
 
-        return '';
+        // If already impersonating someone, don't show the button
+        if (session()->has('admin_user_id') && session()->has('temp_user_id')) {
+            return '';
+        }
+
+        return '<a href="'.route('admin.auth.user.login-as', $this).'" class="dropdown-item">'.__('buttons.backend.access.users.login_as', ['user' => e($this->full_name)]).'</a> ';
     }
 
     /**
