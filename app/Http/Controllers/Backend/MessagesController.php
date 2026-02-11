@@ -13,8 +13,6 @@ class MessagesController extends Controller
 {
     public function index(Request $request){
         $thread="";
-
-
         $teachers = User::role('teacher')->get()->pluck('name', 'id');
 
         auth()->user()->load('threads.messages.sender');
@@ -29,16 +27,13 @@ class MessagesController extends Controller
                 $threads[] = $item;
             }
         }
-        $threads = Collection::make(array_merge($unreadThreads,$threads)) ;
+        $threads = Collection::make(array_merge($unreadThreads,$threads));
 
        if(request()->has('thread') && ($request->thread != null)){
-
            if(request('thread')){
                $thread = auth()->user()->threads()
                    ->where('message_threads.id','=',$request->thread)
                    ->first();
-
-               //Read Thread
                auth()->user()->markThreadAsRead($thread->id);
            }else if($thread == ""){
                abort(404);
@@ -46,14 +41,12 @@ class MessagesController extends Controller
        }
 
         $agent = new Agent();
-
        if($agent->isMobile()){
            $view = 'backend.messages.index-mobile';
        }else{
            $view = 'backend.messages.index-desktop';
        }
         return view($view, [
-//            'threads' => auth()->user()->threads,
             'threads' => $threads,
             'teachers' => $teachers,
             'thread' => $thread

@@ -44,12 +44,12 @@ class FaqController extends Controller
                 $delete = "";
 
                 $edit = view('backend.datatable.action-edit')
-                    ->with(['route' => route('admin.faqs.edit', ['faqs_option' => $q->id])])
+                    ->with(['route' => route('admin.faqs.edit', $q->id)])
                     ->render();
                 $view .= $edit;
 
                 $delete = view('backend.datatable.action-delete')
-                    ->with(['route' => route('admin.faqs.destroy', ['faqs_option' => $q->id])])
+                    ->with(['route' => route('admin.faqs.destroy', $q->id)])
                     ->render();
                 $view .= $delete;
                 return $view;

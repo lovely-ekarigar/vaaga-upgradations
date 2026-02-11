@@ -53,12 +53,12 @@ class SponsorController extends Controller
                 $delete = "";
 
                     $edit = view('backend.datatable.action-edit')
-                        ->with(['route' => route('admin.sponsors.edit', ['category' => $q->id])])
+                        ->with(['route' => route('admin.sponsors.edit', $q->id)])
                         ->render();
                     $view .= $edit;
 
                     $delete = view('backend.datatable.action-delete')
-                        ->with(['route' => route('admin.sponsors.destroy', ['category' => $q->id])])
+                        ->with(['route' => route('admin.sponsors.destroy', $q->id)])
                         ->render();
                     $view .= $delete;
 
