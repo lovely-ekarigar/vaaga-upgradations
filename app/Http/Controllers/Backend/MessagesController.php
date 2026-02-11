@@ -21,7 +21,8 @@ class MessagesController extends Controller
 
         $unreadThreads = [];
         $threads = [];
-        foreach(auth()->user()->threads as $item){
+        $userThreads = auth()->user()->threads ?? [];
+        foreach($userThreads as $item){
             if($item->unreadMessagesCount > 0){
                 $unreadThreads[] = $item;
             }else{
