@@ -53,11 +53,11 @@ Route::group(['namespace' => 'Auth', 'as' => 'auth.'], function () {
 
         // Socialite Routes
         Route::get('login/{provider}', [SocialLoginController::class, 'login'])->name('social.login');
-        Route::get('login/{provider}/callback', [SocialLoginController::class, 'login']);
+        Route::get('login/{provider}/callback', [SocialLoginController::class, 'login'])->name('social.callback');
 
         // Registration Routes
         if (config('access.registration')) {
-            Route::get('register', [LoginController::class, 'showLoginForm'])->name('register');
+            Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
             Route::post('register', [RegisterController::class, 'register'])->name('register.post');
         }
 

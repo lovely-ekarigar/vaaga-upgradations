@@ -228,15 +228,15 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
 
     Route::get('students', [StudentController::class, 'index'])->name('students.index');
     Route::get('students/orders/{id}', [StudentController::class, 'orders'])->name('students.orders');
-    Route::get('students/{id}', [StudentController::class, 'updatestatus'])->name('students.updatestatus');
+    Route::post('students/{id}', [StudentController::class, 'updatestatus'])->name('students.updatestatus');
 
-    Route::get('student-recover/{id}', [StudentController::class, 'studentRecover'])->name('students_recover');
-    Route::get('student-show/{id}', [StudentController::class, 'studentShow'])->name('students_show');
-    Route::get('student-edit/{id}', [StudentController::class, 'studentEdit'])->name('students_edit');
-    Route::post('student-edit/{id}', [StudentController::class, 'studentUpdate'])->name('students_edit');
-    Route::get('student-delete/{id}', [StudentController::class, 'studentDelete'])->name('students_delete');
+    Route::get('student-recover/{id}', [StudentController::class, 'studentRecover'])->name('students.recover');
+    Route::get('student-show/{id}', [StudentController::class, 'studentShow'])->name('students.show');
+    Route::get('student-edit/{id}', [StudentController::class, 'studentEdit'])->name('students.edit');
+    Route::post('student-edit/{id}', [StudentController::class, 'studentUpdate'])->name('students.update');
+    Route::get('student-delete/{id}', [StudentController::class, 'studentDelete'])->name('students.delete');
 
-    Route::get('student_batch_list/{id}', [StudentController::class, 'studentBatchlist'])->name('student_batch_list');
+    Route::get('student_batch_list/{id}', [StudentController::class, 'studentBatchlist'])->name('students.batch.list');
 
 
     Route::get('feedback-list', [FeedbackController::class, 'index'])->name('feedback-list');

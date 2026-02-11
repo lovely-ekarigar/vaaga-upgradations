@@ -51,14 +51,20 @@ class StudentController extends Controller
     public function studentRecover($id){
 
         $user = User::withTrashed()->find($id);
+        if (!$user) {
+            return redirect()->back()->withFlashDanger('Student not found');
+        }
         $user->deleted_at=null;
         $user->update();
          return redirect()->back()->withFlashSuccess('Student recovered sucessfully');
     }
 
     public function orders($id){
+           $user = User::find($id);
+           if (!$user) {
+               return redirect()->back()->withFlashDanger('Student not found');
+           }
            $orders = Order::where('user_id',$id)->orderBy('updated_at', 'desc')->get();
-      $user = User::find($id);
            return view('backend.student.orders',compact('orders','user'));
     }
 
@@ -72,12 +78,18 @@ class StudentController extends Controller
     public function studentShow($id)
     {
       $student = User::find($id);
+      if (!$student) {
+          return redirect()->back()->withFlashDanger('Student not found');
+      }
       return view('backend.student.show',compact('student'));
     }
 
     public function studentEdit($id)
     {
       $student = User::find($id);
+      if (!$student) {
+          return redirect()->back()->withFlashDanger('Student not found');
+      }
       return view('backend.student.edit',compact('student'));
     }
 
@@ -141,16 +153,22 @@ class StudentController extends Controller
     public function studentDelete($id)
     {
         $student=User::find($id);
-            
-            $student->delete();
+        if (!$student) {
+            return redirect()->back()->withFlashDanger('Student not found');
+        }
+        
+        $student->delete();
 
-            return redirect()->back()->withFlashDanger("Student has been Deleted");
+        return redirect()->back()->withFlashDanger("Student has been Deleted");
     }
 
     public function updatestatus(Request $request)
     {
         //dd($request->id);
         $student = User::find($request->id);
+        if (!$student) {
+            return redirect()->back()->withFlashDanger('Student not found');
+        }
         
         $student->active = $student->active == 1? 0 : 1;
         $student->save();
@@ -166,6 +184,10 @@ class StudentController extends Controller
         foreach($student_batch as $student){
 
             $student["batches"]=Batch::find($student->bid);
+
+            if ($student["batches"] === null) {
+                continue;
+            }
 
             $student["course"]=Course::where("id",$student["batches"]->cid)->first();
              

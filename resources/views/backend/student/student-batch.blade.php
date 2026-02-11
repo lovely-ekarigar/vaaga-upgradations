@@ -29,7 +29,7 @@
             <tbody>
                <?php $count=0; ?>
                @foreach($list as $l)
-               @if($l->batches->name)
+               @if(isset($l->batches) && $l->batches && $l->batches->name)
                <?php $count++; ?>
                <tr data-entry-id="1" role="row" class="odd">
                   <td><?=$count?></td>

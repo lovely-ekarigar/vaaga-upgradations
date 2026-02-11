@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use PHPUnit\Framework\TestResult;
 
 class TestsResultsAnswer extends Model
 {
@@ -19,7 +18,7 @@ class TestsResultsAnswer extends Model
     }
 
     public function testResult(){
-        return $this->belongsTo(TestResult::class);
+        return $this->belongsTo(TestsResult::class);
     }
 
 }

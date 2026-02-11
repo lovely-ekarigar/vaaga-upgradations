@@ -18,11 +18,11 @@
 <div class="d-block">
                             <ul class="list-inline">
                                 <li class="list-inline-item">
-                                    <a href="/user/students" style="">All</a>
+                                    <a href="{{ route('admin.students.index') }}" style="">All</a>
                                 </li>
                                 |
                                 <li class="list-inline-item">
-                                    <a href="/user/students?show_deleted=1" style="font-weight: 700">Trash</a>
+                                    <a href="{{ route('admin.students.index', ['show_deleted' => 1]) }}" style="font-weight: 700">Trash</a>
                                 </li>
                             </ul>
                         </div>
@@ -69,18 +69,18 @@
 
                                         @if(!request('show_deleted'))
 
-                                        <a href="/user/student-show/{{$student->id}}" class="btn btn-xs btn-primary mb-1"><i class="icon-eye"></i></a>
-                                        <a href="/user/student-edit/{{$student->id}}" class="btn btn-xs btn-primary mb-1"><i class="icon-pencil"></i></a>
+                                        <a href="{{ route('admin.students.show', $student->id) }}" class="btn btn-xs btn-primary mb-1"><i class="icon-eye"></i></a>
+                                        <a href="{{ route('admin.students.edit', $student->id) }}" class="btn btn-xs btn-primary mb-1"><i class="icon-pencil"></i></a>
 
-                                      <a href="/user/student-delete/{{$student->id}}" onclick="return confirm('Are you sure you want to delete Student?');" class="btn btn-xs btn-danger mb-1">
+                                      <a href="{{ route('admin.students.delete', $student->id) }}" onclick="return confirm('Are you sure you want to delete Student?');" class="btn btn-xs btn-danger mb-1">
                                         <i class="fa fa-trash"></i>
                                       </a>
 
-                                      <a href="{{route('admin.student_batch_list', ['id' => $student->id])}}" class="btn btn-outline-warning mb-1 ml-1">Batch</a>
+                                      <a href="{{route('admin.students.batch.list', ['id' => $student->id])}}" class="btn btn-outline-warning mb-1 ml-1">Batch</a>
                                       <a href="{{route('admin.students.orders', ['id' => $student->id])}}" class="btn btn-outline-info mb-1 ml-1">Orders</a>
 
                                       @else
-<a href="/user/student-recover/{{$student->id}}" class="btn btn-xs btn-primary mb-1">Recover</a>
+<a href="{{ route('admin.students.recover', $student->id) }}" class="btn btn-xs btn-primary mb-1">Recover</a>
 
                                       @endif
                                       
