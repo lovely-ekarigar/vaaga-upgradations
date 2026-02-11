@@ -118,6 +118,9 @@ Route::group(['middleware' => 'role:teacher|administrator|author'], function () 
     Route::get('batch/batch-progress-list/{id}', [BatchController::class, 'batchprogressList'])->name('batch-progress-list');
 
     Route::get('batch-progress-list-teacher/{id}', [BatchController::class, 'batchprogressteacherList'])->name('batch-progress-list-teacher');
+    
+    // Questions bank - accessible by teachers and administrators
+    Route::get('questions-bank', [QuestionController::class, 'index'])->name('exams.questions.index');
 });
 
 
@@ -129,11 +132,8 @@ Route::group(['middleware' => 'role:administrator'], function () {
 
 
 
-// Generate questions
+// Generate questions (admin only)
 Route::post('questions-bank/generate', [QuestionController::class, 'generate'])->name('exams.questions.generate'); 
-
-// Questions index
-Route::get('questions-bank', [QuestionController::class, 'index'])->name('exams.questions.index');
 
 // Show form to create a question for an exam
 Route::get('exams/{exam}/questions/create', [QuestionController::class, 'create'])->name('exams.questions.create');
@@ -757,3 +757,4 @@ Route::post('reasons/status', [ReasonController::class, 'updateStatus'])->name('
 //==== Home page video Routes ====//
 Route::get('video-link', [VideoLinkController::class, 'homeVideo'])->name('homeVideo');
 Route::post('update-link', [VideoLinkController::class, 'updateLink'])->name('updateLink');
+
