@@ -214,8 +214,8 @@
       </div>
    </section>
    <!-- End Section --><!-- Section -->
-   <section class="section pt-0">
-      <div class="container mt-n12">
+   <section class="section pt-4">
+      <div class="container mt-0">
          <div class="row align-items-start gy-4">
             <div class="col-lg-7 col-xxl-8 wow fadeInUp" data-wow-duration="0.5s">
                <div class="row">
