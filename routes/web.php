@@ -449,7 +449,7 @@ Route::group(['prefix' => 'user/tutor/mocktests', 'as' => 'tutor.mocktests.', 'm
 });
 
 // Student Mock Test Routes
-Route::group(['prefix' => 'user/student/mocktests', 'as' => 'student.mocktests.', 'middleware' => ['auth', 'role:student']], function () {
+Route::group(['prefix' => 'user/student/mocktests', 'as' => 'student.mocktests.', 'middleware' => ['auth', 'role:student|administrator']], function () {
     Route::get('/', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'dashboard'])->name('index');
     Route::get('dashboard', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'dashboard'])->name('dashboard');
     Route::get('attempt/{scheduleId}', [\App\Http\Controllers\Frontend\StudentMockTestController::class, 'attemptTest'])->name('attempt');
