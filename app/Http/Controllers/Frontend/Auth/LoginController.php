@@ -177,7 +177,7 @@ class LoginController extends Controller
         /*
          * Laravel specific logic
          */
-        $this->guard()->logout();
+        auth()->logout();
         $request->session()->invalidate();
 
         return redirect()->route('frontend.index');
