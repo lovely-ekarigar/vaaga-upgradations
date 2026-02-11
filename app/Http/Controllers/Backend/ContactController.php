@@ -66,4 +66,96 @@ class ContactController extends Controller
 
           return redirect()->back()->withFlashSuccess(trans('alerts.backend.general.updated'));
     }
+
+    /**
+     * Show the form for creating new Contact.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view('backend.contacts.create');
+    }
+
+    /**
+     * Store a newly created Contact in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'number' => 'nullable|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        Contact::create($request->all());
+
+        return redirect()->route('admin.contact-requests.index')->withFlashSuccess(trans('alerts.backend.general.created'));
+    }
+
+    /**
+     * Display the specified Contact.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $contact = Contact::findOrFail($id);
+
+        return view('backend.contacts.show', compact('contact'));
+    }
+
+    /**
+     * Show the form for editing Contact.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $contact = Contact::findOrFail($id);
+
+        return view('backend.contacts.edit', compact('contact'));
+    }
+
+    /**
+     * Update Contact in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'number' => 'nullable|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        $contact = Contact::findOrFail($id);
+        $contact->update($request->all());
+
+        return redirect()->route('admin.contact-requests.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
+    }
+
+    /**
+     * Remove Contact from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $contact = Contact::findOrFail($id);
+        $contact->delete();
+
+        return redirect()->route('admin.contact-requests.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
+    }
 }

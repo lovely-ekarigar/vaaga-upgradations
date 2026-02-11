@@ -39,7 +39,7 @@ use App\Http\Controllers\Backend\NotificationController;
 // Route::get('/check-otp', [HomeController::class, 'checkOtp'])->name('home.checkOtp');
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 
-Route::get('/class-length', [MyclassController::class, 'getLengthOfClass'])->name('home.index');
+Route::get('/class-length', [MyclassController::class, 'getLengthOfClass'])->name('home.class-length');
 
 
 
@@ -54,10 +54,10 @@ Route::get('/buy-test/{id}', [TestSeriesController::class, 'buyTest'])->name('fr
 Route::get('/whiteboard/create', [WhiteboardController::class, 'createRoomAndToken']);
 Route::get('/whiteboard/view', [WhiteboardController::class, 'viewWhiteboard'])->name('whiteboard.view');
 
-Route::get('/run-attendance', [HomeController::class, 'cronAttendance'])->name('home.index');
-Route::get('/run-attendance-rec', [HomeController::class, 'cronAttendanceRec'])->name('home.index');
-Route::get('/run-subs-dues', [HomeController::class, 'cronSubscriptionDue'])->name('home.index');
-Route::get('/run-feedback', [HomeController::class, 'cronFeedbackEmail'])->name('home.index');
+Route::get('/run-attendance', [HomeController::class, 'cronAttendance'])->name('cron.attendance');
+Route::get('/run-attendance-rec', [HomeController::class, 'cronAttendanceRec'])->name('cron.attendance-rec');
+Route::get('/run-subs-dues', [HomeController::class, 'cronSubscriptionDue'])->name('cron.subs-dues');
+Route::get('/run-feedback', [HomeController::class, 'cronFeedbackEmail'])->name('cron.feedback');
 
 Route::post('/demo-request-home', [CoursesController::class, 'demoRequestHome'])->name('home.demorequest'); 
  
@@ -340,7 +340,7 @@ Route::group([ 'middleware' => 'auth'], function () {
     Route::get('user/feedback/{id}', [HomeController::class, 'feedback'])->name('feedback');
     Route::get('user/demo-feedback/{id}', [HomeController::class, 'demoFeedback'])->name('demo-feedback');
     Route::post('user/demo-feedback/{id}', [HomeController::class, 'demofeedbackCreate'])->name('demo-feedback-create');
-Route::post('user/feedback/{id}', [HomeController::class, 'feedbackCreate'])->name('feedback');
+Route::post('user/feedback/{id}', [HomeController::class, 'feedbackCreate'])->name('feedback.store');
     Route::get('user/resource', [ResourceController::class, 'admin'])->name('admin.resource.index');
     Route::get('thank-you', [CoursesController::class, 'thankYou'])->name('purchase.thank');
 Route::get('user/resource/create', [ResourceController::class, 'create'])->name('admin.resource.create');

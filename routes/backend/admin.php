@@ -106,7 +106,7 @@ Route::group(['middleware' => 'role:teacher|administrator|author'], function () 
 
     Route::get('teacher-attendance', [TeachersController::class, 'teacherattendanceList'])->name('teacher_attendance');
     Route::get('teacher-fees/{id}', [TeachersController::class, 'teacherFees'])->name('teacher_fees');
-    Route::post('teacher-fees/{id}', [TeachersController::class, 'teacherFeescreate'])->name('teacher_fees');
+    Route::post('teacher-fees/{id}', [TeachersController::class, 'teacherFeescreate'])->name('teacher_fees.store');
     Route::get('teacher-fees-delete/{id}', [TeachersController::class, 'teacherFeesdelete'])->name('teacher_fees_delete');
     // Route::get('teacher-attendance-create', [TeachersController::class, 'teacherattendanceCreate'])->name('teacher_attendance_create');
     // Route::post('teacher-attendance-store', [TeachersController::class, 'teacherattendanceStore'])->name('teacher_attendance_store');
@@ -145,12 +145,12 @@ Route::post('exams/{exam}/questions', [QuestionController::class, 'store'])->nam
 Route::get('questions-bank/{question}/edit', [QuestionController::class, 'edit'])->name('exams.questions.edit');
 
 
-Route::put('questions-bank/{question}/edit', [QuestionController::class, 'update'])->name('exams.questions.edit');
+Route::put('questions-bank/{question}/edit', [QuestionController::class, 'update'])->name('exams.questions.update');
 Route::get('questions-bank/question/add', [QuestionController::class, 'add'])->name('exams.questions.add');
-Route::post('questions-bank/question/add', [QuestionController::class, 'saveQuestion'])->name('exams.questions.add');
+Route::post('questions-bank/question/add', [QuestionController::class, 'saveQuestion'])->name('exams.questions.store');
 Route::get('questions-bank/import', [QuestionController::class, 'import'])->name('exams.questions.import'); 
 
-Route::post('questions-bank/import', [QuestionController::class, 'importNow'])->name('exams.questions.import'); 
+Route::post('questions-bank/import', [QuestionController::class, 'importNow'])->name('exams.questions.import.store'); 
 // Update a question
 Route::put('questions-bank/{question}', [QuestionController::class, 'update'])->name('exams.questions.update');
 Route::get('questions-bank/pending-verification', [QuestionController::class, 'getPendingVerification'])->name('exams.questions.pending');
@@ -158,7 +158,7 @@ Route::get('questions-bank/pending-verification', [QuestionController::class, 'g
     Route::get('questions-bank/{question}/preview', [QuestionController::class, 'preview'])->name('exams.questions.preview');
     
     Route::post('questions-bank/verify', [QuestionController::class, 'verify'])->name('exams.questions.verify');
- Route::get('questions-bank/questions/{id}/preview', [QuestionController::class, 'preview'])->name('exams.questions.preview');
+ Route::get('questions-bank/questions/{id}/preview', [QuestionController::class, 'preview'])->name('exams.questions.preview.byId');
 // Delete a question
 Route::delete('questions-bank/{question}', [QuestionController::class, 'destroy'])->name('exams.questions.destroy');
 
@@ -191,7 +191,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
 
     Route::get('demo-history/{id}', [DemoController::class, 'demoHistory'])->name('demo_history');
     Route::get('demo-feedback-list/{id}', [DemoController::class, 'demoFeedback'])->name('demo_feedback_list');
-    Route::post('demo-feedback-list/{id}', [DemoController::class, 'senddemoEmail'])->name('demo_feedback_list');
+    Route::post('demo-feedback-list/{id}', [DemoController::class, 'senddemoEmail'])->name('demo_feedback_list.send');
 
     //===== Teachers Routes =====//
     Route::resource('teachers', TeachersController::class);
@@ -199,9 +199,9 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
 
     Route::get('teachers/u/delete/{id}', [TeachersController::class, 'rmUnavail'])->name('teachers_availability_rm');
     Route::get('teachers/{id}/availability', [TeachersController::class, 'availability'])->name('teachers_availability');
-    Route::post('teachers/{id}/availability', [TeachersController::class, 'markUnavailability'])->name('teachers_availability');
+    Route::post('teachers/{id}/availability', [TeachersController::class, 'markUnavailability'])->name('teachers_availability.store');
     Route::get('teachers/{id}/availability/edit', [TeachersController::class, 'editAvailability'])->name('teachers_editavailability');
-    Route::post('teachers/{id}/availability/edit', [TeachersController::class, 'updateAvailability'])->name('teachers_editavailability');
+    Route::post('teachers/{id}/availability/edit', [TeachersController::class, 'updateAvailability'])->name('teachers_editavailability.update');
     Route::get('get-teachers-data', [TeachersController::class, 'getData'])->name('teachers.get_data');
     Route::post('teachers_mass_destroy', [TeachersController::class, 'massDestroy'])->name('teachers.mass_destroy');
     Route::post('teachers_restore/{id}', [TeachersController::class, 'restore'])->name('teachers.restore');
@@ -275,7 +275,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::get('batch/delete/{id}', [BatchController::class, 'deleteBatch'])->name('batch.delete');
 
     Route::get('batch/batch-progress-list/{id}', [BatchController::class, 'batchprogressList'])->name('batch-progress-list');
-    Route::post('batch/batch-progress-list/{id}', [BatchController::class, 'updatebatchprogressList'])->name('batch-progress-list');
+    Route::post('batch/batch-progress-list/{id}', [BatchController::class, 'updatebatchprogressList'])->name('batch-progress-list.update');
     
     
     Route::get('batch/batch-is-completed/{id}', [BatchController::class, 'batchisCompleted'])->name('batch-is-completed');
@@ -322,11 +322,11 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     //===== Settings Routes =====//
     Route::get('settings/general', [ConfigController::class, 'getGeneralSettings'])->name('general-settings');
 
-    Route::post('settings/general', [ConfigController::class, 'saveGeneralSettings'])->name('general-settings');
+    Route::post('settings/general', [ConfigController::class, 'saveGeneralSettings'])->name('general-settings.save');
 
     Route::get('settings/social', [ConfigController::class, 'getSocialSettings'])->name('social-settings');
 
-    Route::post('settings/social', [ConfigController::class, 'saveSocialSettings'])->name('social-settings');
+    Route::post('settings/social', [ConfigController::class, 'saveSocialSettings'])->name('social-settings.save');
 
     Route::get('contact', [ConfigController::class, 'getContact'])->name('contact-settings');
 
@@ -420,7 +420,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::get('get-contact-requests-data', [ContactController::class, 'getData'])->name('contact_requests.get_data');
 
     Route::get('achievement', [ContactController::class, 'achievement'])->name('achievement.achievement');
-    Route::post('achievement', [ContactController::class, 'achievementUpdate'])->name('achievement.achievement');
+    Route::post('achievement', [ContactController::class, 'achievementUpdate'])->name('achievement.update');
 
     //====== Tax Routes =====//
     Route::resource('tax', TaxController::class);
@@ -518,7 +518,7 @@ Route::group(['middleware' => 'role:administrator|teacher'], function () {
 
     Route::get('myclass/{id}', [MyclassController::class, 'details'])->name('myclass.details');
     Route::get('course-tracking/{id}', [MyclassController::class, 'courseTracking'])->name('course-tracking');
-    Route::post('course-tracking/{id}', [MyclassController::class, 'courseTrackingValidate'])->name('course-tracking');
+    Route::post('course-tracking/{id}', [MyclassController::class, 'courseTrackingValidate'])->name('course-tracking.validate');
 
     // Route::get('myclass/upload/{id}', function(){ dd('pass');});
     Route::get('myclass/upload/{id}', [MyclassController::class, 'upload'])->name('myclass.upload');
@@ -734,7 +734,7 @@ Route::get('get-blogs-data', [BlogController::class, 'getData'])->name('blogs.ge
 Route::post('blogs_mass_destroy', [BlogController::class, 'massDestroy'])->name('blogs.mass_destroy');
 Route::get('blog-categories', [BlogController::class, 'cat'])->name('blogs-cat.index');
 Route::get('add-blog-category', [BlogController::class, 'addCat'])->name('blogs-cat.add');
-Route::post('add-blog-category', [BlogController::class, 'saveCat'])->name('blogs-cat.add');
+Route::post('add-blog-category', [BlogController::class, 'saveCat'])->name('blogs-cat.store');
 
 Route::get('edit-blog-category/{id}', [BlogController::class, 'editCat'])->name('blogs-cat.edit');
 Route::post('edit-blog-category/{id}', [BlogController::class, 'updateCat'])->name('blogs-cat.update');
@@ -752,7 +752,7 @@ Route::resource('reasons', ReasonController::class);
 Route::get('get-reasons-data', [ReasonController::class, 'getData'])->name('reasons.get_data');
 Route::post('reasons_mass_destroy', [ReasonController::class, 'massDestroy'])->name('reasons.mass_destroy');
 Route::get('reasons/status/{id}', [ReasonController::class, 'status'])->name('reasons.status');
-Route::post('reasons/status', [ReasonController::class, 'updateStatus'])->name('reasons.status');
+Route::post('reasons/status', [ReasonController::class, 'updateStatus'])->name('reasons.updateStatus');
 
 //==== Home page video Routes ====//
 Route::get('video-link', [VideoLinkController::class, 'homeVideo'])->name('homeVideo');

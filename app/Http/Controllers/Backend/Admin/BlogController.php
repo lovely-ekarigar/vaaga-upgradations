@@ -196,7 +196,7 @@ class BlogController extends Controller
         $blog = new Blog();
         $blog->title = $request->title;
         if($request->slug == ""){
-            $blog->slug = str_slug($request->title);
+            $blog->slug = Str::slug($request->title);
         }else{
             $blog->slug = $request->slug;
         }
@@ -250,11 +250,11 @@ $blog->meta_keywords = $request->meta_keywords;
             $tag_ids = [];
             $tags = explode(',', $request->tags);
             foreach ($tags as $item) {
-                $tag = Tag::where('slug', '=', str_slug($item, '-'))->first();
+                $tag = Tag::where('slug', '=', Str::slug($item, '-'))->first();
                 if ($tag == null) {
                     $tag = new Tag();
                     $tag->name = $item;
-                    $tag->slug = str_slug($item, '-');
+                    $tag->slug = Str::slug($item, '-');
                     $tag->save();
                 }
                 $tag_ids[] = $tag->id;
@@ -327,7 +327,7 @@ $blog->meta_keywords = $request->meta_keywords;
         $blog = Blog::findOrFail($id);
         $blog->title = $request->title;
         if($request->slug == ""){
-            $blog->slug = str_slug($request->title);
+            $blog->slug = Str::slug($request->title);
         }else{
             $blog->slug = $request->slug;
         }
@@ -380,11 +380,11 @@ $blog->meta_keywords = $request->meta_keywords;
             $tag_ids = [];
             $tags = explode(',', $request->tags);
             foreach ($tags as $item) {
-                $tag = Tag::where('slug', '=', str_slug($item, '-'))->first();
+                $tag = Tag::where('slug', '=', Str::slug($item, '-'))->first();
                 if ($tag == null) {
                     $tag = new Tag();
                     $tag->name = $item;
-                    $tag->slug = str_slug($item, '-');
+                    $tag->slug = Str::slug($item, '-');
                     $tag->save();
                 }
                 $tag_ids[] = $tag->id;

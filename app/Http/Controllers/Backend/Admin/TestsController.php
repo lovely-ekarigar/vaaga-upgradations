@@ -19,6 +19,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTestsRequest;
 use App\Http\Requests\Admin\UpdateTestsRequest;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Str;
 
 use App\Models\Notification;
 use App\Models\UserNotification;
@@ -314,7 +315,7 @@ return view('backend.tests.result', compact('test','users'));
 
 
         $test = Test::create($request->all());
-        $test->slug = str_slug($request->title);
+        $test->slug = Str::slug($request->title);
         $test->save();
 
         $sequence = 1;
@@ -378,7 +379,7 @@ return view('backend.tests.result', compact('test','users'));
         }
         $test = Test::findOrFail($id);
         $test->update($request->all());
-        $test->slug = str_slug($request->title);
+        $test->slug = Str::slug($request->title);
         $test->save();
 
 

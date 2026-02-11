@@ -197,4 +197,17 @@ class SponsorController extends Controller
         $sponsor->status = $sponsor->status == 1? 0 : 1;
         $sponsor->save();
     }
+
+    /**
+     * Display the specified Sponsor.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $sponsor = Sponsor::findOrFail($id);
+
+        return view('backend.sponsors.show', compact('sponsor'));
+    }
 }

@@ -6,7 +6,7 @@ use App\Models\Question;
 use App\Models\QuestionsOption;
 use App\Models\Test;
 use App\Models\MockTest;
-use function foo\func;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
@@ -14,6 +14,7 @@ use App\Http\Requests\Admin\StoreQuestionsRequest;
 use App\Http\Requests\Admin\UpdateQuestionsRequest;
 use App\Http\Controllers\Traits\FileUploadTrait;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Str;
 
 class QuestionsController extends Controller
 {
@@ -388,7 +389,7 @@ class QuestionsController extends Controller
 
         try {
             $file = $request->file('image');
-            $filename = time() . '_' . str_random(10) . '.' . $file->getClientOriginalExtension();
+            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('public/uploads', $filename);
             
             return response()->json([

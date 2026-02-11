@@ -19,6 +19,8 @@ use App\Http\Requests\Admin\StoreCoursesRequest;
 use App\Http\Requests\Admin\UpdateCoursesRequest;
 use App\Http\Controllers\Traits\FileUploadTrait;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 
 class CoursesController extends Controller
 {
@@ -91,7 +93,7 @@ class CoursesController extends Controller
         if($request->course_id){
             $contents=CourseContent::where("course_id",$request->course_id)->get();
         }
-        $courses = $courses = Course::has('category')->ofTeacher()->orderBy("sort_order","asc")->pluck('title', 'id')->prepend('Please select', '');
+        $courses = Course::has('category')->ofTeacher()->orderBy("sort_order","asc")->pluck('title', 'id')->prepend('Please select', '');
 
 return view('backend.courses.content', compact('courses','contents'));
     }
@@ -100,7 +102,7 @@ public function createContent(Request $request){
   if (!Gate::allows('lesson_access')) {
             return abort(401);
         }
-        $courses = $courses = Course::has('category')->ofTeacher()->orderBy("sort_order","asc")->pluck('title', 'id')->prepend('Please select', '');
+        $courses = Course::has('category')->ofTeacher()->orderBy("sort_order","asc")->pluck('title', 'id')->prepend('Please select', '');
 
 return view('backend.courses.content_create', compact('courses'));
     }
@@ -347,7 +349,7 @@ $cc->save();
             if (($request->media_type == 'youtube') || ($request->media_type == 'vimeo')) {
                 $video = $request->video;
                 $url = $video;
-                $video_id = array_last(explode('/', $request->video));
+                $video_id = Arr::last(explode('/', $request->video));
                 $media = Media::where('url', $video_id)
                     ->where('type', '=', $request->media_type)
                     ->where('model_type', '=', 'App\Models\Course')
@@ -391,7 +393,7 @@ $cc->save();
 
 $cat = Category::find($request->category_id);
         if (($request->slug == "") || $request->slug == null) {
-            $course->slug = str_slug($cat->slug." ".$request->title);
+            $course->slug = Str::slug($cat->slug." ".$request->title);
             $course->save();
         }
         if ((int)$request->price == 0) {
@@ -489,7 +491,7 @@ $course->save();
                 if (($request->media_type == 'youtube') || ($request->media_type == 'vimeo')) {
                     $video = $request->video;
                     $url = $video;
-                    $video_id = array_last(explode('/', $request->video));
+                    $video_id = Arr::last(explode('/', $request->video));
                     $size = 0;
 
                 } else if ($request->media_type == 'embed') {
@@ -543,7 +545,7 @@ $course->save();
          $sclug = $cat->slug;
         if (($request->slug == "") || $request->slug == null) {
             
-            $course->slug = str_slug($sclug."-".$request->title);
+            $course->slug = Str::slug($sclug."-".$request->title);
             $course->save();
         }
         if ((int)$request->price == 0) {

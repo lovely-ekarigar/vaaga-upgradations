@@ -121,7 +121,7 @@ Route::group(['prefix' => 'v1','namespace'=>'v1', 'middleware' => 'cors'],functi
         Route::post('mocktests',[ApiController::class, 'getMockTests']);
         Route::post('mocktest-questions',[ApiController::class, 'getMockTestQuestions']);
     });
-    Route::post('send-reset-link',[ApiController::class]);
+    Route::post('send-reset-link',[ApiController::class, 'sendResetLink']);
     Route::post('configs',[ApiController::class, 'getConfigs']);
     
 });

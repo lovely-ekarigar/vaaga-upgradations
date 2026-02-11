@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
 use Yajra\DataTables\Facades\DataTables;
 use Auth;
+use Illuminate\Support\Str;
 
 class MockTestController extends Controller
 {
@@ -202,7 +203,7 @@ class MockTestController extends Controller
             $data['status'] = $request->status ?? ($data['published'] ? MockTest::STATUS_PUBLISHED : MockTest::STATUS_DRAFT);
         }
         $mockTest = MockTest::create($data);
-        $mockTest->slug = str_slug($request->title);
+        $mockTest->slug = Str::slug($request->title);
         $mockTest->save();
         $mockTest->courses()->sync($courseIds);
 
@@ -282,7 +283,7 @@ class MockTestController extends Controller
             $updateData['status'] = $request->status ?? ($updateData['published'] ? MockTest::STATUS_PUBLISHED : MockTest::STATUS_DRAFT);
         }
         $mockTest->update($updateData);
-        $mockTest->slug = str_slug($request->title);
+        $mockTest->slug = Str::slug($request->title);
         $mockTest->save();
         $mockTest->courses()->sync($courseIds);
 

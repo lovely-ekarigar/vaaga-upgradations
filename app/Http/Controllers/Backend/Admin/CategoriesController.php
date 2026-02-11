@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CategoriesController extends Controller
 {
@@ -220,19 +221,19 @@ class CategoriesController extends Controller
         if (!Gate::allows('category_create')) {
             return abort(401);
         }
-        $category = Category::where('slug','=',str_slug($request->name))->first();
+        $category = Category::where('slug','=',Str::slug($request->name))->first();
         if($category == null){
             $category = new  Category();
         }
         if($request->parent!=0){
             $cat = Category::find($request->parent);
-             $category->slug = str_slug($request->name);
+             $category->slug = Str::slug($request->name);
             if($cat){
-                 $category->slug = $cat->slug.'-'.str_slug($request->name);
+                 $category->slug = $cat->slug.'-'.Str::slug($request->name);
             }
            
         }else{
-           $category->slug = str_slug($request->name); 
+           $category->slug = Str::slug($request->name); 
         }
         $category->name = $request->name;
         $category->description = $request->description;
@@ -328,13 +329,13 @@ $category->save();
         $category->status = $request->status;
         if($request->parent!=0){
             $cat = Category::find($request->parent);
-             $category->slug = str_slug($request->name);
+             $category->slug = Str::slug($request->name);
             if($cat){
-                 $category->slug = $cat->slug.'-'.str_slug($request->name);
+                 $category->slug = $cat->slug.'-'.Str::slug($request->name);
             }
            
         }else{
-           $category->slug = str_slug($request->name); 
+           $category->slug = Str::slug($request->name); 
         }
          $category->board_id = $request->boards_id;
         $category->icon = $request->icon;

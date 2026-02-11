@@ -186,4 +186,17 @@ class FaqController extends Controller
         $faq->status = $faq->status == 1? 0 : 1;
         $faq->save();
     }
+
+    /**
+     * Display the specified Faq.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $faq = Faq::findOrFail($id);
+
+        return view('backend.faqs.show', compact('faq'));
+    }
 }

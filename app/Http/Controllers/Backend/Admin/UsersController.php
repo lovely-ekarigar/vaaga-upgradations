@@ -26,7 +26,7 @@ class UsersController extends Controller
 
         $users = User::all();
         // dd($users);
-        return view('admin.users.index', compact('users'));
+        return view('backend.auth.user.index', compact('users'));
     }
 
     /**
@@ -41,7 +41,7 @@ class UsersController extends Controller
         }
         $roles = Role::get()->pluck('title', 'id');
 
-        return view('admin.users.create', compact('roles'));
+        return view('backend.auth.user.create', compact('roles'));
     }
 
     /**
@@ -78,7 +78,7 @@ class UsersController extends Controller
 
         $user = User::findOrFail($id);
 
-        return view('admin.users.edit', compact('user', 'roles'));
+        return view('backend.auth.user.edit', compact('user', 'roles'));
     }
 
     /**
@@ -121,7 +121,7 @@ class UsersController extends Controller
 
         $user = User::findOrFail($id);
 
-        return view('admin.users.show', compact('user', 'courses'));
+        return view('backend.auth.user.show', compact('user', 'courses'));
     }
 
 

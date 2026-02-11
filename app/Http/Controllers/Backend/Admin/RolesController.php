@@ -26,7 +26,7 @@ class RolesController extends Controller
 
                 $roles = Role::all();
 
-        return view('backend..roles.index', compact('roles'));
+        return view('backend.auth.role.index', compact('roles'));
     }
 
     /**
@@ -41,7 +41,7 @@ class RolesController extends Controller
         }
         $permissions = Permission::get()->pluck('title', 'id');
 
-        return view('backend..roles.create', compact('permissions'));
+        return view('backend.auth.role.create', compact('permissions'));
     }
 
     /**
@@ -79,7 +79,7 @@ class RolesController extends Controller
 
         $role = Role::findOrFail($id);
 
-        return view('backend..roles.edit', compact('role', 'permissions'));
+        return view('backend.auth.role.edit', compact('role', 'permissions'));
     }
 
     /**
@@ -122,7 +122,7 @@ class RolesController extends Controller
 
         $role = Role::findOrFail($id);
 
-        return view('backend..roles.show', compact('role', 'users'));
+        return view('backend.auth.role.show', compact('role', 'users'));
     }
 
 

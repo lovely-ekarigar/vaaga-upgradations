@@ -17,6 +17,7 @@ use App\Http\Requests\Admin\StoreCoursesRequest;
 use App\Http\Requests\Admin\UpdateCoursesRequest;
 use App\Http\Controllers\Traits\FileUploadTrait;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Str;
 
 class BundlesController extends Controller
 {
@@ -182,7 +183,7 @@ class BundlesController extends Controller
         $request = $this->saveFiles($request);
         $bundle = Bundle::create($request->all());
         if (($request->slug == "") || $request->slug == null) {
-            $bundle->slug = str_slug($request->title);
+            $bundle->slug = Str::slug($request->title);
             $bundle->save();
         }
         if((int)$request->price == 0){
@@ -239,7 +240,7 @@ class BundlesController extends Controller
 
         $bundle->update($request->all());
         if (($request->slug == "") || $request->slug == null) {
-            $bundle->slug = str_slug($request->title);
+            $bundle->slug = Str::slug($request->title);
             $bundle->save();
         }
 

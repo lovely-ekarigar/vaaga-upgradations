@@ -175,4 +175,17 @@ class TestimonialController extends Controller
         $testimonial->status = $testimonial->status == 1? 0 : 1;
         $testimonial->save();
     }
+
+    /**
+     * Display the specified Testimonial.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $testimonial = Testimonial::findOrFail($id);
+
+        return view('backend.testimonials.show', compact('testimonial'));
+    }
 }

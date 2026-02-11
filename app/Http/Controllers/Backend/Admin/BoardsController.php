@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class BoardsController extends Controller
 {
@@ -43,13 +44,13 @@ class BoardsController extends Controller
         ]);
 
        
-        $board = Board::where('slug','=',str_slug($request->name))->first();
+        $board = Board::where('slug','=',Str::slug($request->name))->first();
         if($board == null){
             $board = new  Board();
         }
         $board->name = $request->name;
         $board->status = "1";
-        $board->slug = str_slug($request->name);
+        $board->slug = Str::slug($request->name);
         
        if($request->hasFile('course_image')){
  $file = \Illuminate\Support\Facades\Request::file('course_image');
@@ -79,7 +80,7 @@ $board->save();
         $board = Board::find($id);
 
         $board->name = $request->name;
-        $board->slug = str_slug($request->name);
+        $board->slug = Str::slug($request->name);
 
 
          if($request->hasFile('course_image')){
@@ -108,5 +109,27 @@ $board->update();
         return redirect()->route('admin.boards.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
     }
 
-  
+    /**
+     * Display the specified Board.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $board = Board::findOrFail($id);
+
+        return view('backend.boards.show', compact('board'));
+    }
+
+    /**
+     * Remove Board from storage (alias for delete for resource convention).
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        return $this->delete($id);
+    }
 }
