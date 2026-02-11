@@ -35,7 +35,7 @@ Teams - {{ env('APP_NAME') }}
                     <td>{{$team->designation}}</td>
                     <td><img src="/{{$team->image}}" style="height:50px"></td>
                     <td>
-                        <a href="{{ route('admin.team.edit',['id'=>$team->id]) }}" class="btn btn-xs btn-info mb-1"><i class="icon-pencil"></i></a>
+                        <a href="{{ route('admin.team.edit', $team->id) }}" class="btn btn-xs btn-info mb-1"><i class="icon-pencil"></i></a>
                         
                         <a href="?del={{$team->id}}" onclick="return confirm('DO you want to delete?')" title="Delete {{$team->name}}" class="btn btn-xs btn-danger text-white mb-1" style="cursor:pointer;" "> <i class="fa fa-trash"></i> </a>
                     </td>

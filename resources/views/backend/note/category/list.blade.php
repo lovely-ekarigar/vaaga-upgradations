@@ -41,7 +41,7 @@ Categories - {{ env('APP_NAME') }}
                         @endif
                     </td>
                     <td>
-                        <a href="{{ route('admin.note.category.edit',['id'=>$category->id]) }}" class="btn btn-xs btn-info mb-1"><i class="icon-pencil"></i></a>
+                        <a href="{{ route('admin.note.category.edit', $category->id) }}" class="btn btn-xs btn-info mb-1"><i class="icon-pencil"></i></a>
                         
                         <a href="?del={{$category->id}}" onclick="return confirm('Do you want to delete?')" title="Delete " class="btn btn-xs btn-danger text-white mb-1" style="cursor:pointer;" "> <i class="fa fa-trash"></i> </a>
                     </td>

@@ -38,7 +38,7 @@
                                 <td>{{ $btob->email }}</td>
                                 <td>{{ $btob->coupon_code }}</td>
                                 <td>
-                                    <a href="{{ route('admin.btob.edit', ['id' => $btob->id]) }}"
+                                    <a href="{{ route('admin.btob.edit', $btob->id) }}"
                                         class="btn btn-xs btn-info mb-1"><i class="icon-pencil"></i></a>
 
                                     <a href="?del={{ $btob->id }}" onclick="return confirm('DO you want to delete?')"
