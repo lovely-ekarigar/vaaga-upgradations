@@ -3,6 +3,7 @@
 <title>{{$category->name}} courses| {{env('APP_NAME')}}</title>
 @stop
 @section('content')
+
 <div class="breadcrumb-bar">
 <div class="container">
 <div class="row">
@@ -10,9 +11,9 @@
 <div class="breadcrumb-list">
 <nav aria-label="breadcrumb" class="page-breadcrumb">
 <ol class="breadcrumb">
-<li class="breadcrumb-item"><a href="/">Home</a></li>
-<li class="breadcrumb-item" aria-current="page">Category</li>
-<li class="breadcrumb-item " aria-current="page">{{$category->name}}</li>
+<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+<li class="breadcrumb-item" aria-current="page">Courses</li>
+<li class="breadcrumb-item active" aria-current="page">{{$category->name}}</li>
 </ol>
 </nav>
 </div>
@@ -26,28 +27,28 @@
 <div class="container">
 <div class="row">
 <div class="col-lg-9">
+
 <div class="showing-list">
 <div class="row">
 <div class="col-lg-6">
 <div class="d-flex align-items-center">
 <div class="view-icons">
-<a href="?view=grid" class="grid-view"><i><img src="/frontend/assets/img/icon/grid.svg"></i></a>
-<a href="?view=list" class="list-view active"><i class="fas fa fa-list"></i></a>
+<a href="?view=grid" class="grid-view active"><i><img src="/frontend/assets/img/icon/grid.svg"></i></a>
+<a href="?view=list" class="list-view"><i class="fas fa fa-list"></i></a>
 </div>
 <div class="show-result">
 <h4>Showing {{ $courses->firstItem() }}-{{ $courses->lastItem() }} of {{ $courses->total() }} courses</h4>
-
 </div>
 </div>
 </div>
 <div class="col-lg-6">
-<div class="show-filter add-course-info ">
+<div class="show-filter add-course-info">
 <form action="#">
 <div class="row gx-2 align-items-center">
 <div class="col-md-6 col-item">
 <div class=" search-group">
 <i class="feather-search"></i>
-
+<input type="hidden" value="grid" name="view" />
 <input type="text" class="form-control" name="key" value="{{request()->key}}" placeholder="Search our courses">
 </div>
 </div>
@@ -64,28 +65,33 @@
 </div>
 
 <div class="row">
-@foreach($courses as $crs)
-<div class="col-lg-12 col-md-12 d-flex">
-<div class="course-box course-design list-course d-flex">
+	@foreach($courses as $crs)
+<div class="col-lg-4 col-md-6 d-flex">
+<div class="course-box course-design d-flex ">
 <div class="product">
 <div class="product-img">
-
 <a href="{{ route('courses.show', ['slug'=>$crs->slug]) }}">
-
-<img class="img-fluid" src="{{asset('storage/uploads/'.$crs->course_image)}}" style="height:150px;" data-src="{{asset('storage/uploads/'.$crs->course_image)}}" onerror="this.src=''" alt="">
+<img class="img-fluid" alt="" src="{{asset('storage/uploads/'.$crs->course_image)}}" style="    height: 125px;">
 </a>
 <!--  <div class="price">
-<h3>$300 </h3>
+<h3>$300</h3>
 </div> -->
 </div>
 <div class="product-content">
-<div class="head-course-title">
+<div class="course-group d-flex">
+<!-- <div class="course-group-img d-flex">
+<a href="instructor-profile.html"><img src="assets/img/user/user1.jpg" alt="" class="img-fluid"></a>
+<div class="course-name">
+<h4><a href="instructor-profile.html">Rolands R</a></h4>
+<p>Instructor</p>
+</div>
+</div> 
+<div class="course-share d-flex align-items-center justify-content-center">
+<a href="#rate"><i class="fa-regular fa-heart"></i></a>
+</div>-->
+</div>
 <h3 class="title"><a href="{{ route('courses.show', ['slug'=>$crs->slug]) }}">{{$crs->title}}</a></h3>
-<div class="all-btn all-category d-flex align-items-center">
-<a href="{{ route('courses.show', ['slug'=>$crs->slug]) }}" class="btn btn-primary">Details</a>
-</div>
-</div>
-<div class="course-info border-bottom-0 pb-0 d-flex align-items-center">
+<div class="course-info d-flex align-items-center">
 <div class="rating-img d-flex align-items-center">
 <img src="/frontend/assets/img/icon/icon-01.svg" alt="">
 <p>{{count($crs->lessons)}} Lessons</p>
@@ -122,14 +128,8 @@ echo $mins." mins";
 <i class="fas fa-star"></i>
 <span class="d-inline-block average-rating"><span>4.0</span></span>
 </div>
-<div class="course-group d-flex mb-0">
-<div class="course-group-img d-flex">
-<a href="#"><img src="assets/img/user/user1.jpg" alt="" class="img-fluid"></a>
-<!-- <div class="course-name">
-<h4><a href="instructor-profile.html">Rolands R</a></h4>
-<p>Instructor</p>
-</div> -->
-</div>
+<div class="all-btn all-category d-flex align-items-center">
+<a href="{{ route('courses.show', ['slug'=>$crs->slug]) }}" class="btn btn-primary">Details</a>
 </div>
 </div>
 </div>
@@ -177,11 +177,15 @@ echo $mins." mins";
 </div>
 </div>
 </div>
-</div>
-</div>
+
+
+
 
 </div>
 </div>
+</div>
+</div>
 </section>
+
 
 @stop

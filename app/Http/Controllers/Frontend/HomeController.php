@@ -334,7 +334,7 @@ foreach($recs as $r){
 
         $categories = Category::where("parent","0")->where("status","1")->orderBy('sort_order','asc')->get();
     
-       return view('about',compact('categories'));
+       return view('frontend.about',compact('categories'));
   }
   
   public function otp()
@@ -541,7 +541,7 @@ public function feedbackCreate(Request $request,$id)
 
   public function supportHelpdesk()
   {
-    return view('support_helpdesk');
+    return view('frontend.support_helpdesk');
   }
 
    public function category($slug){
@@ -555,7 +555,7 @@ public function feedbackCreate(Request $request,$id)
         $categories = Category::where("parent","0")->orderBy('sort_order','asc')->get();
         $boards = Board::orderBy('id','desc')->where('status','1')->get();
 
-       return view('boards',compact('find_parent_category','categories_list','categories','boards'));
+       return view('frontend.boards',compact('find_parent_category','categories_list','categories','boards'));
 
      }else{ 
     $find_parent_category = Category::where('slug',$slug)->first();
@@ -564,7 +564,7 @@ public function feedbackCreate(Request $request,$id)
      $courses=Course::where('published', '=', 1)->where('category_id',$find_parent_category->id)->get();
     //  dd($courses);
 
-    return view('category-or-course',compact('categories_list','categories','slug','courses','find_parent_category'));
+    return view('frontend.category-or-course',compact('categories_list','categories','slug','courses','find_parent_category'));
      
      }
 
@@ -586,7 +586,7 @@ if(!$board){
    $categories_list = Category::where('parent',$find_parent_category->id)->where("board_id",$board->id)->orderBy('sort_order','asc')->get();
     $categories = Category::where("parent","0")->orderBy('sort_order','asc')->get();
 
-    return view('category',compact('categories_list','categories','boards','academic_slug','board','find_parent_category'));
+    return view('frontend.category',compact('categories_list','categories','boards','academic_slug','board','find_parent_category'));
   }
 
    public function academicCourse(Request $request,$board,$slug){
@@ -606,7 +606,7 @@ if(!$board){
   $categories_parent_data = Category::where('id',$find_category_id->parent)->first();
     
     //dd($categories_data_);
-    return view('academic-course',compact('courses','categories','category_list','categories_data','find_category_id','find_baords_id','categories_parent_data'));
+    return view('frontend.academic-course',compact('courses','categories','category_list','categories_data','find_category_id','find_baords_id','categories_parent_data'));
   }
 
 //   public function becometeacherCreate(Request $request)
@@ -959,7 +959,7 @@ if($location->countryName!='India'){
     public function testimonials()
     {
         $testimonials = Testimonial::where('status', '=', 1)->orderBy('created_at', 'desc')->get();
-        return view('all-testimonial',compact('testimonials'));
+        return view('frontend.all-testimonial',compact('testimonials'));
     }
 
     public function getFaqs()
@@ -970,7 +970,7 @@ if($location->countryName!='India'){
 
 
     public function ourClasses(){
-        return view('our-class');
+        return view('frontend.our-class');
     }
 
     public function subscribe(Request $request)

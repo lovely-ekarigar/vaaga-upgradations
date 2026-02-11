@@ -1,4 +1,4 @@
-@extends('frontend.layouts.app'.config('theme_layout'))
+@extends('frontend.layouts.app'.config('theme_layout', ''))
 
 @section('title', app_name() . ' | ' . __('labels.frontend.user.dashboard_title'))
 
@@ -13,7 +13,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-12">
-                                <h4>@lang('strings.frontend.welcome') {{ $logged_in_user->name }}</h4>
+                                <h4>@lang('strings.frontend.welcome') {{ $logged_in_user->name ?? '' }}</h4>
                                 <p>@lang('strings.frontend.user.dashboard_description')</p>
                             </div>
                         </div>

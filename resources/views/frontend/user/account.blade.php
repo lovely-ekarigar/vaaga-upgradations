@@ -1,4 +1,4 @@
-@extends('frontend.layouts.app'.config('theme_layout'))
+@extends('frontend.layouts.app'.config('theme_layout', ''))
 
 @section('title', app_name() . ' | ' . __('labels.frontend.user.account_title'))
 
@@ -17,15 +17,15 @@
                                 <table class="table table-bordered">
                                     <tr>
                                         <th>@lang('labels.frontend.user.name')</th>
-                                        <td>{{ $logged_in_user->name }}</td>
+                                        <td>{{ $logged_in_user->name ?? '' }}</td>
                                     </tr>
                                     <tr>
                                         <th>@lang('labels.frontend.user.email')</th>
-                                        <td>{{ $logged_in_user->email }}</td>
+                                        <td>{{ $logged_in_user->email ?? '' }}</td>
                                     </tr>
                                     <tr>
                                         <th>@lang('labels.frontend.user.joined_at')</th>
-                                        <td>{{ $logged_in_user->created_at->format('d M Y') }}</td>
+                                        <td>{{ optional($logged_in_user->created_at ?? null)->format('d M Y') ?? '' }}</td>
                                     </tr>
                                 </table>
                             </div>

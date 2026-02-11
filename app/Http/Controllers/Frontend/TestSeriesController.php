@@ -1140,7 +1140,7 @@ return $rd["id"];
         $alreadyPurchased = TestSeriesPurchase::where("user_id",Auth::user()->id)->where("payment_status","paid")->where('status','active')->get()->pluck("test_series_id")->toArray();
     }
 
-    return view('category-or-course-series',compact('courses','course','testSeries','alreadyPurchased'));
+    return view('frontend.category-or-course-series',compact('courses','course','testSeries','alreadyPurchased'));
      
      
 

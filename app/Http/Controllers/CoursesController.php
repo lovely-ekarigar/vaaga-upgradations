@@ -751,7 +751,7 @@ $current=(object)array("video"=>null,"full_text"=>null,"pdf"=>null,"media"=>null
         }
 
 
-  return view('study', compact('course','current','clist','purchased_course'));
+  return view('frontend.study', compact('course','current','clist','purchased_course'));
     }
     
     public function applyCoupon($total,$coupon){
@@ -916,12 +916,18 @@ $current=(object)array("video"=>null,"full_text"=>null,"pdf"=>null,"media"=>null
         $total_ratings = 0;
         $completed_lessons = "";
         $is_reviewed = false;
-        if(auth()->check() && $course->reviews()->where('user_id','=',auth()->user()->id)->first()){
-            $is_reviewed = true;
-        }
-        if ($course->reviews->count() > 0) {
-            $course_rating = $course->reviews->avg('rating');
-            $total_ratings = $course->reviews()->where('rating', '!=', "")->get()->count();
+        try {
+            if(auth()->check() && $course->reviews()->where('user_id','=',auth()->user()->id)->first()){
+                $is_reviewed = true;
+            }
+            if ($course->reviews->count() > 0) {
+                $course_rating = $course->reviews->avg('rating');
+                $total_ratings = $course->reviews()->where('rating', '!=', "")->get()->count();
+            }
+        } catch (\Exception $e) {
+            // reviews table doesn't exist, use default values
+            $course_rating = 0;
+            $total_ratings = 0;
         }
         $lessons = $course->courseTimeline()->orderby('sequence','asc')->get();
 
@@ -963,12 +969,13 @@ $current=(object)array("video"=>null,"full_text"=>null,"pdf"=>null,"media"=>null
 $category = Category::where('id', '=', $course->category->id)
             ->where('status','=',1)
             ->first();
+$courses = collect([]);
             if($category){
 $pcategory = Category::where('id', '=', $category->parent)
             ->where('status','=',1)
             ->first();
-            }
             $courses = $category->courses()->withoutGlobalScope('filter')->where('published', 1)->orderByRaw('RAND()')->paginate(4);
+            }
 //dd($courses); 
  
 $acode = Cookie::get("affiliate_code");
@@ -977,7 +984,7 @@ $aff = Affiliate::where("code",$acode)->first();
 $conf = Config::where("key","affiliate_user")->first();
 // dd($purchased_course);
 
-        return view('course', compact('course','couponInfo','cccode', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons','total_ratings','is_reviewed','lessons','continue_course','courses','clist','acode','aff','conf','category','pcategory'));
+        return view('frontend.course', compact('course','couponInfo','cccode', 'purchased_course', 'recent_news', 'course_rating', 'completed_lessons','total_ratings','is_reviewed','lessons','continue_course','courses','clist','acode','aff','conf','category','pcategory'));
     }
 
  
@@ -1115,7 +1122,7 @@ $conf = Config::where("key","affiliate_user")->first();
         $courses = Course::where('category_id',$course->category->id)->where('published',1)->get();
       
         
-         return view('course-checkout', compact('course','category','courses','purchased_course'));
+         return view('frontend.course-checkout', compact('course','category','courses','purchased_course'));
     }
 
     public function renew(Request $request){
@@ -1487,9 +1494,9 @@ return redirect('/thank-you');
      }
      
      if($paymentMethod == 'razorpay'){
-         return view('rzp', compact('order','payfor'));
+         return view('frontend.rzp', compact('order','payfor'));
      }else{
-         return view('paynow', compact('order','payfor'));  
+         return view('frontend.paynow', compact('order','payfor'));  
      }
  }
  
@@ -1647,7 +1654,7 @@ return redirect('/thank-you');
 // dd($courses[1]);
 
             //return view( $this->path.'.courses.index', compact('courses', 'category', 'recent_news','featured_courses','categories'));
-               return view($view, compact('view','courses', 'category', 'recent_news','featured_courses','categories','pcats'));
+               return view('frontend.'.$view, compact('view','courses', 'category', 'recent_news','featured_courses','categories','pcats'));
         }
         return abort(404);
     }
@@ -1656,7 +1663,7 @@ return redirect('/thank-you');
     {
         $course_categories = Category::with('courses')->take(20)->get();
         
-        return view('category', compact('course_categories'));
+        return view('frontend.category', compact('course_categories'));
     }
 
 
@@ -1702,7 +1709,7 @@ return redirect('/thank-you');
                 }
 
             }
-            return view( $this->path.'.courses.course', compact('course', 'purchased_course', 'recent_news','completed_lessons','continue_course', 'course_rating', 'total_ratings','lessons', 'review'));
+            return view('frontend.courses.course', compact('course', 'purchased_course', 'recent_news','completed_lessons','continue_course', 'course_rating', 'total_ratings','lessons', 'review'));
         }
         return abort(404);
 
