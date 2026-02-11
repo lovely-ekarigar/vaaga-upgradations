@@ -39,7 +39,7 @@
                                     <td>{{$boards->name}}</td>
                                     <td>{{$boards->slug}}</td>
                                     <td>
-                                      <a href="{{route('admin.boards.edit', ['boards' => $boards->id])}}" class="btn btn-xs btn-info mb-1">
+                                      <a href="{{route('admin.boards.edit', ['board' => $boards->id])}}" class="btn btn-xs btn-info mb-1">
                                         <i class="icon-pencil"></i>
                                       </a>
                                       <a href="{{route('admin.boards_delete',['id' => $boards->id])}}" onclick="return confirm('Are you sure you want to delete this item?');" class="btn btn-xs btn-danger mb-1">

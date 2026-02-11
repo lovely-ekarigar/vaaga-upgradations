@@ -364,7 +364,15 @@ public function getDataTeacher(Request $request)
      */
     public function demoBatch()
     {
-        $batches = \App\Models\Batch::with('teachers', 'students', 'course')->get();
+        $batches = \App\Models\Batch::all();
+        
+        // Manually load teacher data since relationships don't exist
+        foreach ($batches as $batch) {
+            if ($batch->tid) {
+                $batch->teacher = \App\Models\Auth\User::find($batch->tid);
+            }
+        }
+        
         return view('backend.demo.batch_index', compact('batches'));
     }
 
