@@ -1215,12 +1215,12 @@ $catx = Category::find($course->category->parent);
 
                            @endif
 
-                           <!--  @if($tp)
+                           {{--  @if($tp && $tp->subject_teach)
 
-           @foreach(json_decode($tp->subject_teach,true) as $st)
+           @foreach(json_decode($tp->subject_teach,true) ?? [] as $st)
          <small>{{$st}}</small>
          @endforeach
-         @endif -->
+         @endif --}}
 
                   </div>
 
