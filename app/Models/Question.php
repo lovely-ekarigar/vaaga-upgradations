@@ -33,13 +33,21 @@ class Question extends Model
                         // Allow questions that are part of a Test in teacher's courses
                         $q->whereHas('tests', function ($t) use ($courses) {
                             $t->whereIn('tests.course_id', $courses);
-                        })
-                        // OR questions that are linked to a MockTest assigned to teacher's courses
-                        ->orWhereHas('mockTests', function ($mt) use ($courses) {
-                            $mt->whereHas('courses', function ($c) use ($courses) {
-                                $c->whereIn('courses.id', $courses);
-                            });
                         });
+                        
+                        // OR questions that are linked to a MockTest assigned to teacher's courses
+                        // Only if mock_tests table exists
+                        try {
+                            if (\Schema::hasTable('mock_tests')) {
+                                $q->orWhereHas('mockTests', function ($mt) use ($courses) {
+                                    $mt->whereHas('courses', function ($c) use ($courses) {
+                                        $c->whereIn('courses.id', $courses);
+                                    });
+                                });
+                            }
+                        } catch (\Exception $e) {
+                            // Ignore if mock_tests table doesn't exist
+                        }
                     });
                 });
             }
