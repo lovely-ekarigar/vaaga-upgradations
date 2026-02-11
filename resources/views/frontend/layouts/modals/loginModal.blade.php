@@ -91,7 +91,7 @@
                                     <span id="login-password-error" class="text-danger"></span>
 
                                     <a class="text-info p-0 d-block text-right my-2"
-                                       href="{{ route('frontend.auth.password.reset') }}">@lang('labels.frontend.passwords.forgot_password')</a>
+                                       href="{{ route('frontend.auth.password.email') }}">@lang('labels.frontend.passwords.forgot_password')</a>
 
                                 </div>
 

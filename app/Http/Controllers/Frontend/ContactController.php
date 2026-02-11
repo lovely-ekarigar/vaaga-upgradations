@@ -47,7 +47,7 @@ class ContactController extends Controller
     public function index()
     {
         $categories = Category::where("parent","0")->get();
-        return view('frontend.contact',compact('categories'));
+        return view('contact',compact('categories'));
     }
 
     /**
