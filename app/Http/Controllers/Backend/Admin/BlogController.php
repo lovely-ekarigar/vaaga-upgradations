@@ -135,14 +135,14 @@ class BlogController extends Controller
                 }
                 if ($has_edit) {
                     $edit = view('backend.datatable.action-edit')
-                        ->with(['route' => route('admin.blogs.edit', ['blog' => $q->id])])
+                        ->with(['route' => route('admin.blogs.edit', ['id' => $q->id])])
                         ->render();
                     $view .= $edit;
                 }
 
                 if ($has_delete) {
                     $delete = view('backend.datatable.action-delete')
-                        ->with(['route' => route('admin.blogs.destroy', ['lesson' => $q->id])])
+                        ->with(['route' => route('admin.blogs.destroy', ['blog' => $q->id])])
                         ->render();
                     $view .= $delete;
                 }
