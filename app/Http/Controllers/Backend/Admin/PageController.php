@@ -84,7 +84,7 @@ class PageController extends Controller
 
                 if ($has_delete) {
                     $delete = view('backend.datatable.action-delete')
-                        ->with(['route' => route('admin.pages.destroy', ['lesson' => $q->id])])
+                        ->with(['route' => route('admin.pages.destroy', ['page' => $q->id])])
                         ->render();
                     $view .= $delete;
                 }
