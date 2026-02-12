@@ -14,7 +14,15 @@ class BatchMockTest extends Model
         'mock_list_id',
         'sort_order',
         'is_active',
-        'scheduled_at'
+        'scheduled_at',
+        'end_date'
+    ];
+
+    protected $dates = [
+        'scheduled_at',
+        'end_date',
+        'created_at',
+        'updated_at'
     ];
 
     /**

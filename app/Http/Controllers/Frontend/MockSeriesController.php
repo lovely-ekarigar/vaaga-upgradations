@@ -951,7 +951,104 @@ class MockSeriesController extends Controller
     public function edit($id)
     {
         $mockSeries = \App\Models\MockSeries::findOrFail($id);
-        $courses = \App\Models\Course::where('published', '=', 1)->get();
-        return view('admin.mock.edit', compact('mockSeries', 'courses'));
+        return response()->json(['mockSeries' => $mockSeries]);
+    }
+
+    /**
+     * Show mock exam answer key for admin (in backend)
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
+    public function adminMockExamAnswerKey($id)
+    {
+        $exam = \App\Models\MyExam::findOrFail($id);
+        
+        // Get student and mock test details
+        $student = \App\Models\Auth\User::findOrFail($exam->user_id);
+        $mockTest = \App\Models\MockList::findOrFail($exam->exam_id);
+        
+        // Get questions and answers
+        $questions = json_decode($exam->questions, true);
+        $userAnswers = json_decode($exam->answers, true) ?? [];
+        
+        // Build answer key data
+        $answerKeyData = [];
+        $questionNumber = 1;
+        
+        foreach ($questions as $sectionId => $questionIds) {
+            $section = \App\Models\Subject::find($sectionId);
+            $sectionName = $section ? $section->name : "Section " . $sectionId;
+            
+            foreach ($questionIds as $qid) {
+                $question = \App\Models\Question::find($qid);
+                
+                if (!$question) {
+                    continue;
+                }
+                
+                // Parse question text - preserve base64 images
+                $questionText = $question->question_text;
+                if (is_string($questionText)) {
+                    $decoded = json_decode($questionText, true);
+                    if (json_last_error() === JSON_ERROR_NONE && isset($decoded['en'])) {
+                        $questionText = $decoded['en'];
+                    }
+                }
+                if (is_array($questionText)) {
+                    $questionText = $questionText['en'] ?? json_encode($questionText);
+                }
+                
+                // Parse options - preserve base64 images
+                $options = $question->options;
+                if (is_string($options)) {
+                    $options = json_decode($options, true);
+                }
+                $parsedOptions = [];
+                $optionKeyMapping = []; // Map old keys to new numeric indices
+                
+                if (is_array($options)) {
+                    $index = 0;
+                    foreach ($options as $key => $opt) {
+                        $optionKeyMapping[$key] = $index; // Map 'option1' => 0, 'option2' => 1, etc.
+                        if (is_array($opt)) {
+                            $parsedOptions[$index] = $opt['en'] ?? $opt;
+                        } else {
+                            $parsedOptions[$index] = $opt;
+                        }
+                        $index++;
+                    }
+                }
+                
+                // Get user answer and correct answer, convert to numeric index
+                $userAnswer = isset($userAnswers[$qid]) ? $userAnswers[$qid] : null;
+                $correctAnswer = $question->correct_answer;
+                
+                // Convert option keys to numeric indices
+                if ($userAnswer !== null && isset($optionKeyMapping[$userAnswer])) {
+                    $userAnswer = $optionKeyMapping[$userAnswer];
+                }
+                if (isset($optionKeyMapping[$correctAnswer])) {
+                    $correctAnswer = $optionKeyMapping[$correctAnswer];
+                }
+                
+                $isCorrect = ($userAnswer !== null && $userAnswer == $correctAnswer);
+                
+                $answerKeyData[] = [
+                    'question_number' => $questionNumber,
+                    'section_name' => $sectionName,
+                    'question_text' => $questionText,
+                    'options' => $parsedOptions,
+                    'correct_answer' => $correctAnswer,
+                    'user_answer' => $userAnswer,
+                    'is_correct' => $isCorrect,
+                    'is_attempted' => ($userAnswer !== null)
+                ];
+                
+                $questionNumber++;
+            }
+        }
+        
+        return view('backend.batch.mock-answer-key', compact('exam', 'answerKeyData', 'student', 'mockTest'));
     }
 }

@@ -291,7 +291,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::get('batch/{id}/students-list', [BatchController::class, 'getStudentsList'])->name('batch.studentsList');
     Route::get('batch/{id}/mock-tests-list', [BatchController::class, 'getMockTestsList'])->name('batch.mockTestsList');
     Route::get('batch/student-mock-result/{student_id}/{mock_id}', [BatchController::class, 'getStudentMockResult'])->name('batch.studentMockResult');
-
+    Route::get('batch/mock-answer-key/{exam_id}', [\App\Http\Controllers\Frontend\MockSeriesController::class, 'adminMockExamAnswerKey'])->name('batch.mockAnswerKey');
 
 
 
