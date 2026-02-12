@@ -1,187 +1,174 @@
+<?php
+use App\Models\Board;
+?>
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>{{$category->name}} courses| {{env('APP_NAME')}}</title>
+<title>Courses | {{env('APP_NAME')}}</title> 
+@stop
+@section('page_css')
+<style type="text/css">
+  .card-body {
+    padding: 12px 0px 12px 0px !important;
+}
+
+.card-footer {
+    padding: 10px 10px;
+}
+.course-hours {
+    float: left;
+    font-size: 12px;
+}
+.course-fees {
+    /* display: inline-block; */
+    float: right;
+    text-align: center;
+}
+span.old_price {
+    text-decoration: line-through;
+    font-size: 12px;
+}
+span.price {
+    color: #15db95;
+    font-weight: 700;
+    display: block;
+/*    margin-top: -11px;*/
+}
+.feature-hover-2 .feature-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+/*     width: 100%;*/
+/*     height: 85%; */
+    padding: 40px 34px 0px 37px !important;
+}
+.feature-hover-2 {
+    border-radius: 10px !important;
+    height: 110px !important;
+}
+.feature-icon img{
+   height: 110px !important;
+   width: 100% !important;
+}
+.border-2 {
+    border: 1.5px solid;
+}
+</style>
 @stop
 @section('content')
-<div class="breadcrumb-bar">
-<div class="container">
-<div class="row">
-<div class="col-md-12 col-12">
-<div class="breadcrumb-list">
-<nav aria-label="breadcrumb" class="page-breadcrumb">
-<ol class="breadcrumb">
-<li class="breadcrumb-item"><a href="/">Home</a></li>
-<li class="breadcrumb-item" aria-current="page">Category</li>
-<li class="breadcrumb-item " aria-current="page">{{$category->name}}</li>
-</ol>
-</nav>
-</div>
-</div>
-</div>
-</div>
-</div>
 
+<main>
+   <!-- Page Title --><!-- Home Banner -->
+   <section class="bg-primary effect-section page-heading-pad bg-no-repeat bg-cover" style="background-image: url({{asset('newassets/img/bg/bg-page-header.jpeg')}});">
+      <div class="mask bg-0000_ opacity-8"></div>
+      <div class="container position-relative">
+         <div class="row">
+            <div class="col-lg-8">
+               <h2 class="text-white h1">Courses</h2>
+               <ol class="breadcrumb breadcrumb-light">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Courses</li>              
+              </ol>
+            </div>
+         </div>
+      </div>
+   </section>
 
-<section class="course-content">
-<div class="container">
-<div class="row">
-<div class="col-lg-9">
-<div class="showing-list">
-<div class="row">
-<div class="col-lg-6">
-<div class="d-flex align-items-center">
-<div class="view-icons">
-<a href="?view=grid" class="grid-view"><i><img src="/frontend/assets/img/icon/grid.svg"></i></a>
-<a href="?view=list" class="list-view active"><i class="fas fa fa-list"></i></a>
-</div>
-<div class="show-result">
-<h4>Showing {{ $courses->firstItem() }}-{{ $courses->lastItem() }} of {{ $courses->total() }} courses</h4>
+   <section class="section">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 my-3">
+            <div class="row">
+                 @if($courses->count() > 0)
+               
+              
+              @foreach($courses as $course)
 
-</div>
-</div>
-</div>
-<div class="col-lg-6">
-<div class="show-filter add-course-info ">
-<form action="#">
-<div class="row gx-2 align-items-center">
-<div class="col-md-6 col-item">
-<div class=" search-group">
-<i class="feather-search"></i>
+              <div class="col-lg-4 wow fadeInUp mb-3" data-wow-duration="0.5s" data-wow-delay="0.1s">
+                <div class="card hover-scale overflow-hidden hover-top">
+                  <div class="position-relative hover-scale-in">
+                    <a href="{{ route('courses.show', [$course->slug]) }}">
+                      <img class="card-img-top img-live-class" src="{{asset('storage/uploads/'.$course->course_image)}}" title="" alt="">
+                    </a>
+                    
+                  </div>
+                   <div class="card-body p-3 text-center">
+                    
+                    <h5 class="">
+                      <a class="text-dark stretched-link" href="{{ route('courses.show', [$course->slug]) }}">{{$course->title}}</a>
+                    </h5>
+                    
+                    
+                   
+                  </div>
+                  <div class="card-footer">
+                     <div class="course-hours"><i class="bi-people-fill"></i>
+                        <?php
+                        $bd = Board::find($course->board_id);
+                         ?>
+                         @if($bd)
+                         {{$bd->name}}
 
-<input type="text" class="form-control" name="key" value="{{request()->key}}" placeholder="Search our courses">
-</div>
-</div>
-<div class="col-md-6 col-lg-6 col-item">
-<div class="form-group select-form mb-0">
-<input type="submit" class="btn btn-primary btn-sm" value="Search" />
-</div>
-</div>
-</div>
-</form>
-</div>
-</div>
-</div>
-</div>
+                         @endif
 
-<div class="row">
-@foreach($courses as $crs)
-<div class="col-lg-12 col-md-12 d-flex">
-<div class="course-box course-design list-course d-flex">
-<div class="product">
-<div class="product-img">
+                      {{ $course->category->name}}</div>
+                     <div class="course-fees">
+                        <!-- <span class="old_price">₹13000</span> -->
+                        @if($course->free == 1)
+                        <span class="price">₹ Free</span>
+                        @else
+                        <span class="price">₹ {{$course->price}}</span>
+                        @endif
+                                                          
+                     </div>
+                  </div>
+                </div>
+              </div>
+               @endforeach
+              @else
 
-<a href="{{ route('courses.show', ['slug'=>$crs->slug]) }}">
+              <div class="col-sm-12 col-lg-12">
+                  <div class="card hover-scale overflow-hidden hover-top">
+                    <div class="card-body text-center">
+                      <div class="py-4">
+                        <img src="{{asset('newassets/img/no-data-found.png')}}">
+                      </div>
+                        <h4 class="h4 pb-4 ">No Course Found</h4>
+                    </div>
+                  </div>
+                </div>
+              
 
-<img class="img-fluid" src="{{asset('storage/uploads/'.$crs->course_image)}}" style="height:150px;" data-src="{{asset('storage/uploads/'.$crs->course_image)}}" onerror="this.src=''" alt="">
-</a>
-<!--  <div class="price">
-<h3>$300 </h3>
-</div> -->
-</div>
-<div class="product-content">
-<div class="head-course-title">
-<h3 class="title"><a href="{{ route('courses.show', ['slug'=>$crs->slug]) }}">{{$crs->title}}</a></h3>
-<div class="all-btn all-category d-flex align-items-center">
-<a href="{{ route('courses.show', ['slug'=>$crs->slug]) }}" class="btn btn-primary">Details</a>
-</div>
-</div>
-<div class="course-info border-bottom-0 pb-0 d-flex align-items-center">
-<div class="rating-img d-flex align-items-center">
-<img src="/frontend/assets/img/icon/icon-01.svg" alt="">
-<p>{{count($crs->lessons)}} Lessons</p>
-</div>
-<div class="course-view d-flex align-items-center">
-<img src="/frontend/assets/img/icon/icon-02.svg" alt="">
-<p><?php
+              @endif
+              
 
-$totalSec=0;
-foreach($crs->lessons as $l){
+            </div>
+          </div>
+          <div class="col-lg-4 my-3">
+           
+            <div class="card mt-5">
+              <div class="card-header bg-transparent p-3">
+                <span class="h5 m-0">Categories</span>
+              </div>
+             <div class="list-group list-group-flush">
+                @foreach($categories as $catego)
+                <a href="{{route('category',['slug'=>$catego->slug])}}" class="list-group-item list-group-item-action d-flex justify-content-between py-3">
+                  <div>
+                    <span>{{$catego->name}}</span>
+                  </div>
+                  <div>
+                    <i class="bi bi-chevron-right"></i>
+                  </div>
+                </a>
+                @endforeach
+              </div> 
+            </div>
+           
+          </div>
+        </div>
+      </div>
+    </section>
 
-$totalSec += (strtotime("2020-10-10 ".$l->duration) - strtotime("2020-10-10 00:00:00"));
-
-}
-$hrs = (int)($totalSec/3600);
-$mins = (int)(($totalSec-$hrs*3600)/60);
- if($hrs>0){
-
-echo $hrs." hrs ";
- }
- if($mins>0){
-
-echo $mins." mins";
- }
-
-?></p>
-</div>
-</div>
-<div class="rating">
-<i class="fas fa-star filled"></i>
-<i class="fas fa-star filled"></i>
-<i class="fas fa-star filled"></i>
-<i class="fas fa-star filled"></i>
-<i class="fas fa-star"></i>
-<span class="d-inline-block average-rating"><span>4.0</span></span>
-</div>
-<div class="course-group d-flex mb-0">
-<div class="course-group-img d-flex">
-<a href="#"><img src="assets/img/user/user1.jpg" alt="" class="img-fluid"></a>
-<!-- <div class="course-name">
-<h4><a href="instructor-profile.html">Rolands R</a></h4>
-<p>Instructor</p>
-</div> -->
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-@endforeach
-
-</div>
-
-<div class="row">
-<div class="col-md-12">
-<ul class="pagination lms-page">
-{{ $courses->links() }}
-</ul>
-</div>
-</div>
-
-</div>
-<div class="col-lg-3 theiaStickySidebar">
-<div class="filter-clear">
-<div class="clear-filter d-flex align-items-center">
-<h4><i class="feather-filter"></i>Filters</h4>
-<div class="clear-text">
-<!-- <p>CLEAR</p> -->
-</div>
-</div>
-
-<div class="card search-filter categories-filter-blk">
-<div class="card-body">
-<div class="filter-widget mb-0">
-<div class="categories-head d-flex align-items-center">
-<h4>Course categories</h4>
-</div>
-<div>
-    @foreach($categories as $ct)
-    @if($ct->parent==0)
-<a href="/category/{{$ct->slug}}/courses">
-    <p>{{$ct->name}}</p>
-</a>
-
-@endif
-@endforeach
-</div>
-
-</div>
-</div>
-</div>
-</div>
-</div>
-
-</div>
-</div>
-</section>
+   
+</main>
 
 @stop

@@ -14,7 +14,7 @@
    <button class="dropdown-toggle" aria-label="Search Courses" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-search"></i></button>
    <form action="/courses/#">
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-         <div class="input-group"><input type="text" class="form-control form-control-sm" name="key" value="{{request()->key}}" placeholder="Search" aria-label="search" aria-describedby="basic-addon1"> <button class="input-group-text" type="submit" id="basic-addon1" aria-label="Search Courses"><i class="bi bi-search"></i></button></div>
+         <!--<div class="input-group"><input type="text" class="form-control form-control-sm" name="key" value="{{request()->key}}" placeholder="Search" aria-label="search" aria-describedby="basic-addon1"> <button class="input-group-text" type="submit" id="basic-addon1" aria-label="Search Courses"><i class="bi bi-search"></i></button></div>-->
       </div>
    </form>
 </div>
@@ -88,18 +88,17 @@
                @else
              <li>  <a class=" dropdown-item" href="/category/{{$c1->slug}}">{{$c1->name}}</a> </li>
                @endif
+               
+              
+               
+               
                @endif
        @endforeach
    </ul>
 </li>
-  <li class="nav-item dropdown">
-   <a href="#" class="nav-link">Study</a> <label class="px-dropdown-toggle mob-menu bi bi-chevron-down"></label>
-   <ul class="dropdown-menu left list-unstyled">
-        <li><a class="dropdown-item" href="/our-classes">Our Classes</a></li>
-        <li><a class="dropdown-item" href="{{ route('frontend.note.categories') }}">Study Material</a></li>
-       </ul>
-       </li>
-       
+
+
+      <li class="nav-item active"><a href="/test-series/olympiad" class="nav-link">Test Series</a></li>  
       <!--<li class="nav-item active"><a href="/our-classes" class="nav-link">Our Classes</a></li>-->
       <li class="nav-item active"><a href="/become-tutor" class="nav-link">Join as Tutor</a></li>
       <li class="nav-item active"><a href="/about" class="nav-link">About Us</a></li>

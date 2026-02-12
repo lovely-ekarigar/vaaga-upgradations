@@ -8,28 +8,32 @@ use App\Models\TeacherProfile;
 use Illuminate\Support\Str;
 ?>
 @extends('frontend.layout.sub-master')
- 
- 
+
+
 
 @section('title')
-<title>Math & Science Olympiad Online Classes | Expert Coaching </title>
-<meta name="description" content="Join expert-led Math & Science Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀">
-<meta name="keywords" content="Vaaga Academy,Vaaga Academy Gurgaon,online education platforms in India,Best elearning platforms in India,Online learning platform for students,Top online learning platforms in india,Online live learning platform for school students,Live Online Learning Classes for school students">
+<title>Maths, Science & English Olympiad Online Classes | Expert Coaching </title>
+<meta name="description"
+   content="Join expert-led Maths, Science & English Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀">
+<meta name="keywords"
+   content="Vaaga Academy,Vaaga Academy Gurgaon,online education platforms in India,Best elearning platforms in India,Online learning platform for students,Top online learning platforms in india,Online live learning platform for school students,Live Online Learning Classes for school students">
 
 <meta property="og:locale" content="en_US" />
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content="Math & Science Olympiad Online Classes | Expert Coaching" />
-    <meta property="og:description" content="Join expert-led Math & Science Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀" />
-    <meta property="og:url" content="{{URL::to('/')}}" />
-    <meta property="og:site_name" content="Math & Science Olympiad Online Classes | Expert Coaching" />
-    <meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
-    <meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
-    <meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
-   
-   <meta name="twitter:card" content="summary_large_image" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Maths, Science & English Olympiad Online Classes | Expert Coaching" />
+<meta property="og:description"
+   content="Join expert-led Maths, Science & English Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀" />
+<meta property="og:url" content="{{URL::to('/')}}" />
+<meta property="og:site_name" content="Maths, Science & English Olympiad Online Classes | Expert Coaching" />
+<meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
+
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="{{env('TWITTER_HANDLE')}}" />
-<meta name="twitter:title" content="Math & Science Olympiad Online Classes | Expert Coaching" />
-<meta name="twitter:description" content="Join expert-led Math & Science Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀" />
+<meta name="twitter:title" content="Maths, Science & English Olympiad Online Classes | Expert Coaching" />
+<meta name="twitter:description"
+   content="Join expert-led Maths, Science & English Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀" />
 <meta name="twitter:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
 <link rel="canonical" href="{{URL::to('/')}}">
 
@@ -41,13 +45,13 @@ use Illuminate\Support\Str;
 
 @verbatim
 <script type="application/ld+json">
-{
+   {
   "@context": "http://schema.org/",
   "@type": "Organization",
   "@id": "https://www.vaagaacademy.com/",
 
   "legalName": "Vaagaacademy",
-  "description": "Join expert-led Math & Science Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀 ",
+  "description": "Join expert-led Maths, Science & English Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀 ",
   "url": "https://www.vaagaacademy.com/",
   "email" : "info@vaagaacademy.com",
   "logo" : "https://www.vaagaacademy.com/newassets/img/favicon.png",
@@ -63,25 +67,26 @@ use Illuminate\Support\Str;
 
 <style type="text/css">
    .invalid-feedback {
-      text-align: left; 
+      text-align: left;
    }
 
    body {
       overflow-x: hidden;
    }
-   
-       .img-live-class {
-     
-        object-fit: cover;
-    }
+
+   .img-live-class {
+
+      object-fit: cover;
+   }
+
    .dot {
-    display: inline-block;
-    height: 9px;
-    width: 8px;
-    background: #0000009e;
-    border-radius: 50%;
-    margin: 0px 3px;
-}
+      display: inline-block;
+      height: 9px;
+      width: 8px;
+      background: #0000009e;
+      border-radius: 50%;
+      margin: 0px 3px;
+   }
 
    a.book-demo-button::hover {
       color: #000;
@@ -101,7 +106,7 @@ use Illuminate\Support\Str;
    }
 
    /* Extra small devices (phones, 600px and down) */
-   @@media only screen and (max-width: 600px) {
+   @media only screen and (max-width: 600px) {
       .slider-height-respons {
          height: 450px !important;
       }
@@ -118,7 +123,7 @@ use Illuminate\Support\Str;
    }
 
    /* Small devices (portrait tablets and large phones, 600px and up) */
-   @@media only screen and (min-width: 600px) {
+   @media only screen and (min-width: 600px) {
       .slider-height-respons {
          height: 450px !important;
       }
@@ -134,7 +139,7 @@ use Illuminate\Support\Str;
    }
 
    /* Medium devices (landscape tablets, 768px and up) */
-   @@media only screen and (min-width: 768px) {
+   @media only screen and (min-width: 768px) {
       .slider-height-respons {
          height: 450px !important;
       }
@@ -150,7 +155,7 @@ use Illuminate\Support\Str;
    }
 
    /* Large devices (laptops/desktops, 992px and up) */
-   @@media only screen and (min-width: 992px) {
+   @media only screen and (min-width: 992px) {
       .slider-height-respons {
          height: 100vh !important;
       }
@@ -165,7 +170,7 @@ use Illuminate\Support\Str;
    }
 
    /* Extra large devices (large laptops and desktops, 1200px and up) */
-   @@media only screen and (min-width: 1200px) {
+   @media only screen and (min-width: 1200px) {
       .slider-height-respons {
          height: 100vh !important;
       }
@@ -250,7 +255,7 @@ use Illuminate\Support\Str;
    }
 
 
-   @@media only screen and (max-width: 600px) {
+   @media only screen and (max-width: 600px) {
       .slide-image {
          height: 150px;
          margin-top: 68px;
@@ -284,7 +289,7 @@ use Illuminate\Support\Str;
    }
 
    /* Small devices (portrait tablets and large phones, 600px and up) */
-   @@media only screen and (min-width: 600px) {
+   @media only screen and (min-width: 600px) {
       .slide-image {
          height: 150px;
          margin-top: 68px;
@@ -296,7 +301,7 @@ use Illuminate\Support\Str;
    }
 
    /* Medium devices (landscape tablets, 768px and up) */
-   @@media only screen and (min-width: 768px) {
+   @media only screen and (min-width: 768px) {
       .slide-image {
          height: 250px;
          margin-top: 68px;
@@ -308,7 +313,7 @@ use Illuminate\Support\Str;
    }
 
    /* Large devices (laptops/desktops, 992px and up) */
-   @@media only screen and (min-width: 992px) {
+   @media only screen and (min-width: 992px) {
       .slide-image {
          height: 450px;
          margin-top: 68px;
@@ -320,7 +325,7 @@ use Illuminate\Support\Str;
    }
 
    /* Extra large devices (large laptops and desktops, 1200px and up) */
-   @@media only screen and (min-width: 1200px) {
+   @media only screen and (min-width: 1200px) {
       .slide-image {
          height: 450px;
          margin-top: 68px;
@@ -361,25 +366,27 @@ use Illuminate\Support\Str;
    .info-text {
       text-align: justify;
    }
-   .Video {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-}
 
-.responsive-iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  width: 100%;
-  height: 70%;
-  border: none;
-}
-.f24{
-    font-size: 24px;
-}
+   .Video {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+   }
+
+   .responsive-iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      height: 70%;
+      border: none;
+   }
+
+   .f24 {
+      font-size: 24px;
+   }
 </style>
 @stop
 
@@ -408,7 +415,8 @@ use Illuminate\Support\Str;
 
          @endphp
          <div class="swiper-slide">
-            <div class="bg-cover bg-no-repeat effect-section slider-height-responsx slide-image" style="background-image: url({{asset('/storage/uploads/'.$sl->bg_image)}} );background-position: center center; ">
+            <div class="bg-cover bg-no-repeat effect-section slider-height-responsx slide-image"
+               style="background-image: url({{asset('/storage/uploads/'.$sl->bg_image)}} );background-position: center center; ">
                <div class="mask bg-blackx opacity-5"></div>
                <div class="container position-relative px-5 px-lg-3 mobile">
                   <div class="row align-items-center py-8 justify-content-center">
@@ -437,39 +445,150 @@ use Illuminate\Support\Str;
 
 
 
-   <section class="section pt-5 pb-5">
+   <section class="section pt-0 pb-5">
       <div class="container">
          <div class="row justify-content-center section-heading">
             <div class="col-lg-8 text-center text-lg-left">
-             
+
             </div>
          </div>
          <div class="row justify-content-center gy-4">
-            <div class="col-md-6">
-               <div class="card hover scale">
-                 <div class="card-body p-3">
-                     <a href="javascript:void(0)">
-                   <img src="{{asset('/frontend/assets/img/home/1.png')}}" loading="lazy" class="img-fluid enquiry" alt="Science Olympiad">
-                   </a>
-                 </div>
+            <div class="col-md-4">
+               <div class="card1 hover scale">
+                  <div class="card-body p-3">
+                     <a href="https://vaagaacademy.com/category/olympiad ">
+                        <!--javascript:void(0)-->
+                        <img src="{{asset('/frontend/assets/img/home/1.png')}}" loading="lazy" class="img-fluid enquiry"
+                           alt="Science Olympiad">
+                     </a>
+                  </div>
                </div>
             </div>
-            <div class="col-md-6">
-               <div class="card hover scale">
-                 <div class="card-body p-3">
-                      <a href="javascript:void(0)">
-                   <img src="{{asset('/frontend/assets/img/home/2.png')}}" loading="lazy" class="img-fluid enquiry" alt="Math Olympiad">
-                   </a>
-                 </div>
+            <div class="col-md-4">
+               <div class="card1 hover scale">
+                  <div class="card-body p-3">
+                     <a href="https://vaagaacademy.com/category/olympiad">
+                        <img src="{{asset('/frontend/assets/img/home/2.png')}}" loading="lazy" class="img-fluid enquiry"
+                           alt="Maths Olympiad">
+                     </a>
+                  </div>
+               </div>
+            </div>
+            <div class="col-md-4">
+               <div class="card1 hover scale">
+                  <div class="card-body p-3">
+                     <a href="https://vaagaacademy.com/category/olympiad">
+                        <img src="{{asset('/frontend/assets/img/home/3.png')}}" loading="lazy" class="img-fluid enquiry"
+                           alt="Maths Olympiad">
+                     </a>
+                  </div>
                </div>
             </div>
          </div>
    </section>
+   
+   
+   
+   <section class="test-series-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-5">
+                            <span class="badge bg-primary mb-3 px-3 py-2">Premium Test Series</span>
+                            <h2 class="display-5 fw-bold text-dark mb-3">Olympiads  Test Series</h2>
+                            <p class="lead text-muted mb-4">Master your exams with our comprehensive test series designed to boost your performance</p>
+                        </div>
+
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6 col-lg-4">
+                                <div class="feature-card text-center p-4 rounded-3 h-100">
+                                    <div class="feature-icon bg-primary bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                                        <i class="fas fa-file-alt text-primary fs-4"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">20+ Mock Tests</h5>
+                                    <p class="text-muted small">Full-length simulated exams with real patterns</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 col-lg-4">
+                                <div class="feature-card text-center p-4 rounded-3 h-100">
+                                    <div class="feature-icon bg-success bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                                        <i class="fas fa-chart-line text-success fs-4"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">Performance Analytics</h5>
+                                    <p class="text-muted small">Detailed insights with improvement areas</p>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 col-lg-4">
+                                <div class="feature-card text-center p-4 rounded-3 h-100">
+                                    <div class="feature-icon bg-warning bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                                        <i class="fas fa-book-open text-warning fs-4"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">Topic-wise Tests</h5>
+                                    <p class="text-muted small">Practice specific topics with curated questions</p>
+                                </div>
+                            </div>
+                            
+                            
+                        </div>
+
+                        <div class="text-center">
+                            <a href="/test-series/olympiad" class="btn btn-primaryx btn-lg px-5 py-3 fw-bold">
+  <i class="fas fa-play-circle me-2"></i> Start Test Now
+</a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.test-series-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+.btn-primaryx {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    color:#fff;
+}
+.btn-primaryx:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+       color:#fff;
+}
+.card {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+</style>
+   
+   
+   
+   
+   
    <section class="section pt-5 pb-5">
       <div class="container">
          <div class="row justify-content-center section-heading">
             <div class="col-lg-8 text-center text-lg-left">
-               <h1 class="h1 mb-0 text-center text-lg-left f24">Excel in Math & Science Olympiads with Expert Online Classes</h1>
+               <h1 class="h1 mb-0 text-center text-lg-left f24">Excel in Maths, Science & English Olympiads with Expert
+                  Online Classes</h1>
             </div>
          </div>
          <div class="row justify-content-center gy-4">
@@ -477,8 +596,10 @@ use Illuminate\Support\Str;
             @foreach($categories as $cat)
 
             <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s">
-               <div class="p-3 pe-5 border border-white arrow-hover rounded-3" style="background-color:#4a2a51;box-shadow: 3px 3px 0px 0px #e5dbdbd9;text-align: center;">
-                  <div class="arrow-icon text-white"></div><a class="stretched-link h6 fw-600 text-white m-0" href="{{route('category',['slug'=>$cat->slug])}}">{{$cat->name}}</a>
+               <div class="p-3 pe-5 border border-white arrow-hover rounded-3"
+                  style="background-color:#4a2a51;box-shadow: 3px 3px 0px 0px #e5dbdbd9;text-align: center;">
+                  <div class="arrow-icon text-white"></div><a class="stretched-link h6 fw-600 text-white m-0"
+                     href="{{route('category',['slug'=>$cat->slug])}}">{{$cat->name}}</a>
                </div>
             </div>
 
@@ -487,14 +608,16 @@ use Illuminate\Support\Str;
 
          </div>
    </section>
-  
+
 
 
    <!-- Section -->
    <section class="section bg-gray-100 effect-section" id="our-courses">
-      <div class="particles-box" id="particles-box"><canvas class="particles-js-canvas-el" width="1343" height="1054" style="width: 100%; height: 100%;"></canvas></div>
+      <div class="particles-box" id="particles-box"><canvas class="particles-js-canvas-el" width="1343" height="1054"
+            style="width: 100%; height: 100%;"></canvas></div>
       <div class="container">
-         <div class="row section-heading justify-content-center text-center wow fadeInUp mb-2" data-wow-duration="0.5s" data-wow-delay="0.1s">
+         <div class="row section-heading justify-content-center text-center wow fadeInUp mb-2" data-wow-duration="0.5s"
+            data-wow-delay="0.1s">
             <div class="col-lg-8 col-xl-6">
                <h3 class="h1 bg-000-after after-50px pb-3 mb-0 text-warning">Trending Courses</h3>
 
@@ -547,7 +670,10 @@ use Illuminate\Support\Str;
                   <div class="card hover-scale overflow-hidden hover-top">
                      <div class="position-relative hover-scale-in">
                         <a href="{{ route('courses.show', [$course->slug]) }}">
-                           <img class="card-img-top img-live-class" src="{{asset('storage/uploads/'.$course->course_image)}}" onerror="this.src='/newassets/img/logo.webp'" title="{{$course->title}}" alt="{{$course->title}}" loading="lazy">
+                           <img class="card-img-top img-live-class"
+                              src="{{asset('storage/uploads/'.$course->course_image)}}"
+                              onerror="this.src='/newassets/img/logo.webp'" title="{{$course->title}}"
+                              alt="{{$course->title}}" loading="lazy">
                         </a>
 
                      </div>
@@ -560,9 +686,11 @@ use Illuminate\Support\Str;
 
                         <h5 class="mb-3">
                            @if($cp)
-                           <a class="text-dark stretched-link" href="{{ route('courses.show', [$course->slug]) }}?coupon={{$cp->code}}">{{$course->title}}</a>
+                           <a class="text-dark stretched-link"
+                              href="{{ route('courses.show', [$course->slug]) }}?coupon={{$cp->code}}">{{$course->title}}</a>
                            @else
-                           <a class="text-dark stretched-link" href="{{ route('courses.show', [$course->slug]) }}">{{$course->title}}</a>
+                           <a class="text-dark stretched-link"
+                              href="{{ route('courses.show', [$course->slug]) }}">{{$course->title}}</a>
 
                            @endif
                         </h5>
@@ -571,17 +699,17 @@ use Illuminate\Support\Str;
 
                            <?php $bd = Board::find($course->board_id); ?>
 
-<?php
+                           <?php
 $catx = Category::find($course->category->parent);
 
 ?>
                            @if($bd)
                            {{$bd->name}}<div class="dot"></div>
-                          @else
-                             @if($catx)
-                        {{$catx->name}} <div class="dot"></div>
-                        @endif
-                         @endif
+                           @else
+                           @if($catx)
+                           {{$catx->name}} <div class="dot"></div>
+                           @endif
+                           @endif
                            {{ $course->category->name}}
                         </div>
                         @if($course->duration_text)
@@ -596,7 +724,7 @@ $catx = Category::find($course->category->parent);
 
 
                      </div>
-                     
+
                      <div class="card-footer" style="display: flex;
     align-items: center;">
 
@@ -653,7 +781,7 @@ $catx = Category::find($course->category->parent);
 
 
                                  </div>
-                                 
+
                               </div>
 
                      </div>
@@ -677,19 +805,34 @@ $catx = Category::find($course->category->parent);
    <section class="section">
       <div class="container">
          <div class="row align-items-center justify-content-between ">
-            <div class="col-lg-6 my-3 wow fadeInLeft" data-wow-duration="0.5s" data-wow-delay="0.1s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInLeft;">
-               <h2 class="h2"> Why Choose Our Math & Science Olympiad Online Classes</h2>
-               <p class="lead" style="text-align: justify;">Our Math & Science Olympiad online classes provide expert-led coaching with a comprehensive syllabus, interactive live sessions, and personalized learning plans to help students excel. Learn from experienced faculty, access 24/7 study materials, and practice with mock tests designed to simulate real Olympiad exams. With a structured approach and tailored guidance, our program ensures concept clarity and problem-solving skills for top performance. Enroll today and boost your Olympiad success! 🚀</p>
+            <div class="col-lg-6 my-3 wow fadeInLeft" data-wow-duration="0.5s" data-wow-delay="0.1s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInLeft;">
+               <h2 class="h2"> Why Choose Our Maths, Science & English Olympiad Online Classes</h2>
+               <p class="lead" style="text-align: justify;">Our Maths, Science & English Olympiad online classes provide
+                  expert-led coaching with a comprehensive syllabus, interactive live sessions, and personalized
+                  learning plans to help students excel. Learn from experienced faculty, access 24/7 study materials,
+                  and practice with mock tests designed to simulate real Olympiad exams. With a structured approach and
+                  tailored guidance, our program ensures concept clarity and problem-solving skills for top performance.
+                  Enroll today and boost your Olympiad success! 🚀</p>
                <ul class="list-type-03 mb-4 list-unstyled">
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Personalised and interactive Live Private and Group classes</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Notes and Assessments for every topic</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Video recordings to view later</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Experienced and Well qualified Tutors</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Tutor replacement guarantee</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Best education at comfort and safety of your home</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Comprehensive Learning Programs</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Regular progress reporting to parents</li>
-                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Secure Payment Gateway and Flexible payment options</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Personalised and
+                     interactive Live Private and Group classes</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Notes and
+                     Assessments for every topic</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Video recordings to
+                     view later</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Experienced and
+                     Well qualified Tutors</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Tutor replacement
+                     guarantee</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Best education at
+                     comfort and safety of your home</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Comprehensive
+                     Learning Programs</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Regular progress
+                     reporting to parents</li>
+                  <li class="d-flex py-1"><i class="bi bi-check-circle-fill text-secondary me-2"></i>Secure Payment
+                     Gateway and Flexible payment options</li>
                </ul>
 
 
@@ -698,7 +841,11 @@ $catx = Category::find($course->category->parent);
                <a class="btn btn-warning" href="/contact">Contact</a>
 
             </div>
-            <div class="col-lg-6 my-3 wow fadeInRight text-center" data-wow-duration="0.5s" data-wow-delay="0.1s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInRight;"><img src="{{asset('newassets/img/about/about01.gif')}}" loading="lazy" width="400" height="400" title="" alt="About vaagaacademy"></div>
+            <div class="col-lg-6 my-3 wow fadeInRight text-center" data-wow-duration="0.5s" data-wow-delay="0.1s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInRight;">
+               <img src="{{asset('newassets/img/about/about01.gif')}}" loading="lazy" width="400" height="400" title=""
+                  alt="About vaagaacademy">
+            </div>
          </div>
       </div>
    </section>
@@ -707,16 +854,11 @@ $catx = Category::find($course->category->parent);
       <div class="container containerVideo">
          <div class="row justify-content-center d-flex">
             <div class="col-md-12 Videox" style="text-align:center;">
-                @if($link && isset($link->link))
-                <div data-href="https://www.youtube.com/embed/{{$link->link}}"  class="vplay" >
-    <img src="/yt-vaaga.webp"  loading="lazy"  height="500" style="object-fit: cover;" alt="Youtube Math and Science Olympiad Classes" />
-    </div>
-                @else
-                <div class="vplay" >
-    <img src="/yt-vaaga.webp"  loading="lazy"  height="500" style="object-fit: cover;" alt="Youtube Math and Science Olympiad Classes" />
-    </div>
-                @endif
-              
+               <div data-href="https://www.youtube.com/embed/{{$link->link}}" class="vplay">
+                  <img src="/yt-vaaga.webp" loading="lazy" height="500" style="object-fit: cover;"
+                     alt="Youtube Maths and Science Olympiad Classes" />
+               </div>
+
             </div>
          </div>
       </div>
@@ -732,11 +874,14 @@ $catx = Category::find($course->category->parent);
             </div>
             <div class="col-md-12 text-center">
                <p>
-                  Our Math & Science Olympiad online classes stand out with expert faculty, interactive learning, personalized study plans, and real-time mock tests to ensure top performance. With 24/7 access to study materials, doubt-solving sessions, and a structured curriculum, we provide a holistic approach to Olympiad success. Join us today and experience the difference! 🚀 </p>
+                  Our Maths, Science & English Olympiad online classes stand out with expert faculty, interactive
+                  learning, personalized study plans, and real-time mock tests to ensure top performance. With 24/7
+                  access to study materials, doubt-solving sessions, and a structured curriculum, we provide a holistic
+                  approach to Olympiad success. Join us today and experience the difference! 🚀 </p>
             </div>
 
             <div class="col-md-12 text-center">
-               <h4>India's Expert Tutors for Online Math and Science Olympiad</h4>
+               <h4>India's Expert Tutors for Online Maths and Science Olympiad</h4>
             </div>
 
             <?php
@@ -762,7 +907,8 @@ $catx = Category::find($course->category->parent);
             @foreach($irls as $k=>$ir)
             <div class="col-md-4 col-sm-12 col-12 mb-3">
                <div class="d-flex bg-body shadow-sm p-3 rounded-3">
-                  <div class="icon-lg {{$colorsClass[$k]}} text-white rounded-circle"><i class="{{$iconsClass[$k]}}"></i></div>
+                  <div class="icon-lg {{$colorsClass[$k]}} text-white rounded-circle"><i
+                        class="{{$iconsClass[$k]}}"></i></div>
                   <div class="col ps-3" style="padding-top:16px;">
                      <h5 class="h6 mb-1">{{$ir}}</h5>
                   </div>
@@ -776,67 +922,80 @@ $catx = Category::find($course->category->parent);
 
    </section>
    <section class="section bg-gray-100 effect-section">
-      <div class="particles-box" id="particles-box-01"><canvas class="particles-js-canvas-el" width="1343" height="1054" style="width: 100%; height: 100%;"></canvas></div>
+      <div class="particles-box" id="particles-box-01"><canvas class="particles-js-canvas-el" width="1343" height="1054"
+            style="width: 100%; height: 100%;"></canvas></div>
       <!-- <div class="position-absolute top-0 end-0 start-0 bottom-0 bg-cover bg-no-repeat opacity-1 bg-fixed" style="background-image: url(/public/newassets/img/effect/ef-bg-2.png);"></div> -->
       <div class="container">
 
-         <div class="row section-heading justify-content-center text-center wow fadeInUp" data-wow-duration="0.3s" style="visibility: visible; animation-duration: 0.3s; animation-name: fadeInUp;">
+         <div class="row section-heading justify-content-center text-center wow fadeInUp" data-wow-duration="0.3s"
+            style="visibility: visible; animation-duration: 0.3s; animation-name: fadeInUp;">
             <div class="col-lg-8 col-xl-6">
                <h3 class="h1 bg-000-after after-50px pb-3 mb-3 text-warning">Why Choose {{env('PROJECT_NAME')}}?</h3>
             </div>
          </div>
 
          <div class="row card-height">
-            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInUp;">
+            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInUp;">
                <div class="card hover-top">
                   <div class="card-body">
                      <div class="icon-md bg-000 text-white rounded-3 mb-4"><i class="bi bi-microsoft-teams"></i></div>
                      <h5 class="dark-color mb-2 h5x">Live Personalised Private and Group classes</h5>
-                     <p class="info-text">Customised interactive online learning sessions for better understanding of concepts.</p>
+                     <p class="info-text">Customised interactive online learning sessions for better understanding of
+                        concepts.</p>
 
                   </div>
                </div>
             </div>
 
-            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInUp;">
+            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.1s; animation-name: fadeInUp;">
                <div class="card hover-top">
                   <div class="card-body">
-                     <div class="icon-md bg-primary text-white rounded-3 mb-4"><i class="fa fa-chalkboard-user"></i></div>
+                     <div class="icon-md bg-primary text-white rounded-3 mb-4"><i class="fa fa-chalkboard-user"></i>
+                     </div>
                      <h5 class="dark-color  mb-2 h5x">Interactive Classroom</h5>
-                     <p class="info-text">Whiteboard, Online quizzes and assignments for high student engagement and effective learning.</p>
+                     <p class="info-text">Whiteboard, Online quizzes and assignments for high student engagement and
+                        effective learning.</p>
 
                   </div>
                </div>
             </div>
-            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.2s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.2s; animation-name: fadeInUp;">
+            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.2s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.2s; animation-name: fadeInUp;">
                <div class="card hover-top">
                   <div class="card-body">
                      <div class="icon-md bg-secondary  text-white rounded-3 mb-4"><i class="fa fa-brain"></i></div>
                      <h5 class="dark-color  mb-2 h5x">Concept Building</h5>
-                     <p class="info-text">Focus on concept clarity and instant doubt clearing during the class to ensure good result.</p>
+                     <p class="info-text">Focus on concept clarity and instant doubt clearing during the class to ensure
+                        good result.</p>
 
                   </div>
-               </div> 
+               </div>
             </div>
 
 
 
-            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
+            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
                <div class="card hover-top">
                   <div class="card-body">
                      <div class="icon-md bg-black  text-white rounded-3 mb-4"><i class="fa fa-globe"></i></div>
                      <h5 class="dark-color  mb-2 h5x">Anytime and anywhere</h5>
-                     <p class="info-text">No hassle to travel long distances, take classes at comfort of your home and as per your time preference.</p>
+                     <p class="info-text">No hassle to travel long distances, take classes at comfort of your home and
+                        as per your time preference.</p>
 
                   </div>
                </div>
             </div>
-            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
+            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
                <div class="card hover-top">
                   <div class="card-body">
                      <div class="icon-md bg-info  text-white rounded-3 mb-4"><i class="fa fa-chart-simple"></i></div>
                      <h5 class="dark-color  mb-2 h5x">Regular progress update</h5>
-                     <p class="info-text">Regular assignments helps to track the progress that will be shared with parents on regular basis.</p>
+                     <p class="info-text">Regular assignments helps to track the progress that will be shared with
+                        parents on regular basis.</p>
 
                   </div>
                </div>
@@ -845,23 +1004,28 @@ $catx = Category::find($course->category->parent);
 
 
 
-            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
+            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
                <div class="card hover-top">
                   <div class="card-body">
-                     <div class="icon-md bg-warning text-white rounded-3 mb-4"><i class="fa fa-person-chalkboard"></i></div>
+                     <div class="icon-md bg-warning text-white rounded-3 mb-4"><i class="fa fa-person-chalkboard"></i>
+                     </div>
                      <h5 class="dark-color  mb-2 h5x">Experienced and Expert Tutors</h5>
-                     <p class="info-text">Rigorous selection process of Tutor ensures experienced and expert Tutors from all over the country.</p>
+                     <p class="info-text">Rigorous selection process of Tutor ensures experienced and expert Tutors from
+                        all over the country.</p>
 
                   </div>
                </div>
             </div>
 
-            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
+            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
                <div class="card hover-top">
                   <div class="card-body">
                      <div class="icon-md bg-danger text-white rounded-3 mb-4"><i class="fa fa-rectangle-list"></i></div>
                      <h5 class="dark-color  mb-2 h5x">Comprehensive Subject Coverage</h5>
-                     <p class="info-text">Wide variety of courses are available to meet all your academic requirements.</p>
+                     <p class="info-text">Wide variety of courses are available to meet all your academic requirements.
+                     </p>
 
                   </div>
                </div>
@@ -869,12 +1033,14 @@ $catx = Category::find($course->category->parent);
 
 
 
-            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s" style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
+            <div class="col-lg-3 my-3 wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.3s"
+               style="visibility: visible; animation-duration: 0.5s; animation-delay: 0.3s; animation-name: fadeInUp;">
                <div class="card hover-top">
                   <div class="card-body">
                      <div class="icon-md bg-success  text-white rounded-3 mb-4"><i class="fa fa-video"></i></div>
                      <h5 class="dark-color  mb-2 h5x">Recorded sessions</h5>
-                     <p class="info-text">All class recordings are available for later view and reference in case of any doubt or for revision.</p>
+                     <p class="info-text">All class recordings are available for later view and reference in case of any
+                        doubt or for revision.</p>
 
                   </div>
                </div>
@@ -898,13 +1064,15 @@ $catx = Category::find($course->category->parent);
             <div class="col-md-12">
 
                <div class="main-timeline4">
-                  <div class="timeline wowx fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s" data-wow-mobile="true">
+                  <div class="timeline wowx fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s"
+                     data-wow-mobile="true">
                      <span class="timeline-content">
                         <span class="year"><i class="bi-mortarboard-fill" style="font-size: 26px;"></i></span>
                         <div class="inner-content">
                            <h3 class="title">Register with us</h3>
                            <p class="description">
-                              Join the world of fantastic resources and strong mentor support that will greatly enrich your academic journey.
+                              Join the world of fantastic resources and strong mentor support that will greatly enrich
+                              your academic journey.
                            </p>
                         </div>
                      </span>
@@ -915,7 +1083,8 @@ $catx = Category::find($course->category->parent);
                         <div class="inner-content">
                            <h3 class="title">Choose the subjects</h3>
                            <p class="description">
-                              Choose the subjects for your academic journey to shape your future in a way that aligns with your passions and strengths. </p>
+                              Choose the subjects for your academic journey to shape your future in a way that aligns
+                              with your passions and strengths. </p>
                         </div>
                      </span>
                   </div>
@@ -925,7 +1094,8 @@ $catx = Category::find($course->category->parent);
                         <div class="inner-content">
                            <h3 class="title">Book a Free Demo</h3>
                            <p class="description">
-                              Book a free demo now to experience personalized learning, expert guidance, and the tools you need for academic success.
+                              Book a free demo now to experience personalized learning, expert guidance, and the tools
+                              you need for academic success.
                         </div>
                      </span>
                   </div>
@@ -935,7 +1105,8 @@ $catx = Category::find($course->category->parent);
                         <div class="inner-content">
                            <h3 class="title">Purchase the Course</h3>
                            <p class="description">
-                              It’s your key to success, providing essential knowledge and skills to excel in academics and beyond.
+                              It’s your key to success, providing essential knowledge and skills to excel in academics
+                              and beyond.
                            </p>
                         </div>
                      </span>
@@ -947,7 +1118,8 @@ $catx = Category::find($course->category->parent);
                            <h3 class="title">Expert Tutor Assigned</h3>
                            <p class="description">
 
-                              Assigning an expert Tutor to provide personalized guidance and boosting academic performance to excel. </p>
+                              Assigning an expert Tutor to provide personalized guidance and boosting academic
+                              performance to excel. </p>
                         </div>
                      </span>
                   </div>
@@ -957,7 +1129,8 @@ $catx = Category::find($course->category->parent);
                         <div class="inner-content">
                            <h3 class="title">Let’s start your Learning Journey!!</h3>
                            <p class="description">
-                              Join us today to kickstart your exciting learning adventure with VaaGa Academy and let's make it truly remarkable! 🚀 </p>
+                              Join us today to kickstart your exciting learning adventure with VaaGa Academy and let's
+                              make it truly remarkable! 🚀 </p>
                         </div>
                      </span>
                   </div>
@@ -977,9 +1150,10 @@ $catx = Category::find($course->category->parent);
                <h3 class="h1 bg-000-after after-50px pb-3 mb-3">Recent Reviews from Students</h3>
 
             </div>
-            
+
          </div>
-         <div class="swiper swiper-container wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s" data-swiper-options='{
+         <div class="swiper swiper-container wow fadeInUp" data-wow-duration="0.5s" data-wow-delay="0.1s"
+            data-swiper-options='{
                  "slidesPerView": 1,
                  "spaceBetween": 24,
                  "pagination": {
@@ -998,56 +1172,63 @@ $catx = Category::find($course->category->parent);
                  }
                  }
                  }'>
-             
-             <style>
-                 .show-less 
-{
-    max-height: 110px;
-    margin-bottom: 0px;
-    overflow: hidden;
-    font-size: 13px;
-    line-height: 25px;
-    transition: all 1s;
- }
-             </style>
+
+            <style>
+               .show-less {
+                  max-height: 110px;
+                  margin-bottom: 0px;
+                  overflow: hidden;
+                  font-size: 13px;
+                  line-height: 25px;
+                  transition: all 1s;
+               }
+            </style>
             <div class="swiper-wrapper">
                @foreach($testimonials as $te)
                <div class="swiper-slide">
                   <div class="border text-center mt-5 mb-4 rounded-3">
-                     <!--<div class="icon-md bg-000 text-white rounded-circle mt-n5">-->
-                     <!--    <i class="bi bi-quote"></i></div>-->
-                     
-                         <div class="pt-2">
-                          <a href="#">
-                       <iframe width="360px" height="200" src="https://www.youtube.com/embed/{{$te->video_link}}" title="YouTube video player"  allowfullscreen></iframe>
-                       
-                    </a>
-                    </div>
-                    
-                   
-                    <div class="p-4 pt-1">
-                        <p>{{$te->content}} </p>
-                        <!--<p>{{Str::limit($te->content, 115, '...')}}<span class="text-danger">Read more</span>-->
-                       
-                        </p>
+                     {{-- <div class="icon-md bg-000 text-white rounded-circle mt-n5">
+                        <i class="bi bi-quote"></i>
+                     </div> --}}
+
+                     {{-- <div class="pt-2">
+                        <a href="#">
+                           <iframe width="360px" height="200" src="https://www.youtube.com/embed/{{$te->video_link}}"
+                              title="YouTube video player" allowfullscreen></iframe>
+                        </a>
+                     </div> --}}
+
+                     <div class="pt-2 text-center">
+                        <img src="{{ asset('uploads/testimonials/'.$te->image) }}" alt="{{ $te->name }}"
+                           class="rounded-circle shadow-sm" style="width:120px; height:120px; object-fit:cover;"
+                           onerror="this.onerror=null;this.src='https://vaagaacademy.com/uploads/testimonials/1756449983-648881126325.png';">
+
+                     </div>
+                     <div class="pt-3 pb-1">
                         <h5 class="h6 m-0">{{$te->name}}</h5>
                         <label class="fw-600 small m-0">{{$te->occupation}} </label>
+                     </div>
+
+                     <div class="p-4 pt-1">
+                        <p>{{$te->content}} </p>
+                        <!--<p>{{Str::limit($te->content, 115, '...')}}<span class="text-danger">Read more</span>-->
+
+                        </p>
                      </div>
                   </div>
                </div>
                @endforeach
-           
 
-               
                <div class="swiper-pagination position-relative mt-2"></div>
             </div>
-            <div class="pb-5 text-center"><a class="btn btn-primary" href="{{route('home.testimonials')}}">View All</a></div>
+            <div class="pb-5 text-center"><a class="btn btn-primary" href="{{route('home.testimonials')}}">View All</a>
+            </div>
          </div>
    </section>
    <!-- End Section -->
    @endif
-   
-  
+
+
 
 
    <!-- <section class="section bg-fixed bg-center bg-cover bg-no-repeat" style="background-image: url(/banner.webp);" id="demo">
@@ -1133,11 +1314,13 @@ $catx = Category::find($course->category->parent);
    @if(count($tutors)>0)
 
    <section class="section bg-gray-100 effect-section ">
-      <div class="particles-box" id="particles-box-01"><canvas class="particles-js-canvas-el" width="1343" height="1054" style="width: 100%; height: 100%;"></canvas></div>
+      <div class="particles-box" id="particles-box-01"><canvas class="particles-js-canvas-el" width="1343" height="1054"
+            style="width: 100%; height: 100%;"></canvas></div>
 
       <div class="container">
 
-         <div class="row section-heading justify-content-center text-center wow fadeInUp" data-wow-duration="0.3s" style="visibility: visible; animation-duration: 0.3s; animation-name: fadeInUp;">
+         <div class="row section-heading justify-content-center text-center wow fadeInUp" data-wow-duration="0.3s"
+            style="visibility: visible; animation-duration: 0.3s; animation-name: fadeInUp;">
             <div class="col-lg-8 col-xl-6">
                <h3 class="h1 bg-000-after after-50px text-warning">Star Tutors</h3>
             </div>
@@ -1189,11 +1372,15 @@ $catx = Category::find($course->category->parent);
                $tp = TeacherProfile::where("user_id", $t->id)->first();
                ?>
 
-               <div class="swiper-slide wow fadeInUp" data-wow-duration=".4s" data-wow-delay="0.05s" style="visibility: visible; animation-duration: 0.4s; animation-delay: 0.05s; animation-name: fadeInUp;">
+               <div class="swiper-slide wow fadeInUp" data-wow-duration=".4s" data-wow-delay="0.05s"
+                  style="visibility: visible; animation-duration: 0.4s; animation-delay: 0.05s; animation-name: fadeInUp;">
 
 
                   <div class=" shadow rounded-3 position-relative  bg-body p-4 text-center ">
-                     <img @if($t->avatar_location) src="/storage/{{$t->avatar_location}}" @else src='https://www.gravatar.com/avatar/9ecb4da50f5fec8857717862e2dbcaea.jpg?s=80&d=mm&r=g' @endif onerror="this.src='https://www.gravatar.com/avatar/9ecb4da50f5fec8857717862e2dbcaea.jpg?s=80&d=mm&r=g'" style="height:90px;width:90px;border-radius: 50%;" title="" alt="{{$t->name}}" loading="lazy" > 
+                     <img @if($t->avatar_location) src="/storage/{{$t->avatar_location}}" @else
+                     src='https://www.gravatar.com/avatar/9ecb4da50f5fec8857717862e2dbcaea.jpg?s=80&d=mm&r=g' @endif
+                     onerror="this.src='https://www.gravatar.com/avatar/9ecb4da50f5fec8857717862e2dbcaea.jpg?s=80&d=mm&r=g'"
+                     style="height:90px;width:90px;border-radius: 50%;" title="" alt="{{$t->name}}" loading="lazy" >
                      <p class="fw-700 dark-color mb-1">{{$t->name}}</p>
                      @if($tp)
                      <small>{{$tp->hig_qualification}}</small><br>
@@ -1215,12 +1402,7 @@ $catx = Category::find($course->category->parent);
 
                            @endif
 
-                           {{--  @if($tp && $tp->subject_teach)
 
-           @foreach(json_decode($tp->subject_teach,true) ?? [] as $st)
-         <small>{{$st}}</small>
-         @endforeach
-         @endif --}}
 
                   </div>
 
@@ -1240,7 +1422,8 @@ $catx = Category::find($course->category->parent);
    <section class="counter section">
       <div class="container">
 
-         <div class="row section-heading justify-content-center text-center wow fadeInUp" data-wow-duration="0.3s" style="visibility: visible; animation-duration: 0.3s; animation-name: fadeInUp;">
+         <div class="row section-heading justify-content-center text-center wow fadeInUp" data-wow-duration="0.3s"
+            style="visibility: visible; animation-duration: 0.3s; animation-name: fadeInUp;">
             <div class="col-lg-8 col-xl-6">
                <h3 class="h1 bg-000-after after-50px pb-3 mb-3">{{env('PROJECT_NAME')}} Achievement</h3>
             </div>
@@ -1251,28 +1434,36 @@ $catx = Category::find($course->category->parent);
                <!-- <div class="border-2 bg-white line-hover p-4 rounded text-center"> -->
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #ffbe3d4a;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-laptop"></i></div>
-                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->courses_offered : 0}}">{{$achievement ? $achievement->courses_offered : 0}}</span>+</h6>
+                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0"
+                        data-purecounter-end="{{$achievement->courses_offered}}">{{$achievement->courses_offered}}</span>+
+                  </h6>
                   <span>Courses offered </span>
                </div>
             </div>
             <div class="col-6 col-lg-3 col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #4a2a514f;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-people-fill"></i></div>
-                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->happy_students : 0}}">{{$achievement ? $achievement->happy_students : 0}}</span>+</h6>
+                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0"
+                        data-purecounter-end="{{$achievement->happy_students}}">{{$achievement->happy_students}}</span>+
+                  </h6>
                   <span>Happy Students </span>
                </div>
             </div>
             <div class="col-6 col-lg-3 col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #50b5ff30;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-person"></i></div>
-                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->expert_tutor : 0}}">{{$achievement ? $achievement->expert_tutor : 0}}</span>+</h6>
+                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0"
+                        data-purecounter-end="{{$achievement->expert_tutor}}">{{$achievement->expert_tutor}}</span>+
+                  </h6>
                   <span>Expert Tutors </span>
                </div>
             </div>
             <div class="col-6 col-lg-3 col-md-6 my-3">
                <div class="line-hover hover-top p-4 rounded text-center" style="background-color: #5cc9a747;">
                   <div class="only-icon only-icon-lg d-inline-block mb-3"><i class="bi-chat"></i></div>
-                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0" data-purecounter-end="{{$achievement ? $achievement->hours_taught : 0}}">{{$achievement ? $achievement->hours_taught : 0}}</span>+</h6>
+                  <h6 class=" h3 mb-0"><span class="purecounter" data-purecounter-start="0"
+                        data-purecounter-end="{{$achievement->hours_taught}}">{{$achievement->hours_taught}}</span>+
+                  </h6>
                   <span>Hours taught</span>
                </div>
             </div>
@@ -1288,26 +1479,27 @@ $catx = Category::find($course->category->parent);
 
 </main>
 
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
-    <div class="modal-content">
-    
-      <div class="modal-body vplay-data">
-      
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+   aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+
+         <div class="modal-body vplay-data">
+
+         </div>
+
       </div>
-    
-    </div>
-  </div>
+   </div>
 </div>
 
-@stop 
+@stop
 @section('page_js')
 
 <!-- Theme JS -->
 <?php if (Session::has('success')) { ?>
 
-   <script>
-      $(document).ready(function() {
+<script>
+   $(document).ready(function() {
 
 
          Swal.fire({
@@ -1320,11 +1512,11 @@ $catx = Category::find($course->category->parent);
          })
 
       });
-   </script>
+</script>
 <?php } ?>
 
 <script>
-  $(document).ready(function() {
+   $(document).ready(function() {
    var board_id = '';
    
    $(document).on("click",".vplay",function(){

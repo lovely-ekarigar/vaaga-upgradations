@@ -65,7 +65,7 @@
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', '{{config('google_analytics_id')}}');
+            gtag('config','{{config('google_analytics_id')}}');
         </script>
      @endif
     </head>
@@ -342,7 +342,7 @@
 
 
         @yield('content')
-        {{-- @include('cookieConsent::index') --}}
+        @include('cookieConsent::index')
         @include('frontend.layouts.partials.footer')
 
     </div><!-- #app -->

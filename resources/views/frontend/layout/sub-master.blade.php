@@ -16,7 +16,6 @@
 
   <!-- CSS Template -->
   <link href="/newassets/css/theme.css" rel="stylesheet">
-  @vite(['resources/sass/frontend/app.scss'])
 
   <link href="https://icons.getbootstrap.com/assets/font/bootstrap-icons.min.css" rel="stylesheet" defer>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" defer />
@@ -228,21 +227,28 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      var enquiryModalEl = document.getElementById('enquiryModal');
-      if (enquiryModalEl && typeof bootstrap !== 'undefined') {
-        var enquiryModal = new bootstrap.Modal(enquiryModalEl);
-        document.querySelectorAll('.enquiry').forEach(function(btn) {
-          btn.addEventListener('click', function() { enquiryModal.show(); });
-        });
-        enquiryModalEl.querySelectorAll('.close[data-bs-dismiss="modal"]').forEach(function(btn) {
-          btn.addEventListener('click', function() { enquiryModal.hide(); });
-        });
-      } else if (typeof $ !== 'undefined') {
-        $(document).on("click", ".enquiry", function() { $("#enquiryModal").modal('show'); });
-        $(document).on("click", ".close", function() { $("#enquiryModal").modal('hide'); });
-      }
-    });
+            $(document).on("click",".enquiry",function(){
+         
+         $("#enquiryModal").modal('show')   
+            
+        })
+        $(document).on("click",".close",function(){
+            $("#enquiryModal").modal('hide')   
+            
+        })
+        
+        
+//         document.addEventListener("DOMContentLoaded", () => {
+//     setTimeout(() => {
+//         const myModal = new bootstrap.Modal(document.getElementById('enquiryModal'));
+//         myModal.show();
+//     }, 1000); 
+//     $(document).on('click','.close', function(){
+//       <?php Session::put('modelClose',true) ?>
+//       console.log('now Session stored');
+//       $('#enquiryModal').modal('hide');
+//     });
+// }); 
   </script>
   <!--Start of Tawk.to Script-->
 
@@ -287,6 +293,15 @@
       });
     });
   </script>
+  
+  
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "sd7aqctqd1");
+</script>
   @yield('page_js')
 </body>
 
