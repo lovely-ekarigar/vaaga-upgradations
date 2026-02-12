@@ -31,7 +31,6 @@ class OrderController extends Controller
      */
     public function index()
     {
-        abort_if(Gate::denies('order_access'), 403, '403 Forbidden');
         $orders = Order::get();
 
         return view('backend.orders.index', compact('orders'));
@@ -481,7 +480,6 @@ $orders->where("end_date","<=",date("Y-m-d"));
      */
     public function create()
     {
-        abort_if(Gate::denies('order_create'), 403, '403 Forbidden');
         $users = User::orderBy('first_name')->get();
         
         $courses = Course::where('published', 1)->orderBy('title')->get();
@@ -497,7 +495,6 @@ $orders->where("end_date","<=",date("Y-m-d"));
      */
     public function store(Request $request)
     {
-        abort_if(Gate::denies('order_create'), 403, '403 Forbidden');
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'course_ids' => 'required|array|min:1',
@@ -620,7 +617,6 @@ $orders->where("end_date","<=",date("Y-m-d"));
      */
     public function edit($id)
     {
-        abort_if(Gate::denies('order_edit'), 403, '403 Forbidden');
         $order = Order::findOrFail($id);
         $users = User::orderBy('first_name')->get();
         
@@ -641,7 +637,6 @@ $orders->where("end_date","<=",date("Y-m-d"));
      */
     public function update(Request $request, $id)
     {
-        abort_if(Gate::denies('order_edit'), 403, '403 Forbidden');
         $order = Order::findOrFail($id);
         
         $request->validate([
@@ -765,7 +760,6 @@ $orders->where("end_date","<=",date("Y-m-d"));
      */
     public function show($id)
     {
-        abort_if(Gate::denies('order_show'), 403, '403 Forbidden');
         $order = Order::findOrFail($id);
         // dd($order);
         //  generateInvoice($order);
@@ -785,7 +779,6 @@ $orders->where("end_date","<=",date("Y-m-d"));
      */
     public function destroy($id)
     {
-        abort_if(Gate::denies('order_delete'), 403, '403 Forbidden');
         $order = Order::findOrFail($id);
         $order->items()->delete();
         $order->delete();
@@ -799,7 +792,6 @@ $orders->where("end_date","<=",date("Y-m-d"));
      */
     public function massDestroy(Request $request)
     {
-        abort_if(Gate::denies('order_delete'), 403, '403 Forbidden');
         if ($request->input('ids')) {
             $entries = Order::whereIn('id', $request->input('ids'))->get();
             foreach ($entries as $entry) {
