@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MenuSeeder::class);
         $this->call(CommissionRateSeeder::class);
         $this->call(TeacherProfileSeeder::class);
+        $this->call(VideoLinkSeeder::class);
         artisan::call('translations:import');
         artisan::call('storage:link');
         Model::reguard();

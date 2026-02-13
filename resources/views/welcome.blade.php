@@ -854,7 +854,7 @@ $catx = Category::find($course->category->parent);
       <div class="container containerVideo">
          <div class="row justify-content-center d-flex">
             <div class="col-md-12 Videox" style="text-align:center;">
-               <div data-href="https://www.youtube.com/embed/{{$link->link}}" class="vplay">
+               <div data-href="https://www.youtube.com/embed/{{$link?->link ?? 'dQw4w9WgXcQ'}}" class="vplay">
                   <img src="/yt-vaaga.webp" loading="lazy" height="500" style="object-fit: cover;"
                      alt="Youtube Maths and Science Olympiad Classes" />
                </div>

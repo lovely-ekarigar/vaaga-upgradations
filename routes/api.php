@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\v1\ApiController;
+use App\Http\Controllers\QuestionParseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,7 @@ use App\Http\Controllers\v1\ApiController;
 Route::group(['prefix' => 'v1','namespace'=>'v1', 'middleware' => 'cors'],function (){
   Route::post('sliders',[ApiController::class, 'getSliders']);
  Route::post('upload-image',[ApiController::class, 'uploadImage']);
+ Route::post('upload-questions', [QuestionParseController::class, 'extract']);
     Route::group([
         'prefix' => 'auth', 'middleware' => 'cors'
     ], function () {
