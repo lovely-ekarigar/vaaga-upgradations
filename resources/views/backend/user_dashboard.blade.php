@@ -125,7 +125,7 @@ button.close {
                 @endif
               </div>
 
-                 @if($demo_request->count()>0)
+                 @if(($demo_request ?? collect())->count() > 0)
                      
                 <div class="demo_box"> 
                 <h6 class="text-body fw-500 mb-3 pt-3 text-primary">My Demo Classes</h6>
@@ -185,7 +185,7 @@ button.close {
 
            
               ?>
-                @foreach($orders as $orderd)
+                @foreach(($orders ?? collect()) as $orderd)
 @if(date("Y-m-d") >= date("Y-m-d",strtotime("-7 days",strtotime($orderd->end_date))))
 
 
@@ -210,7 +210,7 @@ button.close {
 
 </div>
        
-               @if(count($purchased_courses)>0)
+               @if(count($purchased_courses ?? []) > 0)
 <h6 class="text-body fw-500 mb-3 pt-4">My Courses</h6>
                 <div>
                     <table class="table table-nowrap mb-0">

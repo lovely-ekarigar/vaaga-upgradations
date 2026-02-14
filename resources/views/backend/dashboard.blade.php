@@ -137,7 +137,7 @@ use App\Models\TeacherProfile;
                                         </thead>
                                         <tbody>
                                             @php $count=0 @endphp
-                                        @foreach($purchased_courses as $item)
+                                        @foreach(($purchased_courses ?? []) as $item)
                                         @php $count++ @endphp
 
                                             <tr>
@@ -145,7 +145,7 @@ use App\Models\TeacherProfile;
 
                                                 <td><a href="/course/study/{{$item->slug}}/" target="_blank">{{$item->title}}</a></td>
                                                  <td><a href="javascript:void(0)"
-                                                   class="bg-success text-decoration-none px-2 p-1">{{$item->category->name}}</a></td>
+                                                   class="bg-success text-decoration-none px-2 p-1">{{$item->category->name ?? 'Uncategorized'}}</a></td>
                                                   <td>
                                                       <a href="{{ route('classes.show', [$item->slug]) }}" class="btn btn-primary">Classes</a>
                                                   </td>
@@ -153,7 +153,7 @@ use App\Models\TeacherProfile;
                                         @endforeach
 
 
-                                         @foreach($purchased_bundles as $key=>$bundle)
+                                         @foreach(($purchased_bundles ?? collect()) as $key=>$bundle)
 
 
                                     @if(count($bundle->courses) > 0)
@@ -163,7 +163,7 @@ use App\Models\TeacherProfile;
                                                <td>{{$count}}</td>
                                                 <td>{{$item->title}}</td>
                                                  <td><a href="javascript:void(0)"
-                                                   class="bg-success text-decoration-none px-2 p-1">{{$item->category->name}}</a></td>
+                                                   class="bg-success text-decoration-none px-2 p-1">{{$item->category->name ?? 'Uncategorized'}}</a></td>
                                                   <td>
                                                       <a href="{{ route('classes.show', [$item->slug]) }}" class="btn btn-primary">Classes</a>
                                                   </td>
@@ -217,7 +217,7 @@ use App\Models\TeacherProfile;
                                                     <div class="d-inline-block w-100 0 mt-2">
                                                      <span class="course-category float-left">
                                                 <a href="{{route('courses.category',['category'=>$item->category->slug])}}"
-                                                   class="bg-success text-decoration-none px-2 p-1">{{$item->category->name}}</a>
+                                                   class="bg-success text-decoration-none px-2 p-1">{{$item->category->name ?? 'Uncategorized'}}</a>
                                             </span>
                                                         <span class="course-author float-right">
                                                  {{ $item->students()->count() }}
@@ -304,7 +304,7 @@ use App\Models\TeacherProfile;
                                                             <div class="d-inline-block w-100 0 mt-2">
                                                      <span class="course-category float-left">
                                                 <a href="{{route('courses.category',['category'=>$item->category->slug])}}"
-                                                   class="bg-success text-decoration-none px-2 p-1">{{$item->category->name}}</a>
+                                                   class="bg-success text-decoration-none px-2 p-1">{{$item->category->name ?? 'Uncategorized'}}</a>
                                             </span>
                                                                 <span class="course-author float-right">
                                                  {{ $item->students()->count() }}
@@ -349,7 +349,7 @@ use App\Models\TeacherProfile;
                     @elseif(auth()->user()->hasRole('teacher'))
                        
 
-                        @if(auth()->user()->active)
+                        @if(auth()->user()->active == 1 || auth()->user()->active === true)
                             <div class="col-12">
                             <div class="row">
                                 <div class="col-md-4 col-12 border-right">
@@ -358,7 +358,7 @@ use App\Models\TeacherProfile;
                                             <a href="{{route('admin.teacher-course-list')}}" style="text-decoration: none;">
                                             <div class="card text-white bg-primary text-center">
                                                 <div class="card-body">
-                                                    <h2 class="">{{count(auth()->user()->courses) + count(auth()->user()->bundles)}}</h2>
+                                                    <h2 class="">{{count(auth()->user()->courses ?? []) + count(auth()->user()->bundles ?? [])}}</h2>
                                                     <h5> Subjects Assigned</h5>
                                                 </div>
                                             </div></a>
@@ -436,15 +436,15 @@ use App\Models\TeacherProfile;
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @if(count($threads) > 0)
-                                            @foreach($threads as $item)
+                                        @if(isset($threads) && count($threads) > 0)
+                                            @foreach(($threads ?? collect()) as $item)
                                                 <tr>
                                                     <td>
                                                         <a target="_blank"
                                                            href="{{asset('/user/messages/?thread='.$item->id)}}">{{$item->title}}</a>
                                                     </td>
-                                                    <td>{{$item->lastMessage->body}}</td>
-                                                    <td>{{$item->lastMessage->created_at->diffForHumans() }}</td>
+                                                    <td>{{$item->lastMessage->body ?? 'No message'}}</td>
+                                                    <td>{{optional($item->lastMessage)->created_at->diffForHumans() ?? ''}}</td>
                                                 </tr>
                                             @endforeach
                                         @else
@@ -592,7 +592,7 @@ use App\Models\TeacherProfile;
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @if(count($recent_orders) > 0)
+                                @if(count($recent_orders ?? []) > 0)
                                     @foreach($recent_orders as $item)
                                     @if($item->user)
                                         <tr>
@@ -668,11 +668,11 @@ use App\Models\TeacherProfile;
     </div><!--col-->
 
      @if(auth()->user()->hasRole('teacher'))
-        @if(auth()->user()->active == '')
+        @if(empty(auth()->user()->active))
         @php
-           $tpl = json_encode($teacher_profile_list->payment_details);
+           $tpl = $teacher_profile_list ? json_encode($teacher_profile_list->payment_details) : null;
            @endphp
-            @if($teacher_profile_list->payment_details == Null)
+            @if($teacher_profile_list && $teacher_profile_list->payment_details == null)
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
@@ -797,7 +797,7 @@ use App\Models\TeacherProfile;
                                 @php
                                 $sl = 1;
                                 @endphp
-                                @foreach($teacher_ppt_video as $tppt)
+                                @foreach(($teacher_ppt_video ?? collect()) as $tppt)
                                 <tr>
                                     <td>{{$sl++}}</td>
                                     <td>{{$tppt->title}}</td>

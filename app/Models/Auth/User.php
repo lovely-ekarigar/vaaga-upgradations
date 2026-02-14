@@ -210,15 +210,17 @@ class User extends Authenticatable
             foreach ($clist as $c) {
                 if (!in_array($c->item_id, $ids)) {
                     $course = Course::find($c->item_id);
-                    $ids[] = $c->item_id;
-                    $course->order = $order;
-                    $final[] = $course;
+                    if ($course) {  // Check if course exists (not soft-deleted)
+                        $ids[] = $c->item_id;
+                        $course->order = $order;
+                        $final[] = $course;
+                    }
                 }
             }
         }
 
 
-        return $final;
+        return collect($final); // Return Collection for consistency
     }
 
     public function purchasedBundles()

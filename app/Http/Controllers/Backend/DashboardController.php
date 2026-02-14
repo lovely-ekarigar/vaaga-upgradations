@@ -137,6 +137,12 @@ class DashboardController extends Controller
                     }
                 }
             } else {
+                // Fallback for other roles (author, moderator, etc.) - load basic admin data
+                $students_count = User::role('student')->count();
+                $teachers_count = User::role('teacher')->count();
+                $courses_count = \App\Models\Course::where('published', 1)->count() + \App\Models\Bundle::where('published', 1)->count();
+                $recent_orders = collect([]);
+                $recent_contacts = collect([]);
             }
         }
 
