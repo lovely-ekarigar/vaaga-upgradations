@@ -131,6 +131,8 @@ span.red-text {
         <script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.print.min.js"></script>
         <script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.colVis.min.js"></script>
         <script src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js"></script>
+        {{-- Bootstrap Bundle JS (includes Popper and Modal functionality) --}}
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         {{-- Select2: must load BEFORE main.js (which calls $('.select2').select2()) --}}

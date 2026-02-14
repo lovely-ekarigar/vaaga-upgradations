@@ -50,6 +50,7 @@
                                         data-insterested="{{$enquiry->insterested}}"
                                         data-gender="{{$enquiry->gender}}"
                                         >View</a>
+                                        <a href="{{route('admin.endquiryEdit', $enquiry->id)}}" class="btn btn-info btn-xs">View Details</a>
                                         <a href="?del={{$enquiry->id}}" onclick="return confirm('Are you sure you want to delete Enquiry Data?');" class="btn btn-xs btn-danger mb-1">
                                             <i class="fa fa-trash"></i>
                                           </a>
@@ -154,8 +155,9 @@
             dropdownParent: $("#exampleModal")
         });
        $(document).on('click', '.openModal', function() {
+    console.log('View button clicked'); // Debug log
+    
     $('#enquryId').text($(this).data('id'));
-
     $('#name').val($(this).data('name'));
     $('#grade').val($(this).data('grade'));
     $('#mobile').val($(this).data('mobile'));
@@ -166,6 +168,7 @@
 
     // Show the modal
     $('#trainigModal').modal('show');
+    console.log('Modal should be showing now'); // Debug log
 });
 $(document).on('click','.closeModal', function(){
     $('#trainigModal').modal('hide');
