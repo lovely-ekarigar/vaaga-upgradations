@@ -59,9 +59,29 @@ class FormBuilder
     public function text($name, $value = null, array $options = [])
     {
         $value = $value ?? $this->old($name) ?? ($this->model ? ($this->model->{$name} ?? null) : null);
+        // Prevent array values from causing errors
+        if (is_array($value) || is_object($value)) {
+            $value = json_encode($value);
+        }
         $options['name'] = $name;
         $options['type'] = 'text';
         $options['value'] = old($name, $value);
+        return '<input' . $this->htmlAttributes($options) . '>';
+    }
+
+    public function email($name, $value = null, array $options = [])
+    {
+        $value = $value ?? $this->old($name) ?? ($this->model ? ($this->model->{$name} ?? null) : null);
+        $options['name'] = $name;
+        $options['type'] = 'email';
+        $options['value'] = old($name, $value);
+        return '<input' . $this->htmlAttributes($options) . '>';
+    }
+
+    public function password($name, array $options = [])
+    {
+        $options['name'] = $name;
+        $options['type'] = 'password';
         return '<input' . $this->htmlAttributes($options) . '>';
     }
 
@@ -95,6 +115,10 @@ class FormBuilder
     public function checkbox($name, $value = 1, $checked = null, array $options = [])
     {
         $checked = $checked ?? (bool) $this->old($name) ?? ($this->model ? (bool) ($this->model->{$name} ?? false) : false);
+        // Prevent array values from causing errors
+        if (is_array($value) || is_object($value)) {
+            $value = json_encode($value);
+        }
         $options['name'] = $name;
         $options['type'] = 'checkbox';
         $options['value'] = $value;
@@ -117,9 +141,25 @@ class FormBuilder
     public function select($name, $list = [], $selected = null, array $options = [])
     {
         $selected = $selected ?? $this->old($name) ?? ($this->model ? ($this->model->{$name} ?? null) : null);
+        // Handle array selected values (convert to first element or null)
+        if (is_array($selected)) {
+            $selected = $selected[0] ?? null;
+        }
         $options['name'] = $name;
         $html = '<select' . $this->htmlAttributes($options) . '>';
         foreach ($list as $key => $label) {
+            // Handle object/array labels by converting to string
+            if (is_object($label) && isset($label->name)) {
+                $label = $label->name;
+            } elseif (is_array($label)) {
+                $label = $label['name'] ?? $label['title'] ?? $label['label'] ?? json_encode($label);
+            } elseif (is_object($label)) {
+                $label = (string) $label;
+            }
+            // Final check - if still array/object, convert to string
+            if (is_array($label) || is_object($label)) {
+                $label = json_encode($label);
+            }
             $sel = ($key == $selected || (string) $key === (string) $selected) ? ' selected' : '';
             $html .= '<option value="' . e($key) . '"' . $sel . '>' . e($label) . '</option>';
         }
@@ -156,6 +196,10 @@ class FormBuilder
         foreach ($attributes as $key => $value) {
             if ($key === 'value' && $value === null) {
                 continue;
+            }
+            // Convert arrays/objects to strings to prevent "Array to string conversion" errors
+            if (is_array($value) || is_object($value)) {
+                $value = json_encode($value);
             }
             if ($value === true) {
                 $html[] = e($key);
