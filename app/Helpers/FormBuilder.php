@@ -65,6 +65,15 @@ class FormBuilder
         return '<input' . $this->htmlAttributes($options) . '>';
     }
 
+    public function number($name, $value = null, array $options = [])
+    {
+        $value = $value ?? $this->old($name) ?? ($this->model ? ($this->model->{$name} ?? null) : null);
+        $options['name'] = $name;
+        $options['type'] = 'number';
+        $options['value'] = old($name, $value);
+        return '<input' . $this->htmlAttributes($options) . '>';
+    }
+
     public function textarea($name, $value = null, array $options = [])
     {
         $value = $value ?? $this->old($name) ?? ($this->model ? ($this->model->{$name} ?? null) : null);
@@ -133,7 +142,7 @@ class FormBuilder
     protected function attributes(array $options)
     {
         $attrs = [];
-        foreach (['method', 'action', 'enctype', 'class', 'id', 'name', 'type', 'value', 'placeholder', 'for', 'checked', 'disabled', 'accept'] as $key) {
+        foreach (['method', 'action', 'enctype', 'class', 'id', 'name', 'type', 'value', 'placeholder', 'for', 'checked', 'disabled', 'accept', 'pattern', 'min', 'max', 'step', 'required', 'readonly', 'multiple', 'rows', 'cols'] as $key) {
             if (array_key_exists($key, $options)) {
                 $attrs[$key] = $options[$key];
             }
