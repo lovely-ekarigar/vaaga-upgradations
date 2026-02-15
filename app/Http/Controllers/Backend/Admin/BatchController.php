@@ -548,7 +548,53 @@ $teacher = User::find($request->teachersid);
      */
     public function availableMockTests($id)
     {
-        return view('backend.batch.mock-tests', compact('id'));
+        $batch = \App\Models\Batch::find($id);
+        
+        if (!$batch) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batch not found'
+            ], 404);
+        }
+        
+        $course = \App\Models\Course::find($batch->cid);
+        $courseName = $course ? $course->title : 'Unknown Course';
+        
+        // Get mock series for this course
+        $mockSeries = \App\Models\MockSeries::where('course_id', $batch->cid)
+            ->where('status', '1')
+            ->with(['mockList' => function($query) {
+                $query->where('status', 'active');
+            }])
+            ->get();
+        
+        $mockTests = [];
+        foreach ($mockSeries as $series) {
+            foreach ($series->mockList as $mock) {
+                $mockTests[] = [
+                    'id' => $mock->id,
+                    'name' => $mock->name,
+                    'description' => $mock->description,
+                    'series_id' => $series->id,
+                    'series_name' => $series->name,
+                    'series_detail' => $series->detail,
+                    'total_questions' => $mock->total_questions,
+                    'duration' => $mock->duration
+                ];
+            }
+        }
+        
+        // Get already assigned mock tests for this batch
+        $assignedMockIds = \App\Models\BatchMockTest::where('batch_id', $id)
+            ->pluck('mock_series_id')
+            ->toArray();
+        
+        return response()->json([
+            'success' => true,
+            'courseName' => $courseName,
+            'mockTests' => $mockTests,
+            'assignedMockIds' => $assignedMockIds
+        ]);
     }
 
     /**
@@ -556,7 +602,30 @@ $teacher = User::find($request->teachersid);
      */
     public function saveMockTests($id, Request $request)
     {
-        return redirect()->back()->withFlashSuccess('Mock tests saved');
+        $batch = \App\Models\Batch::find($id);
+        
+        if (!$batch) {
+            return redirect()->back()->withFlashError('Batch not found');
+        }
+        
+        $mockTestIds = $request->input('mock_test_ids', []);
+        
+        // Remove existing assignments
+        \App\Models\BatchMockTest::where('batch_id', $id)->delete();
+        
+        // Add new assignments
+        foreach ($mockTestIds as $mockId) {
+            $mock = \App\Models\MockList::find($mockId);
+            if ($mock) {
+                \App\Models\BatchMockTest::create([
+                    'batch_id' => $id,
+                    'mock_series_id' => $mock->mock_series_id,
+                    'sort_order' => 0
+                ]);
+            }
+        }
+        
+        return redirect()->back()->withFlashSuccess('Mock tests assigned successfully');
     }
 
     /**
