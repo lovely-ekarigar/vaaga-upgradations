@@ -48,8 +48,9 @@ use App\Models\ExamBatch;
 use App\Models\ExamBatchTest;
 use App\Models\ExamBatchUser;
 use App\Models\ExamUser;
-
-
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\ChapterStudent;
 
 use URL;
 use Auth;
@@ -526,6 +527,79 @@ $userType=$request->type;
 
 
     }
+
+/**
+ * Display all enrolled courses for the current student
+ */
+public function myCourses(){
+    $user = auth()->user();
+    
+    if(!$user){
+        return abort(404);
+    }
+    
+    // Get all purchased courses for the student
+    $orders = Order::where('status', '=', 1)
+        ->where('user_id', '=', $user->id)
+        ->get();
+    
+    $courses = [];
+    $courseIds = [];
+    
+    foreach($orders as $order){
+        $orderItems = OrderItem::where("order_id", $order->id)
+            ->where('item_type', '=', "App\\Models\\Course")
+            ->get();
+        
+        foreach($orderItems as $item){
+            if(!in_array($item->item_id, $courseIds)){
+                $course = Course::find($item->item_id);
+                if($course){
+                    $courseIds[] = $item->item_id;
+                    
+                    // Calculate progress for this course
+                    $course->progress = $this->calculateCourseProgress($course, $user->id);
+                    
+                    // Check if course is expired
+                    $cro = new Course;
+                    $course->is_expired = $cro->isCourseExpired($course->id, $user->id);
+                    
+                    // Get total lessons count
+                    $course->total_lessons = $course->lessons()->count();
+                    
+                    // Get completed lessons count
+                    $completedLessons = ChapterStudent::where('user_id', $user->id)
+                        ->where('course_id', $course->id)
+                        ->count();
+                    $course->completed_lessons = $completedLessons;
+                    
+                    $courses[] = $course;
+                }
+            }
+        }
+    }
+    
+    return view('frontend.user.courses', compact('courses'));
+}
+
+/**
+ * Calculate course progress percentage
+ */
+private function calculateCourseProgress($course, $userId){
+    $totalLessons = $course->lessons()->count();
+    $totalTests = $course->tests()->count();
+    $totalItems = $totalLessons + $totalTests;
+    
+    if($totalItems == 0){
+        return 0;
+    }
+    
+    $completedItems = ChapterStudent::where('user_id', $userId)
+        ->where('course_id', $course->id)
+        ->count();
+    
+    return intval(($completedItems / $totalItems) * 100);
+}
 
 public function studentClasses($slug){
     $course=Course::where("slug",$slug)->first();

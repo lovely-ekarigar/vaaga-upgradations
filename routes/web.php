@@ -362,6 +362,7 @@ Route::get('/runclass', [LessonsController::class, 'runClass']);
    Route::post('order', [CoursesController::class, 'order'])->name('courses.order');
 Route::post('completeOrder', [CoursesController::class, 'completeOrder'])->name('courses.completeOrder');
 
+Route::get('user/my-courses', [MyclassController::class, 'myCourses'])->name('student.courses');
 Route::get('user/classes/{slug}', [MyclassController::class, 'studentClasses'])->name('classes.show'); 
 Route::get('user/waiting-area/{id}', [MyclassController::class, 'waitingArea'])->name('classes.waitingArea');
 Route::get('user/find-meeting', [MyclassController::class, 'meetingLink'])->name('classes.meetingLink');
