@@ -82,10 +82,10 @@ Question Bank | {{ env('APP_NAME') }}
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <h5 class="mb-0 text-black card-title">Questions Bank</h5>
 
-                <!-- Totals -->
+               <!-- Totals -->
                 <div class="d-flex gap-4" style="gap: 8px;">
                     <span class="badge bg-primary p-2">
-                        Total Questions: <strong>{{ $totalQuestions }}</strong>
+                        Total Questions: <strong id="totalCount">{{ $totalQuestions ?? 0}}</strong>
                     </span>
                     <span class="badge bg-success p-2">
                         Total Marks: <strong>{{ $totalMarks }}</strong>
@@ -93,6 +93,14 @@ Question Bank | {{ env('APP_NAME') }}
                     <span class="badge bg-warning p-2">
                         Pending Verification: <strong id="pendingCount">{{ $pendingVerificationCount ?? 0 }}</strong>
                     </span>
+                    <span class="badge p-2" style="background:#14b8a6; color:#fff;">
+                    Approved Questions: <strong id="approvedCount">{{ $approvedCount ?? 0 }}</strong>
+                    </span>
+
+                    <span class="badge bg-danger p-2">
+                    Rejected Questions: <strong id="rejectedCount">{{ $rejectedCount ?? 0 }}</strong>
+                    </span>
+
                 </div>
 
                 <!-- Actions -->
@@ -105,16 +113,10 @@ Question Bank | {{ env('APP_NAME') }}
                     
                     <a href="{{ route('admin.exams.questions.import') }}" class="btn btn-sm btn-primary me-2">Import Questions</a>
                     <a href="{{ route('admin.exams.questions.add') }}" class="btn btn-sm btn-info me-2">Add Question</a>
-                    <!--<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#generateQuestionModal">-->
-                    <!--    <i class="bx bx-bulb"></i> AI Generate Questions-->
-                    <!--</button>-->
                 </div>
             </div>
 
             <div class="card-body">
-                <!-- Course Filter for Verification -->
-            
-
                 <!-- Search and Filter Form -->
                 <form method="GET" id="filterForm" class="row g-2 mb-3">
                    
@@ -508,6 +510,14 @@ Question Bank | {{ env('APP_NAME') }}
         $.get(url, function(response) {
             pendingQuestions = response.questions || [];
             $('#pendingCount').text(pendingQuestions.length);
+
+            let approvedCount = response.approved_count || 0;
+            let rejectedCount = response.rejected_count || 0;
+            let totalCount = response.total_count || 0;
+            
+            $('#approvedCount').text(approvedCount);
+            $('#rejectedCount').text(rejectedCount);
+            $('#totalCount').text(totalCount);
             
             if (pendingQuestions.length > 0) {
                 $('#verifyQuestionsBtn').prop('disabled', false).html('<i class="fas fa-check-circle"></i> Verify Questions (' + pendingQuestions.length + ')');

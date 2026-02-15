@@ -24,6 +24,7 @@ class QuestionController extends Controller
     {
         $courseId = $request->get('course_id');
         
+        // Pending questions query
         $query = Question::where('verification_status', 'pending');
         
         if ($courseId) {
@@ -41,12 +42,36 @@ class QuestionController extends Controller
                 ];
             });
 
+        // Approved count for the same course
+        $approvedCountQuery = Question::where('verification_status', 'approved');
+        if ($courseId) {
+            $approvedCountQuery->where('course_id', $courseId);
+        }
+        $approvedCount = $approvedCountQuery->count();
+
+        // Rejected count for the same course
+        $rejectedCountQuery = Question::where('verification_status', 'rejected');
+        if ($courseId) {
+            $rejectedCountQuery->where('course_id', $courseId);
+        }
+        $rejectedCount = $rejectedCountQuery->count();
+
+        // Total count for the same course
+        $totalCountQuery = Question::query();
+        if ($courseId) {
+            $totalCountQuery->where('course_id', $courseId);
+        }
+        $totalCount = $totalCountQuery->count();
+
         $courseName = $courseId ? Course::find($courseId)->title ?? 'Unknown Course' : 'All Courses';
 
         return response()->json([
             'questions' => $questions,
             'count' => $questions->count(),
-            'course_name' => $courseName
+            'course_name' => $courseName,
+            'approved_count' => $approvedCount, 
+            'rejected_count' => $rejectedCount, 
+            'total_count' => $totalCount,
         ]);
     }
 
@@ -80,7 +105,7 @@ class QuestionController extends Controller
 
     $html .= "</ul>";
 
-    // ✅ Chapter select dropdown
+    // Chapter select dropdown
     $html .= "
         <h6 class='font-weight-bold'>Chapter:</h6>
         <select class='form-control form-select mb-3' id='currentCid' >
@@ -122,13 +147,13 @@ class QuestionController extends Controller
         try {
             $question = Question::findOrFail($request->question_id);
 
-$question->verification_status = $request->status;
-$question->verification_remarks = $request->remarks;
-$question->chapter_id = $request->chapter_id;
-$question->verified_by = auth()->id();
-$question->verified_at = now();
+            $question->verification_status = $request->status;
+            $question->verification_remarks = $request->remarks;
+            $question->chapter_id = $request->chapter_id;
+            $question->verified_by = auth()->id();
+            $question->verified_at = now();
 
-$question->update();
+            $question->update();
 
 
             return response()->json([
@@ -162,25 +187,24 @@ $question->update();
             $json = json_decode($q->options,true);
             $options=[];
           
-$formatted = [];
+            $formatted = [];
 
-foreach ($json['en'] as $numKey => $value) {
-    
-    if(isset($letters[$numKey])) {
-       
-        $letter = $letters[$numKey];
-       
-        $formatted[$letter] = [
-            'en' => $value
-        ];
-        
-        //  dd($formatted);
-    }
-}
+            foreach ($json['en'] as $numKey => $value) {
+                
+                if(isset($letters[$numKey])) {
+                   
+                    $letter = $letters[$numKey];
+                   
+                    $formatted[$letter] = [
+                        'en' => $value
+                    ];
+                    
+                    //  dd($formatted);
+                }
+            }
 
-
-$formattedJson = json_encode($formatted, JSON_UNESCAPED_UNICODE);
-// dd($q);
+            $formattedJson = json_encode($formatted, JSON_UNESCAPED_UNICODE);
+            // dd($q);
             $que= new Question();
             $que->question_text= $q->question;
             $que->course_id = $request->course_id;
@@ -188,6 +212,7 @@ $formattedJson = json_encode($formatted, JSON_UNESCAPED_UNICODE);
             $que->difficulty = $request->difficuly;
             $que->options =$formattedJson;
             $que->correct_answer =$q->answer ? $letters[json_decode($q->answer,true)[0]] : null;
+            $que->verification_status = 'pending';
             $que->old=$q->id;
             $que->save();
             // dd($que->id);
@@ -221,139 +246,6 @@ $courses = Course::where('published','1')->get();
     $total = $request->count;
     $batchSize = 10;
 
-//     $course = Course::find($request->subject_id);
-//     $chapter = Chapter::find($request->chapter_id);
-//     $apiKey = env('OPENAI_API_KEY');
-// $fullPrompt = "Generate {$total} multiple-choice questions in both English and Hindi for course {$course->name} and chapter {$chapter->name} with {$request->difficulty} difficulty"
-//         . ($request->prompt ? " based on: {$request->prompt}" : "") . ".
-//     Format the output strictly as JSON in the following structure:
-//     {
-//       \"questions\": [
-//         {
-//           \"question_text\": {\"en\":\"English text\",\"hi\":\"Hindi text\"},
-//           \"options\": {
-//             \"A\": {\"en\":\"English Option A\",\"hi\":\"Hindi Option A\"},
-//             \"B\": {\"en\":\"English Option B\",\"hi\":\"Hindi Option B\"},
-//             \"C\": {\"en\":\"English Option C\",\"hi\":\"Hindi Option C\"},
-//             \"D\": {\"en\":\"English Option D\",\"hi\":\"Hindi Option D\"}
-//           },
-//           \"correct_answer\": [\"A\"],
-//           \"solution\": {\"en\":\"English solution\",\"hi\":\"Hindi solution\"},
-//           \"marks\": 1
-//         }
-//       ]
-//     }
-//     Do not include any markdown or code fences in your response.";
-// $response = Http::withToken($apiKey)
-//             ->timeout(180)
-//             ->post("https://api.openai.com/v1/chat/completions", [
-//                 "model" => "gpt-4o-mini",
-//                 "messages" => [
-//                     ["role" => "system", "content" => "You are an assistant that generates bilingual (English + Hindi) exam questions."],
-//                     ["role" => "user", "content" => $fullPrompt],
-//                 ],
-//                 "temperature" => 0.8,
-//                  "response_format" => [
-//                 "type" => "json_schema",
-//                 "json_schema" => [
-//                     "name" => "questions_schema",
-//                     "schema" => [
-//                         "type" => "object",
-//                         "properties" => [
-//                             "questions" => [
-//                                 "type" => "array",
-//                                 "items" => [
-//                                     "type" => "object",
-//                                     "properties" => [
-//                                         "question_text" => [
-//                                             "type" => "object",
-//                                             "properties" => [
-//                                                 "en" => ["type" => "string"],
-//                                                 "hi" => ["type" => "string"]
-//                                             ],
-//                                             "required" => ["en", "hi"]
-//                                         ],
-//                                         "options" => [
-//                                             "type" => "object",
-//                                             "properties" => [
-//                                                 "A" => ["type" => "object",
-//                                                     "properties" => [
-//                                                         "en" => ["type" => "string"],
-//                                                         "hi" => ["type" => "string"]
-//                                                     ],
-//                                                     "required" => ["en","hi"]
-//                                                 ],
-//                                                 "B" => ["type" => "object",
-//                                                     "properties" => [
-//                                                         "en" => ["type" => "string"],
-//                                                         "hi" => ["type" => "string"]
-//                                                     ],
-//                                                     "required" => ["en","hi"]
-//                                                 ],
-//                                                 "C" => ["type" => "object",
-//                                                     "properties" => [
-//                                                         "en" => ["type" => "string"],
-//                                                         "hi" => ["type" => "string"]
-//                                                     ],
-//                                                     "required" => ["en","hi"]
-//                                                 ],
-//                                                 "D" => ["type" => "object",
-//                                                     "properties" => [
-//                                                         "en" => ["type" => "string"],
-//                                                         "hi" => ["type" => "string"]
-//                                                     ],
-//                                                     "required" => ["en","hi"]
-//                                                 ]
-//                                             ],
-//                                             "required" => ["A","B","C","D"]
-//                                         ],
-//                                         "correct_answer" => [
-//                                             "type" => "array",
-//                                             "items" => ["type" => "string"]
-//                                         ],
-//                                         "solution" => [
-//                                             "type" => "object",
-//                                             "properties" => [
-//                                                 "en" => ["type" => "string"],
-//                                                 "hi" => ["type" => "string"]
-//                                             ],
-//                                             "required" => ["en","hi"]
-//                                         ],
-//                                         "marks" => ["type" => "integer"]
-//                                     ],
-//                                     "required" => ["question_text","options","correct_answer","solution","marks"]
-//                                 ]
-//                             ]
-//                         ],
-//                         "required" => ["questions"]
-//                     ]
-//                 ]
-//             ]
-//             ]);
-            
-//                 $data = $response->json();
-//              $aiContent = $data['choices'][0]['message']['content'] ?? null;
-//                 $questions = json_decode(trim($aiContent), true);
-//                   foreach ($questions['questions'] as $q) {
-//         try {
-//             Question::create([
-//                 'question_text'   => json_encode($q['question_text']),
-//                 'options'         => json_encode($q['options']),
-//                 'correct_answer'  => is_array($q['correct_answer'])
-//                                         ? implode(',', $q['correct_answer'])
-//                                         : $q['correct_answer'],
-//                 'marks'           => $request->marks,
-//                 'solution'        => json_encode($q['solution']),
-//                 'difficulty'      => $request->difficulty,
-//                 'subject_id'      => $request->subject_id,
-//                 'chapter_id'      => $request->chapter_id,
-//             ]);
-//         } catch (\Throwable $e) {
-//           dd($e->getMessage());
-//         }
-//     }
-    
-//  dd( $questions);           
     for ($i = 0; $i < $total; $i += $batchSize) {
         $count = min($batchSize, $total - $i);
         GenerateQuestionsJob::dispatch(
@@ -602,9 +494,10 @@ public function saveQuestion(Request $request)
     $question->marks = $request->marks;
     $question->difficulty = $request->difficulty;
     $question->correct_answer = implode(',', $request->correct_answer);
+    $question->verification_status = 'pending';
     $question->save();
 
-    return redirect()->route('admin.exams.questions.index')->with('success', 'Question added successfully!');
+    return redirect()->route('admin.admin.exams.questions.index')->with('success', 'Question added successfully!');
 }
 
 
@@ -630,12 +523,6 @@ if($request->subject_id){
          $query->where("question_text","like", "%".$request->key."%");
     }
     
-//     if($request->subject_id){
-  
-// }else{
-//     $questions=collect();
-// }
-
   $questions = $query->paginate(25);
     // totals (respecting filter)
     $totalQuestions = $questions->count();

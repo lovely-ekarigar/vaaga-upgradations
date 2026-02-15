@@ -28,15 +28,15 @@
                <tr data-entry-id="1" role="row" class="odd">
                   <td><?=$count?></td>
                   <td>{{$demo->demo_request->name}}</td>
-                  <td>{{$demo->course->title}}</td>
+                  <td>{{$demo->course ? $demo->course->title : $demo->course_old->title}}</td>
                   <td>{{$demo->demo_request->demo_status}}</td>
                   <td>{{$demo->teacher->first_name}} {{$demo->teacher->last_name}}</td>
                   <td>{{$demo->date_time}}</td>
                   <td>
+@if(isset($demo->api['recordings']['recording']['internalMeetingID']))
+    <a href="https://asia-eu-2.meeting-recordings.com/playback/presentation/2.3/{{ $demo->api['recordings']['recording']['internalMeetingID'] }}" target="_blank">Watch</a>
+@endif
 
-                     @if($demo->internal_id)
-                     <a href="https://asia-eu-2.meeting-recordings.com/playback/presentation/2.3/{{$demo->internal_id}}" target="_blank">Watch</a>
-                     @endif
                   </td>
                </tr>
               

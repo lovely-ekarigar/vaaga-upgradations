@@ -347,42 +347,80 @@ class MockSeriesController extends Controller
                 ->with('error', 'You are not enrolled in this batch.');
         }
         
-        // Get completed lesson/chapter IDs for this batch
+        // Get completed and ongoing (in progress) lesson/chapter IDs for this batch
         $completedLessonIds = \App\Models\LessionComplete::where('batch_id', $batchMockTest->batch_id)
-            ->where('status', 'completed')
+            ->whereIn('status', ['completed', 'ongoing'])
             ->pluck('lession_id')
             ->toArray();
         
         // Get all mock tests for this mock series and batch
-        // DATE-BASED VISIBILITY: Only show mocks that are:
-        // 1. Manually activated (is_active = 1) OR
-        // 2. Scheduled date has arrived (comparing dates only, timezone-aware)
+        // DATE-BASED VISIBILITY: Show ALL mocks to display status
         $allMockTests = \DB::table('batch_mock_tests as bmt')
             ->join('mock_list as ml', 'bmt.mock_list_id', '=', 'ml.id')
             ->where('bmt.batch_id', $batchMockTest->batch_id)
             ->where('bmt.mock_series_id', $batchMockTest->mock_series_id)
             ->whereNotNull('bmt.mock_list_id')
-            ->where(function($query) {
-                // Show if manually activated
-                $query->where('bmt.is_active', 1)
-                      // OR if scheduled date has arrived (date-only comparison)
-                      ->orWhere(function($subQuery) {
-                          $subQuery->whereNotNull('bmt.scheduled_at')
-                                   ->whereRaw('DATE(bmt.scheduled_at) <= DATE(NOW())');
-                      });
-            })
-            ->select('ml.*', 'bmt.id as batch_mock_test_id', 'bmt.batch_id', 'bmt.scheduled_at', 'bmt.is_active')
+            ->select('ml.*', 'bmt.id as batch_mock_test_id', 'bmt.batch_id', 'bmt.scheduled_at', 'bmt.end_date', 'bmt.is_active')
             ->orderBy('bmt.sort_order')
             ->get();
         
         // AUTO-SAVE QUESTIONS for newly active scheduled mocks
-        // Check each visible mock to see if it needs questions saved
+        // and calculate test status for each mock
         foreach ($allMockTests as $mockTest) {
-            // Check if this is a scheduled mock that's now active (date comparison only)
-            $isScheduledActive = !empty($mockTest->scheduled_at) && 
-                                \Carbon\Carbon::parse($mockTest->scheduled_at)->startOfDay()->lte(\Carbon\Carbon::now()->startOfDay());
+            $now = \Carbon\Carbon::now();
+            $mockTest->test_status = 'not_available'; // default
+            $mockTest->status_message = '';
             
-            if ($isScheduledActive || $mockTest->is_active == 1) {
+            // Determine test status based on schedule and end_date
+            if ($mockTest->is_active == 1) {
+                // Manually activated - check if available until end_date
+                if (!empty($mockTest->end_date)) {
+                    // Parse with explicit timezone to avoid timezone mismatch
+                    $endDate = \Carbon\Carbon::parse($mockTest->end_date, config('app.timezone'));
+                    // Use isBefore (lt) for comparison - if now is before end_date, it's available
+                    if ($now->lt($endDate) || $now->isSameDay($endDate)) {
+                        // Still within available window
+                        $mockTest->test_status = 'available';
+                        $mockTest->status_message = 'Available until ' . $endDate->copy()->startOfDay()->format('d M Y') . ' 11:59 PM (local time zone)';
+                    } else {
+                        // Deadline passed
+                        $mockTest->test_status = 'missed';
+                        $mockTest->status_message = 'Missed (was available until ' . $endDate->copy()->startOfDay()->format('d M Y') . ' 11:59 PM (local time zone))';
+                    }
+                } else {
+                    // No end_date set yet - set to end of today (11:59 PM)
+                    $endDateTime = $now->copy()->endOfDay();
+                    \DB::table('batch_mock_tests')
+                        ->where('id', $mockTest->batch_mock_test_id)
+                        ->update(['end_date' => $endDateTime]);
+                    
+                    $mockTest->test_status = 'available';
+                    $mockTest->status_message = 'Available until ' . $endDateTime->copy()->startOfDay()->format('d M Y') . ' 11:59 PM (local time zone)';
+                    $mockTest->end_date = $endDateTime->format('Y-m-d H:i:s');
+                }
+            } elseif (!empty($mockTest->scheduled_at)) {
+                $scheduledDate = \Carbon\Carbon::parse($mockTest->scheduled_at, config('app.timezone'))->startOfDay();
+                $endDate = !empty($mockTest->end_date) 
+                    ? \Carbon\Carbon::parse($mockTest->end_date, config('app.timezone'))->endOfDay() 
+                    : $scheduledDate->copy()->endOfDay(); // Same day, 11:59 PM
+                
+                if ($now->lt($scheduledDate)) {
+                    // Future test
+                    $mockTest->test_status = 'upcoming';
+                    $mockTest->status_message = 'Available on ' . $scheduledDate->format('d M Y');
+                } elseif ($now->gte($scheduledDate) && $now->lte($endDate)) {
+                    // Within same-day window (00:00 to 23:59)
+                    $mockTest->test_status = 'available';
+                    $mockTest->status_message = 'Available until ' . $endDate->copy()->startOfDay()->format('d M Y') . ' 11:59 PM (local time zone)';
+                } else {
+                    // Missed - window has passed
+                    $mockTest->test_status = 'missed';
+                    $mockTest->status_message = 'Missed (was available on ' . $scheduledDate->format('d M Y') . ')';
+                }
+            }
+            
+            // Auto-save questions if test is available
+            if ($mockTest->test_status == 'available') {
                 // Check if questions already exist for this batch+mock combination
                 $questionsExist = \DB::table('batch_mock_questions')
                     ->where('batch_id', $mockTest->batch_id)
@@ -397,7 +435,7 @@ class MockSeriesController extends Controller
         }
         
         // Filter mock tests based on batch progress
-        // Only show mock tests where ALL required chapters have been completed
+        // Only show mock tests where ALL required chapters are completed or in progress (ongoing)
         $mockTests = $allMockTests->filter(function($mockTest) use ($completedLessonIds) {
             // Decode section_questions if it's a JSON string
             $sectionQuestions = is_string($mockTest->section_questions) 
@@ -427,15 +465,15 @@ class MockSeriesController extends Controller
                 return true;
             }
             
-            // Only show mock test if ALL required chapters are completed
+            // Only show mock test if ALL required chapters are completed or in progress
             foreach ($requiredChapterIds as $requiredChapterId) {
                 if (!in_array($requiredChapterId, $completedLessonIds)) {
-                    // At least one required chapter is not completed
+                    // At least one required chapter has not been started
                     return false;
                 }
             }
             
-            // All required chapters are completed
+            // All required chapters are completed or in progress
             return true;
         })->values(); // Reset array keys
         
@@ -462,18 +500,34 @@ class MockSeriesController extends Controller
         }
         
         // Check if mock is available based on:
-        // 1. Manual activation (is_active = 1) OR
-        // 2. Scheduled date has arrived (comparing dates only, timezone-aware)
+        // 1. Manual activation (is_active = 1) with 24hr window check OR
+        // 2. Scheduled date window (between scheduled_at and end_date)
         $isAvailable = false;
+        $now = \Carbon\Carbon::now();
         
         if ($batchMockTest->is_active == 1) {
-            $isAvailable = true;
+            // Check window for manually activated tests (available until end_date)
+            if (!empty($batchMockTest->end_date)) {
+                $endDate = \Carbon\Carbon::parse($batchMockTest->end_date, config('app.timezone'));
+                // Allow access if now is before end_date OR on the same day
+                if ($now->lt($endDate) || $now->isSameDay($endDate)) {
+                    $isAvailable = true;
+                }
+            } else {
+                // No end_date yet, set it to end of today (11:59 PM)
+                $endDateTime = $now->copy()->endOfDay();
+                DB::table('batch_mock_tests')
+                    ->where('id', $batch_mock_test_id)
+                    ->update(['end_date' => $endDateTime]);
+                $isAvailable = true;
+            }
         } elseif ($batchMockTest->scheduled_at !== null) {
-            // Compare dates only (ignoring time) - works with user's local timezone
-            $scheduledDate = \Carbon\Carbon::parse($batchMockTest->scheduled_at)->startOfDay();
-            $today = \Carbon\Carbon::now()->startOfDay();
+            $scheduledDate = \Carbon\Carbon::parse($batchMockTest->scheduled_at, config('app.timezone'))->startOfDay();
+            $endDate = !empty($batchMockTest->end_date) 
+                ? \Carbon\Carbon::parse($batchMockTest->end_date, config('app.timezone'))->endOfDay() 
+                : $scheduledDate->copy()->endOfDay(); // Same day
             
-            if ($today->gte($scheduledDate)) {
+            if ($now->gte($scheduledDate) && $now->lte($endDate)) {
                 $isAvailable = true;
             }
         }
@@ -680,7 +734,7 @@ class MockSeriesController extends Controller
                 
                 $whatsappPayload = [
                     'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
-                    'campaignName' => 'mock_test_result_v5',
+                    'campaignName' => 'mock_test_result_v10',
                     'destination' => '+91' . $user->phone,
                     'userName' => ucwords(trim($user->name)),
                     'source' => 'mock_test_result',
@@ -707,15 +761,20 @@ class MockSeriesController extends Controller
     
     /**
      * Show mock exam result
+     * PUBLIC ACCESS - Anyone can view results with the link (no login required)
      *
      * @param int $id
      * @return \Illuminate\View\View
      */
     public function mockExamResult($id)
     {
-        $exam = \App\Models\MyExam::where("id", $id)
-            ->where("user_id", \Auth::user()->id)
-            ->first();
+        // Decode the ID if it's base64 encoded
+        $decodedId = base64_decode($id, true);
+        // If decoding was successful and result is numeric, use decoded ID, otherwise use original
+        $examId = ($decodedId !== false && is_numeric($decodedId)) ? $decodedId : $id;
+        
+        // PUBLIC ACCESS: Remove user_id check to allow anyone to view the result
+        $exam = \App\Models\MyExam::where("id", $examId)->first();
         
         if (!$exam) {
             return abort(404);
@@ -755,21 +814,15 @@ class MockSeriesController extends Controller
     
     /**
      * Show mock exam answer key
+     * PUBLIC ACCESS - Anyone can view answer key with the link (no login required)
      *
      * @param int $id
      * @return \Illuminate\View\View
      */
     public function mockExamAnswerKey($id)
     {
-        $query = \App\Models\MyExam::where("id", $id);
-        
-        // Only restrict to current user if they are a student
-        // Allow admins and teachers to view any exam
-        if (!\Auth::user()->isAdmin() && !\Auth::user()->hasRole('teacher')) {
-            $query->where("user_id", \Auth::user()->id);
-        }
-        
-        $exam = $query->first();
+        // PUBLIC ACCESS: Remove user authentication check to allow anyone to view the answer key
+        $exam = \App\Models\MyExam::where("id", $id)->first();
         
         if (!$exam) {
             return abort(404);
@@ -794,14 +847,23 @@ class MockSeriesController extends Controller
                     continue;
                 }
                 
-                // Parse question text
-                $questionText = json_decode($question->question_text, true);
+                // Parse question text - preserve base64 images
+                $questionText = $question->question_text;
+                if (is_string($questionText)) {
+                    $decoded = json_decode($questionText, true);
+                    if (json_last_error() === JSON_ERROR_NONE && isset($decoded['en'])) {
+                        $questionText = $decoded['en'];
+                    }
+                }
                 if (is_array($questionText)) {
-                    $questionText = $questionText['en'] ?? $questionText;
+                    $questionText = $questionText['en'] ?? json_encode($questionText);
                 }
                 
-                // Parse options
-                $options = json_decode($question->options, true);
+                // Parse options - preserve base64 images
+                $options = $question->options;
+                if (is_string($options)) {
+                    $options = json_decode($options, true);
+                }
                 $parsedOptions = [];
                 $optionKeyMapping = []; // Map old keys to new numeric indices
                 
@@ -860,100 +922,6 @@ class MockSeriesController extends Controller
         return view('frontend.mockseries.exam-thank');
     }
     
-    /**
-     * Auto-save questions for a mock test when it becomes active
-     * This is called when scheduled_at time is reached
-     *
-     * @param int $mockListId
-     * @param int $batchId
-     * @return void
-     */
-    private function autoSaveMockQuestions($mockListId, $batchId)
-    {
-        try {
-            \Log::info('autoSaveMockQuestions called', [
-                'mock_list_id' => $mockListId,
-                'batch_id' => $batchId
-            ]);
-            
-            // Get the mock test
-            $mockTest = MockList::find($mockListId);
-            if (!$mockTest) {
-                \Log::error('Mock test not found', ['mock_list_id' => $mockListId]);
-                return;
-            }
-            
-            // Get section_questions configuration from mock_list
-            $sectionQuestions = is_string($mockTest->section_questions) 
-                ? json_decode($mockTest->section_questions, true) 
-                : $mockTest->section_questions;
-            
-            if (empty($sectionQuestions) || !is_array($sectionQuestions)) {
-                \Log::warning('No section_questions configured', ['mock_list_id' => $mockListId]);
-                return;
-            }
-            
-            \Log::info('Section questions config:', ['section_questions' => $sectionQuestions]);
-            
-            // Start transaction
-            DB::beginTransaction();
-            
-            // Generate and save questions
-            $order = 0;
-            $insertedCount = 0;
-            
-            foreach ($sectionQuestions as $sectionId => $chapters) {
-                if (!is_array($chapters)) {
-                    continue;
-                }
-                
-                foreach ($chapters as $chapterId => $questionCount) {
-                    // Get random questions from this chapter
-                    $questions = \App\Models\Question::where('chapter_id', $chapterId)
-                        ->inRandomOrder()
-                        ->limit($questionCount)
-                        ->pluck('id')
-                        ->toArray();
-                    
-                    // Insert each question
-                    foreach ($questions as $questionId) {
-                        DB::table('batch_mock_questions')->insert([
-                            'batch_id' => $batchId,
-                            'mock_list_id' => $mockListId,
-                            'question_id' => $questionId,
-                            'section_id' => $sectionId,
-                            'question_order' => $order++,
-                            'created_at' => now(),
-                            'updated_at' => now()
-                        ]);
-                        $insertedCount++;
-                    }
-                }
-            }
-            
-            DB::commit();
-            
-            \Log::info('Auto-saved mock questions successfully', [
-                'mock_list_id' => $mockListId,
-                'batch_id' => $batchId,
-                'questions_inserted' => $insertedCount
-            ]);
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Error in autoSaveMockQuestions: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Show the form for editing the specified mock series.
-     */
-    public function edit($id)
-    {
-        $mockSeries = \App\Models\MockSeries::findOrFail($id);
-        return response()->json(['mockSeries' => $mockSeries]);
-    }
-
     /**
      * Show mock exam answer key for admin (in backend)
      *
@@ -1050,5 +1018,90 @@ class MockSeriesController extends Controller
         }
         
         return view('backend.batch.mock-answer-key', compact('exam', 'answerKeyData', 'student', 'mockTest'));
+    }
+    
+    /**
+     * Auto-save questions for a mock test when it becomes active
+     * This is called when scheduled_at time is reached
+     *
+     * @param int $mockListId
+     * @param int $batchId
+     * @return void
+     */
+    private function autoSaveMockQuestions($mockListId, $batchId)
+    {
+        try {
+            \Log::info('autoSaveMockQuestions called', [
+                'mock_list_id' => $mockListId,
+                'batch_id' => $batchId
+            ]);
+            
+            // Get the mock test
+            $mockTest = MockList::find($mockListId);
+            if (!$mockTest) {
+                \Log::error('Mock test not found', ['mock_list_id' => $mockListId]);
+                return;
+            }
+            
+            // Get section_questions configuration from mock_list
+            $sectionQuestions = is_string($mockTest->section_questions) 
+                ? json_decode($mockTest->section_questions, true) 
+                : $mockTest->section_questions;
+            
+            if (empty($sectionQuestions) || !is_array($sectionQuestions)) {
+                \Log::warning('No section_questions configured', ['mock_list_id' => $mockListId]);
+                return;
+            }
+            
+            \Log::info('Section questions config:', ['section_questions' => $sectionQuestions]);
+            
+            // Start transaction
+            DB::beginTransaction();
+            
+            // Generate and save questions
+            $order = 0;
+            $insertedCount = 0;
+            
+            foreach ($sectionQuestions as $sectionId => $chapters) {
+                if (!is_array($chapters)) {
+                    continue;
+                }
+                
+                foreach ($chapters as $chapterId => $questionCount) {
+                    // Get random questions from this chapter
+                    $questions = \App\Models\Question::where('chapter_id', $chapterId)
+                        ->inRandomOrder()
+                        ->limit($questionCount)
+                        ->pluck('id')
+                        ->toArray();
+                    
+                    // Insert each question
+                    foreach ($questions as $questionId) {
+                        DB::table('batch_mock_questions')->insert([
+                            'batch_id' => $batchId,
+                            'mock_list_id' => $mockListId,
+                            'question_id' => $questionId,
+                            'section_id' => $sectionId,
+                            'question_order' => $order++,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                        $insertedCount++;
+                    }
+                }
+            }
+            
+            DB::commit();
+            
+            \Log::info('Auto-saved mock questions successfully', [
+                'mock_list_id' => $mockListId,
+                'batch_id' => $batchId,
+                'questions_inserted' => $insertedCount
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error in autoSaveMockQuestions: ' . $e->getMessage());
+        }
     }
 }

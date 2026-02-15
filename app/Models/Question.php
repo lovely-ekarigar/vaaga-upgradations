@@ -20,7 +20,37 @@ class Question extends Model
 {
     // use SoftDeletes; // Removed - deleted_at column doesn't exist in live database
 
-    protected $fillable = ['question', 'question_json', 'question_image', 'score'];
+    protected $fillable = [
+        'question', 
+        'question_json', 
+        'question_image', 
+        'score',
+        'exam_id',
+        'question_text',
+        'options',
+        'correct_answer',
+        'marks',
+        'solution',
+        'subject_id',
+        'chapter_id',
+        'course_id',
+        'difficulty',
+        'verification_status',
+        'verification_remarks',
+        'verified_by',
+        'verified_at',
+        'is_prev_year',
+        'old'
+    ];
+
+    protected $casts = [
+        'options' => 'array',
+        'verified_at' => 'datetime',
+    ];
+
+    protected $attributes = [
+        'verification_status' => 'pending',
+    ];
 
     protected static function boot()
     {
@@ -98,4 +128,31 @@ class Question extends Model
             ->withTimestamps();
     }
 
+    public function exam()
+    {
+        return $this->belongsTo(Exam::class);
+    }
+
+    public function subject()
+    {
+        return $this->hasOne(Course::class,'id','subject_id');
+    }
+
+    /**
+     * Get translated question attribute
+     */
+    public function getTranslatedQuestionAttribute()
+    {
+        $questionText = json_decode($this->question_text, true);
+        return $questionText['en'] ?? $this->question_text;
+    }
+
+    /**
+     * Get translated solution attribute
+     */
+    public function getTranslatedSolutionAttribute()
+    {
+        $solution = json_decode($this->solution, true);
+        return $solution['en'] ?? $this->solution;
+    }
 }

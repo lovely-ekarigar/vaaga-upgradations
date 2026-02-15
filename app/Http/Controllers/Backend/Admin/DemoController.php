@@ -12,11 +12,13 @@ use App\Models\Category;
 use App\Models\Board;
 use App\Models\Auth\User;
 use App\Models\TeacherBatch;
+use App\Models\DemoBatch;
 use App\Models\Elearn;
 use App\Models\DemoRequest;
 use App\Models\DemoFeedback;
 use App\Models\StudentFeedbackQuestion;
 use App\Models\TeacherFeedbackQuestion;
+use App\Models\DemoBatchStudent;
  
 use App\Models\Recording;
 use App\Models\StudentTeacherBatch;
@@ -29,6 +31,11 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 use App\Mail\FeedbackEmail;
+
+
+use App\Jobs\SendWhatsAppAiSensy;
+
+use App\Models\AiSensy;
 use URL;
 use Mail;
 use Auth;
@@ -42,7 +49,9 @@ class DemoController extends Controller
        $users = User::where('id',auth()->user()->id)->first();
 
         $demo_request = DemoRequest::with(['coursed','user'])->where('teacher_id',auth()->user()->id)->get();
+       
         //   dd($demo_request[0]);
+        
 
            $arr = [];
         //   dd(Course::where("id","40")->first());
@@ -53,10 +62,126 @@ class DemoController extends Controller
            }
         //   dd($arr);
       
-        $locale_full_name = \App\Models\Locale::where('short_name', app()->getLocale())->value('name') ?? 'English';
-        return view('backend.demo.index', compact('users','demo_request', 'locale_full_name'));
+        return view('backend.demo.teacher_index', compact('users','demo_request'));
        
     }
+        
+    }
+    
+    
+    public function demoBatchSave(Request $request){
+        
+        // dd($request->all());
+        
+        $demo = new DemoBatch();
+        
+        $demo->name = $request->name;
+        $demo->demo_date = date("Y-m-d",strtotime($request->date));
+        $demo->time_from = $request->from;
+         $demo->time_to = $request->to;
+        $demo->teacher_id = $request->tid;
+        $demo->save();
+         return redirect()->route('admin.demo_batch')->withSuccess("Demo Batch created succesfully");
+        
+    }
+    
+    
+    public function demoBatchEdit($id){
+        $batch = DemoBatch::find($id);
+       $teachers = User::role('teacher')->get();
+        
+       return view('backend.demo.batch-edit', compact('teachers','batch'));   
+    }
+    
+    public function demoBatchAdd(){
+        $teachers = User::role('teacher')->get();
+        
+       return view('backend.demo.batch-add', compact('teachers')); 
+        
+    }
+    
+    public function demoBatchUpdate(Request $request,$id){
+        
+         $demo =  DemoBatch::find($id);
+        
+        $demo->name = $request->name;
+        $demo->demo_date = date("Y-m-d",strtotime($request->date));
+        $demo->time_from = $request->from;
+         $demo->time_to = $request->to;
+        $demo->teacher_id = $request->tid;
+        $demo->update();
+         return redirect()->route('admin.demo_batch')->withSuccess("Demo Batch updated succesfully");
+    }
+    
+    
+    public function demoBatchStudentUpdate(Request $request,$id){
+        
+       
+        $batch = DemoBatch::find($id);
+        $teacher = User::find($batch->teacher_id);
+        $demoLink = date("ymd").rand(100,999).rand(1000,9999);
+        $batch->link = $demoLink;
+        $batch->update();
+        if($request->student){
+             DemoBatchStudent::where("batch_id",$id)->delete();
+            foreach($request->student as $st){
+                $db = new DemoBatchStudent();
+                $db->batch_id = $id;
+                $db->user_id = $st;
+                $db->save();
+                
+                
+                $user = User::find($st);
+                
+                
+                $whatsappPayload = [
+            'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
+            'campaignName' => 'student_demo',
+            'destination' => '+91'.$user->phone,
+            'userName' => $user->name,
+            'source' => 'schedule_demo',
+            'templateParams' => [strtoupper(explode(" ",$user->name)[0]), date("d-M-Y h:i A",strtotime($demo->demo_date_time))." IST",$teacher->first_name,"Olympiad Class",$demoLink,$demoLink],
+            'tags' => ['demo', 'new-demo'],
+            'attributes' => ['eenquiry_id' => $user->id],
+        ];
+        
+      
+       $x= AiSensy::send($whatsappPayload);
+                
+            }
+            
+        }
+        
+          return redirect()->back()->withSuccess("Demo Batch student succesfully");
+    }
+    
+    public function demoBatchStudent($id){
+        
+        $batch =  DemoBatch::find($id);
+        
+        $requestList = DemoRequest::with('course')->orderBy("id","desc")->limit(100)->get();
+        $assigneduid=DemoBatchStudent::where("batch_id",$id)->pluck("user_id")->toArray();
+        
+          return view('backend.demo.batch-student', compact('requestList','batch','assigneduid')); 
+        
+    }
+    
+    
+    public function demoBatch(Request $request){
+        
+        if($request->del){
+            
+            $batch = DemoBatch::find($request->del);
+            if($batch){
+                $batch->delete();
+                return redirect()->route('admin.demo_batch')->withSuccess("Demo Batch deleted succesfully");
+            }
+        }
+        
+        $batches = DemoBatch::with('teacher')->orderBy("id","desc")->get();
+        
+    
+        return view('backend.demo.batch', compact('batches'));
         
     }
    public function index(){
@@ -76,16 +201,14 @@ class DemoController extends Controller
            $arr[] = $drr->course_id;
            }
         //   dd($arr);
-        
-        $locale_full_name = \App\Models\Locale::where('short_name', app()->getLocale())->value('name') ?? 'English';
-        return view('backend.demo.index', compact('users','demo_request', 'locale_full_name'));
+      
+        return view('backend.demo.index', compact('users','demo_request'));
        
     }elseif(auth()->user()->hasRole('administrator')){
 
         $users = User::where('active',true)->role('teacher')->get();
 
-        $locale_full_name = \App\Models\Locale::where('short_name', app()->getLocale())->value('name') ?? 'English';
-        return view('backend.demo.index', compact('users', 'locale_full_name'));
+        return view('backend.demo.index', compact('users'));
        
     }
 
@@ -96,6 +219,7 @@ class DemoController extends Controller
    
    public function statusUpdate(Request $request){
       
+    if($request->demo_type=='single'){
       $demo = DemoRequest::find($request->demo_id); 
       if($demo->teacher_id != Auth::user()->id){
            return redirect()->back()->withErrors("Unbale to perform this action");
@@ -103,7 +227,15 @@ class DemoController extends Controller
       $demo->demo_status = $request->status;
       $demo->remarks = $request->teacher_remarks;
       $demo->update();
-       
+    }else{
+       $demo = DemoBatch::find($request->demo_id); 
+      if($demo->teacher_id != Auth::user()->id){
+           return redirect()->back()->withErrors("Unbale to perform this action");
+      }
+      $demo->demo_status = $request->status;
+      $demo->remarks = $request->teacher_remarks;
+      $demo->update();  
+    }
        return redirect()->back()->withSuccess("Status updated succesfully");
    }
 
@@ -180,81 +312,137 @@ Mail::to($user)->send(new FeedbackEmail($userx,$id));
 
             $demo_history["teacher"]= User::find($demo_history->teacher_id);
 
-            $demo_history["course"]= Course::where("id",$demo_history["demo_request"]->course_id)->first();
+            $demo_history["course"]= Course::where("id",$demo_history->course_id)->first();
+            $demo_history["course_old"]= Course::where("id",$demo_history["demo_request"]->course_id)->first();
 
             $list[]=$demo_history;
+            
+                    $el=new Elearn;
+        $in=array(
+            "meetingID"=>$demo_history["demo_request"]->api_class_id,
+        );
+        $x=$el->eClass("getRecordings",$in);
+        $demo_history['api'] = $x;
          
         }
+        
+        // dd($list);
 
         return view('backend.demo.history',compact('list'));
    }
    
    
 public function getDataTeacher(Request $request)
-    {
-        $contacts = "";
-        $contacts = DemoRequest::where('teacher_id',auth()->user()->id)->orderBy('id', 'desc')->get();
-        
-        // dd($contacts);
+{
+    $userId = auth()->user()->id;
 
-        return DataTables::of($contacts)
-            ->addIndexColumn()
-            ->editColumn('created_at', function ($q) {
-               return $q->created_at->format('d M, Y');
-            })
-            ->addColumn('course', function($q){
-                $course = Course::find($q->course_id);
-                
-                if( $course){
-                $cat = Category::find($course->category_id);
-                if($cat->board_id==0){
-          return
-               $cat->name." | ".$course->title;
-                }else{
-                    $board = Board::find($cat->board_id);
-                  return
-              $board->name." | ". $cat->name." | ".$course->title;  
-                }
-                }else{
-                    return "";
-                }
-        })
-         ->addColumn('action', function($q){
-             if($q->demo_status=='na'){
-                 return '';
-             }else if($q->demo_status!='completed'){
-                  return '<a href="javascript:void(0)" data-id="'.$q->id.'" class="btn btn-sm btn-danger changeStatus mr-2 mb-2"><span class="fa fa-pencil"></span></a><a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-start btn btn-primary btn-sm">Start Demo</a>';
-                  
-             }else{
-                         return '';
-             }
-        })
-        ->editColumn('created_at', function ($q) {
-               
-                    return date("d M Y h:iA",strtotime($q->demo_date_time));
-                
-            })
-            ->editColumn('number', function ($q) {
-                if($q->number == ""){
-                    return "N/A";
-                }else{
-                    return $q->number;
-                }
-            })
-            ->editColumn('demo_status', function ($q) {
-                if($q->demo_status == "na"){
-                    return "N/A";
-                }else{
-                    return ucwords($q->demo_status);
-                }
-            })
-            ->make();
+    // Fetch and normalize DemoBatch data (batches first)
+    $demoBatchList = DemoBatch::withCount('students')
+        ->where("teacher_id", $userId)
+        ->orderBy("id", "desc")
+        ->get()
+        ->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'type' => 'batch',
+                'name' => $item->name,
+                'email' => 'N/A',
+                'phone' => 'N/A',
+                'remarks' => 'N/A',
+                'course' =>  'Group Demo',
+                'demo_status' => ucwords($item->demo_status),
+                'instructions'=>$item->students_count." Students",
+                'created_at' => date("d M Y h:iA", strtotime($item->demo_date." ".$item->time_from)),
+                'action' => $item->demo_status != 'completed' && $item->demo_status != 'Pending'
+                    ? '<a href="javascript:void(0)" data-type="batch" data-id="' . $item->id . '" class="btn btn-sm btn-danger changeStatus mr-2 mb-2"><span class="fa fa-pencil"></span></a>
+                       <a href="javascript:void(0)" data-type="batch" data-id="' . $item->id . '" class="demo-start btn btn-primary btn-sm">Start Demo</a>'
+                    : '',
+            ];
+        });
+
+    // Fetch and normalize DemoRequest data
+    $contacts = DemoRequest::where('teacher_id', $userId)
+        ->orderBy('id', 'desc')
+        ->get()
+        ->map(function ($q) {
+            $course = Course::find($q->course_id);
+            $cat = $course ? Category::find($course->category_id) : null;
+            $board = $cat && $cat->board_id ? Board::find($cat->board_id) : null;
+
+            $courseText = '';
+            if ($cat && $course) {
+                $courseText = ($board ? $board->name . ' | ' : '') . $cat->name . ' | ' . $course->title;
+            }
+
+            return [
+                'id' => $q->id,
+                'type' => 'request',
+                'name' => $q->name,
+                'email' => $q->email,
+                'phone' => $q->number ?: 'N/A',
+                'remarks' => $q->remarks ?: 'N/A',
+                'course' => $courseText,
+                 'instructions'=>'',
+                'demo_status' => $q->demo_status == 'na' ? 'N/A' : ucwords($q->demo_status),
+                'created_at' => date("d M Y h:iA", strtotime($q->demo_date_time)),
+                'action' => $q->demo_status != 'completed' && $q->demo_status != 'na'
+                    ? '<a href="javascript:void(0)" data-type="single" data-id="' . $q->id . '" class="btn btn-sm btn-danger changeStatus mr-2 mb-2"><span class="fa fa-pencil"></span></a>
+                       <a href="javascript:void(0)" data-type="single"  data-id="' . $q->id . '" class="demo-start btn btn-primary btn-sm">Start Demo</a>'
+                    : '',
+            ];
+        });
+
+    // Merge batches first, then contacts
+    $merged = $demoBatchList->concat($contacts);
+
+    // Return DataTable
+    return DataTables::of($merged)
+        ->addIndexColumn()
+        ->rawColumns(['action'])
+        ->make(true);
+}
+
+
+public function join($id){
+    $demo = DemoRequest::where("link",$id)->first();
+    if(!$demo){
+        return abort(404);
     }
+   
+   $user = User::find($demo->user_id); 
+   Auth::login($user);
+   $teacher = User::find($demo->teacher_id);
+   
+   $course = Course::find($demo->course_id);
+   
+  
+   return view("demo.wait",compact('demo','user','course','teacher'));
+   
+}
+public function joinCheck($id){
+    
+    $demo = DemoRequest::find($id); 
+    
+    if($demo->api_class_id){
+        
+        
+            return response()->json(['can_join'=>true,'api_id'=>$demo->api_class_id]);
+            
+            
+    }else{
+        return response()->json(['can_join'=>false]);
+    }
+}
+
+
+
+
   
    public function scheduleDemo(Request $request){
        
        $demo_id = $request->demo_id;
        $demo = DemoRequest::find($demo_id);
+       $demoLink = date("ymd").rand(10,99).rand(100,999);
        if(!$demo){
            return redirect()->back()->withErrors("Unbale to find demo request");
        }
@@ -263,12 +451,15 @@ public function getDataTeacher(Request $request)
        $demo->demo_date_time = date("Y-m-d H:i:s",strtotime($request->datetime));
        $demo->demo_status = 'scheduled';
        $demo->instructions = $request->instruction;
+       $demo->api_class_id=null;
+       $demo->link=$demoLink;
        $demo->update();
 
        $demo_history = new DemoHistory();
        $demo_history->demo_id = $demo->id;
        $demo_history->date_time = $demo->demo_date_time;
        $demo_history->teacher_id = $demo->teacher_id;
+       $demo_history->course_id = $demo->course_id;
        $demo_history->save();
 
        $user = User::find($demo->user_id);
@@ -278,8 +469,39 @@ public function getDataTeacher(Request $request)
        $course = Course::find($demo->course_id);
        $cro = new Course();
        $title = $cro->getCouseNameWithCat($demo->course_id);
+       
+       
+        $whatsappPayload = [
+            'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
+            'campaignName' => 'student_demo',
+            'destination' => '+91'.$demo->phone,
+            'userName' => $demo->name,
+            'source' => 'schedule_demo',
+            'templateParams' => [strtoupper(explode(" ",$demo->name)[0]), date("d-M-Y h:i A",strtotime($demo->demo_date_time))." IST",$teacher->first_name,$course->title,$demoLink,$demoLink],
+            'tags' => ['demo', 'new-demo'],
+            'attributes' => ['eenquiry_id' => $demo->id],
+        ];
+        
+        $grade =explode(" ",$course->title);
+        
+         $whatsappPayloadTutor = [
+            'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
+            'campaignName' => 'tutor_demo',
+            'destination' => '+91'.$teacher->phone,
+            'userName' => $teacher->name,
+            'source' => 'schedule_demo',
+            'templateParams' => [strtoupper(explode(" ",$teacher->name)[0]), date("d-M-Y h:i A",strtotime($demo->demo_date_time))." IST",$course->title,$course->title],
+            'tags' => ['demo', 'new-demo'],
+            'attributes' => ['eenquiry_id' => $demo->id],
+        ];
+        //  dispatch(new SendWhatsAppAiSensy($whatsappPayload));
+         $xt= AiSensy::send($whatsappPayloadTutor);
+       $x= AiSensy::send($whatsappPayload);
+        // dd($xt);
+        
+       
        //email jayega user & teachers ko
-       Mail::to($user)->send(new DemoStudentEmail($user,$teacher,$demod,$link,$title));
+      Mail::to($user)->send(new DemoStudentEmail($user,$teacher,$demod,$link,$title));
         Mail::to($teacher)->send(new DemoTeacherEmail($user,$teacher,$demod,$link,$title));
         return redirect()->back()->withSuccess("Demo has been scheduled");
        
@@ -358,106 +580,4 @@ public function getDataTeacher(Request $request)
     }
      
 
-
-    /**
-     * Display demo batch list
-     */
-    public function demoBatch()
-    {
-        $batches = \App\Models\Batch::all();
-        
-        // Manually load teacher data since relationships don't exist
-        foreach ($batches as $batch) {
-            if ($batch->tid) {
-                $batch->teacher = \App\Models\Auth\User::find($batch->tid);
-            }
-        }
-        
-        return view('backend.demo.batch_index', compact('batches'));
-    }
-
-    /**
-     * Show form to add demo batch
-     */
-    public function demoBatchAdd()
-    {
-        $teachers = User::role('teacher')->where('active', true)->get();
-        return view('backend.demo.batch_add', compact('teachers'));
-    }
-
-    /**
-     * Save new demo batch
-     */
-    public function demoBatchSave(Request $request)
-    {
-        // TODO: Implement save logic
-        return redirect()->route('admin.demo_batch')->withFlashSuccess('Demo batch created successfully');
-    }
-
-    /**
-     * Show form to edit demo batch
-     */
-    public function demoBatchEdit($id)
-    {
-        $batch = \App\Models\Batch::find($id);
-        $teachers = User::role('teacher')->where('active', true)->get();
-        return view('backend.demo.batch_edit', compact('batch', 'teachers'));
-    }
-
-    /**
-     * Update demo batch
-     */
-    public function demoBatchUpdate(Request $request, $id)
-    {
-        // TODO: Implement update logic
-        return redirect()->route('admin.demo_batch')->withFlashSuccess('Demo batch updated successfully');
-    }
-
-    /**
-     * Display students for a demo batch
-     */
-    public function demoBatchStudent($id)
-    {
-        $batch = \App\Models\Batch::find($id);
-        
-        // Get demo requests that haven't been assigned to any batch yet
-        $requestList = \App\Models\DemoRequest::with('user', 'course')
-            ->where('demo_status', 'pending')
-            ->orWhere('batch_id', $id)
-            ->get();
-            
-        // Get already assigned user IDs for this batch
-        $assigneduid = \App\Models\StudentTeacherBatch::where('bid', $id)
-            ->pluck('uid')
-            ->toArray();
-        
-        return view('backend.demo.batch_student', compact('batch', 'requestList', 'assigneduid'));
-    }
-
-    /**
-     * Update demo batch students
-     */
-    public function demoBatchStudentUpdate(Request $request, $id)
-    {
-        // TODO: Implement student update logic
-        return redirect()->route('admin.demo_batch.student', $id)->withFlashSuccess('Students updated successfully');
-    }
-
-    /**
-     * Join a demo class (for students)
-     */
-    public function join($id)
-    {
-        $demo = DemoRequest::findOrFail($id);
-        return view('backend.demo.join', compact('demo'));
-    }
-
-    /**
-     * Check and verify demo join request
-     */
-    public function joinCheck($id)
-    {
-        $demo = DemoRequest::findOrFail($id);
-        return response()->json(['status' => $demo->demo_status, 'api_class_id' => $demo->api_class_id]);
-    }
 }

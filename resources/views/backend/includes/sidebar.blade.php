@@ -159,7 +159,7 @@ use App\Models\UserNotification;
             @endif
             @if ($logged_in_user->isAdmin() || $logged_in_user->hasRole('teacher') || $logged_in_user->hasRole('student'))
                 <li
-                    class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('user/tests*', 'user/questions*', 'user/questions_options*', 'user/questions-bank*', 'user/test-series*', 'user/purchase*', 'user/question/report*', 'user/marketing*'), 'open') }}">
+                    class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('user/tests*', 'user/questions*', 'user/questions_options*', 'user/questions-bank*', 'user/test-series*', 'user/purchase*', 'user/question/report*', 'user/marketing*', 'user/mocktests*', 'user/mock*'), 'open') }}">
                     <a class="nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/log-viewer*')) }}"
                         href="#">
                         <i class="nav-icon icon-list"></i> Exam
@@ -196,6 +196,22 @@ use App\Models\UserNotification;
                                 <span class="title">Marketing</span>
                             </a>
                         </li>
+                        @can('mocktest_access')
+                            <li class="nav-item">
+                                <a class="nav-link {{ $request->segment(2) == 'mocktests' ? 'active' : '' }}"
+                                    href="{{ route('admin.mocktests.index') }}">
+                                    <span class="title">Mock Tests</span>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('lesson_create')
+                            <li class="nav-item">
+                                <a class="nav-link {{ $request->segment(2) == 'mock' ? 'active' : '' }}"
+                                    href="{{ route('mockseries.index') }}">
+                                    <span class="title">Mock Series</span>
+                                </a>
+                            </li>
+                        @endcan
                     </ul>
                 </li>
             @endif

@@ -54,6 +54,34 @@
         gap: 0.5rem;
     }
     
+    .status-badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 4px;
+        font-weight: 500;
+        text-align: center;
+    }
+    
+    .status-upcoming {
+        background-color: #ffc107;
+        color: #000;
+    }
+    
+    .status-available {
+        background-color: #28a745;
+        color: #fff;
+    }
+    
+    .status-missed {
+        background-color: #dc3545;
+        color: #fff;
+    }
+    
+    .status-completed {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+    
     /* Mobile-specific styles */
     @media (max-width: 768px) {
         .test-card {
@@ -145,6 +173,17 @@
                                 ->where('exam_id', $mock->id)
                                 ->orderBy('id', 'desc')
                                 ->first();
+                            
+                            // Get test status
+                            $testStatus = $mock->test_status ?? 'not_available';
+                            $statusMessage = $mock->status_message ?? '';
+                            $isAvailable = $testStatus === 'available';
+                            
+                            // Determine if student missed the test
+                            $isMissed = false;
+                            if ($testStatus === 'missed' && !$myExam) {
+                                $isMissed = true;
+                            }
                          @endphp
                         <div class="test-card">
                             <div class="test-content">
@@ -154,33 +193,61 @@
                                         <p class="test-description mb-2">
                                             {{ $mock->description ?? 'No description available' }}
                                         </p>
-                                        <p class="test-questions mb-0">
+                                        <p class="test-questions mb-2">
                                             @if(!empty($mock->total_questions))
                                                 <strong>Total Questions:</strong> {{ $mock->total_questions }}
                                             @elseif(!empty($mock->duration))
                                                 <strong>Duration:</strong> {{ $mock->duration }} minutes
                                             @endif
                                         </p>
+                                        
+                                        @if($myExam && $myExam->status == 'completed')
+                                            <div class="status-badge status-completed">
+                                                <i class="bi bi-check-circle-fill"></i> Completed
+                                            </div>
+                                        @elseif($testStatus === 'upcoming')
+                                            <div class="status-badge status-upcoming">
+                                                <i class="bi bi-clock"></i> {{ $statusMessage }}
+                                            </div>
+                                        @elseif($testStatus === 'missed' && !$myExam)
+                                            <div class="status-badge status-missed">
+                                                <i class="bi bi-x-circle"></i> {{ $statusMessage }}
+                                            </div>
+                                        @elseif($isAvailable)
+                                            <div class="status-badge status-available">
+                                                <i class="bi bi-check-circle"></i> {{ $statusMessage }}
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="action-buttons">
-                                        @if($myExam)
-                                            <div class="btn-group-mobile">
-                                                @if($myExam->status == 'completed')
-                                                    <a class="btn btn-sm btn-secondary" target="_blank" href="{{ route('myMockSeries.result', $myExam->id) }}">
-                                                        View Result
-                                                    </a>
-                                                    <!-- <a href="{{ url('user/my-mock-series/' . $mock->id . '/' . $bmtId . '/attempt') }}" class="btn btn-primary btn-sm">
-                                                        <i class="bi bi-play-circle"></i> Retake
-                                                    </a> -->
-                                                @else
-                                                     <a href="{{ url('user/my-mock-series/' . $mock->id . '/' . $bmtId . '/attempt') }}" class="btn btn-primary btn-sm">
-                                                        <i class="bi bi-play-circle"></i> Resume
-                                                    </a>
-                                                @endif
-                                            </div>
-                                        @else
-                                            <a href="{{ url('user/my-mock-series/' . $mock->id . '/' . $bmtId . '/attempt') }}" class="btn btn-primary btn-sm">
-                                                <i class="bi bi-play-circle"></i> Start Test
+                                        @if($isAvailable)
+                                            @if($myExam)
+                                                <div class="btn-group-mobile">
+                                                    @if($myExam->status == 'completed')
+                                                        <a class="btn btn-sm btn-secondary" target="_blank" href="{{ route('myMockSeries.result', $myExam->id) }}">
+                                                            View Result
+                                                        </a>
+                                                        <!-- <a href="{{ url('user/my-mock-series/' . $mock->id . '/' . $bmtId . '/attempt') }}" class="btn btn-primary btn-sm">
+                                                            <i class="bi bi-play-circle"></i> Retake
+                                                        </a> -->
+                                                    @else
+                                                         <a href="{{ url('user/my-mock-series/' . $mock->id . '/' . $bmtId . '/attempt') }}" class="btn btn-primary btn-sm">
+                                                            <i class="bi bi-play-circle"></i> Resume
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <a href="{{ url('user/my-mock-series/' . $mock->id . '/' . $bmtId . '/attempt') }}" class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-play-circle"></i> Start Test
+                                                </a>
+                                            @endif
+                                        @elseif($testStatus === 'upcoming')
+                                            <span class="text-muted small"><i class="bi bi-lock"></i> Not yet available</span>
+                                        @elseif($isMissed)
+                                            <span class="text-danger small"><i class="bi bi-exclamation-circle"></i> Test Missed</span>
+                                        @elseif($myExam && $myExam->status == 'completed')
+                                            <a class="btn btn-sm btn-secondary" target="_blank" href="{{ route('myMockSeries.result', $myExam->id) }}">
+                                                View Result
                                             </a>
                                         @endif
                                     </div>

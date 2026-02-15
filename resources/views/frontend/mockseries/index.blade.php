@@ -122,7 +122,7 @@
         <div class="mb-6 pb-6">
             @include('includes.partials.messages')
 
-            <h3 class="mb-4">My Mock Test Series</h3>
+            <h3 class="mb-4">My Tests</h3>
             
 
             @if($mockSeries->count() > 0)
@@ -156,7 +156,7 @@
                                     <div class="action-buttons">
                                         @if($isActive)
                                             <a href="{{ route('myMockSeries.list', ['id' => $ms->id]) }}" class="btn btn-primary btn-sm">
-                                                <i class="bi bi-eye"></i> View Mocks
+                                                <i class="bi bi-eye"></i> View Tests
                                             </a>
                                         @endif
                                         <span class="badge {{ $badgeClass }} status-badge">{{ $status }}</span>
