@@ -405,6 +405,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::post('edit-note/{id}', [NoteController::class, 'update'])->name('note.update');
 
     Route::post('/upload-image', [NoteController::class, 'imageUpload'])->name('uploadImage');
+    Route::post('/upload-image-ckeditor', [NoteController::class, 'uploadImageCkEditor'])->name('uploadImageCkEditor');
 
 
     //====== Study Material Category Routes =====//   

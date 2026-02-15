@@ -16,29 +16,8 @@ use Illuminate\Support\Str;
         height: 30px;
     }
 
-    .editorjs-holder {
-        min-height: 180px;
-        border: 1px solid rgba(0, 0, 0, .12);
-        border-radius: 10px;
-        background: #fff;
-        padding: 14px 16px;
-        transition: border-color .15s ease, box-shadow .15s ease;
-    }
-
-    .editorjs-holder.editorjs-sm {
-        min-height: 140px;
-        padding: 12px 14px;
-    }
-
-    .editorjs-holder:focus-within {
-        border-color: rgba(13, 110, 253, .55);
-        box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .12);
-    }
-
-    .editorjs-holder .ce-block__content,
-    .editorjs-holder .ce-toolbar__content {
-        max-width: 100%;
-    }
+    /* Hide CKEditor notifications */
+    .cke_notifications_area { display: none !important; }
 </style>
 @stop
 
@@ -97,9 +76,7 @@ use Illuminate\Support\Str;
                             <div class="row g-3">
                                 <div class="col-md-12">
                                     <label class="form-label small text-muted fw-bold">English</label>
-                                    <div id="editorjs_question_en" class="border rounded-lg p-4 bg-white editorjs-holder"></div>
-                                    <textarea id="question_text_en" name="question_text[en]" class="form-control question-input d-none" rows="3">{{ old('question_text.en', $questionText['en'] ?? '') }}</textarea>
-                                    <div id="editorjsQuestionError" class="invalid-feedback d-block" style="display:none"></div>
+                                    <textarea id="question_text_en" name="question_text[en]" class="form-control" rows="3">{{ old('question_text.en', $questionText['en'] ?? '') }}</textarea>
                                 </div>
                                 
                             </div>
@@ -129,8 +106,7 @@ use Illuminate\Support\Str;
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label small text-muted">English</label>
-                                                <div id="editorjs_option_{{ $key }}_en" class="border rounded-lg p-4 bg-white editorjs-holder editorjs-sm"></div>
-                                                <textarea id="option_{{ $key }}_en" name="options[{{ $key }}][en]" class="form-control option-input d-none" rows="2">{{ old("options.$key.en", $option['en'] ?? '') }}</textarea>
+                                                <textarea id="option_{{ $key }}_en" name="options[{{ $key }}][en]" class="form-control" rows="2">{{ old("options.$key.en", $option['en'] ?? '') }}</textarea>
                                             </div>
                                            
                                         </div>
@@ -151,8 +127,7 @@ use Illuminate\Support\Str;
                         <div class="card-body">
                             <div class="mb-3">
                                 <label class="form-label small text-muted fw-bold">English</label>
-                                <div id="editorjs_solution_en" class="border rounded-lg p-4 bg-white editorjs-holder"></div>
-                                <textarea id="solution_en" name="solution[en]" class="form-control solution-input d-none" rows="3">{{ old('solution.en', $solutionText['en'] ?? '') }}</textarea>
+                                <textarea id="solution_en" name="solution[en]" class="form-control" rows="3">{{ old('solution.en', $solutionText['en'] ?? '') }}</textarea>
                             </div>
                             
                         </div>
@@ -177,31 +152,18 @@ use Illuminate\Support\Str;
                             <option value="medium" @if($question->difficulty=='medium') selected @endif>Medium</option>
                             <option value="hard" @if($question->difficulty=='hard') selected @endif>Hard</option>
                         </select>
-                    </div>
-                    
-                     <div class="">
-                            <label class="form-label fw-semibold">Is Previuos Year Question?</label>
+                        </div>
+                        
+                          <div class="mt-3">
+                            <label class="form-label fw-semibold">Is Previous Year Question?</label>
                         <select name="is_prev_year" id="is_prev_year" class="form-control form-select" required>
-                         
-                            <option value="0" @if($question->is_prev_year=='0') selected @endif >No</option>
-                            <option value="1"  @if($question->is_prev_year=='1') selected @endif>Yes</option>
+                            <option value="0" @if($question->is_prev_year==0) selected @endif>No</option>
+                            <option value="1" @if($question->is_prev_year==1) selected @endif>Yes</option>
                         </select>
-                    </div>
-                    
-                    
-                           <div class="">
-                            <label class="form-label fw-semibold">Verification</label>
-                        <select name="verification_status" id="verification_status" class="form-control form-select" >
-                              <option value="">-- Select Verification --</option>
-                            <option value="approved" @if($question->verification_status=='approved') selected @endif>Approved</option>
-                            <option value="rejected" @if($question->verification_status=='rejected') selected @endif>Rejected</option>
-                        </select>
-                    </div>
+                        </div>
                            
                         </div>
                     </div>
-
-                    
                 </div>
             </div>
 
@@ -225,159 +187,68 @@ use Illuminate\Support\Str;
 @stop
 
 @push('after-scripts')
+<script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
 <script>
-    // Prevent UMD builds from thinking CommonJS is available
-    window.module = undefined;
-    window.exports = undefined;
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.31.1/dist/editorjs.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.8.8/dist/header.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@2.0.9/dist/editorjs-list.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@2.10.3/dist/image.umd.js"></script>
-
-<script>
-    (function () {
-        const form = document.getElementById('questionForm');
-        const errorEl = document.getElementById('editorjsQuestionError');
-
-        if (!form || !window.EditorJS) return;
-
-        const ListTool = window.EditorjsList; // list tool UMD global
-        const ImageTool = window.ImageTool;
-        const HeaderTool = window.Header;
-
-        function isEmptyEditorData(data) {
-            if (!data || !Array.isArray(data.blocks) || data.blocks.length === 0) return true;
-            return !data.blocks.some((b) => {
-                const t = b && b.type;
-                const d = (b && b.data) || {};
-                if (t === 'paragraph' || t === 'header') return !!(d.text && String(d.text).replace(/<[^>]*>/g, '').trim());
-                if (t === 'list') return Array.isArray(d.items) && d.items.some(i => String(i || '').replace(/<[^>]*>/g, '').trim());
-                if (t === 'image') return !!(d.file && d.file.url);
-                return Object.keys(d).length > 0;
-            });
-        }
-
-        function htmlToInitialData(html) {
-            const trimmed = (html || '').trim();
-            if (!trimmed) return undefined;
-            return {
-                time: Date.now(),
-                blocks: [
-                    { type: 'paragraph', data: { text: trimmed } }
-                ]
-            };
-        }
-
-        function editorDataToHtml(data) {
-            if (!data || !Array.isArray(data.blocks)) return '';
-            return data.blocks.map((b) => {
-                const t = b.type;
-                const d = b.data || {};
-                if (t === 'header') {
-                    const level = Number(d.level) || 2;
-                    return `<h${level}>${d.text || ''}</h${level}>`;
-                }
-                if (t === 'paragraph') return `<p>${d.text || ''}</p>`;
-                if (t === 'list') {
-                    const tag = d.style === 'ordered' ? 'ol' : 'ul';
-                    const items = Array.isArray(d.items) ? d.items : [];
-                    return `<${tag}>${items.map(i => `<li>${i || ''}</li>`).join('')}</${tag}>`;
-                }
-                if (t === 'image') {
-                    const url = d.file && d.file.url ? d.file.url : '';
-                    const caption = d.caption ? `<figcaption>${d.caption}</figcaption>` : '';
-                    if (!url) return '';
-                    return `<figure><img src="${url}" alt=""/>${caption}</figure>`;
-                }
-                return '';
-            }).join('');
-        }
-
-        function makeEditor(holderId, textareaId) {
-            const textarea = document.getElementById(textareaId);
-            if (!textarea) return null;
-
-            return new EditorJS({
-                holder: holderId,
-                autofocus: false,
-                data: htmlToInitialData(textarea.value),
-                tools: {
-                    header: { class: HeaderTool, inlineToolbar: ['link'] },
-                    list: { class: ListTool, inlineToolbar: true },
-                    image: {
-                        class: ImageTool,
-                        config: {
-                            uploader: {
-                                uploadByFile(file) {
-                                    return new Promise((resolve, reject) => {
-                                        const reader = new FileReader();
-                                        reader.onload = () => resolve({ success: 1, file: { url: reader.result } });
-                                        reader.onerror = () => reject(reader.error || new Error('File read failed'));
-                                        reader.readAsDataURL(file);
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        const editors = [];
-        const qEditor = makeEditor('editorjs_question_en', 'question_text_en');
-        if (qEditor) editors.push({ editor: qEditor, textareaId: 'question_text_en', required: true });
-
-        const sEditor = makeEditor('editorjs_solution_en', 'solution_en');
-        if (sEditor) editors.push({ editor: sEditor, textareaId: 'solution_en', required: false });
-
-        // Options (supports any keys present)
-        document.querySelectorAll('[id^="editorjs_option_"][id$="_en"]').forEach((holder) => {
-            const id = holder.id; // editorjs_option_{key}_en
-            const key = id.replace('editorjs_option_', '').replace('_en', '');
-            const textareaId = `option_${key}_en`;
-            const ed = makeEditor(id, textareaId);
-            if (ed) editors.push({ editor: ed, textareaId, required: false });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize CKEditor for question text
+        CKEDITOR.replace('question_text_en', {
+            height: 200,
+            toolbarGroups: [
+                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
+                { name: 'links' },
+                { name: 'insert' },
+                { name: 'forms' },
+                { name: 'tools' },
+                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+                { name: 'others' },
+                '/',
+                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+                { name: 'styles' },
+                { name: 'colors' }
+            ]
         });
 
-        let isSubmitting = false;
-
-        form.addEventListener('submit', async function (e) {
-            if (isSubmitting) return;
-            e.preventDefault();
-
-            if (errorEl) {
-                errorEl.style.display = 'none';
-                errorEl.textContent = '';
-            }
-
-            try {
-                for (const item of editors) {
-                    const data = await item.editor.save();
-                    if (item.required && isEmptyEditorData(data)) {
-                        if (errorEl) {
-                            errorEl.textContent = 'Please enter a question before updating.';
-                            errorEl.style.display = 'block';
-                        }
-                        document.getElementById('editorjs_question_en')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        return;
-                    }
-
-                    const html = editorDataToHtml(data);
-                    const textarea = document.getElementById(item.textareaId);
-                    if (textarea) textarea.value = html;
-                }
-
-                isSubmitting = true;
-                form.submit();
-            } catch (err) {
-                console.error(err);
-                if (errorEl) {
-                    errorEl.textContent = 'Could not save the editor content. Please try again.';
-                    errorEl.style.display = 'block';
-                }
+        // Initialize CKEditor for all options (dynamic)
+        document.querySelectorAll('textarea[id^="option_"][id$="_en"]').forEach(function(textarea) {
+            if (textarea.id) {
+                CKEDITOR.replace(textarea.id, {
+                    height: 150,
+                    toolbarGroups: [
+                        { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                        { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
+                        { name: 'links' },
+                        { name: 'insert' },
+                        '/',
+                        { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+                        { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
+                        { name: 'styles' },
+                        { name: 'colors' }
+                    ]
+                });
             }
         });
-    })();
+
+        // Initialize CKEditor for solution
+        CKEDITOR.replace('solution_en', {
+            height: 200,
+            toolbarGroups: [
+                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
+                { name: 'links' },
+                { name: 'insert' },
+                { name: 'forms' },
+                { name: 'tools' },
+                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+                { name: 'others' },
+                '/',
+                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+                { name: 'styles' },
+                { name: 'colors' }
+            ]
+        });
+    });
 </script>
 @endpush

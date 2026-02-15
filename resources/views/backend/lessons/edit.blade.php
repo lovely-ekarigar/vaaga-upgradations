@@ -167,15 +167,7 @@ use App\Models\Course;
             <div class="row">
                 <div class="col-12 form-group">
                     {!! Form::label('full_text', trans('labels.backend.lessons.fields.full_text'), ['class' => 'control-label']) !!}
-                    {!! Form::label('full_text', trans('labels.backend.lessons.fields.full_text'), ['class' => 'control-label']) !!}
-                     <!-- Enhanced Editor Container -->
-                    <div class="form-group shadow-sm border rounded-lg bg-white mb-3">
-                        <div class="bg-gray-50 px-4 py-2 border-b text-sm font-semibold text-gray-600" style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; padding: 0.5rem 1rem;">
-                            Lesson Content
-                        </div>
-                        <div id="editorjs" class="p-4 prose max-w-none editorjs-holder" style="border:none; box-shadow:none;"></div>
-                    </div>
-                    {!! Form::hidden('full_text', old('full_text', $lesson->full_text), ['id' => 'full_text_input']) !!}
+                    {!! Form::textarea('full_text', old('full_text', $lesson->full_text), ['class' => 'form-control editor', 'placeholder' => trans('labels.backend.lessons.fields.full_text')]) !!}
                 </div>
             </div>
             <div class="row">
@@ -342,29 +334,21 @@ use App\Models\Course;
 
 @push('after-scripts')
     <script src="{{asset('plugins/bootstrap-tagsinput/bootstrap-tagsinput.js')}}"></script>
-
-    <script type="text/javascript" src="{{asset('/vendor/unisharp/laravel-ckeditor/ckeditor.js')}}"></script>
-    <script type="text/javascript" src="{{asset('/vendor/unisharp/laravel-ckeditor/adapters/jquery.js')}}"></script>
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
     <script src="{{asset('/vendor/laravel-filemanager/js/lfm.js')}}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
-<script>
-//     $(document).ready(function() {
-//   $('.editor').summernote({height: 250});
-// });
-</script>
     <script>
-        // $('.editor').each(function () {
-
-        //     CKEDITOR.replace($(this).attr('id'), {
-        //         filebrowserImageBrowseUrl: '/laravel-filemanager?type=Images',
-        //         filebrowserImageUploadUrl: '/laravel-filemanager/upload?type=Images&_token={{csrf_token()}}',
-        //         filebrowserBrowseUrl: '/laravel-filemanager?type=Files',
-        //         filebrowserUploadUrl: '/laravel-filemanager/upload?type=Files&_token={{csrf_token()}}',
-
-        //         extraPlugins: 'smiley,lineutils,widget,codesnippet,prism',
-        //     });
-
-        // });
+        // Initialize CKEditor
+        CKEDITOR.replace('full_text', {
+            height: 400,
+            filebrowserUploadUrl: '{{ route("admin.uploadImageCkEditor") }}',
+            filebrowserUploadMethod: 'form',
+            extraAllowedContent: 'img[src,alt,width,height]'
+        });
+        
+        // Update form submission
+        document.querySelector('form').addEventListener('submit', function () {
+            if (CKEDITOR.instances.full_text) CKEDITOR.instances.full_text.updateElement();
+        });
         $(document).ready(function () {
             $(document).on('click', '.delete', function (e) {
                 e.preventDefault();

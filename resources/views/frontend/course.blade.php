@@ -530,7 +530,7 @@
                      <div class="card shadow-lg mt-5">
                         <div class="card-body">
                            <h3 class="h5 mb-4">Book Free Demo Class</h3>
-                           <form class="rd-mailformx" id="demo-form" method="post" action="" >
+                           <form class="rd-mailformx" id="demo-form" method="post" action="{{ route('courses.demo', $course->slug) }}" >
                               @csrf 
                               <input type="hidden" name="course_id" value="{{$course->id}}" />
                               <div class="mb-3">

@@ -6,29 +6,8 @@
 <style>
     svg { height: 30px; }
 
-    .editorjs-holder {
-        min-height: 180px;
-        border: 1px solid rgba(0, 0, 0, .12);
-        border-radius: 10px;
-        background: #fff;
-        padding: 14px 16px;
-        transition: border-color .15s ease, box-shadow .15s ease;
-    }
-
-    .editorjs-holder.editorjs-sm {
-        min-height: 140px;
-        padding: 12px 14px;
-    }
-
-    .editorjs-holder:focus-within {
-        border-color: rgba(13, 110, 253, .55);
-        box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .12);
-    }
-
-    .editorjs-holder .ce-block__content,
-    .editorjs-holder .ce-toolbar__content {
-        max-width: 100%;
-    }
+    /* Hide CKEditor notifications */
+    .cke_notifications_area { display: none !important; }
 </style>
 @stop
 
@@ -76,9 +55,7 @@
                     {{-- Question Text --}}
                     <div class="col-lg-12 mb-4">
                         <label class="form-label fw-semibold">Question Text</label>
-                        <div id="editorjs_question_en" class="border rounded-lg p-4 bg-white editorjs-holder"></div>
-                        <textarea id="question_text_en" name="question_text[en]" class="form-control d-none" rows="3">{{ old('question_text.en') }}</textarea>
-                        <div id="editorjsQuestionError" class="invalid-feedback d-block" style="display:none"></div>
+                        <textarea id="question_text_en" name="question_text[en]" class="form-control" rows="3">{{ old('question_text.en') }}</textarea>
                     </div>
 
                     {{-- Options --}}
@@ -96,8 +73,7 @@
                                                 <label class="form-check-label small">Correct</label>
                                             </div>
                                         </div>
-                                        <div id="editorjs_option_{{ $i }}_en" class="border rounded-lg p-4 bg-white editorjs-holder editorjs-sm"></div>
-                                        <textarea id="option_{{ $i }}_en" name="options[{{ $i }}][en]" class="form-control d-none" rows="2">{{ old("options.$i.en") }}</textarea>
+                                        <textarea id="option_{{ $i }}_en" name="options[{{ $i }}][en]" class="form-control" rows="2">{{ old("options.$i.en") }}</textarea>
                                     </div>
                                 </div>
                             @endfor
@@ -107,8 +83,7 @@
                     {{-- Solution --}}
                     <div class="col-lg-12 mb-4">
                         <label class="form-label fw-semibold">Solution</label>
-                        <div id="editorjs_solution_en" class="border rounded-lg p-4 bg-white editorjs-holder"></div>
-                        <textarea id="solution_en" name="solution[en]" class="form-control d-none" rows="3">{{ old('solution.en') }}</textarea>
+                        <textarea id="solution_en" name="solution[en]" class="form-control" rows="3">{{ old('solution.en') }}</textarea>
                     </div>
 
                     {{-- Marks --}}
@@ -152,158 +127,70 @@
 @stop
 
 @push('after-scripts')
+<script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
 <script>
-    // Prevent UMD builds from thinking CommonJS is available
-    window.module = undefined;
-    window.exports = undefined;
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@2.31.1/dist/editorjs.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@2.8.8/dist/header.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@2.0.9/dist/editorjs-list.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@2.10.3/dist/image.umd.js"></script>
-
-<script>
-    (function () {
-        const form = document.getElementById('questionForm');
-        const errorEl = document.getElementById('editorjsQuestionError');
-
-        if (!form || !window.EditorJS) return;
-
-        const ListTool = window.EditorjsList; // list tool UMD global
-        const ImageTool = window.ImageTool;
-        const HeaderTool = window.Header;
-
-        function isEmptyEditorData(data) {
-            if (!data || !Array.isArray(data.blocks) || data.blocks.length === 0) return true;
-            return !data.blocks.some((b) => {
-                const t = b && b.type;
-                const d = (b && b.data) || {};
-                if (t === 'paragraph' || t === 'header') return !!(d.text && String(d.text).replace(/<[^>]*>/g, '').trim());
-                if (t === 'list') return Array.isArray(d.items) && d.items.some(i => String(i || '').replace(/<[^>]*>/g, '').trim());
-                if (t === 'image') return !!(d.file && d.file.url);
-                return Object.keys(d).length > 0;
-            });
-        }
-
-        function htmlToInitialData(html) {
-            const trimmed = (html || '').trim();
-            if (!trimmed) return undefined;
-            return {
-                time: Date.now(),
-                blocks: [
-                    { type: 'paragraph', data: { text: trimmed } }
-                ]
-            };
-        }
-
-        function editorDataToHtml(data) {
-            if (!data || !Array.isArray(data.blocks)) return '';
-            return data.blocks.map((b) => {
-                const t = b.type;
-                const d = b.data || {};
-                if (t === 'header') {
-                    const level = Number(d.level) || 2;
-                    return `<h${level}>${d.text || ''}</h${level}>`;
-                }
-                if (t === 'paragraph') return `<p>${d.text || ''}</p>`;
-                if (t === 'list') {
-                    const tag = d.style === 'ordered' ? 'ol' : 'ul';
-                    const items = Array.isArray(d.items) ? d.items : [];
-                    return `<${tag}>${items.map(i => `<li>${i || ''}</li>`).join('')}</${tag}>`;
-                }
-                if (t === 'image') {
-                    const url = d.file && d.file.url ? d.file.url : '';
-                    const caption = d.caption ? `<figcaption>${d.caption}</figcaption>` : '';
-                    if (!url) return '';
-                    return `<figure><img src="${url}" alt=""/>${caption}</figure>`;
-                }
-                return '';
-            }).join('');
-        }
-
-        function makeEditor(holderId, textareaId) {
-            const textarea = document.getElementById(textareaId);
-            if (!textarea) return null;
-
-            return new EditorJS({
-                holder: holderId,
-                autofocus: false,
-                data: htmlToInitialData(textarea.value),
-                tools: {
-                    header: { class: HeaderTool, inlineToolbar: ['link'] },
-                    list: { class: ListTool, inlineToolbar: true },
-                    image: {
-                        class: ImageTool,
-                        config: {
-                            uploader: {
-                                uploadByFile(file) {
-                                    return new Promise((resolve, reject) => {
-                                        const reader = new FileReader();
-                                        reader.onload = () => resolve({ success: 1, file: { url: reader.result } });
-                                        reader.onerror = () => reject(reader.error || new Error('File read failed'));
-                                        reader.readAsDataURL(file);
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        const editors = [
-            { editor: makeEditor('editorjs_question_en', 'question_text_en'), textareaId: 'question_text_en', required: true },
-            { editor: makeEditor('editorjs_solution_en', 'solution_en'), textareaId: 'solution_en', required: false },
-            { editor: makeEditor('editorjs_option_1_en', 'option_1_en'), textareaId: 'option_1_en', required: false },
-            { editor: makeEditor('editorjs_option_2_en', 'option_2_en'), textareaId: 'option_2_en', required: false },
-            { editor: makeEditor('editorjs_option_3_en', 'option_3_en'), textareaId: 'option_3_en', required: false },
-            { editor: makeEditor('editorjs_option_4_en', 'option_4_en'), textareaId: 'option_4_en', required: false },
-        ].filter(x => x.editor);
-
-        let isSubmitting = false;
-
-        form.addEventListener('submit', async function (e) {
-            if (isSubmitting) return;
-            e.preventDefault();
-
-            if (errorEl) {
-                errorEl.style.display = 'none';
-                errorEl.textContent = '';
-            }
-
-            try {
-                for (const item of editors) {
-                    const data = await item.editor.save();
-                    if (item.required && isEmptyEditorData(data)) {
-                        if (errorEl) {
-                            errorEl.textContent = 'Please enter a question before saving.';
-                            errorEl.style.display = 'block';
-                        }
-                        document.getElementById('editorjs_question_en')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        return;
-                    }
-
-                    const html = editorDataToHtml(data);
-                    const textarea = document.getElementById(item.textareaId);
-                    if (textarea) textarea.value = html;
-                }
-
-                isSubmitting = true;
-                form.submit();
-            } catch (err) {
-                console.error(err);
-                if (errorEl) {
-                    errorEl.textContent = 'Could not save the editor content. Please try again.';
-                    errorEl.style.display = 'block';
-                }
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize CKEditor for question text
+        CKEDITOR.replace('question_text_en', {
+            height: 200,
+            toolbarGroups: [
+                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
+                { name: 'links' },
+                { name: 'insert' },
+                { name: 'forms' },
+                { name: 'tools' },
+                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+                { name: 'others' },
+                '/',
+                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+                { name: 'styles' },
+                { name: 'colors' }
+            ]
         });
-    })();
+
+        // Initialize CKEditor for all options (4 options)
+        for(let i = 1; i <= 4; i++) {
+            CKEDITOR.replace('option_' + i + '_en', {
+                height: 150,
+                toolbarGroups: [
+                    { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                    { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
+                    { name: 'links' },
+                    { name: 'insert' },
+                    '/',
+                    { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+                    { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
+                    { name: 'styles' },
+                    { name: 'colors' }
+                ]
+            });
+        }
+
+        // Initialize CKEditor for solution
+        CKEDITOR.replace('solution_en', {
+            height: 200,
+            toolbarGroups: [
+                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
+                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
+                { name: 'links' },
+                { name: 'insert' },
+                { name: 'forms' },
+                { name: 'tools' },
+                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
+                { name: 'others' },
+                '/',
+                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+                { name: 'styles' },
+                { name: 'colors' }
+            ]
+        });
+    });
 </script>
 
 <script>
-
-
 // load chapters dynamically
 document.getElementById('course_id').addEventListener('change', function() {
     let courseId = this.value;
@@ -317,6 +204,10 @@ document.getElementById('course_id').addEventListener('change', function() {
             data.forEach(chapter => {
                 chapterSelect.innerHTML += `<option value="${chapter.id}">${chapter.title}</option>`;
             });
+        })
+        .catch(error => {
+            console.error('Error loading chapters:', error);
+            chapterSelect.innerHTML = '<option value="">-- Choose Chapter --</option>';
         });
 });
 </script>
