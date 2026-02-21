@@ -115,6 +115,11 @@
                 createdRow: function (row, data, dataIndex) {
                     $(row).attr('data-entry-id', data.id);
                 },
+                drawCallback: function(settings) {
+                    // Re-initialize Bootstrap dropdowns after every DataTable draw
+                    // This ensures dropdowns work after pagination, search, etc.
+                    $('.dropdown-toggle').dropdown();
+                },
                 language: {
                     url: "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{$locale_full_name}}.json",
                     buttons: {
@@ -131,11 +136,17 @@
                 e.preventDefault();
             });
 
-            // Re-initialize Bootstrap dropdowns after DataTable draws
-            myTable.on('draw.dt', function () {
-                $('.dropdown-toggle').dropdown();
+            // Handle page show event to fix dropdown issues when navigating back
+            // This handles the bfcache (back-forward cache) issue in browsers
+            $(window).on('pageshow', function(event) {
+                if (event.originalEvent.persisted) {
+                    // Page was loaded from cache (user clicked back button)
+                    // Re-initialize dropdowns and redraw the table
+                    $('.dropdown-toggle').dropdown();
+                    myTable.draw(false);
+                }
             });
-            
+
             // Initial initialization
             $('.dropdown-toggle').dropdown();
         });

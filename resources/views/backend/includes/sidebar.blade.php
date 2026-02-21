@@ -157,7 +157,8 @@ use App\Models\UserNotification;
                     </ul>
                 </li>
             @endif
-            @if ($logged_in_user->isAdmin() || $logged_in_user->hasRole('teacher') || $logged_in_user->hasRole('student'))
+            @if ($logged_in_user->isAdmin())
+                {{-- Note: Exam module is visible only for Admin --}}
                 <li
                     class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('user/tests*', 'user/questions*', 'user/questions_options*', 'user/questions-bank*', 'user/test-series*', 'user/purchase*', 'user/question/report*', 'user/marketing*', 'user/mocktests*', 'user/mock*'), 'open') }}">
                     <a class="nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/log-viewer*')) }}"
