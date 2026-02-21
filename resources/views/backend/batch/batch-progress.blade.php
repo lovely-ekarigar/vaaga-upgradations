@@ -102,7 +102,7 @@
                             <div class="commitment-field">
                                 <label>Total Classes</label>
                                 <input type="number" name="commitments[{{ $student->id }}][total_classes]" 
-                                       value="{{ $student->commitment ? $student->commitment->total_classes : 30 }}" 
+                                       value="{{ $student->commitment && $student->commitment->total_classes ? $student->commitment->total_classes : ($batch_list->total_class ?? 30) }}" 
                                        min="0" class="form-control">
                             </div>
                         </div>
@@ -110,7 +110,7 @@
                             <div class="commitment-field">
                                 <label>Total Tests</label>
                                 <input type="number" name="commitments[{{ $student->id }}][total_tests]" 
-                                       value="{{ $student->commitment ? $student->commitment->total_tests : 8 }}" 
+                                       value="{{ $student->commitment && $student->commitment->total_tests ? $student->commitment->total_tests : ($batch_list->total_test ?? 8) }}" 
                                        min="0" class="form-control">
                             </div>
                         </div>
