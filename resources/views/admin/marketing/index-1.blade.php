@@ -887,7 +887,7 @@ Marketing | {{ env('APP_NAME') }}
                 <select class="form-select form-control" id="subject" name="subject" required>
                   <option value="all">All Subject</option>
                   @foreach($subjects as $sub)
-                  <option value="{{$sub->subject}}">{{$sub->subject}}</option>
+                  <option value="{{$sub}}">{{$sub}}</option>
                   @endforeach
                 </select>
             </div>
@@ -895,8 +895,8 @@ Marketing | {{ env('APP_NAME') }}
                 <label for="grade" class="form-label">Grade <span class="text-danger">*</span></label>
                 <select class="form-select form-control" id="grade" name="grade" required>
                   <option value="all">All Grade</option>
-                  @foreach($grades as $sub)
-                  <option value="{{$sub->grade}}">{{$sub->grade}}</option>
+                  @foreach($grades as $grade)
+                  <option value="{{$grade}}">{{$grade}}</option>
                   @endforeach
                 </select>
             </div>
@@ -905,8 +905,8 @@ Marketing | {{ env('APP_NAME') }}
                 <label for="skip" class="form-label">Skip <span class="text-danger">*</span></label>
                 <select class="form-select form-control" id="skip" name="skip" required>
                   <option value="all">All Skip</option>
-                  @foreach($skips as $sub)
-                  <option value="{{$sub->skip}}">{{$sub->skip}}</option>
+                  @foreach($skips as $skip)
+                  <option value="{{$skip}}">{{$skip}}</option>
                   @endforeach
                 </select>
             </div>

@@ -3,13 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MarketingCampaign extends Model
 {
-    use SoftDeletes;
-
-    protected $table = 'marketing_campaigns';
+    protected $table = 'campaigns';
 
     protected $fillable = [
         'name',
@@ -26,7 +23,7 @@ class MarketingCampaign extends Model
 
     public function leads()
     {
-        return $this->belongsToMany(MarketingLead::class, 'marketing_campaign_lead', 'campaign_id', 'lead_id');
+        return $this->belongsToMany(MarketingLead::class, 'campaign_lead', 'campaign_id', 'lead_id');
     }
 
     public function list()
