@@ -9,6 +9,67 @@ Marketing | {{ env('APP_NAME') }}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+<!-- Emergency Modal Close Script -->
+<script>
+// Immediate execution - no jQuery dependency
+(function() {
+    window.closeModal = function(modalId) {
+        var modal = document.getElementById(modalId);
+        if (!modal) return;
+        
+        // Hide modal
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        modal.removeAttribute('aria-modal');
+        modal.removeAttribute('role');
+        
+        // Remove backdrop
+        var backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(function(bd) { bd.remove(); });
+        
+        // Fix body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        console.log('Modal ' + modalId + ' closed via closeModal()');
+    };
+    
+    // Setup close handlers when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupModalHandlers);
+    } else {
+        setupModalHandlers();
+    }
+    
+    function setupModalHandlers() {
+        // Add click handlers to all close buttons
+        document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var modal = this.closest('.modal');
+                if (modal && modal.id) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+        
+        // ESC key handler
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.show').forEach(function(modal) {
+                    if (modal.id) closeModal(modal.id);
+                });
+            }
+        });
+        
+        console.log('Modal handlers initialized');
+    }
+})();
+</script>
+
 <style> 
     :root {
         --primary: #6366f1;
@@ -720,7 +781,7 @@ Marketing | {{ env('APP_NAME') }}
             <i class="fas fa-user-plus text-primary"></i>
             Add New Lead
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="bootstrap.Modal.getInstance(document.getElementById('addLeadModal')).hide()"><i class="fa fa-close"></i></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal('addLeadModal')"><i class="fa fa-close"></i></button>
       </div>
       <form id="addLeadForm" action="{{ route('admin.marketing.store-lead') }}" method="POST" class="form-modern">
         @csrf
@@ -773,7 +834,7 @@ Marketing | {{ env('APP_NAME') }}
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="bootstrap.Modal.getInstance(document.getElementById('addLeadModal')).hide()">Cancel</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addLeadModal')">Cancel</button>
           <button type="submit" class="btn btn-primary">Save Lead</button>
         </div>
       </form>
@@ -790,7 +851,7 @@ Marketing | {{ env('APP_NAME') }}
             <i class="fas fa-bullhorn text-success"></i>
             Create Campaign
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="bootstrap.Modal.getInstance(document.getElementById('createCampaignModal')).hide()"><i class="fa fa-close"></i></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal('createCampaignModal')"><i class="fa fa-close"></i></button>
       </div>
       <form id="createCampaignForm" action="{{ route('admin.marketing.store-campaign') }}" method="POST" class="form-modern">
         @csrf
@@ -874,7 +935,7 @@ Marketing | {{ env('APP_NAME') }}
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="bootstrap.Modal.getInstance(document.getElementById('createCampaignModal')).hide()">Cancel</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('createCampaignModal')">Cancel</button>
           <button type="submit" class="btn btn-success">Create Campaign</button>
         </div>
       </form>
@@ -1046,35 +1107,7 @@ document.querySelectorAll('.action-card').forEach(card => {
         });
     });
 
-    // Fix for modal close buttons - explicit handling
-    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const modal = this.closest('.modal');
-            if (modal) {
-                const modalInstance = bootstrap.Modal.getInstance(modal);
-                if (modalInstance) {
-                    modalInstance.hide();
-                } else {
-                    // Fallback if no instance found
-                    $(modal).modal('hide');
-                }
-            }
-        });
-    });
-
-    // Also handle ESC key to close modals
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.modal.show').forEach(modal => {
-                const modalInstance = bootstrap.Modal.getInstance(modal);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
-            });
-        }
-    });
+    // Form submission success handlers already use closeModal
 </script>
 
 @stop
