@@ -630,7 +630,7 @@ Marketing | {{ env('APP_NAME') }}
                                                 @endif
                                             </td>
                                             <td>
-                                                <strong>{{ $campaign->leads_count ?? 0 }}</strong>
+                                                <strong>{{ $campaign->leads()->count() ?? 0 }}</strong>
                                             </td>
                                             <td>
                                                 <small class="text-muted">{{ $campaign->created_at->format('M d, Y') }}</small>
@@ -720,7 +720,7 @@ Marketing | {{ env('APP_NAME') }}
             <i class="fas fa-user-plus text-primary"></i>
             Add New Lead
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fa fa-close"></i></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="bootstrap.Modal.getInstance(document.getElementById('addLeadModal')).hide()"><i class="fa fa-close"></i></button>
       </div>
       <form id="addLeadForm" action="{{ route('admin.marketing.store-lead') }}" method="POST" class="form-modern">
         @csrf
@@ -773,7 +773,7 @@ Marketing | {{ env('APP_NAME') }}
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="bootstrap.Modal.getInstance(document.getElementById('addLeadModal')).hide()">Cancel</button>
           <button type="submit" class="btn btn-primary">Save Lead</button>
         </div>
       </form>
@@ -790,7 +790,7 @@ Marketing | {{ env('APP_NAME') }}
             <i class="fas fa-bullhorn text-success"></i>
             Create Campaign
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fa fa-close"></i></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="bootstrap.Modal.getInstance(document.getElementById('createCampaignModal')).hide()"><i class="fa fa-close"></i></button>
       </div>
       <form id="createCampaignForm" action="{{ route('admin.marketing.store-campaign') }}" method="POST" class="form-modern">
         @csrf
@@ -874,7 +874,7 @@ Marketing | {{ env('APP_NAME') }}
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="bootstrap.Modal.getInstance(document.getElementById('createCampaignModal')).hide()">Cancel</button>
           <button type="submit" class="btn btn-success">Create Campaign</button>
         </div>
       </form>
@@ -1044,6 +1044,36 @@ document.querySelectorAll('.action-card').forEach(card => {
             console.error('Error:', error);
             alert('An error occurred while creating the campaign.');
         });
+    });
+
+    // Fix for modal close buttons - explicit handling
+    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const modal = this.closest('.modal');
+            if (modal) {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                } else {
+                    // Fallback if no instance found
+                    $(modal).modal('hide');
+                }
+            }
+        });
+    });
+
+    // Also handle ESC key to close modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal.show').forEach(modal => {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+        }
     });
 </script>
 

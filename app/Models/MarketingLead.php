@@ -25,11 +25,11 @@ class MarketingLead extends Model
 
     public function campaigns()
     {
-        return $this->belongsToMany(MarketingCampaign::class, 'marketing_campaign_lead');
+        return $this->belongsToMany(MarketingCampaign::class, 'marketing_campaign_lead', 'lead_id', 'campaign_id');
     }
 
     public function lists()
     {
-        return $this->belongsToMany(MarketingList::class, 'marketing_list_lead');
+        return $this->belongsToMany(MarketingList::class, 'marketing_list_lead', 'lead_id', 'list_id');
     }
 }

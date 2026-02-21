@@ -18,6 +18,6 @@ class MarketingList extends Model
 
     public function leads()
     {
-        return $this->belongsToMany(MarketingLead::class, 'marketing_list_lead');
+        return $this->belongsToMany(MarketingLead::class, 'marketing_list_lead', 'list_id', 'lead_id');
     }
 }

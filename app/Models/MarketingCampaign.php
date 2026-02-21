@@ -26,7 +26,7 @@ class MarketingCampaign extends Model
 
     public function leads()
     {
-        return $this->belongsToMany(MarketingLead::class, 'marketing_campaign_lead');
+        return $this->belongsToMany(MarketingLead::class, 'marketing_campaign_lead', 'campaign_id', 'lead_id');
     }
 
     public function list()
