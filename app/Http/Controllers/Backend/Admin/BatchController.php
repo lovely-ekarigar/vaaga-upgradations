@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use App\Models\Recording;
 use App\Models\StudentTeacherBatch;
 use App\Models\OauthClient;
+use App\Models\StudentCommitment;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Session;
@@ -69,7 +70,23 @@ class BatchController extends Controller
 
             $lession_complete_list = LessionComplete::where('batch_id',$batch_list->id)->get();
 
-            return view('backend.batch.batch-progress',compact('list','lession_complete_list'));
+            // Get students enrolled in this batch with their commitments (read-only for teachers)
+            $students = [];
+            $studentBatches = StudentTeacherBatch::where('bid', $id)->get();
+            
+            foreach($studentBatches as $sb){
+                $student = User::find($sb->uid);
+                if($student){
+                    $commitment = StudentCommitment::where('student_id', $student->id)
+                        ->where('batch_id', $id)
+                        ->first();
+                    
+                    $student->commitment = $commitment;
+                    $students[] = $student;
+                }
+            }
+
+            return view('backend.batch.batch-progress',compact('list','lession_complete_list', 'students', 'batch_list'));
    }
 
    public function batchisCompleted($id)
@@ -169,7 +186,24 @@ class BatchController extends Controller
 
             $lession_complete_list = LessionComplete::where('batch_id',$batch_list->id)->get();
 
-            return view('backend.batch.batch-progress',compact('list','lession_complete_list'));
+            // Get students enrolled in this batch with their commitments
+            $students = [];
+            $studentBatches = StudentTeacherBatch::where('bid', $id)->get();
+            
+            foreach($studentBatches as $sb){
+                $student = User::find($sb->uid);
+                if($student){
+                    // Get or create student commitment
+                    $commitment = StudentCommitment::where('student_id', $student->id)
+                        ->where('batch_id', $id)
+                        ->first();
+                    
+                    $student->commitment = $commitment;
+                    $students[] = $student;
+                }
+            }
+
+            return view('backend.batch.batch-progress',compact('list','lession_complete_list', 'students', 'batch_list'));
    }
 
 
@@ -540,7 +574,23 @@ $teacher = User::find($request->teachersid);
      */
     public function updatebatchprogressList($id, Request $request)
     {
-        return redirect()->back()->withFlashSuccess('Progress updated');
+        $commitments = $request->input('commitments', []);
+        
+        foreach($commitments as $studentId => $data){
+            // Find or create student commitment
+            $commitment = StudentCommitment::firstOrNew([
+                'student_id' => $studentId,
+                'batch_id' => $id
+            ]);
+            
+            $commitment->total_classes = $data['total_classes'] ?? 30;
+            $commitment->total_tests = $data['total_tests'] ?? 8;
+            $commitment->joining_date = $data['joining_date'] ?? null;
+            $commitment->completion_date = $data['completion_date'] ?? null;
+            $commitment->save();
+        }
+        
+        return redirect()->back()->withFlashSuccess('Student commitments saved successfully');
     }
 
     /**

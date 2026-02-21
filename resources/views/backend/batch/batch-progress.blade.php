@@ -28,8 +28,126 @@
     .f-12{
         font-size: 12px !important;
     }
+    .student-commitments-header {
+        background-color: #17a2b8;
+        color: white;
+        padding: 10px 15px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+    .student-card {
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        padding: 15px;
+        background-color: #f8f9fa;
+    }
+    .student-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .student-name {
+        font-weight: 600;
+        font-size: 16px;
+        color: #333;
+    }
+    .student-uid {
+        background-color: #6c757d;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 12px;
+    }
+    .commitment-field label {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 3px;
+        display: block;
+    }
+    .commitment-field input {
+        width: 100%;
+        padding: 6px 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+    }
 </style>
 
+    {{-- Student Commitments Section --}}
+    <div class="card mb-4">
+        <div class="student-commitments-header">
+            <i class="fa fa-users mr-2"></i> Student Commitments
+        </div>
+        <div class="card-body">
+            <form id="studentCommitmentsForm" method="POST" action="{{ route('admin.batch-progress-list.update', $batch_list->id) }}">
+                @csrf
+                <div class="row">
+                    @foreach($students as $student)
+                    <div class="col-md-6">
+                        <div class="student-card">
+                            <div class="student-card-header">
+                                <span class="student-name">
+                                    <i class="fa fa-user mr-2 text-info"></i>{{ $student->name }}
+                                </span>
+                                <span class="student-uid">UID: {{ $student->id }}</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="commitment-field">
+                                        <label>Total Classes</label>
+                                        <input type="number" name="commitments[{{ $student->id }}][total_classes]" 
+                                               value="{{ $student->commitment ? $student->commitment->total_classes : 30 }}" 
+                                               min="0" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="commitment-field">
+                                        <label>Total Tests</label>
+                                        <input type="number" name="commitments[{{ $student->id }}][total_tests]" 
+                                               value="{{ $student->commitment ? $student->commitment->total_tests : 8 }}" 
+                                               min="0" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-6">
+                                    <div class="commitment-field">
+                                        <label>Batch Joining date</label>
+                                        <input type="date" name="commitments[{{ $student->id }}][joining_date]" 
+                                               value="{{ $student->commitment ? $student->commitment->joining_date : date('Y-m-d') }}" 
+                                               class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="commitment-field">
+                                        <label>Batch Completion date</label>
+                                        <input type="date" name="commitments[{{ $student->id }}][completion_date]" 
+                                               value="{{ $student->commitment ? $student->commitment->completion_date : '' }}" 
+                                               class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="commitments[{{ $student->id }}][student_id]" value="{{ $student->id }}">
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12 text-center">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-save mr-2"></i> Save Commitments
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Batch Progress Section --}}
     <div class="card">
         <div class="card-header">
 
