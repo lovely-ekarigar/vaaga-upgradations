@@ -130,6 +130,14 @@
                 myTable.draw();
                 e.preventDefault();
             });
+
+            // Re-initialize Bootstrap dropdowns after DataTable draws
+            myTable.on('draw.dt', function () {
+                $('.dropdown-toggle').dropdown();
+            });
+            
+            // Initial initialization
+            $('.dropdown-toggle').dropdown();
         });
 
     </script>
