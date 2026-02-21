@@ -12,6 +12,11 @@
     .cke_editable {
         min-height: 380px;
     }
+    
+    /* Hide CKEditor security warning */
+    .cke_notification_warning {
+        display: none !important;
+    }
 </style>
 @endpush
 

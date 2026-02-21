@@ -67,6 +67,11 @@ use App\Models\Course;
     .ce-toolbar__actions {
         z-index: 20;
     }
+    
+    /* Hide CKEditor security warning */
+    .cke_notification_warning {
+        display: none !important;
+    }
     </style>
 
 @endpush

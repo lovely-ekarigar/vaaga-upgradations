@@ -131,4 +131,10 @@ Edit Notes - {{ env('APP_NAME') }}
         if (CKEDITOR.instances.description) CKEDITOR.instances.description.updateElement();
     });
 </script>
+<style>
+    /* Hide CKEditor security warning */
+    .cke_notification_warning {
+        display: none !important;
+    }
+</style>
 @stop
