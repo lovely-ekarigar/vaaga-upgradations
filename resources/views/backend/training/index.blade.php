@@ -39,7 +39,11 @@
                                     <td>{{$training->training_for}}</td>
                                     <td>{{$training->title}}</td>
                                     <td>
-                                        <a href="{{asset($training->file_path)}}" class="btn btn-primary" target="_blank">View</a>
+                                        @if($training->file_path && file_exists(public_path($training->file_path)))
+                                            <a href="{{asset($training->file_path)}}" class="btn btn-primary" target="_blank">View</a>
+                                        @else
+                                            <span class="badge badge-danger">File Not Found</span>
+                                        @endif
                                         <a href="{{route('admin.training-delete',['id'=>$training->id])}}" onclick="return confirm('Are you sure you want to delete Training Data?');" class="btn btn-xs btn-danger mb-1">
                                             <i class="fa fa-trash"></i>
                                           </a>

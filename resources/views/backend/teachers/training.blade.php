@@ -32,7 +32,13 @@
                                     <tr>
                                         <td>{{$loop->index +1}}</td>
                                         <td>{{$list->title}}</td>
-                                        <td><a href="{{asset($list->file_path)}}" target="_blank" class="btn btn-primary">View</a></td>
+                                        <td>
+                                            @if($list->file_path && file_exists(public_path($list->file_path)))
+                                                <a href="{{asset($list->file_path)}}" target="_blank" class="btn btn-primary">View</a>
+                                            @else
+                                                <span class="badge badge-danger">File Not Found</span>
+                                            @endif
+                                        </td>
                                     </tr>
                                
                                     @endforeach
