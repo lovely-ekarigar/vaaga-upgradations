@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-
+{{-- Cache refreshed: 2026-02-21 --}}
 @section('title')
 Leads Management | {{ env('APP_NAME') }}
 @stop
@@ -447,75 +447,7 @@ Leads Management | {{ env('APP_NAME') }}
     </div>
 </div>
 
-<!-- Edit Lead Modal -->
-<div class="modal fade" id="editLeadModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-edit text-primary me-2"></i>Edit Lead</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><i class="fa fa-close"></i></button>
-            </div>
-            <form id="editLeadForm" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label">Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="name" id="edit_name" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Phone <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="phone" id="edit_phone" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email" id="edit_email">
-                        </div>
-                           <div class="col-6">
-                <label for="grade" class="form-label">Grade</label>
-                <input type="text" class="form-control" id="edit_grade" name="grade">
-            </div>
-              <div class="col-6">
-                <label for="subject" class="form-label">Subject</label>
-                <input type="text" class="form-control" id="edit_subject" name="subject">
-            </div>
-              <div class="col-6">
-                <label for="skip" class="form-label">Skip</label>
-                <input type="text" class="form-control" id="edit_skip" name="skip">
-            </div>
-                        <div class="col-12 col-sm-6">
-                            <label class="form-label">Source</label>
-                            <select class="form-select form-control" name="source" id="edit_source">
-                                <option value="website">Website</option>
-                                <option value="referral">Referral</option>
-                                <option value="social_media">Social Media</option>
-                                <option value="event">Event</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="col-12 col-sm-6">
-                            <label class="form-label">Status</label>
-                            <select class="form-select form-control" name="status" id="edit_status">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="converted">Converted</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Notes</label>
-                            <textarea class="form-control" name="notes" id="edit_notes" rows="2"></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Lead</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<!-- Edit Lead functionality moved to separate page -->
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteLeadModal" tabindex="-1" aria-hidden="true">
@@ -591,40 +523,11 @@ Leads Management | {{ env('APP_NAME') }}
 </script>
 
 <script>
-    // Edit Lead
+    // Edit Lead - Redirect to edit page
     document.querySelectorAll('.edit-lead-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const leadId = this.getAttribute('data-lead-id');
-            
-            fetch(`/user/leads/${leadId}/edit`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const lead = data.lead;
-                        
-                        // Populate form
-                        document.getElementById('edit_name').value = lead.name;
-                        document.getElementById('edit_phone').value = lead.phone;
-                        document.getElementById('edit_email').value = lead.email || '';
-                        document.getElementById('edit_source').value = lead.source;
-                        document.getElementById('edit_status').value = lead.status;
-                        document.getElementById('edit_notes').value = lead.notes || '';
-                        document.getElementById('edit_grade').value = lead.grade || '';
-                        document.getElementById('edit_subject').value = lead.subject || '';
-                        document.getElementById('edit_skip').value = lead.skip || '';
-                        
-                        // Set form action
-                        document.getElementById('editLeadForm').action = `/user/leads/${leadId}`;
-                        
-                        // Show modal
-                        const editModal = new bootstrap.Modal(document.getElementById('editLeadModal'));
-                        editModal.show();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error loading lead data');
-                });
+            window.location.href = `/user/leads/${leadId}/edit`;
         });
     });
 
