@@ -51,6 +51,8 @@ use App\Models\ExamUser;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ChapterStudent;
+use App\Models\Objection;
+use App\Models\ExamMyTest;
 
 use URL;
 use Auth;
@@ -1734,17 +1736,102 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
     /**
      * Student commitment page
      */
+    /**
+     * Student commitment page - Shows batch progress with recordings and tests
+     */
     public function commitment($id)
     {
-        return view('backend.myclass.commitment', compact('id'));
+        // Get the batch
+        $batch = Batch::find($id);
+        
+        if (!$batch) {
+            return abort(404);
+        }
+        
+        // Verify student has access to this batch
+        $stb = StudentTeacherBatch::where("bid", $id)->where("uid", auth()->user()->id)->first();
+        if (!$stb) {
+            return abort(404);
+        }
+        
+        // Get recordings for this batch with objections
+        $list = Recording::with(['objection'])
+            ->where("parent", $batch->parent_api_class_id)
+            ->orderBy("id", "desc")
+            ->get();
+        
+        // Add recording_date for each recording
+        foreach ($list as $recording) {
+            // Parse start_time as recording_date (it's stored as timestamp)
+            $recording->recording_date = $recording->start_time ? date('Y-m-d', strtotime($recording->start_time)) : null;
+        }
+        
+        // Get tests for this batch from exam system
+        $test_list = [];
+        
+        // Get the exam batch user record
+        $examUser = ExamUser::where("sync_id", auth()->user()->id)->first();
+        if ($examUser) {
+            $examBatchUsers = ExamBatchUser::where("user_id", $examUser->id)->get()->pluck("batch_id")->toArray();
+            $examTests = ExamBatchTest::whereIn("batch_id", $examBatchUsers)->get();
+            
+            foreach ($examTests as $et) {
+                $test = ExamTest::find($et->test_id);
+                if ($test) {
+                    $et->test = $test;
+                    
+                    // Check if user has attempted this test
+                    $et->mytest = ExamMyTest::where('test_id', $et->test_id)
+                        ->where('user_id', $examUser->id)
+                        ->first();
+                }
+                $test_list[] = $et;
+            }
+        }
+        
+        return view('backend.myclass.commitment', compact('batch', 'list', 'test_list'));
     }
 
     /**
-     * Store objection
+     * Store objection for a recording
      */
     public function storeObjection(Request $request)
     {
-        return redirect()->back()->withFlashSuccess('Objection stored');
+        $request->validate([
+            'recording_ids' => 'required',
+            'reason' => 'required|string|min:10|max:500'
+        ]);
+        
+        // recording_ids can be a single ID or comma-separated IDs
+        $recordingIds = explode(',', $request->recording_ids);
+        
+        foreach ($recordingIds as $recordingId) {
+            // Verify the recording exists
+            $recording = Recording::find($recordingId);
+            if (!$recording) {
+                continue;
+            }
+            
+            // Check if objection already exists
+            $existingObjection = Objection::where('recording_id', $recordingId)
+                ->where('objection_by', auth()->user()->id)
+                ->first();
+                
+            if ($existingObjection) {
+                continue;
+            }
+            
+            // Create the objection
+            Objection::create([
+                'recording_id' => $recordingId,
+                'reason' => $request->reason,
+                'status' => 'pending',
+                'objection_by' => auth()->user()->id,
+                'admin_reason' => null
+            ]);
+        }
+        
+        return response()->json(['success' => true, 'message' => 'Objection submitted successfully']);
     }
 
     /**
