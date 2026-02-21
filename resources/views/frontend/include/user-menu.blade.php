@@ -59,8 +59,7 @@ use App\Models\UserNotification;
                     <i class="bi-chevron-right"></i>
                   </div>
                 </a>
-                {{-- My Courses link hidden as requested --}}
-                {{--
+                {{-- RESTORED: My Courses link - was hidden during upgrade --}}
                 <a href="/user/my-courses" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='my-courses') active @endif">
                   <div>
                     <i class="bi-journal-bookmark me-2"></i>
@@ -70,7 +69,6 @@ use App\Models\UserNotification;
                     <i class="bi-chevron-right"></i>
                   </div>
                 </a>
-                --}}
                 <a href="/user/invoices" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='invoices') active @endif">
                   <div>
                     <i class="bi-credit-card me-2"></i>
@@ -91,21 +89,21 @@ use App\Models\UserNotification;
                   </div>
                 </a>
 
-                <a href="/user/student/mocktests" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='student' && $seg3=='mocktests') active @endif">
+                {{-- RESTORED: My Test Series link - was missing during upgrade --}}
+                <a href="/user/my-test" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='my-test') active @endif">
                   <div>
-                    <i class="bi-journal-text me-2"></i>
-                    <span>Mock Tests</span>
+                    <i class="bi-file-earmark-text me-2"></i>
+                    <span>My Test Series</span>
                   </div>
                   <div>
                     <i class="bi-chevron-right"></i>
                   </div>
                 </a>
-                <?php
 
+                <?php
                 $unf = UserNotification::where('user_id',Auth::user()->id)->where("status",'0')->count();
                 ?>
-
-                 <a href="/user/my-notifications" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='my-notifications') active @endif">
+                <a href="/user/my-notifications" class="list-group-item list-group-item-action d-flex justify-content-between py-3 @if($seg2=='my-notifications') active @endif">
                   <div>
                     <i class="bi-envelope me-2"></i>
                     <span>Notifications
