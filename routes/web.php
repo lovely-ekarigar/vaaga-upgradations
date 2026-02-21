@@ -86,6 +86,22 @@ Route::post('/affiliate/edit-profile', [AffiliateController::class, 'vedit'])->n
 
 Route::get('/usertraining', [HomeController::class, 'userTraining'])->name('frontend.userTraining');
 
+// FIXED: Secure file download route for training materials
+Route::get('/download/training/{filename}', function ($filename) {
+    $path = public_path('storage/training/' . $filename);
+    
+    if (!file_exists($path)) {
+        abort(404, 'File not found');
+    }
+    
+    // Check if user is authenticated
+    if (!Auth::check()) {
+        abort(403, 'Unauthorized');
+    }
+    
+    return response()->file($path);
+})->name('training.download')->middleware('auth');
+
 Route::get('/our-classes', [HomeController::class, 'ourClasses'])->name('frontend.our_classes');
 Route::get('/userlogin', [HomeController::class, 'login'])->name('frontend.auth.login');
 Route::post('/userlogin', [HomeController::class, 'dologin']);

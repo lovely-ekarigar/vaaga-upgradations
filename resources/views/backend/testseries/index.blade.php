@@ -140,8 +140,13 @@
                                             <strong>Number of Tests:</strong> {{ $ts->testSeries->total_test ?? 0 }}
                                         </p>
                                         @php
-                                            $number = preg_replace('/\D/', '', $ts->testSeries->validity);
-                                            $validTill = \Carbon\Carbon::parse($ts->created_at->addMonths($number));
+                                            // FIXED: Handle validity parsing safely
+                                            $validityStr = $ts->testSeries->validity ?? '3';
+                                            $number = (int) preg_replace('/\D/', '', $validityStr);
+                                            if ($number <= 0) {
+                                                $number = 3; // Default to 3 months if invalid
+                                            }
+                                            $validTill = $ts->created_at->copy()->addMonths($number);
                                             $isActive = $validTill->isFuture();
                                             $status = $isActive ? 'Active' : 'Expired';
                                             $badgeClass = $isActive ? 'bg-success' : 'bg-danger';

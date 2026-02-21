@@ -29,7 +29,11 @@
 <td>{{$list->title}}</td>
 
 <td>
-  <a class="btn btn-success btn-sm" href="{{asset($list->file_path)}}" target="_blank">View</a>
+  {{-- FIXED: Use secure download route instead of direct asset link --}}
+  @php
+    $filename = basename($list->file_path);
+  @endphp
+  <a class="btn btn-success btn-sm" href="{{ route('training.download', ['filename' => $filename]) }}" target="_blank">View</a>
 </td>
 </tr>
 @endforeach

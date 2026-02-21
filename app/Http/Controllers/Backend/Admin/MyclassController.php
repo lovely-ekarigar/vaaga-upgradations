@@ -934,38 +934,30 @@ if(count($response)==0){
 
 public function testPages(Request $request,$id)
 {
-     $test_list=[];
-     
-    $examUser = ExamUser::where("sync_id",Auth::user()->id)->first();
-    if($examUser){
-        
-        $examBatchUsers = ExamBatchUser::where("user_id",$examUser->id)->get()->pluck("batch_id")->toArray();
-       $examTests = ExamBatchTest::whereIn("batch_id",$examBatchUsers)->get();
-       
-       foreach ($examTests as $et){
+    $test_list=[];
+    
+    // FIXED: Wrap exam-related queries in try-catch to handle database connection issues
+    try {
+        $examUser = ExamUser::where("sync_id",Auth::user()->id)->first();
+        if($examUser){
+            
+            $examBatchUsers = ExamBatchUser::where("user_id",$examUser->id)->get()->pluck("batch_id")->toArray();
+           $examTests = ExamBatchTest::whereIn("batch_id",$examBatchUsers)->get();
            
-           $test = ExamTest::find($et->test_id);
-           $et->test = $test;
-           $test_list[] = $et;
-       }
-       
+           foreach ($examTests as $et){
+               
+               $test = ExamTest::find($et->test_id);
+               $et->test = $test;
+               $test_list[] = $et;
+           }
+           
+        }
+    } catch (\Exception $e) {
+        // Log the error but don't break the page
+        \Log::warning('Exam database connection failed: ' . $e->getMessage());
+        // Continue with empty test list
     }
     
-    // dd($id,$request->course_id);
-   
-
-    // $test_listx = Test::where('batch_id',$id)->where('published','1')->orderBy("id","desc")->get();
-
-    // foreach($test_listx as $t){
-    //       $test = TestResponse::where("user_id",auth()->user()->id)->where('test_id',$t->id);
-
-    //       $t->isAttempted = $test->count() > 0 ? true : false;
-    //       $t->totalQuestion = $test->count();
-    //       $t->totalCorrect = $test->where('is_correct','1')->count();
-    //       $t->totalUnattempted = $test->where('is_correct','0')->where('response_option_id',null)->count();
-
-    //       $test_list[] = $t;
-    // }
     $batch = Batch::find($id);
 
     $course = Course::find($batch->cid);
