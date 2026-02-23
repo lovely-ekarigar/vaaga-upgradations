@@ -35,21 +35,21 @@ class Lesson extends Model
     protected $appends = ['image','lesson_readtime'];
 
 
-    public static function boot()
+    protected static function boot()
     {
         parent::boot();
 
-        static::deleting(function ($lesson) { // before delete() method call this
+        static::deleting(function ($lesson) {
             if ($lesson->isForceDeleting()) {
-                $media = $lesson->media;
-                foreach ($media as $item) {
-                    if (File::exists(public_path('/storage/uploads/' . $item->name))) {
-                        File::delete(public_path('/storage/uploads/' . $item->name));
+                // Use MediaUploadService to delete all associated files
+                foreach ($lesson->media as $item) {
+                    // Delete the file from storage
+                    if ($item->file_name && File::exists(public_path('/storage/uploads/' . $item->file_name))) {
+                        File::delete(public_path('/storage/uploads/' . $item->file_name));
                     }
                 }
                 $lesson->media()->delete();
             }
-
         });
     }
 

@@ -648,6 +648,9 @@ Route::delete('tests_perma_del/{id}', [TestsController::class, 'perma_del'])->na
 
 //===== Media Routes =====//
 Route::post('media/remove', [MediaController::class, 'destroy'])->name('media.destroy');
+Route::get('media/{media}/download', [MediaController::class, 'download'])->name('download.media');
+Route::get('media/{media}/stream', [MediaController::class, 'stream'])->name('stream.media');
+Route::get('media/{media}', [MediaController::class, 'show'])->name('media.show');
 
 
 //===== User Account Routes =====//

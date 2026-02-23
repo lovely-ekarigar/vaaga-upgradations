@@ -688,70 +688,101 @@ $price=$course->price;
 
 
 
-    public function download($cid,$mid){
-$crs = Course::withoutGlobalScope('filter')->where('id', $cid)->with('publishedLessons')->firstOrFail();
+    public function download($cid, $mid){
+        $crs = Course::withoutGlobalScope('filter')->where('id', $cid)->with('publishedLessons')->firstOrFail();
         $purchased_course = \Auth::check() && $crs->students()->where('user_id', \Auth::id())->count() > 0;
-        if($purchased_course){
-            $m=Media::find($mid);
-
-$urlFile = $m->url; // of course find the exact filename....        
-$file_name  =   basename($urlFile);
-    //save the file by using base name
-    $fn         =   file_put_contents($file_name,file_get_contents($urlFile));
-    header("Expires: 0");
-    header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
-    header("Cache-Control: no-store, no-cache, must-revalidate");
-    header("Cache-Control: post-check=0, pre-check=0", false);
-    header("Pragma: no-cache");
-    header("Content-type: application/file");
-    header('Content-length: '.filesize($file_name));
-    header('Content-disposition: attachment; filename="'.basename($file_name).'"');
-    readfile($file_name);
-        }else{
-            echo "<script>Kindly buy this course to download files.</acript>";
+        
+        if(!$purchased_course){
+            return redirect()->back()->withFlashDanger('Please purchase this course to download files.');
         }
 
+        $media = Media::findOrFail($mid);
+        
+        // Check if it's external media (YouTube, Vimeo, etc.)
+        if($media->is_external){
+            return redirect($media->url);
+        }
+
+        // Get file path
+        $filePath = 'uploads/' . $media->file_name;
+        
+        if(!\Storage::disk('public')->exists($filePath)){
+            return redirect()->back()->withFlashDanger('File not found on server.');
+        }
+
+        // Return file download response
+        return \Storage::disk('public')->download(
+            $filePath,
+            $media->name ?? $media->file_name,
+            ['Content-Type' => $media->mime_type ?? 'application/octet-stream']
+        );
     }
 
-    public function study($course_slug,$les_slug=""){
-
-        $crs = Course::withoutGlobalScope('filter')->where('slug', $course_slug)->with('publishedLessons')->firstOrFail();
+    public function study($course_slug, $les_slug = ""){
+        $crs = Course::withoutGlobalScope('filter')
+            ->where('slug', $course_slug)
+            ->with('publishedLessons')
+            ->firstOrFail();
+            
         $purchased_course = \Auth::check() && $crs->students()->where('user_id', \Auth::id())->count() > 0;
-        $course=Course::where("slug",$course_slug)->first();
+        $course = Course::where("slug", $course_slug)->first();
 
-if($les_slug==""){
-$les=Lesson::where("course_id",$course->id)->first();
-}else{
-   $les=Lesson::where("slug",$les_slug)->where("course_id",$course->id)->first();  
-}
-
-       
-$contents=CourseContent::where("course_id",$course->id)->get();
-$current=(object)array("video"=>null,"full_text"=>null,"pdf"=>null,"media"=>null);
-        $clist=array();
-        foreach($contents as $ct){
-            $clessons=Lesson::where("content_id",$ct->id)->get();
-            $rl=array();
-                foreach($clessons as $cl){
-
-                    $media=Media::where("model_id",$cl->id)->where("model_type","App\Models\Lesson")->where("type","!=","youtube")->get();
-                    $yout=Media::where("model_id",$cl->id)->where("model_type","App\Models\Lesson")->where("type","youtube")->first();
-                    $pdf=Media::where("model_id",$cl->id)->where("model_type","App\Models\Lesson")->where("type","application/pdf")->first();
-                    $cl->media=$media;
-                    $cl->video=$yout;
-                    $cl->pdf=$pdf;
-                    if($les->id==$cl->id){
-                        $current=$cl;
-                    }
-                    $rl[]=$cl;
-
-                } 
-                $ct->lessons=$rl;
-            $clist[]=$ct;
+        // Get first lesson if no lesson slug provided
+        if($les_slug == ""){
+            $les = Lesson::where("course_id", $course->id)->first();
+        } else {
+            $les = Lesson::where("slug", $les_slug)->where("course_id", $course->id)->first();  
         }
 
+        // Get course contents with lessons and media
+        $contents = CourseContent::where("course_id", $course->id)
+            ->orderBy("sort_order", "asc")
+            ->get();
+            
+        $current = (object)["video" => null, "full_text" => null, "pdf" => null, "media" => null];
+        $clist = [];
+        
+        foreach($contents as $ct){
+            // Load lessons with their media using eager loading
+            $clessons = Lesson::where("content_id", $ct->id)
+                ->with(['media' => function($query) {
+                    // Get all media types including youtube, upload, lesson_pdf, lesson_audio
+                    $query->orderBy('created_at', 'asc');
+                }])
+                ->orderBy('position', 'asc')
+                ->get();
+                
+            $rl = [];
+            
+            foreach($clessons as $cl){
+                // Get video media (youtube, vimeo, upload)
+                $cl->video = $cl->media->first(function($m) {
+                    return in_array($m->type, ['youtube', 'vimeo', 'upload', 'embed']);
+                });
+                
+                // Get PDF media
+                $cl->pdf = $cl->media->first(function($m) {
+                    return $m->type === 'lesson_pdf';
+                });
+                
+                // Get audio media
+                $cl->audio = $cl->media->first(function($m) {
+                    return $m->type === 'lesson_audio';
+                });
+                
+                // Set current lesson
+                if($les && $les->id == $cl->id){
+                    $current = $cl;
+                }
+                
+                $rl[] = $cl;
+            } 
+            
+            $ct->lessons = $rl;
+            $clist[] = $ct;
+        }
 
-  return view('frontend.study', compact('course','current','clist','purchased_course'));
+        return view('frontend.study', compact('course', 'current', 'clist', 'purchased_course'));
     }
     
     public function applyCoupon($total,$coupon){
