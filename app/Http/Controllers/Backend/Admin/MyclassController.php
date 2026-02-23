@@ -653,29 +653,39 @@ return redirect("/user/dashboard")->withFlashDanger("Course not found");
             return abort(403);
         } 
        
-        $bids = StudentTeacherBatch::select('bid')->distinct()->where("tid",auth()->user()->id)->get();
+        // Get batch IDs from both teacher_batches and student_teacher_batches
+        $teacherBatchIds = TeacherBatch::where("tid", auth()->user()->id)
+            ->pluck('bid')
+            ->toArray();
+        
+        $studentTeacherBatchIds = StudentTeacherBatch::select('bid')
+            ->distinct()
+            ->where("tid", auth()->user()->id)
+            ->pluck('bid')
+            ->toArray();
+        
+        // Merge and get unique batch IDs
+        $allBatchIds = array_unique(array_merge($teacherBatchIds, $studentTeacherBatchIds));
 
-        $list=array();
-        foreach($bids as $x){
-            $b=Batch::find($x->bid);
-              if($b){
-            $tb = TeacherBatch::where("tid",auth()->user()->id)->where("bid",$x->bid)->first();
-            $b->active = '0';
-            if($tb){
-            $b->fees = $tb->fees;
-            $b->active = $tb->active;
-        }
-            //dd($b);
-          
-$b["course"]=Course::where("id",$b->cid)->first();
-            $list[]=$b;
+        $list = array();
+        foreach($allBatchIds as $batchId){
+            $b = Batch::find($batchId);
+            if($b){
+                $tb = TeacherBatch::where("tid", auth()->user()->id)
+                    ->where("bid", $batchId)
+                    ->first();
+                $b->active = '0';
+                if($tb){
+                    $b->fees = $tb->fees ?? 0;
+                    $b->active = $tb->active ?? 0;
+                }
+                
+                $b["course"] = Course::where("id", $b->cid)->first();
+                $list[] = $b;
             }
-            
-            
         }
         
         return view('backend.myclass.index', compact('list'));
-       
    }
 
    public function courseTracking($id)
@@ -1714,7 +1724,15 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
      */
     public function waiting($id)
     {
-        return view('backend.myclass.waiting', compact('id'));
+        $batch = Batch::where('parent_api_class_id', $id)->first();
+        if (!$batch) {
+            return abort(404);
+        }
+        $course = Course::find($batch->cid);
+        $tb = TeacherBatch::where("bid", $batch->id)->first();
+        $teacher = User::find($tb->tid);
+
+        return view('backend.myclass.waiting', compact('batch', 'course', 'teacher', 'id'));
     }
 
     /**
@@ -1722,7 +1740,16 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
      */
     public function checkWaiting($id)
     {
-        return response()->json(['status' => 'waiting']);
+        $meetid = Recording::where("parent", $id)
+            ->where("created_at", ">=", date("Y-m-d 00:00:00"))
+            ->orderBy("id", "desc")
+            ->first();
+
+        if ($meetid) {
+            return response()->json(['can_join' => true, 'api_id' => $meetid->api_class_id]);
+        } else {
+            return response()->json(['can_join' => false, 'api_id' => '']);
+        }
     }
 
     /**

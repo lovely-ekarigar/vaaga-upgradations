@@ -66,6 +66,22 @@ class MockSeries extends Model
     }
 
     /**
+     * Get the mock lists for this series.
+     */
+    public function mockList()
+    {
+        return $this->hasMany(MockList::class, 'mock_series_id');
+    }
+
+    /**
+     * Alias for mockList - used in some parts of the codebase.
+     */
+    public function mockLists()
+    {
+        return $this->hasMany(MockList::class, 'mock_series_id');
+    }
+
+    /**
      * Scope a query to only include active mock series.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query

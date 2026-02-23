@@ -143,6 +143,7 @@ button.close {
                                 <td>
                                     <a class="btn btn-primary btn-sm" href="{{ route('classes.show', [$item->slug]) }}">Classes</a>
                                     <a class="btn btn-success btn-sm" href="/course/study/{{$item->slug}}/">Course Content</a>
+                                    <a class="btn btn-warning btn-sm" href="/user/my-mock-series">Mock Tests</a>
                                 </td>
                                 
                             </tr>

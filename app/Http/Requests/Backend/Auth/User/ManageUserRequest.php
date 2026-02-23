@@ -16,7 +16,10 @@ class ManageUserRequest extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()->isAdmin();
+        // Allow admins, supervisors, and managers to manage users
+        return $this->user()->isAdmin() || 
+               $this->user()->hasRole('supervisor') ||
+               $this->user()->hasRole('manager');
     }
 
     /**

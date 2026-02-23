@@ -623,7 +623,11 @@ $end   = $start->copy()->addMinutes($exam->duration);
             return abort(404);
         }
         
-        $testList = TestList::where("test_series_id",$tp->test_series_id)->orderBy("sort_order","asc")->where('status','active')->get();
+        $testList = TestList::where("test_series_id",$tp->test_series_id)
+            ->where('status','active')
+            ->regular() // Exclude mock tests - they should only appear in Mock Series
+            ->orderBy("sort_order","asc")
+            ->get();
         foreach($testList as $test){
              $myExam = MyExam::where("test_series_purchase_id",$id)->where("user_id",Auth::user()->id)->where("exam_id",$test->id)->where('status','completed')->orderBy("id","desc")->first();
             $test->myExam = $myExam;

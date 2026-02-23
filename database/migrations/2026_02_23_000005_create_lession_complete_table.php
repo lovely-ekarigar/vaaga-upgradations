@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        if (!Schema::hasTable('lession_complete')) {
+            Schema::create('lession_complete', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('user_id');
+                $table->unsignedBigInteger('batch_id');
+                $table->unsignedBigInteger('lession_id');
+                $table->enum('status', ['pending', 'in_progress', 'completed'])->default('pending');
+                $table->timestamp('completed_at')->nullable();
+                $table->timestamps();
+
+                $table->index(['user_id']);
+                $table->index(['batch_id']);
+                $table->index(['lession_id']);
+                $table->index(['status']);
+            });
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('lession_complete');
+    }
+};

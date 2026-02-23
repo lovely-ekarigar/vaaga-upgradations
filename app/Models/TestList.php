@@ -18,7 +18,8 @@ class TestList extends Model
         'duration',
         'sections',
         'section_questions',
-        'status'
+        'status',
+        'test_type'
     ];
 
     protected $casts = [
@@ -45,5 +46,30 @@ class TestList extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope a query to only include regular tests (not mock tests).
+     */
+    public function scopeRegular($query)
+    {
+        // Check if test_type column exists (for backward compatibility)
+        if (\Schema::hasColumn('test_list', 'test_type')) {
+            return $query->where(function($q) {
+                $q->where('test_type', 'regular')
+                  ->orWhereNull('test_type');
+            });
+        }
+        
+        // Fallback: filter by name if column doesn't exist yet
+        return $query->whereRaw('LOWER(name) NOT LIKE ?', ['%mock test%']);
+    }
+
+    /**
+     * Scope a query to only include mock tests.
+     */
+    public function scopeMock($query)
+    {
+        return $query->where('test_type', 'mock');
     }
 }
