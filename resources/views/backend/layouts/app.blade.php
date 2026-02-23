@@ -160,6 +160,13 @@ s0.parentNode.insertBefore(s1,s0);
 
 
         <script src="{{asset('js/main.js')}}" type="text/javascript"></script>
+        {{-- Initialize Bootstrap dropdowns --}}
+        <script>
+            $(document).ready(function() {
+                // Enable Bootstrap 4 dropdowns
+                $('.dropdown-toggle').dropdown();
+            });
+        </script>
         <script>
             window._token = '{{ csrf_token() }}';
         </script>

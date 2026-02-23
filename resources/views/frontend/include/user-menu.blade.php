@@ -8,11 +8,32 @@ use App\Models\UserNotification;
     color: #000;
     font-weight: 900;
     background: #febd59;
-}
+  }
+  .dashboard-banner, .min-h-350px {
+    min-height: 350px !important;
+    height: 350px !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    width: 100% !important;
+    display: block !important;
+    visibility: visible !important;
+  }
+  .dashboard-banner img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+  }
+  @media (max-width: 768px) {
+    .dashboard-banner, .min-h-350px {
+      min-height: 200px !important;
+      height: 200px !important;
+    }
+  }
 </style>
 
 <main>
-  <div class="min-h-350px bg-no-repeat bg-cover" style="background-image: url({{asset('newassets/img/bg/bg-222.png')}});"></div>
+  <div class="dashboard-banner min-h-350px" style="background-image: url('{{asset('newassets/img/bg/bg-222.png')}}'); background-color: #4a5568;"></div>
   <!-- <div class="mask bg-0000_ opacity-8"></div> -->
   <!-- Section -->
   <section class="profile-container">

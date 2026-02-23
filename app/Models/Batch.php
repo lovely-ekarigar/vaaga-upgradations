@@ -17,6 +17,14 @@ class Batch extends Model
         return $this->belongsToMany(\App\Models\Auth\User::class, 'teacher_batches', 'bid', 'tid');
     }
 
+    /**
+     * Get mock tests assigned to this batch.
+     */
+    public function mockTests()
+    {
+        return $this->hasMany(BatchMockTest::class, 'batch_id');
+    }
+
     public function bacthCompletion($batch_id,$tid=null){
 
         $batch = Batch::find($batch_id);

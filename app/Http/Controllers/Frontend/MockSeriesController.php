@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\MockSeries;
 use App\Models\MockList;
 use App\Models\Course;
+use App\Models\Slider;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Auth;
@@ -317,7 +318,12 @@ class MockSeriesController extends Controller
             ->sortByDesc('created_at')
             ->values();
         
-        return view('frontend.mockseries.index', compact('mockSeries'));
+        // Fetch banner/slider for the dashboard
+        $slides = Slider::where('status', '=', 1)
+            ->orderBy('sequence', 'asc')
+            ->get();
+        
+        return view('frontend.mockseries.index', compact('mockSeries', 'slides'));
     }
     
     /**
@@ -477,7 +483,12 @@ class MockSeriesController extends Controller
             return true;
         })->values(); // Reset array keys
         
-        return view('frontend.mockseries.list', compact('batchMockTest', 'mockTests'));
+        // Fetch banner/slider for the page
+        $slides = Slider::where('status', '=', 1)
+            ->orderBy('sequence', 'asc')
+            ->get();
+        
+        return view('frontend.mockseries.list', compact('batchMockTest', 'mockTests', 'slides'));
     }
     
     /**

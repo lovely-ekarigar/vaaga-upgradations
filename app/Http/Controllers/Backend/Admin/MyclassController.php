@@ -53,6 +53,9 @@ use App\Models\OrderItem;
 use App\Models\ChapterStudent;
 use App\Models\Objection;
 use App\Models\ExamMyTest;
+use App\Models\BatchMockTest;
+use App\Models\MyExam;
+use App\Models\MockList;
 
 use URL;
 use Auth;
@@ -1883,7 +1886,32 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
     public function mockTestsPage($batch_id)
     {
         $batch = \App\Models\Batch::find($batch_id);
-        $mockTests = []; // TODO: Get actual mock tests for this batch
+        
+        if(!$batch) {
+            return redirect()->route('admin.myclass')->withFlashDanger('Batch not found');
+        }
+        
+        // Get mock tests assigned to this batch with their related mock list details
+        $batchMockTests = BatchMockTest::where('batch_id', $batch_id)
+            ->with('mockList')
+            ->orderBy('sort_order', 'asc')
+            ->get();
+        
+        // Format the data for the view
+        $mockTests = [];
+        foreach($batchMockTests as $bmt) {
+            if($bmt->mockList) {
+                $mockTests[] = (object)[
+                    'id' => $bmt->id,
+                    'name' => $bmt->mockList->name,
+                    'is_active' => $bmt->is_active,
+                    'scheduled_at' => $bmt->scheduled_at,
+                    'mock_list_id' => $bmt->mock_list_id,
+                    'mock_series_id' => $bmt->mock_series_id
+                ];
+            }
+        }
+        
         return view('backend.myclass.mock-tests', compact('batch', 'mockTests'));
     }
 
@@ -1916,8 +1944,42 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
      */
     public function mockTestQuestions($mock_id)
     {
-        $mockTest = \App\Models\MockTest::find($mock_id);
         $batchId = request('batch_id');
+        
+        // Try to find mock test from BatchMockTest first
+        $batchMockTest = BatchMockTest::where('id', $mock_id)
+            ->where('batch_id', $batchId)
+            ->with('mockList')
+            ->first();
+        
+        if ($batchMockTest && $batchMockTest->mockList) {
+            // Use MockList data and format it for the view
+            $mockTest = (object)[
+                'id' => $batchMockTest->id,
+                'name' => $batchMockTest->mockList->name,
+                'title' => $batchMockTest->mockList->name,
+                'description' => $batchMockTest->mockList->description,
+                'mock_list_id' => $batchMockTest->mock_list_id,
+                'mock_series_id' => $batchMockTest->mock_series_id,
+            ];
+        } else {
+            // Fallback: try MockTest model (for legacy data)
+            try {
+                $mockTest = \App\Models\MockTest::find($mock_id);
+                // Ensure name property exists
+                if ($mockTest && !isset($mockTest->name) && isset($mockTest->title)) {
+                    $mockTest->name = $mockTest->title;
+                }
+            } catch (\Exception $e) {
+                $mockTest = null;
+            }
+        }
+        
+        if (!$mockTest) {
+            return redirect()->route('admin.myclass.mockTests', $batchId)
+                ->withFlashDanger('Mock test not found.');
+        }
+        
         $sectionsData = []; // TODO: Get actual sections data
         return view('backend.myclass.mock-questions', compact('mockTest', 'batchId', 'sectionsData'));
     }
@@ -1957,27 +2019,136 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
     }
 
     /**
-     * Get students list
+     * Get students list for a batch
      */
     public function getStudentsList($batch_id)
     {
-        return response()->json(['students' => []]);
+        $students = [];
+        
+        // Get students from student_teacher_batches
+        $studentBatches = StudentTeacherBatch::where('bid', $batch_id)
+            ->with('user')
+            ->get();
+        
+        foreach ($studentBatches as $stb) {
+            if ($stb->user) {
+                $students[] = [
+                    'id' => $stb->user->id,
+                    'name' => $stb->user->full_name,
+                    'email' => $stb->user->email,
+                ];
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'students' => $students
+        ]);
     }
 
     /**
-     * Get mock tests list
+     * Get mock tests list for a batch
      */
     public function getMockTestsList($batch_id)
     {
-        return response()->json(['tests' => []]);
+        $batchMockTests = BatchMockTest::where('batch_id', $batch_id)
+            ->with('mockList')
+            ->whereNotNull('mock_list_id')
+            ->get();
+        
+        $mockTests = [];
+        foreach ($batchMockTests as $bmt) {
+            if ($bmt->mockList) {
+                $mockTests[] = [
+                    'id' => $bmt->id,
+                    'name' => $bmt->mockList->name,
+                    'mock_list_id' => $bmt->mock_list_id,
+                    'mock_series_id' => $bmt->mock_series_id,
+                ];
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'mockTests' => $mockTests
+        ]);
     }
 
     /**
-     * Get student mock result
+     * Get student mock result via AJAX
      */
     public function getStudentMockResult($student_id, $mock_id)
     {
-        return view('backend.myclass.student-mock-result', compact('student_id', 'mock_id'));
+        // Find the batch mock test
+        $batchMockTest = BatchMockTest::where('id', $mock_id)->first();
+        
+        if (!$batchMockTest) {
+            return response()->json(['success' => false, 'message' => 'Mock test not found'], 404);
+        }
+        
+        // Find the student's exam result from my_exams table
+        $myExam = MyExam::where('user_id', $student_id)
+            ->where('batch_mock_test_id', $mock_id)
+            ->where('status', 'completed')
+            ->first();
+        
+        if (!$myExam) {
+            return response()->json(['success' => false, 'message' => 'No result found'], 404);
+        }
+        
+        // Get student details
+        $student = User::find($student_id);
+        $mockList = MockList::find($batchMockTest->mock_list_id);
+        
+        // Calculate statistics from answers JSON
+        $answers = is_string($myExam->answers) ? json_decode($myExam->answers, true) : $myExam->answers;
+        $totalQuestions = count($answers ?? []);
+        $correctAnswers = 0;
+        $wrongAnswers = 0;
+        
+        if (is_array($answers)) {
+            foreach ($answers as $answer) {
+                if (isset($answer['is_correct'])) {
+                    if ($answer['is_correct']) {
+                        $correctAnswers++;
+                    } else {
+                        $wrongAnswers++;
+                    }
+                }
+            }
+        }
+        
+        $unattempted = $totalQuestions - $correctAnswers - $wrongAnswers;
+        $obtainedMarks = $myExam->marks_obtained ?? 0;
+        $totalMarks = $myExam->total_marks ?? ($totalQuestions * 4);
+        $percentage = $totalMarks > 0 ? round(($obtainedMarks / $totalMarks) * 100, 2) : 0;
+        
+        // Calculate time taken
+        $timeTakenSeconds = $myExam->time_spent ?? 0;
+        $timeTaken = $timeTakenSeconds > 0 
+            ? sprintf('%d min %d sec', floor($timeTakenSeconds / 60), $timeTakenSeconds % 60) 
+            : 'N/A';
+        
+        $result = [
+            'student_name' => $student ? $student->full_name : 'N/A',
+            'mock_name' => $mockList ? $mockList->name : 'N/A',
+            'obtained_marks' => $obtainedMarks,
+            'total_marks' => $totalMarks,
+            'percentage' => $percentage,
+            'attempted_at' => $myExam->submitted_at ? date('d M Y, h:i A', strtotime($myExam->submitted_at)) : 'N/A',
+            'time_taken' => $timeTaken,
+            'subject_wise' => [
+                [
+                    'subject_name' => 'General',
+                    'correct' => $correctAnswers,
+                    'incorrect' => $wrongAnswers,
+                    'skipped' => max(0, $unattempted),
+                    'marks' => $obtainedMarks,
+                ]
+            ],
+        ];
+        
+        return response()->json(['success' => true, 'result' => $result]);
     }
 
     /**

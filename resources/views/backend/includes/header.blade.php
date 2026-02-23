@@ -79,9 +79,12 @@
             </a> -->
 
             <div class="divider"></div>
-            <a class="dropdown-item" href="{{ route('frontend.auth.logout') }}">
+            <a class="dropdown-item" href="{{ route('frontend.auth.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fas fa-lock"></i> @lang('navs.general.logout')
             </a>
+            <form id="logout-form" action="{{ route('frontend.auth.logout') }}" method="GET" style="display: none;">
+                @csrf
+            </form>
           </div>
         </li>
     </ul>

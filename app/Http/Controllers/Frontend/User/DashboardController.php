@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\MockTestSchedule;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Slider;
 use App\Models\StudentTeacherBatch;
 use App\Models\TestSeriesPurchase;
 use Carbon\Carbon;
@@ -58,12 +59,18 @@ class DashboardController extends Controller
             'total_batches' => count($studentBatches),
         ];
         
+        // === RESTORED: Fetch slider/banner for dashboard ===
+        $slides = Slider::where('status', '=', 1)
+            ->orderBy('sequence', 'asc')
+            ->get();
+        
         return view('frontend.user.dashboard', compact(
             'courses',
             'testSeries',
             'mockSchedules',
             'studentBatches',
-            'stats'
+            'stats',
+            'slides'
         ));
     }
     

@@ -28,6 +28,23 @@
     .bg-cover{
         object-fit: cover;
     }
+    
+    /* Dashboard Banner Styles */
+    .dashboard-banner {
+      min-height: 350px;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      width: 100%;
+      display: block !important;
+      visibility: visible !important;
+      position: relative;
+    }
+    @media (max-width: 768px) {
+      .dashboard-banner {
+        min-height: 200px;
+      }
+    }
 .logo-mob-sub-header{
     object-fit: cover;
 }
