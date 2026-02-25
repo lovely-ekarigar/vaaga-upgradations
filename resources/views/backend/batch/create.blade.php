@@ -4,7 +4,7 @@ use App\Models\Course;
 @inject('request', 'Illuminate\Http\Request')
 @extends('backend.layouts.app')
 @section('title','Batch list'.' | '.app_name())
-
+ 
 @section('content')
 
    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css"> 

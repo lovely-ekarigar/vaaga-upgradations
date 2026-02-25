@@ -3,7 +3,7 @@ use App\Models\Course;
 use App\Models\Batch;
 use App\Models\Earning;
 use App\Models\Recording;
-
+ 
 ?>
 @inject('request', 'Illuminate\Http\Request')
 @extends('backend.layouts.app')
@@ -152,8 +152,11 @@ use App\Models\Recording;
                         data-id="{{ $l->id }}" data-name="{{ $l->name }}">
                         <i class="fa fa-file-text"></i> Assign Mock Tests
                      </a>
+                     <a href="{{ route('admin.myclass.mockTestsPage', $l->id) }}" class="btn btn-outline-success btn-sm mb-1">
+                        <i class="fa fa-file-text"></i> Available Mock Tests
+                     </a>
                      <a href="{{ route('admin.batch.mockResults', $l->id) }}" class="btn btn-success btn-sm mb-1">
-                        <i class="fa fa-chart-bar"></i> Mock Results
+                        <i class="fa fa-chart-bar"></i> Mock Test Results
                      </a>
 
 
@@ -208,7 +211,7 @@ use App\Models\Recording;
                </div>
                <div id="mock-tests-content" style="display: none;">
                   <div class="alert alert-info mb-3">
-                     <i class="fa fa-info-circle"></i> <strong>Note:</strong> You can assign any mock test to this batch. The chapter progress filter will be applied on the tutor's dashboard - tutors will only see mock tests where all required chapters have been completed in batch progress.
+                     <i class="fa fa-info-circle"></i> <strong>Note:</strong> You can assign any mock test to this batch. The chapter progress filter will be applied on the tutor's dashboard - tutors will only see mock tests where all required chapters have been completed or ongoing in batch progress.
                   </div>
                   <p class="text-info"><i class="fa fa-check-square"></i> Select mock tests to assign to this batch:</p>
                   <div id="mock-tests-list" class="form-group">
@@ -314,10 +317,14 @@ use App\Models\Recording;
         $('#suspendModal').modal('show');
     });
     
+    // Store previously assigned mock test IDs
+    var previouslyAssignedMockIds = [];
+    
     // Open Mock Tests Modal
     $(document).on('click', '.mock-tests-btn', function () {
         var batchId = $(this).data('id');
         var batchName = $(this).data('name');
+      var submitButton = $('#save-mock-tests-btn');
         
         // Reset modal state
         $('#mock_batch_id').val(batchId);
@@ -327,6 +334,7 @@ use App\Models\Recording;
         $('#mock-tests-loading').show();
         $('#mock-tests-content').hide();
         $('#no-mock-tests').hide();
+      submitButton.prop('disabled', false).html('Save Mock Tests');
         $('#mockTestsModal').modal('show');
         
         // Fetch available mock tests
@@ -338,6 +346,10 @@ use App\Models\Recording;
                     // Debug info
                     console.log('Mock Tests Count:', response.mockTests.length);
                     console.log('Mock Tests:', response.mockTests);
+                    console.log('Previously Assigned:', response.assignedMockIds);
+                    
+                    // Store previously assigned IDs
+                    previouslyAssignedMockIds = response.assignedMockIds || [];
                     
                     $('#modal_course_name').text(response.courseName);
                     $('#mock-tests-loading').hide();
@@ -347,7 +359,9 @@ use App\Models\Recording;
                         var currentSeriesId = null;
                         
                         response.mockTests.forEach(function(mockTest) {
-                            var isChecked = response.assignedMockIds.includes(mockTest.id) ? 'checked' : '';
+                            var isAssigned = response.assignedMockIds.includes(mockTest.id);
+                            var isChecked = isAssigned ? 'checked' : '';
+                            var assignedClass = isAssigned ? 'currently-assigned' : '';
                             
                             // Show series header if it's a new series
                             if (currentSeriesId !== mockTest.series_id) {
@@ -365,11 +379,14 @@ use App\Models\Recording;
                                 mockTestsHtml += '<div class="card-body">';
                             }
                             
-                            // Individual mock test checkbox
-                            mockTestsHtml += '<div class="custom-control custom-checkbox mb-2">';
-                            mockTestsHtml += '<input type="checkbox" class="custom-control-input" id="mock_test_' + mockTest.id + '" name="mock_test_ids[]" value="' + mockTest.id + '" ' + isChecked + '>';
+                            // Individual mock test checkbox (all enabled now)
+                            mockTestsHtml += '<div class="custom-control custom-checkbox mb-2 ' + assignedClass + '">';
+                            mockTestsHtml += '<input type="checkbox" class="custom-control-input mock-checkbox" id="mock_test_' + mockTest.id + '" name="mock_test_ids[]" value="' + mockTest.id + '" ' + isChecked + ' data-originally-assigned="' + isAssigned + '">';
                             mockTestsHtml += '<label class="custom-control-label" for="mock_test_' + mockTest.id + '">';
                             mockTestsHtml += '<strong>' + mockTest.name + '</strong>';
+                           //  if (isAssigned) {
+                           //      mockTestsHtml += ' <span class="badge badge-info">Currently Assigned</span>';
+                           //  }
                             if (mockTest.description) {
                                 mockTestsHtml += '<br><small class="text-muted">' + mockTest.description + '</small>';
                             }
@@ -393,10 +410,12 @@ use App\Models\Recording;
                         $('#mock-tests-list').html(mockTestsHtml);
                         $('#mock-tests-content').show();
                         $('#no-mock-tests').hide();
+                        updateSaveButtonState();
                     } else {
                         $('#mock-tests-content').show();
                         $('#mock-tests-list').html('');
                         $('#no-mock-tests').show();
+                        updateSaveButtonState();
                     }
                 }
             },
@@ -407,20 +426,76 @@ use App\Models\Recording;
             }
         });
     });
+
+   function updateSaveButtonState() {
+      var hasChanges = false;
+      $('input[name="mock_test_ids[]"]').each(function() {
+         var wasOriginallyAssigned = $(this).data('originally-assigned');
+         var isCurrentlyChecked = $(this).is(':checked');
+
+         if ((isCurrentlyChecked && !wasOriginallyAssigned) || (!isCurrentlyChecked && wasOriginallyAssigned)) {
+            hasChanges = true;
+            return false;
+         }
+      });
+
+      $('#save-mock-tests-btn').prop('disabled', !hasChanges);
+   }
+
+   $(document).on('change', 'input[name="mock_test_ids[]"]', function() {
+      updateSaveButtonState();
+   });
     
     // Save Mock Tests
     $('#mockTestsForm').on('submit', function(e) {
         e.preventDefault();
         var batchId = $('#mock_batch_id').val();
-        var selectedMocks = [];
+        var mocksToAdd = [];
+        var mocksToRemove = [];
+        var currentlyChecked = [];
         
+        // Get all currently checked mock test IDs
         $('input[name="mock_test_ids[]"]:checked').each(function() {
-            selectedMocks.push($(this).val());
+            currentlyChecked.push($(this).val());
         });
         
-        if (selectedMocks.length === 0) {
-            alert('Please select at least one mock test.');
+        // Analyze all mock test checkboxes to determine adds and removes
+        $('input[name="mock_test_ids[]"]').each(function() {
+            var mockId = $(this).val();
+            var wasOriginallyAssigned = $(this).data('originally-assigned');
+            var isCurrentlyChecked = $(this).is(':checked');
+            
+            // If it's checked now but wasn't assigned before = ADD
+            if (isCurrentlyChecked && !wasOriginallyAssigned) {
+                mocksToAdd.push(mockId);
+            }
+            
+            // If it was assigned before but is now unchecked = REMOVE
+            if (!isCurrentlyChecked && wasOriginallyAssigned) {
+                mocksToRemove.push(mockId);
+            }
+        });
+        
+        // Check if any changes were made
+        if (mocksToAdd.length === 0 && mocksToRemove.length === 0) {
+            alert('No changes detected. Please check or uncheck mock tests to make changes.');
             return;
+        }
+        
+        // Confirm if removing any mock tests
+        if (mocksToRemove.length > 0) {
+            var confirmMsg = 'You are about to:\n';
+            if (mocksToRemove.length > 0) {
+                confirmMsg += '- Remove ' + mocksToRemove.length + ' mock test(s)\n';
+            }
+            if (mocksToAdd.length > 0) {
+                confirmMsg += '- Add ' + mocksToAdd.length + ' new mock test(s)\n';
+            }
+            confirmMsg += '\nNote: Schedules and activation status will be preserved for remaining tests.\n\nContinue?';
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
         }
         
         var submitButton = $('#save-mock-tests-btn');
@@ -430,13 +505,27 @@ use App\Models\Recording;
             url: '/user/batch/' + batchId + '/save-mock-tests',
             type: 'POST',
             data: {
-                mock_test_ids: selectedMocks,
+                mock_test_ids: currentlyChecked,
+                mocks_to_add: mocksToAdd,
+                mocks_to_remove: mocksToRemove,
                 _token: '{{ csrf_token() }}'
             },
             success: function(response) {
                 if (response.success) {
-                    alert(response.message);
+                    var message = response.message;
+                    if (mocksToAdd.length > 0 || mocksToRemove.length > 0) {
+                        message += '\n\nChanges made:';
+                        if (mocksToAdd.length > 0) {
+                            message += '\n✓ Added: ' + mocksToAdd.length + ' mock test(s)';
+                        }
+                        if (mocksToRemove.length > 0) {
+                            message += '\n✓ Removed: ' + mocksToRemove.length + ' mock test(s)';
+                        }
+                    }
+                  //   alert(message);
                     $('#mockTestsModal').modal('hide');
+                    // Optionally reload the page to reflect changes
+                    // location.reload();
                 }
                 submitButton.prop('disabled', false).html('Save Mock Tests');
             },
@@ -491,4 +580,19 @@ use App\Models\Recording;
    
        
 </script>
+
+<style>
+/* Style for currently assigned mock tests */
+.currently-assigned {
+    background-color: #e8f5e9;
+    padding: 5px;
+    border-radius: 4px;
+    border-left: 3px solid #4caf50;
+}
+
+.currently-assigned label {
+    font-weight: 500;
+}
+</style>
+
 @endpush

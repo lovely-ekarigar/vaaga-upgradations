@@ -1,5 +1,5 @@
 @extends('backend.layouts.app')
-
+ 
 @section('title', 'Mock Results - ' . $batch->name . ' | ' . app_name())
 
 @push('after-styles')
@@ -110,7 +110,7 @@
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h3 class="page-title mb-1">Mock Results</h3>
+                <h3 class="page-title mb-1">Mock Test Results</h3>
                 <p class="text-muted mb-0">Batch: <strong>{{ $batch->name }}</strong></p>
                 <p class="text-muted mb-0">Course: <strong>{{ $course->title }}</strong></p>
             </div>
@@ -202,11 +202,11 @@
                     <!-- Performance message will be inserted here -->
                 </div>
 
-                <!-- <div class="text-center mt-4">
-                    <a href="#" id="view-answer-key-btn" class="btn btn-primary btn-lg" target="_blank" style="display: none;">
-                        <i class="bi bi-clipboard-check me-2"></i> View Answer Key
+                <div class="text-center mt-4">
+                    <a href="#" id="view-answer-key-btn" class="btn btn-primary btn-lg" style="display: none;">
+                        <i class="bi bi-clipboard-check me-2"></i> View Answer Key 
                     </a>
-                </div> -->
+                </div> 
             </div>
         </div>
     </div>
@@ -310,8 +310,8 @@ $(document).ready(function() {
                         }
                         $('#result-message').html(messageHtml);
                         
-                        // Show answer key button
-                        $('#view-answer-key-btn').attr('href', '/user/mock-exam-answer-key/' + currentExamId).show();
+                        // Show answer key button (admin route)
+                        $('#view-answer-key-btn').attr('href', '/user/admin-mock-exam-answer-key/' + currentExamId).show();
                         
                         $('#result-container').show();
                         $('#no-result-message').hide();

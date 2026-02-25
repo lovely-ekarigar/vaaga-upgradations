@@ -7,7 +7,7 @@ use App\Models\Batch;
 
 @section('content')
 
-
+ 
 <div class="card">
   <div class="card-header">
     <h3 class="page-title float-left mb-0">My Classes</h3>
@@ -101,10 +101,10 @@ use App\Models\Batch;
 
                 <a href="{{ route('admin.myclass.mockTestsPage', $l->id) }}" class="btn btn-outline-success mb-1">
                   <i class="fa fa-file-text"></i> Available Mock Tests
-                </a>
+                </a> 
 
                 <a href="{{ route('admin.myclass.mockResults', $l->id) }}" class="btn btn-outline-info mb-1">
-                  <i class="fa fa-chart-bar"></i> Mock Results
+                  <i class="fa fa-chart-bar"></i> Mock Test Results
                 </a>
 
                 <a href="javascript:void(0);" class="btn btn-xs btn-warning mb-1 suspend-btn" data-id="{{ $l->id }}">
@@ -250,6 +250,8 @@ use App\Models\Batch;
                     $.each(response.data, function(index, mock) {
                         var isActive = mock.is_active == 1;
                         var hasSchedule = mock.scheduled_at && mock.scheduled_at !== null;
+                        var isPending = mock.is_pending == 1 || mock.is_pending === true;
+                        var pendingReason = mock.pending_reason || 'Progress requirements not met';
                         
                         // Date-only comparison (ignoring time)
                         var scheduledDate = hasSchedule ? new Date(mock.scheduled_at) : null;
@@ -260,11 +262,14 @@ use App\Models\Batch;
                         }
                         var isPastSchedule = hasSchedule && scheduledDate <= today;
                         
-                        var statusBadge = isActive 
-                            ? '<span class="badge badge-success">Active</span>' 
-                            : (hasSchedule && !isPastSchedule 
-                                ? '<span class="badge badge-warning">Scheduled</span>'
-                                : '<span class="badge badge-secondary">Inactive</span>');
+                        // Status badge with pending priority
+                        var statusBadge = isPending 
+                            ? '<span class="badge badge-warning" title="' + pendingReason + '"><i class="fa fa-clock"></i> Pending (Progress)</span>'
+                            : (isActive 
+                                ? '<span class="badge badge-success">Active</span>' 
+                                : (hasSchedule && !isPastSchedule 
+                                    ? '<span class="badge badge-warning">Scheduled</span>'
+                                    : '<span class="badge badge-secondary">Inactive</span>'));
                         
                         var scheduledDateText = hasSchedule 
                             ? '<small>' + new Date(mock.scheduled_at).toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'}) + '</small>'
@@ -272,16 +277,23 @@ use App\Models\Batch;
                         
                         var previewButton = '<a href="/user/myclass/mock-test-questions/' + mock.id + '?batch_id=' + batchId + '" class="btn btn-sm btn-info"><i class="fa fa-eye"></i> Preview</a>';
                         
-                        var scheduleButton = !isActive 
+                        // Disable schedule and submit buttons if pending
+                        var scheduleButton = !isActive && !isPending
                             ? '<button class="btn btn-sm btn-primary ml-1 schedule-mock-btn" data-id="' + mock.id + '" data-batch="' + batchId + '" data-name="' + mock.name + '"><i class="fa fa-calendar"></i> Schedule</button>'
-                            : '';
+                            : (!isActive && isPending 
+                                ? '<button class="btn btn-sm btn-secondary ml-1" disabled title="' + pendingReason + '"><i class="fa fa-calendar"></i> Schedule</button>'
+                                : '');
                         
-                        var actionButton = !isActive 
+                        var actionButton = !isActive && !isPending
                             ? '<button class="btn btn-sm btn-success ml-1 submit-mock-btn" data-id="' + mock.id + '" data-batch="' + batchId + '"><i class="fa fa-check"></i> Submit Now</button>'
-                            : '<button class="btn btn-sm btn-danger ml-1 inactive-mock-btn" data-id="' + mock.id + '" data-batch="' + batchId + '"><i class="fa fa-times"></i> Inactive</button>';
+                            : (!isActive && isPending
+                                ? '<button class="btn btn-sm btn-secondary ml-1" disabled title="' + pendingReason + '"><i class="fa fa-check"></i> Submit Now</button>'
+                                : (isActive 
+                                    ? '<button class="btn btn-sm btn-danger ml-1 inactive-mock-btn" data-id="' + mock.id + '" data-batch="' + batchId + '"><i class="fa fa-times"></i> Inactive</button>'
+                                    : ''));
                         
                         html += '<tr>' +
-                                '<td>' + mock.name + '</td>' +
+                                '<td>' + mock.name + (isPending ? ' <small class="text-muted">(' + pendingReason + ')</small>' : '') + '</td>' +
                                 '<td>' + statusBadge + '</td>' +
                                 '<td>' + scheduledDateText + '</td>' +
                                 '<td>' + previewButton + scheduleButton + actionButton + '</td>' +

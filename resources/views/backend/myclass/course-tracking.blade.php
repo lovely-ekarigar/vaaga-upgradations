@@ -14,7 +14,7 @@
     box-shadow: 0 10px 15px -20px rgba(0, 0, 0, 0.3);
 }
 .heading {
-    color: #000;
+    color: #000; 
     font-size:14px;
     border-bottom: 1px solid #e7e7e7;
     letter-spacing: 0.8px;

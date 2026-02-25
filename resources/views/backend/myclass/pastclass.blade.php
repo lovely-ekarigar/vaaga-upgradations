@@ -23,7 +23,7 @@
                       </thead>
    <tbody>
             @foreach($list as $rec)
-@if(date("Y",strtotime($rec->recording_date))!='1970')
+@if(date("Y",strtotime($rec->recording_date))!='1970') 
 <tr>
     <td>{{$loop->index+1}}</td>
   

@@ -72,6 +72,72 @@ class TestSeriesController extends Controller
     
     
     
+     //shruti
+    
+    public function studyMaterial($testSeriesId)
+    {
+        // Get the test series
+        $testSeries = TestSeries::findOrFail($testSeriesId);
+
+        // Get course_id from test series
+        $courseId = $testSeries->course_id;
+
+        // Fetch all lessons for that course
+        $lessons = Lesson::where('course_id', $courseId)
+                         ->orderBy('id')
+                         ->get();
+
+        return view('backend.testseries.study-material', compact('lessons', 'testSeries'));
+    }
+
+
+    ///shruti
+    public function videos($testSeriesId)
+{
+    $testSeries = TestSeries::findOrFail($testSeriesId);
+
+    $courseId = $testSeries->course_id;
+
+    $lessons = Lesson::where('course_id', $courseId)
+                     ->orderBy('id')
+                     ->get();
+
+    return view('backend.testseries.lesson-videos-list', compact('lessons', 'testSeries'));
+}
+
+    // Show media for a lesson for  test series
+  public function lessonMaterials($lessonId)
+{
+    $lesson = Lesson::findOrFail($lessonId);
+    // dd($lessonId);
+    $lessonId = (int)$lessonId;
+    // Fetch all files attached to this lesson
+    $media = Media::where('model_id', $lessonId)
+        ->where('model_type', 'App\Models\Lesson')
+        ->where(function ($q) {
+            $q->where('type', 'lesson_pdf')
+              ->orWhere('type', 'application/pdf');
+        })
+        ->orderBy('id', 'desc')
+        ->get(); // <-- very important to actually execute the query
+
+    // dd($media); // debug to check if it returns records
+
+    return view('backend.testseries.lesson-materials', compact('media', 'lesson'));
+}
+//return blade to show videos for a lesson for  test series
+public function lessonVideos($lessonId)
+{
+    $lesson = Lesson::findOrFail($lessonId);
+
+    $videos = Media::where('model_id', (int)$lessonId)
+        ->where('model_type', 'App\Models\Lesson')
+        ->where('type', 'youtube')
+        ->latest('id')
+        ->get();
+
+    return view('backend.testseries.lesson-videos', compact('videos', 'lesson'));
+}
     
     
     
@@ -623,11 +689,7 @@ $end   = $start->copy()->addMinutes($exam->duration);
             return abort(404);
         }
         
-        $testList = TestList::where("test_series_id",$tp->test_series_id)
-            ->where('status','active')
-            ->regular() // Exclude mock tests - they should only appear in Mock Series
-            ->orderBy("sort_order","asc")
-            ->get();
+        $testList = TestList::where("test_series_id",$tp->test_series_id)->orderBy("sort_order","asc")->where('status','active')->get();
         foreach($testList as $test){
              $myExam = MyExam::where("test_series_purchase_id",$id)->where("user_id",Auth::user()->id)->where("exam_id",$test->id)->where('status','completed')->orderBy("id","desc")->first();
             $test->myExam = $myExam;
@@ -1144,20 +1206,10 @@ return $rd["id"];
         $alreadyPurchased = TestSeriesPurchase::where("user_id",Auth::user()->id)->where("payment_status","paid")->where('status','active')->get()->pluck("test_series_id")->toArray();
     }
 
-    return view('frontend.category-or-course-series',compact('courses','course','testSeries','alreadyPurchased'));
+    return view('category-or-course-series',compact('courses','course','testSeries','alreadyPurchased'));
      
      
 
      
   }
-
-    /**
-     * Show the form for editing the specified test series.
-     */
-    public function edit($id)
-    {
-        $testSeries = TestSeries::findOrFail($id);
-        $courses = Course::where('published', '=', 1)->get();
-        return view('admin.test.edit', compact('testSeries', 'courses'));
-    }
-}
+} 

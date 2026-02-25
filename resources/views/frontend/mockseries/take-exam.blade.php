@@ -3,7 +3,7 @@
 // Encode the data for JavaScript usage
 $examDataJson = json_encode($examData);
 ?>
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -345,10 +345,10 @@ $examDataJson = json_encode($examData);
       </div>
       
       <div class="flex items-center gap-4">
-          <img src="<?= $examData['student']['admit_card_photo'] ?>" class="user-photo" alt="Admit Card Photo" title="Admit Card Photo">
-            <?php if($examData['student']['database_photo']): ?>
+          <!--<img src="<?= $examData['student']['admit_card_photo'] ?>" class="user-photo" alt="Admit Card Photo" title="Admit Card Photo">-->
+          <!--  <?php if($examData['student']['database_photo']): ?>-->
             <img src="<?= $examData['student']['database_photo'] ?>" class="user-photo" alt="Database Photo" title="Database Photo">
-            <?php endif; ?>
+            <!--<?php endif; ?>-->
        
       </div>
     </div>

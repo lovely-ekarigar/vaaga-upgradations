@@ -37,7 +37,7 @@ Mock Series Management | {{ env('APP_NAME') }}
         <div class="card shadow-sm border-0">
            <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 text-black">Mock Series Management</h5>
+                    <h5 class="mb-0 text-black">Mock Test Management</h5>
 
                     
                     <div class="d-flex gap-2">

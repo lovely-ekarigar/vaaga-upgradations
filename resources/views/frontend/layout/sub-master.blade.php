@@ -28,23 +28,6 @@
     .bg-cover{
         object-fit: cover;
     }
-    
-    /* Dashboard Banner Styles */
-    .dashboard-banner {
-      min-height: 350px;
-      background-size: cover;
-      background-position: center center;
-      background-repeat: no-repeat;
-      width: 100%;
-      display: block !important;
-      visibility: visible !important;
-      position: relative;
-    }
-    @media (max-width: 768px) {
-      .dashboard-banner {
-        min-height: 200px;
-      }
-    }
 .logo-mob-sub-header{
     object-fit: cover;
 }
@@ -206,11 +189,7 @@
     ========================
     -->
   <!-- script start -->
-  <!-- Theme JS: CDN fallback when newassets is missing -->
-  @if(!\Illuminate\Support\Facades\File::exists(public_path('newassets/js/jquery-3.5.1.min.js')))
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-  @endif
+  <!-- Theme JS -->
   <script src="/newassets/js/jquery-3.5.1.min.js"></script>
   <!--bootstrap-->
   <script src="/newassets/vendor/bootstrap/js/bootstrap.bundle.min.js" defer></script>
@@ -319,6 +298,23 @@
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "sd7aqctqd1");
 </script>
+
+  <script>
+    (function() {
+      try {
+        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (!tz) {
+          return;
+        }
+
+        var match = document.cookie.match('(?:^|; )tz=([^;]*)');
+        var current = match ? decodeURIComponent(match[1]) : '';
+        if (current !== tz) {
+          document.cookie = 'tz=' + encodeURIComponent(tz) + '; path=/; max-age=31536000; SameSite=Lax';
+        }
+      } catch (e) {}
+    })();
+  </script>
   @yield('page_js')
 </body>
 

@@ -58,6 +58,7 @@ use App\Http\Controllers\Backend\Admin\ForumController;
 use App\Http\Controllers\Backend\Admin\FeedbackController;
 use App\Http\Controllers\Backend\Admin\MockTestController;
 use App\Http\Controllers\MessagesController;
+use App\Http\Controllers\Frontend\MockSeriesController;
 /*
  * All route names are prefixed with 'admin.'.
  */
@@ -478,6 +479,12 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
 
 //Common - Shared Routes for Teacher and Administrator
 Route::group(['middleware' => 'role:administrator|teacher'], function () {
+
+ // Mock Exam Answer Key (accessible by both admin and teacher)
+ Route::get(
+    'admin-mock-exam-answer-key/{id}',
+    [MockSeriesController::class, 'adminMockExamAnswerKey']
+)->name('mockExamAnswerKey');
 
     //====== Reports Routes =====// 
     Route::get('report/sales', [ReportController::class, 'getSalesReport'])->name('reports.sales');

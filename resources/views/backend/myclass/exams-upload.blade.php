@@ -12,7 +12,7 @@
               <h3 class="mb-2">@lang('strings.backend.dashboard.welcome') {{ $logged_in_user->name }}!</h3>
               <h6 class="text-body fw-500 mb-3">Subjective Exam for {{$batch->name}} </h6>
               <h6 class="text-body fw-500 mb-3">Subjective Exam Name:    {{$assig->title}} </h6>
-                <div class="row">
+                <div class="row"> 
                 	<div class="col-md-2"></div>
                 	<div class="col-md-8">
                 		@if(!$upload)

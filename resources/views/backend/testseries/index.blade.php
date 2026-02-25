@@ -140,27 +140,40 @@
                                             <strong>Number of Tests:</strong> {{ $ts->testSeries->total_test ?? 0 }}
                                         </p>
                                         @php
-                                            // FIXED: Handle validity parsing safely
-                                            $validityStr = $ts->testSeries->validity ?? '3';
-                                            $number = (int) preg_replace('/\D/', '', $validityStr);
-                                            if ($number <= 0) {
-                                                $number = 3; // Default to 3 months if invalid
-                                            }
-                                            $validTill = $ts->created_at->copy()->addMonths($number);
+                                            $number = preg_replace('/\D/', '', $ts->testSeries->validity);
+                                            $validTill = \Carbon\Carbon::parse($ts->created_at->addMonths($number));
                                             $isActive = $validTill->isFuture();
                                             $status = $isActive ? 'Active' : 'Expired';
                                             $badgeClass = $isActive ? 'bg-success' : 'bg-danger';
                                         @endphp
                                         <p class="validity-info mb-0">Valid Till: {{ $validTill->format('d M Y') }}</p>
                                     </div>
-                                    <div class="action-buttons">
+                                    
+                                   <div class="action-buttons d-flex gap-2">
+                                    <span class="badge {{ $badgeClass }} status-badge">{{ $status }}</span>
+
+                                    
+                                    
+                                    <div class="d-flex gap-2">
                                         @if($isActive)
+                                            <!-- View Tests -->
                                             <a href="{{ route('myTestSeries.list', ['id' => $ts->id]) }}" class="btn btn-primary btn-sm">
                                                 <i class="bi bi-eye"></i> View Tests
                                             </a>
-                                        @endif
-                                        <span class="badge {{ $badgeClass }} status-badge">{{ $status }}</span>
+
+                                            <!-- Study Material -->
+                                            <a href="{{ route('testSeries.study-material', $ts->id) }}" class="btn btn-info btn-sm">
+                                                <i class="bi bi-book"></i> Study Material
+                                            </a>
+
+                                           <!-- Self-Paced Videos -->
+                                           <a href="{{ route('testSeries.videos', $ts->id) }}" class="btn btn-warning btn-sm">
+                                         <i class="bi bi-play-circle"></i> Self-Paced Videos
+                                        </a>
+                                            @endif
                                     </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

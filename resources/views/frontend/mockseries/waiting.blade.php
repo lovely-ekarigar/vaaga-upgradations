@@ -7,7 +7,7 @@
   @php $mockExamUrl = url('user/mock-exam/' . $exam->id); @endphp
   <meta http-equiv="refresh" content="3;url={{ $mockExamUrl }}">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
   <style>
     @keyframes fadeIn {
       0% {opacity: 0; transform: translateY(10px);}

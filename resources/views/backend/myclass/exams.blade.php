@@ -10,7 +10,7 @@
 }
 </style>
     @include("frontend.include.user-menu")
-        </div>
+        </div> 
         <div class="col-lg-8 col-xl-9">
           <div class="profile-content-area my-6 card card-body">
             <div class=" mb-6 pb-6">

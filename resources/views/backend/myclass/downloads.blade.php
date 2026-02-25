@@ -14,7 +14,7 @@
                 <div>
                     <table class="table table-nowrap mb-0">
 
-                    <thead>
+                    <thead> 
                     <tr>
 
                    

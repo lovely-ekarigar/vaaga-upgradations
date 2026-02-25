@@ -5,7 +5,7 @@
 @stop
 @section('content')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap4.min.css" />
-<style>
+<style> 
     .progress-container {
         margin-bottom: 30px;
     }
@@ -113,7 +113,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="stats-card success">
-                        <div class="stats-value">{{ $validClassCount+count($test_list) }}</div>
+                        <div class="stats-value">{{ $validClassCount + count($test_list) + (isset($mock_list) ? count($mock_list) : 0) }}</div>
                         <div class="stats-label">Session Delivered</div>
                     </div>
                 </div>
@@ -122,17 +122,22 @@
             <div class="progress-container">
                 <div class="progress-title">Session Completion Progress</div>
                 <div class="progress">
+                    @php
+                        $totalSessions = $batch->total_class + $batch->total_test;
+                        $deliveredSessions = $validClassCount + count($test_list) + (isset($mock_list) ? count($mock_list) : 0);
+                        $sessionProgress = $totalSessions > 0 ? ($deliveredSessions / $totalSessions) * 100 : 0;
+                    @endphp
                     <div class="progress-bar bg-success" role="progressbar" 
-                        style="width: {{ (($validClassCount + count($test_list)) / ($batch->total_class + $batch->total_test)) * 100 }}%" 
-                        aria-valuenow="{{ (($validClassCount + count($test_list)) / ($batch->total_class + $batch->total_test)) * 100 }}" 
+                        style="width: {{ $sessionProgress }}%" 
+                        aria-valuenow="{{ $sessionProgress }}" 
                         aria-valuemin="0" 
                         aria-valuemax="100">
-                        {{ round((($validClassCount + count($test_list)) / ($batch->total_class + $batch->total_test)) * 100) }}%
+                        {{ round($sessionProgress) }}%
                     </div>
                 </div>
                 <div class="d-flex justify-content-between">
-                    <span>Delivered: {{ $validClassCount + count($test_list) }}</span>
-                    <span>Remaining: {{ ($batch->total_class + $batch->total_test) - ($validClassCount + count($test_list)) }}</span>
+                    <span>Delivered: {{ $deliveredSessions }}</span>
+                    <span>Remaining: {{ $totalSessions - $deliveredSessions }}</span>
                 </div>
             </div>
             
@@ -154,12 +159,15 @@
             <div class="progress-container">
                 <div class="progress-title">Live Class Completion Progress</div>
                 <div class="progress">
+                    @php
+                        $liveClassProgress = $batch->total_class > 0 ? ($validClassCount / $batch->total_class) * 100 : 0;
+                    @endphp
                     <div class="progress-bar" role="progressbar" 
-                        style="width: {{ ($validClassCount / $batch->total_class) * 100 }}%" 
-                        aria-valuenow="{{ ($validClassCount / $batch->total_class) * 100 }}" 
+                        style="width: {{ $liveClassProgress }}%" 
+                        aria-valuenow="{{ $liveClassProgress }}" 
                         aria-valuemin="0" 
                         aria-valuemax="100">
-                        {{ round(($validClassCount / $batch->total_class) * 100) }}%
+                        {{ round($liveClassProgress) }}%
                     </div>
                 </div>
                 <div class="d-flex justify-content-between">
@@ -178,7 +186,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="stats-card warning">
-                            <div class="stats-value">{{count($test_list)}}</div>
+                            <div class="stats-value">{{count($test_list) + (isset($mock_list) ? count($mock_list) : 0)}}</div>
                             <div class="stats-label">Tests Conducted</div>
                         </div>
                     </div>
@@ -187,20 +195,24 @@
                 <div class="progress-container">
                     <div class="progress-title">Test Completion Progress</div>
                     <div class="progress">
+                        @php
+                            $totalTestsConducted = count($test_list) + (isset($mock_list) ? count($mock_list) : 0);
+                            $testProgress = $batch->total_test > 0 ? ($totalTestsConducted / $batch->total_test) * 100 : 0;
+                        @endphp
                         <div class="progress-bar bg-warning" role="progressbar" 
-                            style="width: {{ (count($test_list) / $batch->total_test) * 100 }}%" 
-                            aria-valuenow="{{ (count($test_list) / $batch->total_test) * 100 }}" 
+                            style="width: {{ $testProgress }}%" 
+                            aria-valuenow="{{ $testProgress }}" 
                             aria-valuemin="0" 
                             aria-valuemax="100">
-                            {{ round((count($test_list) / $batch->total_test) * 100) }}%
+                            {{ round($testProgress) }}%
                         </div>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span>Conducted: {{count($test_list)}}</span>
-                        @if($batch->total_test - count($test_list)<0)
-                        <span>Over Commitment: {{ -$batch->total_test + count($test_list) }}</span>
+                        <span>Conducted: {{$totalTestsConducted}}</span>
+                        @if($batch->total_test - $totalTestsConducted < 0)
+                        <span>Over Commitment: {{ -$batch->total_test + $totalTestsConducted }}</span>
                         @else
-                        <span>Remaining: {{ $batch->total_test - count($test_list) }}</span>
+                        <span>Remaining: {{ $batch->total_test - $totalTestsConducted }}</span>
                         @endif
                     </div>
                 </div>
@@ -285,7 +297,7 @@
                 </div>
             </div>
 
-            @if($batch->total_test > 0)
+            @if($batch->total_test > 0 || (isset($mock_list) && count($mock_list) > 0))
             <div class="class-history mt-5">
                 <h5 class="mb-3">Test Delivery History</h5>
                 <div class="table-responsive">
@@ -293,6 +305,7 @@
                         <thead class="thead-light">
                             <tr>
                                 <th>#</th>
+                                {{-- <th>Test Name</th> --}}
                                 <th>Date</th>
                                 <th>Status</th>
                                 <th>Duration</th>
@@ -300,32 +313,85 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($test_list as $index=>$test)
+                            @php
+                                $allTests = collect();
+                                
+                                // Add regular tests
+                                foreach($test_list as $test) {
+                                    $allTests->push([
+                                        'type' => 'regular',
+                                        'name' => $test->test ? $test->test->name : 'Test',
+                                        'date' => $test->test_date_time,
+                                        'duration' => $test->test ? $test->test->duration : 0,
+                                        'mytest' => $test->mytest,
+                                        'data' => $test
+                                    ]);
+                                }
+                                
+                                // Add mock tests
+                                if(isset($mock_list)) {
+                                    foreach($mock_list as $mock) {
+                                        $allTests->push([
+                                            'type' => 'mock',
+                                            'name' => $mock->name,
+                                            'date' => $mock->scheduled_at,
+                                            'duration' => $mock->duration,
+                                            'mytest' => $mock->myExam,
+                                            'data' => $mock
+                                        ]);
+                                    }
+                                }
+                                
+                                // Sort by date - newest first
+                         $allTests = $allTests->sortByDesc(function ($item) {
+                        if (empty($item['date'])) {
+                            return 0;
+                           }
+                         try {
+                            return \Carbon\Carbon::parse($item['date'])->timestamp;
+                              } catch (\Exception $e) {
+                             return 0;
+                             }
+                            })->values();
+
+
+                            @endphp
+                            
+                            @foreach($allTests as $index => $test)
                             <tr>
                                 <td>{{$index+1}}</td>
-                                <td>{{ $test ? Carbon::parse($test->test_date_time)->format('M d Y') : '' }} {{ $test ? Carbon::parse($test->test_date_time)->format('h:i A') : '' }}</td>
-                                <td>
-                                    
-                                       @if($test->mytest)
-                                    <span class="badge badge-delivered text-white">Conducted</span>
-                                    @else
-                                      <span class="badge badge-assigned text-white">Assigned</span>
-                                    
+                                {{-- <td>
+                                    {{ $test['name'] }}
+                                    @if($test['type'] == 'mock')
+                                        <span class="badge badge-primary text-white ml-2">Mock</span>
                                     @endif
-                                    
-                                    </td>
-                                <td class="duration-valid">{{ $test->test ? $test->test->duration : '' }} mins</td>
+                                </td> --}}
+                                <td>{{ $test['date'] ? Carbon::parse($test['date'])->format('M d Y h:i A') : '' }}</td>
                                 <td>
-                                    @if($test->mytest)
-                                    <a href="https://exam.vaagaacademy.com/result/{{base64_encode($test->mytest->id)}}" 
-                                       class="btn btn-sm btn-info action-btn" target="_blank">
-                                        <i class="bi bi-file-text"></i> Result
-                                    </a>
-                                    
+                                    @if($test['mytest'])
+                                        <span class="badge badge-delivered text-white">Conducted</span>
                                     @else
-                                    Not Attempted yet
+                                        <span class="badge badge-assigned text-white">Assigned</span>
                                     @endif
-                                    </td>
+                                </td>
+                                <td class="duration-valid">{{ $test['duration'] }} mins</td>
+                                <td>
+                                    @if($test['mytest'])
+                                        @if($test['type'] == 'mock')
+                                            <a href="{{ route('myMockSeries.result', $test['mytest']->id) }}" 
+                                               class="btn btn-sm btn-info action-btn">
+                                                <i class="bi bi-file-text"></i> View Result
+                                            </a>
+                                        @else
+                                            <a href="https://exam.vaagaacademy.com/result/{{base64_encode($test['mytest']->id)}}" 
+                                               class="btn btn-sm btn-info action-btn" target="_blank">
+                                                <i class="bi bi-file-text"></i> Result
+                                            </a>
+                                        @endif
+                                    @else
+                                        Not Attempted yet
+                                    @endif
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>

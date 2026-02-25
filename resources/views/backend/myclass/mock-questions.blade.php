@@ -7,7 +7,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-sm-5">
-                <h4 class="card-title mb-0">
+                <h4 class="card-title mb-0"> 
                     Mock Test Questions
 
                     @if(isset($mockTest))
@@ -18,9 +18,15 @@
 
             <div class="col-sm-7">
                 <div class="btn-toolbar float-right" role="toolbar" aria-label="@lang('labels.general.toolbar_btn_groups')">
-                    <a href="{{ route('admin.myclass') }}" class="btn btn-warning ml-1" data-toggle="tooltip" title="Back to Batches">
-                        <i class="fas fa-arrow-left"></i> Back to Batches
-                    </a>
+                    @if(auth()->user()->hasRole('administrator'))
+                        <a href="{{ route('admin.batch') }}" class="btn btn-warning ml-1" data-toggle="tooltip" title="Back to Batches">
+                            <i class="fas fa-arrow-left"></i> Back to Batches
+                        </a>
+                    @else
+                        <a href="{{ route('admin.myclass') }}" class="btn btn-warning ml-1" data-toggle="tooltip" title="Back to Classes">
+                            <i class="fas fa-arrow-left"></i> Back to Classes
+                        </a>
+                    @endif
                 </div><!--btn-toolbar-->
             </div><!--col-->
         </div><!--row-->
@@ -65,6 +71,11 @@
                                 <h5 class="mb-0">
                                     <i class="fas fa-folder"></i> {{ $section['name'] }}
                                     <span class="badge badge-light float-right">{{ count($section['questions']) }} Questions</span>
+                                    @if(isset($section['difficulty']) && $section['difficulty'])
+                                        <span class="badge badge-warning ml-2">
+                                            <i class="fas fa-signal"></i> {{ ucfirst($section['difficulty']) }}
+                                        </span>
+                                    @endif
                                 </h5>
                             </div>
                             <div class="card-body">
@@ -87,9 +98,10 @@
                                                     @endif
                                                     <button class="btn btn-sm btn-outline-primary ml-2 refresh-question-btn" 
                                                             data-chapter-id="{{ $question->chapter_id }}" 
+                                                            data-section-id="{{ $section['id'] }}"
                                                             data-unique-index="{{ $uniqueIndex }}" 
                                                             data-display-index="{{ $index + 1 }}">
-                                                        <i class="fas fa-sync-alt"></i> Refresh
+                                                        <i class="fas fa-sync-alt"></i> Replace
                                                     </button>
                                                     <button class="btn btn-sm btn-outline-danger ml-2 report-question-btn" 
                                                             data-question-id="{{ $question->id }}"
@@ -254,6 +266,15 @@
     .question-item:hover {
         background-color: #e9ecef;
     }
+    /* Ensure base64 images in questions display properly */
+    .question-text img,
+    .options img,
+    .solution img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 10px 0;
+    }
 </style>
 
 <script>
@@ -270,6 +291,7 @@ $(document).ready(function() {
         
         var button = $(this);
         var chapterId = button.data('chapter-id');
+        var sectionId = button.data('section-id');
         var uniqueIndex = button.data('unique-index');
         var displayIndex = button.data('display-index');
         var container = $('[data-question-container="' + uniqueIndex + '"]');
@@ -277,9 +299,19 @@ $(document).ready(function() {
         // Preserve the original section ID (mock test section, not chapter)
         var originalSectionId = container.attr('data-section-id');
         
-        console.log('Refresh clicked for chapter:', chapterId, 'unique index:', uniqueIndex);
+        // Collect all currently displayed question IDs to exclude them
+        var excludeQuestionIds = [];
+        $('.question-item').each(function() {
+            var qId = $(this).attr('data-question-id');
+            if (qId) {
+                excludeQuestionIds.push(parseInt(qId));
+            }
+        });
+        
+        console.log('Refresh clicked for chapter:', chapterId, 'section:', sectionId, 'unique index:', uniqueIndex);
         console.log('Container found:', container.length);
         console.log('Original section ID:', originalSectionId);
+        console.log('Excluding question IDs:', excludeQuestionIds);
         
         button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Loading...');
         
@@ -288,22 +320,42 @@ $(document).ready(function() {
             type: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
-                chapter_id: chapterId
+                chapter_id: chapterId,
+                section_id: sectionId,
+                exclude_question_ids: excludeQuestionIds
             },
             success: function(response) {
                 console.log('Response received:', response);
                 if(response.success) {
                     var q = response.question;
                     
-                    // Build options HTML
+                    // Debug: Log the question text to see if image is present
+                    console.log('Question text length:', q.question_text ? q.question_text.length : 0);
+                    console.log('Question text preview:', q.question_text ? q.question_text.substring(0, 200) : 'empty');
+                    console.log('Has image tag:', q.question_text ? q.question_text.includes('<img') : false);
+                    
+                    // Check if base64 image data looks complete
+                    if(q.question_text && q.question_text.includes('data:image')) {
+                        var base64Match = q.question_text.match(/data:image\/[^;]+;base64,([^"']+)/);
+                        if(base64Match) {
+                            var base64Length = base64Match[1].length;
+                            console.log('Base64 data length:', base64Length);
+                            if(base64Length < 100) {
+                                console.warn('⚠️ WARNING: Base64 data seems too short, image may be truncated!');
+                            }
+                        }
+                    }
+                    
+                    // Build options HTML structure (without content to avoid truncation)
                     var optionsHtml = '';
                     var options = q.options;
                     
                     // Backend already parsed options to flat array
                     if(options && Array.isArray(options) && options.length > 0) {
-                        optionsHtml = '<div class="options mb-2"><strong>Options:</strong><div class="mt-2">';
+                        optionsHtml = '<div class="options mb-2"><strong>Options:</strong><div class="mt-2 options-container">';
                         options.forEach(function(opt, idx) {
-                            optionsHtml += '<div class="mb-1"><strong>' + String.fromCharCode(65 + idx) + '.</strong> ' + opt + '</div>';
+                            var optionLetter = String.fromCharCode(65 + idx);
+                            optionsHtml += '<div class="mb-1 option-item" data-option-index="' + idx + '"><strong>' + optionLetter + '.</strong> <span class="option-content-' + idx + '"></span></div>';
                         });
                         optionsHtml += '</div></div>';
                     }
@@ -313,9 +365,9 @@ $(document).ready(function() {
                         ? '<div class="mt-2"><strong>Correct Answer:</strong> <span class="badge badge-success">' + q.correct_answer + '</span></div>'
                         : '';
                     
-                    // Build solution HTML
+                    // Build solution HTML structure (without content)
                     var solutionHtml = q.solution 
-                        ? '<div class="solution mt-2"><strong>Solution:</strong><div class="p-2 bg-light rounded mt-1">' + q.solution + '</div></div>'
+                        ? '<div class="solution mt-2"><strong>Solution:</strong><div class="p-2 bg-light rounded mt-1 solution-content"></div></div>'
                         : '';
                     
                     // Build difficulty HTML
@@ -323,37 +375,71 @@ $(document).ready(function() {
                         ? '<div class="mt-2"><strong>Difficulty:</strong> <span class="badge badge-warning">' + q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1) + '</span></div>'
                         : '';
                     
-                    // Update container content
-                    var newContent = `
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="mb-0">
-                                <span class="badge badge-secondary">Question ${displayIndex}</span>
-                            </h6>
-                            <div>
-                                ${q.marks ? '<span class="badge badge-info">' + q.marks + ' Marks</span>' : ''}
-                                <button class="btn btn-sm btn-outline-primary ml-2 refresh-question-btn" 
-                                        data-chapter-id="${q.chapter_id}" 
-                                        data-unique-index="${uniqueIndex}" 
-                                        data-display-index="${displayIndex}">
-                                    <i class="fas fa-sync-alt"></i> Refresh
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger ml-2 report-question-btn" 
-                                        data-question-id="${q.id}"
-                                        title="Report this question">
-                                    <i class="fas fa-flag"></i> Report
-                                </button>
-                            </div>
-                        </div>
-                        <div class="question-text mb-3">
-                            <strong>Q:</strong> ${q.question_text}
-                        </div>
-                        ${optionsHtml}
-                        ${answerHtml}
-             
-                        ${difficultyHtml}
-                    `;
+                    // Build the structure first with placeholders
+                    var structureHtml = 
+                        '<div class="d-flex justify-content-between align-items-start mb-2">' +
+                            '<h6 class="mb-0">' +
+                                '<span class="badge badge-secondary">Question ' + displayIndex + '</span>' +
+                            '</h6>' +
+                            '<div>' +
+                                (q.marks ? '<span class="badge badge-info">' + q.marks + ' Marks</span>' : '') +
+                                '<button class="btn btn-sm btn-outline-primary ml-2 refresh-question-btn" ' +
+                                        'data-chapter-id="' + q.chapter_id + '" ' +
+                                        'data-section-id="' + sectionId + '" ' +
+                                        'data-unique-index="' + uniqueIndex + '" ' +
+                                        'data-display-index="' + displayIndex + '">' +
+                                    '<i class="fas fa-sync-alt"></i> Replace' +
+                                '</button>' +
+                                '<button class="btn btn-sm btn-outline-danger ml-2 report-question-btn" ' +
+                                        'data-question-id="' + q.id + '" ' +
+                                        'title="Report this question">' +
+                                    '<i class="fas fa-flag"></i> Report' +
+                                '</button>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="question-text mb-3">' +
+                            '<strong>Q:</strong> <span class="question-content-placeholder"></span>' +
+                        '</div>' +
+                        optionsHtml +
+                        answerHtml +
+                        solutionHtml +
+                        difficultyHtml;
                     
-                    container.html(newContent);
+                    // Replace the container content
+                    container.html(structureHtml);
+                    
+                    // Immediately inject content using DOM manipulation (more reliable than setTimeout)
+                    var $questionContent = container.find('.question-content-placeholder');
+                    if($questionContent.length > 0) {
+                        // Use jQuery to properly inject HTML with images
+                        $questionContent.replaceWith($('<span class="question-content">').html(q.question_text));
+                        console.log('✓ Question text injected');
+                    } else {
+                        console.error('✗ Could not find question content placeholder');
+                    }
+                    
+                    // Inject options content
+                    if(options && Array.isArray(options) && options.length > 0) {
+                        options.forEach(function(opt, idx) {
+                            var $optEl = container.find('.option-content-' + idx);
+                            if($optEl.length > 0) {
+                                $optEl.html(opt);
+                                console.log('✓ Option ' + idx + ' injected');
+                            } else {
+                                console.error('✗ Could not find option element ' + idx);
+                            }
+                        });
+                    }
+                    
+                    // Inject solution content
+                    if(q.solution) {
+                        var $solEl = container.find('.solution-content');
+                        if($solEl.length > 0) {
+                            $solEl.html(q.solution);
+                            console.log('✓ Solution injected');
+                        }
+                    }
+                    
                     // Update data attributes with new question
                     container.attr('data-question-id', q.id);
                     // Keep the original section ID (don't replace with chapter_id)
@@ -413,12 +499,16 @@ $(document).ready(function() {
             }
         });
         
-        // Get the scheduled date
+        // Get the scheduled date, default to today if empty
         var scheduledDate = $('#scheduled_date').val();
         if (!scheduledDate) {
-            alert('Please select a date for the mock test.');
-            $('#scheduled_date').focus();
-            return false;
+            // Automatically set to current date
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = String(today.getMonth() + 1).padStart(2, '0');
+            var day = String(today.getDate()).padStart(2, '0');
+            scheduledDate = year + '-' + month + '-' + day;
+            console.log('No date selected, using current date:', scheduledDate);
         }
         
         // Check if we have questions data

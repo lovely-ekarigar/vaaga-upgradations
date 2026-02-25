@@ -1,7 +1,7 @@
 @extends('backend.layouts.app')
 
 @section('title')
-<title>Batch Live Tracking | {{ env('APP_NAME') }}</title>
+<title>Batch Live Tracking | {{ env('APP_NAME') }}</title> 
 @stop
 
 @section('content')

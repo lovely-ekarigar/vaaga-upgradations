@@ -4,7 +4,7 @@ use App\Models\StudentCommitment;
 
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>{{$course->title}} | {{env('APP_NAME')}}</title>
+<title>{{$course->title}} | {{env('APP_NAME')}}</title> 
 @stop
 @section('content')
 <style>
@@ -203,6 +203,8 @@ use App\Models\StudentCommitment;
                                                     <a class="btn btn-primary btn-sm" href="/user/assignments/{{$b->id}}">Assignments</a>
                                                     <a class="btn btn-success btn-sm" href="/user/sexams/{{$b->id}}">Subjective Exams</a>
                                                     <a class="btn btn-danger btn-sm" href="/user/pastClass/{{$b->id}}">Class History</a>
+                                                    
+                                                     <a class="btn btn-secondary btn-sm" href="{{route('study-material',['id'=>$b['id']])}}">Study Material</a>
                                                     <a class="btn btn-info btn-sm" href="/user/commitment/{{$b->id}}">Course Progress</a>
                                                 </div>
                                             @endif

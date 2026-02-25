@@ -45,8 +45,10 @@ class MarketingController extends Controller
         }
         
         // Get data for dropdowns - use withTrashed() to bypass soft delete issues
-        $campaigns = MarketingCampaign::withTrashed()->latest()->get();
-        $lists = MarketingList::withTrashed()->get();
+        //$campaigns = MarketingCampaign::withTrashed()->latest()->get();
+        //$lists = MarketingList::withTrashed()->get();
+        $campaigns = MarketingCampaign::latest()->get();
+$lists = MarketingList::all();
         $courses = Course::where('published', 1)->get();
         
         // Get unique values for filters (from existing leads) - only if leads exist

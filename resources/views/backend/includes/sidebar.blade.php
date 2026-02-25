@@ -209,7 +209,7 @@ use App\Models\UserNotification;
                             <li class="nav-item">
                                 <a class="nav-link {{ $request->segment(2) == 'mock' ? 'active' : '' }}"
                                     href="{{ route('mockseries.index') }}">
-                                    <span class="title">Mock Series</span>
+                                    <span class="title">Mock Tests</span>
                                 </a>
                             </li>
                         @endcan

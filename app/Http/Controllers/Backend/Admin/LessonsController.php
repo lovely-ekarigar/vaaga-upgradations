@@ -17,13 +17,15 @@ use App\Http\Requests\Admin\StoreLessonsRequest;
 use App\Http\Requests\Admin\UpdateLessonsRequest;
 use App\Services\MediaUploadService;
 use Yajra\DataTables\Facades\DataTables;
+use App\Http\Controllers\Traits\FileUploadTrait;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
 
 class LessonsController extends Controller
 {
+    use FileUploadTrait;
     protected MediaUploadService $mediaUploadService;
-
+    
     public function __construct(MediaUploadService $mediaUploadService)
     {
         $this->mediaUploadService = $mediaUploadService;
@@ -182,58 +184,126 @@ class LessonsController extends Controller
      * @param  \App\Http\Requests\StoreLessonsRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreLessonsRequest $request)
-    {
-        if (!Gate::allows('lesson_create')) {
-            return abort(401);
-        }
-
-        // Create lesson
-        $position = Lesson::where('course_id', $request->course_id)->max('position') + 1;
-        $lesson = Lesson::create($request->except('downloadable_files', 'lesson_image') + ['position' => $position]);
-
-        // Handle lesson image upload
-        if ($request->hasFile('lesson_image')) {
-            $lesson->lesson_image = $this->uploadImage($request->file('lesson_image'));
-            $lesson->save();
-        }
-
-        // Handle video media
-        $this->handleVideoMedia($request, $lesson);
-
-        // Handle PDF upload
-        if ($request->hasFile('add_pdf')) {
-            $this->mediaUploadService->uploadPDF($request->file('add_pdf'), Lesson::class, $lesson->id, $lesson->title . ' - PDF');
-        }
-
-        // Handle Audio upload
-        if ($request->hasFile('add_audio')) {
-            $this->mediaUploadService->uploadAudio($request->file('add_audio'), Lesson::class, $lesson->id, $lesson->title . ' - Audio');
-        }
-
-        // Handle downloadable files
-        $this->handleDownloadableFiles($request, $lesson);
-
-        // Update lesson details
-        $lesson->content_id = trim($request->content_id ?? '');
-        $lesson->free_lesson = $request->boolean('free_lesson');
-        $lesson->published = $request->boolean('published');
-        $lesson->duration = $request->duration;
-        
-        if (!$request->filled('slug')) {
-            $lesson->slug = Str::slug($request->title);
-        }
-        
-        $lesson->save();
-
-        // Update course timeline
-        $this->updateCourseTimeline($lesson, $request->course_id);
-
-        return redirect()
-            ->route('admin.lessons.index', ['course_id' => $request->course_id])
-            ->withFlashSuccess(__('alerts.backend.general.created'));
+  public function store(StoreLessonsRequest $request)
+{
+    if (!Gate::allows('lesson_create')) {
+        return abort(401);
     }
 
+    // Create Lesson
+    $lesson = Lesson::create($request->except('downloadable_files', 'lesson_image')
+        + ['position' => Lesson::where('course_id', $request->course_id)->max('position') + 1]);
+
+    // Saving videos
+    if ($request->media_type != "") {
+        $model_type = Lesson::class;
+        $model_id = $lesson->id;
+        $name = $lesson->title . ' - video';
+        $media = null;
+        $url = '';
+        $video_id = '';
+
+        if (in_array($request->media_type, ['youtube', 'vimeo'])) {
+
+            $videos = (array) $request->video;
+            $videos = array_filter($videos, fn($v) => trim($v) !== '');
+
+            foreach ($videos as $video) {
+                $video_id = collect(explode('/', $video))->last();
+
+                $media = Media::where([
+                    ['url', $video_id],
+                    ['type', $request->media_type],
+                    ['model_type', Lesson::class],
+                    ['model_id', $lesson->id]
+                ])->first();
+
+                if (!$media) {
+                    $media = new Media();
+                    $media->model_type = Lesson::class;
+                    $media->model_id = $lesson->id;
+                    $media->name = $name;
+                    $media->url = $video;
+                    $media->type = $request->media_type;
+                    $media->file_name = $video_id;
+                    $media->size = 0;
+                    $media->save();
+                }
+            }
+
+        } elseif ($request->media_type == 'upload') {
+            if ($request->hasFile('video_file')) {
+                $file = $request->file('video_file');
+                $filename = time() . '-' . $file->getClientOriginalName();
+                $file->move(public_path('storage/uploads/'), $filename);
+
+                $video_id = $filename;
+                $url = asset('storage/uploads/' . $filename);
+
+                $media = Media::where([
+                    ['type', $request->media_type],
+                    ['model_type', Lesson::class],
+                    ['model_id', $lesson->id]
+                ])->first();
+
+                if (!$media) {
+                    $media = new Media();
+                    $media->model_type = Lesson::class;
+                    $media->model_id = $lesson->id;
+                    $media->name = $name;
+                    $media->url = $url;
+                    $media->type = $request->media_type;
+                    $media->file_name = $video_id;
+                    $media->size = $file->getSize() / 1024;
+                    $media->save();
+                }
+            }
+        } elseif ($request->media_type == 'embed') {
+            $url = $request->video;
+            $video_id = '';
+            $media = new Media();
+            $media->model_type = Lesson::class;
+            $media->model_id = $lesson->id;
+            $media->name = $name;
+            $media->url = $url;
+            $media->type = $request->media_type;
+            $media->file_name = $video_id;
+            $media->size = 0;
+            $media->save();
+        }
+    }
+
+    // Save files (PDF, DOC, etc.)
+    $request = $this->saveAllFiles($request, 'downloadable_files', Lesson::class, $lesson);
+    $request = $this->saveAllFiles($request, 'add_pdf', Lesson::class, $lesson);
+
+    // Set lesson properties
+    $lesson->content_id = trim($request->content_id);
+    $lesson->free_lesson = (int)$request->free_lesson === 1 ? 1 : 0;
+    $lesson->duration = $request->duration;
+    if (empty($request->slug)) {
+        $lesson->slug = \Str::slug($request->title);
+    }
+    $lesson->save();
+
+    // Timeline sequence
+    $sequence = $lesson->course->courseTimeline->count() > 0 
+        ? $lesson->course->courseTimeline->max('sequence') + 1 
+        : 1;
+
+    if ($lesson->published == 1) {
+        $timeline = CourseTimeline::firstOrNew([
+            'model_type' => Lesson::class,
+            'model_id' => $lesson->id,
+            'course_id' => $request->course_id
+        ]);
+        $timeline->sequence = $sequence;
+        $timeline->save();
+    }
+
+    return redirect()->route('admin.lessons.index', ['course_id' => $request->course_id])
+        ->withFlashSuccess(__('alerts.backend.general.created'));
+}
     /**
      * Show the form for editing Lesson.
      *

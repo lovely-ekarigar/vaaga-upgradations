@@ -254,9 +254,19 @@ Route::delete('leads/{lead}', [MarketingController::class, 'destroyLead'])->name
 
 
   Route::get('purchase/test-series', [TestSeriesController::class, 'purchaseList'])->name('testseries.purchaseList'); 
+// shruti
 
+ Route::get('test-series/{testSeries}/study-material', [TestSeriesController::class, 'studyMaterial'])
+     ->name('testSeries.study-material');
 
- 
+Route::get('lesson/{lesson}/materials', [TestSeriesController::class, 'lessonMaterials'])
+     ->name('lesson.materials');
+
+Route::get('/test-series/{id}/videos', [TestSeriesController::class, 'videos'])
+    ->name('testSeries.videos');
+
+Route::get('/lesson/{lessonId}/videos', [TestSeriesController::class, 'lessonVideos'])
+    ->name('lesson.videos');
 
   Route::get('question/report', [TestSeriesController::class, 'questionReport'])->name('testseries.questionReport'); 
 
@@ -443,13 +453,15 @@ Route::get('user/exam/result/{id}', [TestSeriesController::class, 'examResult'])
 
 // Mock Test Series Routes (attempt route must be before list so /x/y/attempt is not matched as list /x)
 Route::get('user/my-mock-series', [MockSeriesController::class, 'myMockSeries'])->name('myMockSeries.index');
+Route::get(
+    'user/mock-exam/waiting/{mock_id}/{batch_mock_test_id}',
+    [MockSeriesController::class, 'waitingMockExam']
+    )->name('myMockSeries.waiting');
 Route::get('user/my-mock-series/{mock_id}/{batch_mock_test_id}/attempt', [MockSeriesController::class, 'myMockAttempt'])->name('myMockSeries.myAttempt');
 Route::get('user/my-mock-series/{id}', [MockSeriesController::class, 'myMockList'])->name('myMockSeries.list');
 Route::get('user/mock-attempt/{id}', [MockSeriesController::class, 'startMockExam'])->name('myMockSeries.startExam');
 Route::get('user/mock-exam/{id}', [MockSeriesController::class, 'takeMockExam'])->name('myMockSeries.takeExam');
 Route::post('user/submit-mock-exam', [MockSeriesController::class, 'submitMockExam'])->name('myMockSeries.submitExam');
-Route::get('user/mock-exam-result/{id}', [MockSeriesController::class, 'mockExamResult'])->name('myMockSeries.result');
-Route::get('user/mock-exam-answer-key/{id}', [MockSeriesController::class, 'mockExamAnswerKey'])->name('myMockSeries.answerKey');
 Route::get('user/mock-thank-you', [MockSeriesController::class, 'mockThankYou'])->name('myMockSeries.thankYou');
 
 // Tutor Mock Test Routes
@@ -476,6 +488,11 @@ Route::group(['prefix' => 'user/student/mocktests', 'as' => 'student.mocktests.'
 
 
 });
+
+// PUBLIC ROUTES: Mock exam result and answer key accessible without authentication
+Route::get('user/mock-exam-result/{id}', [MockSeriesController::class, 'mockExamResult'])->name('myMockSeries.result');
+Route::get('user/mock-exam-answer-key/{id}', [MockSeriesController::class, 'mockExamAnswerKey'])->name('myMockSeries.answerKey');
+
 Route::post('payment/success', [CoursesController::class, 'successPay'])->name('courses.successPay');
 Route::post('payment/fail', [CoursesController::class, 'failedPay'])->name('courses.failedPay');
 Route::get('certificates', [FrontendCertificateController::class, 'getCertificates'])->name('certificates.index');
@@ -541,6 +558,22 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('video/progress', [LessonsController::class, 'videoProgress'])->name('update.videos.progress');
     Route::post('lesson/progress', [LessonsController::class, 'courseProgress'])->name('update.course.progress');
 });
+
+
+// shruti
+
+
+Route::get('study-material/{id}', [MyclassController::class, 'studyMaterial'])
+    ->name('study-material');
+
+Route::get('/user/view-material/{lesson_id}/{batch_id}', [MyclassController::class, 'viewMaterial'])
+    ->name('view-material');
+
+Route::get('/lesson-pdf/{id}', [MyclassController::class, 'viewPdf'])
+    ->name('lesson.pdf.view');
+    
+    
+    
 
 Route::get('/search', [HomeController::class, 'searchCourse'])->name('search');
 Route::get('/search-course', [HomeController::class, 'searchCourse'])->name('search-course');

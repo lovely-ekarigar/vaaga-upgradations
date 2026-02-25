@@ -9,7 +9,7 @@
     }
 </style>
 
-<div class="card">
+<div class="card"> 
     <div class="card-header">
         <h3 class="page-title float-left mb-0">{{$batch->name}} Upload Subjective Exam</h3>
 

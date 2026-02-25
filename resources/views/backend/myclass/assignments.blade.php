@@ -1,7 +1,7 @@
 @extends('frontend.layout.sub-master')
 @section('title')
 <title>Assignments for {{$batch->name}} | {{env('APP_NAME')}}</title>
-@stop
+@stop 
 @section('content')
 <style type="text/css">
   .badge-success {

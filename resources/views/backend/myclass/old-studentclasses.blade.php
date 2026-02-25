@@ -11,7 +11,7 @@
           
         </div>
         <div class="card-body">
-          <div class="row">
+          <div class="row"> 
          
 @foreach($batchlist as $b)
 <div class="col-md-6 col-lg-6 col-xl-4">

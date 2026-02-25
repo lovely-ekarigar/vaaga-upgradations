@@ -22,57 +22,49 @@ class StoreLessonsRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
-        return [
-            'course_id' => ['required', 'exists:courses,id'],
-            'title' => ['required', 'string', 'max:191'],
-            'slug' => ['nullable', 'string', 'max:191', 'unique:lessons,slug'],
-            'short_text' => ['nullable', 'string', 'max:500'],
-            'full_text' => ['nullable', 'string'],
-            'position' => ['nullable', 'integer', 'min:0'],
-            'free_lesson' => ['nullable', 'boolean'],
-            'published' => ['nullable', 'boolean'],
-            'content_id' => ['nullable', 'exists:course_contents,id'],
-            'duration' => ['nullable', 'string', 'max:50'],
-            'lesson_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
-            
-            // Video media validation
-            'media_type' => ['nullable', Rule::in(['youtube', 'vimeo', 'upload', 'embed', ''])],
-            'video' => ['nullable', 'required_if:media_type,youtube,vimeo,embed', 'url'],
-            'video_file' => [
-                'nullable',
-                'required_if:media_type,upload',
-                'file',
-                'mimes:mp4,avi,mov,webm,mkv',
-                'max:512000' // 500MB
-            ],
-            
-            // PDF validation
-            'add_pdf' => [
-                'nullable',
-                'file',
-                'mimes:pdf',
-                'max:51200' // 50MB
-            ],
-            
-            // Audio validation
-            'add_audio' => [
-                'nullable',
-                'file',
-                'mimes:mp3,wav,ogg,m4a',
-                'max:51200' // 50MB
-            ],
-            
-            // Downloadable files validation
-            'downloadable_files' => ['nullable', 'array'],
-            'downloadable_files.*' => [
-                'file',
-                'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,mp4,mp3,jpg,jpeg,png',
-                'max:51200' // 50MB per file
-            ],
-        ];
-    }
+   public function rules(): array
+{
+    return [
+        'course_id' => ['required', 'exists:courses,id'],
+        'title' => ['required', 'string', 'max:191'],
+        'slug' => ['nullable', 'string', 'max:191', 'unique:lessons,slug'],
+        'short_text' => ['nullable', 'string', 'max:500'],
+        'full_text' => ['nullable', 'string'],
+        'position' => ['nullable', 'integer', 'min:0'],
+        'free_lesson' => ['nullable', 'boolean'],
+        'published' => ['nullable', 'boolean'],
+        'content_id' => ['nullable', 'exists:course_contents,id'],
+        'duration' => ['nullable', 'string', 'max:50'],
+        'lesson_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+
+        // Video media validation
+        'media_type' => ['nullable', Rule::in(['youtube', 'vimeo', 'upload', 'embed', ''])],
+        'video' => ['nullable', 'array'],
+        'video.*' => ['required_if:media_type,youtube,vimeo,embed','url'],
+        'video_file' => [
+            'nullable',
+            'required_if:media_type,upload',
+            'file',
+            'mimes:mp4,avi,mov,webm,mkv',
+            'max:512000' // 500MB
+        ],
+
+        // PDF validation (multiple files)
+        'add_pdf' => ['nullable','array'],
+        'add_pdf.*' => ['file','mimes:pdf,doc,docx,xls,xlsx,ppt,pptx','max:51200'], // 50MB per file
+
+        // Audio validation
+        'add_audio' => ['nullable','file','mimes:mp3,wav,ogg,m4a','max:51200'],
+
+        // Downloadable files validation
+        'downloadable_files' => ['nullable','array'],
+        'downloadable_files.*' => [
+            'file',
+            'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,mp4,mp3,jpg,jpeg,png',
+            'max:51200' // 50MB per file
+        ],
+    ];
+}
 
     /**
      * Get custom error messages
@@ -105,19 +97,31 @@ class StoreLessonsRequest extends FormRequest
     /**
      * Prepare the data for validation.
      */
-    protected function prepareForValidation(): void
-    {
-        // Convert checkbox values to boolean
-        $this->merge([
-            'free_lesson' => $this->boolean('free_lesson'),
-            'published' => $this->boolean('published'),
-        ]);
+   protected function prepareForValidation(): void
+{
+    // Convert checkbox values to boolean
+    $this->merge([
+        'free_lesson' => $this->boolean('free_lesson'),
+        'published' => $this->boolean('published'),
+    ]);
 
-        // Generate slug if not provided
-        if (!$this->filled('slug') && $this->filled('title')) {
-            $this->merge([
-                'slug' => \Illuminate\Support\Str::slug($this->input('title')),
-            ]);
-        }
+    // Generate slug if not provided
+    if (!$this->filled('slug') && $this->filled('title')) {
+        $this->merge([
+            'slug' => \Illuminate\Support\Str::slug($this->input('title')),
+        ]);
     }
+
+    // Ensure video is an array and remove empty values
+    $videos = (array) $this->input('video', []);
+    $videos = array_filter($videos, fn($v) => trim($v) !== '');
+    $this->merge(['video' => $videos]);
+
+    // Ensure add_pdf is an array even if single file
+    if ($this->hasFile('add_pdf')) {
+        $pdfs = $this->file('add_pdf');
+        $pdfs = is_array($pdfs) ? $pdfs : [$pdfs];
+        $this->files->set('add_pdf', $pdfs);
+    }
+}
 }

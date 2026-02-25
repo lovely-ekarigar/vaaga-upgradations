@@ -9,7 +9,7 @@ use App\Models\Batch;
 @section('content')
 
  
-    <div class="card">
+    <div class="card"> 
         <div class="card-header">
             <h3 class="page-title float-left mb-0">Tutor Fees for {{$batch->name}}</h3>
 

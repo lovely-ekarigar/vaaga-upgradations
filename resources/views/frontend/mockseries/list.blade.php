@@ -2,7 +2,7 @@
 @section('title')
 <title>{{ $batchMockTest->mockSeries->name ?? 'Mock Tests' }} | {{ env('APP_NAME') }}</title>
 @stop
-
+ 
 @section('content')
 <style>
     .test-card {

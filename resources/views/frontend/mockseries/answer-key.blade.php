@@ -5,7 +5,7 @@
 
 @section('content')
 <style>
-    .answer-key-card {
+    .answer-key-card { 
         border: 1px solid #e0e0e0;
         border-radius: 12px;
         padding: 2rem;
@@ -46,14 +46,17 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        min-width: 40px;
         width: 40px;
         height: 40px;
+        min-height: 40px;
         border-radius: 50%;
         background: #667eea;
         color: white;
         font-weight: 700;
         font-size: 1.1rem;
         margin-right: 1rem;
+        flex-shrink: 0;
     }
     
     .question-card.correct .question-number {
@@ -144,11 +147,38 @@
         border-bottom: 2px solid #e9ecef;
         margin-bottom: 1.5rem;
     }
+    
+    
+    
+    @media (max-width: 576px) {
+        .question-number {
+            min-width: 35px;
+            width: 35px;
+            height: 35px;
+            min-height: 35px;
+            font-size: 1rem;
+            margin-right: 0.75rem;
+        }
+        
+        .question-card {
+            padding: 1rem;
+        }
+        
+        .option-item {
+            padding: 0.75rem;
+        }
+    }
 </style>
 
+@auth
 @include("frontend.include.user-menu")
 </div>
 <div class="col-lg-8 col-xl-9">
+@else
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+@endauth
     <div class="profile-content-area my-6 card card-body">
         <div class="mb-6 pb-6">
             @include('includes.partials.messages')
@@ -274,8 +304,14 @@
             </div>
         </div>
     </div>
+@auth
 </div>
 </div></div>
+@else
+        </div>
+    </div>
+</div>
+@endauth
 @stop
 
 @section('page_js')

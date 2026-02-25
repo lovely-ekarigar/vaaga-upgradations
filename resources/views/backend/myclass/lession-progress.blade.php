@@ -9,7 +9,7 @@
         <div class="col-lg-8 col-xl-9">
           <div class="profile-content-area my-6 card card-body">
             <div class="border-bottom mb-6 pb-6">
-              <div class="row">
+              <div class="row"> 
                 <div class="col-md-8">
                   <h3 class="mb-2">@lang('strings.backend.dashboard.welcome') {{ $logged_in_user->name }}!</h3>
                 </div>

@@ -2,7 +2,7 @@
 @extends('backend.layouts.app')
 @section('title','Batch list'.' | '.app_name())
 
-@section('content')
+@section('content') 
 
     <style>
         .select2-container--default .select2-selection--multiple .select2-selection__rendered {

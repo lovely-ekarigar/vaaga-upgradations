@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
 
  
-    <div class="card">
+    <div class="card"> 
         <div class="card-header">
             <h3 class="page-title float-left mb-0">My availability</h3>
 

@@ -4,7 +4,7 @@
 @stop
 @section('content')
 <style type="text/css">
-    
+     
     .badge-primary {
     color: #fff;
     background-color: #007bff;

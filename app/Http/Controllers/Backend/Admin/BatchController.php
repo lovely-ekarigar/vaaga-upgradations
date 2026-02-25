@@ -17,11 +17,13 @@ use App\Models\Lesson;
 use App\Models\CourseContent;
 use App\Models\LessionComplete;
 use App\Models\Certificate;
+use App\Models\StudentCommitment;
+
+
 use Carbon\Carbon;
 use App\Models\Recording;
 use App\Models\StudentTeacherBatch;
 use App\Models\OauthClient;
-use App\Models\StudentCommitment;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Session;
@@ -55,6 +57,22 @@ class BatchController extends Controller
    {
       $batch_list = Batch::find($id);
 
+      $busers = StudentTeacherBatch::where("bid",$id)->get();
+       
+       $userProgress=[];
+       
+       foreach($busers as $bu){
+           
+           $user = User::find($bu->uid);
+           $bu->user = $user;
+           
+           $commit = StudentCommitment::where("batch_id",$id)->where("student_id",$bu->uid)->first();
+           $bu->commit = $commit;
+           
+           $userProgress[] = $bu;
+           
+       }
+
         $course_content_list = CourseContent::where('course_id',$batch_list->cid)->get();
 
             $list=array();
@@ -69,27 +87,11 @@ class BatchController extends Controller
             }
 
             $lession_complete_list = LessionComplete::where('batch_id',$batch_list->id)->get();
-
-            // Get students enrolled in this batch with their commitments (read-only for teachers)
-            $students = [];
-            $studentBatches = StudentTeacherBatch::where('bid', $id)->get();
-            
-            foreach($studentBatches as $sb){
-                $student = User::find($sb->uid);
-                if($student){
-                    $commitment = StudentCommitment::where('student_id', $student->id)
-                        ->where('batch_id', $id)
-                        ->first();
-                    
-                    $student->commitment = $commitment;
-                    $students[] = $student;
-                }
-            }
-
-            return view('backend.batch.batch-progress',compact('list','lession_complete_list', 'students', 'batch_list'));
+// dd($lession_complete_list);
+            return view('backend.batch.batch-progress',compact('list','lession_complete_list','userProgress'));
    }
 
-   public function batchisCompleted($id)
+   public function batchisCompleted($id) 
    {
        $batch_list = Batch::find($id);
        $batch_list->is_completed = '1';
@@ -170,6 +172,26 @@ class BatchController extends Controller
    public function batchprogressList($id)
    {
        $batch_list = Batch::find($id);
+       
+       
+       $busers = StudentTeacherBatch::where("bid",$id)->get();
+       
+       $userProgress=[];
+       
+       foreach($busers as $bu){
+           
+           $user = User::find($bu->uid);
+           $bu->user = $user;
+           
+           $commit = StudentCommitment::where("batch_id",$id)->where("student_id",$bu->uid)->first();
+           $bu->commit = $commit;
+           
+           $userProgress[] = $bu;
+           
+       }
+       
+       
+    //   StudentCommitment
 
         $course_content_list = CourseContent::where('course_id',$batch_list->cid)->get();
 
@@ -186,25 +208,39 @@ class BatchController extends Controller
 
             $lession_complete_list = LessionComplete::where('batch_id',$batch_list->id)->get();
 
-            // Get students enrolled in this batch with their commitments
-            $students = [];
-            $studentBatches = StudentTeacherBatch::where('bid', $id)->get();
-            
-            foreach($studentBatches as $sb){
-                $student = User::find($sb->uid);
-                if($student){
-                    // Get or create student commitment
-                    $commitment = StudentCommitment::where('student_id', $student->id)
-                        ->where('batch_id', $id)
-                        ->first();
-                    
-                    $student->commitment = $commitment;
-                    $students[] = $student;
-                }
+            return view('backend.batch.batch-progress',compact('list','lession_complete_list','userProgress','id'));
+   }
+   
+public function updatebatchprogressList($id, Request $request)
+{
+    if ($request->has('commitments')) {
+        foreach ($request->commitments as $studentId => $data) {
+
+            // Try to find an existing commitment
+            $commitment = StudentCommitment::where('batch_id', $id)
+                ->where('student_id', $studentId)
+                ->first();
+
+            if (!$commitment) {
+                // Create a new one if it doesn't exist
+                $commitment = new StudentCommitment();
+                $commitment->batch_id = $id;
+                $commitment->student_id = $studentId;
             }
 
-            return view('backend.batch.batch-progress',compact('list','lession_complete_list', 'students', 'batch_list'));
-   }
+            // Assign values from form
+            $commitment->total_class = $data['total_class'] ?? 0;
+            $commitment->total_test  = $data['total_test'] ?? 0;
+            $commitment->joining_date  = $data['joining_date'] ?? null;
+            $commitment->completion_date  = $data['completion_date'] ?? null;
+
+            // Save to database
+            $commitment->save();
+        }
+    }
+
+    return redirect()->back()->with('success', 'Batch commitments updated successfully.');
+}
 
 
 public function onesignal(Request $request){
@@ -295,7 +331,8 @@ public function updateBatch(Request $request){
             $b->end_date=$request->endbatchdate;
             $b->start_time=$request->sbatchtime;
             $b->end_time=$request->ebatchtime;
-            
+            // $b->total_class=$request->total_class;
+            // $b->total_test=$request->total_test;
             $b->occur=json_encode($request->occurance);
 
             $b->update();
@@ -346,6 +383,8 @@ $mid=$x['meetingID'];
             $b->end_date=$request->endbatchdate;
             $b->start_time=$request->sbatchtime;
             $b->end_time=$request->ebatchtime;
+            // $b->total_class=$request->total_class;
+            // $b->total_test=$request->total_test;
             $b->api_class_id=$mid;
             $b->parent_api_class_id=$mid;
             $b->occur=json_encode($request->occurance);
@@ -570,147 +609,259 @@ $teacher = User::find($request->teachersid);
 }
 
     /**
-     * Update batch progress list
-     */
-    public function updatebatchprogressList($id, Request $request)
-    {
-        $commitments = $request->input('commitments', []);
-        
-        foreach($commitments as $studentId => $data){
-            // Find or create student commitment
-            $commitment = StudentCommitment::firstOrNew([
-                'student_id' => $studentId,
-                'batch_id' => $id
-            ]);
-            
-            $commitment->total_classes = $data['total_classes'] ?? 30;
-            $commitment->total_tests = $data['total_tests'] ?? 8;
-            $commitment->joining_date = $data['joining_date'] ?? null;
-            $commitment->completion_date = $data['completion_date'] ?? null;
-            $commitment->save();
-        }
-        
-        return redirect()->back()->withFlashSuccess('Student commitments saved successfully');
-    }
-
-    /**
-     * Get available mock tests for a batch
+     * Show available mock tests for a batch (Admin View)
+     * Shows ALL mock tests for the course - NO chapter progress filter
+     * Admin can select any mock test to assign to the batch
      */
     public function availableMockTests($id)
     {
-        $batch = \App\Models\Batch::find($id);
+        $batch = Batch::findOrFail($id);
+        $course = Course::find($batch->cid);
         
-        if (!$batch) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Batch not found'
-            ], 404);
-        }
+        // Get batch course ID
+        $courseId = $batch->cid;
         
-        $course = \App\Models\Course::find($batch->cid);
-        $courseName = $course ? $course->title : 'Unknown Course';
+        // Get completed lesson/chapter IDs for this batch (for display purposes only)
+        $completedLessonIds = \App\Models\LessionComplete::where('batch_id', $id)
+            ->where('status', 'completed')
+            ->pluck('lession_id')
+            ->toArray();
         
-        // Get mock series for this course
-        $mockSeries = \App\Models\MockSeries::where('course_id', $batch->cid)
-            ->where('status', '1')
-            ->with(['mockList' => function($query) {
-                $query->where('status', 'active');
-            }])
+        // First, get all mock series for this course
+        $mockSeriesIds = DB::table('mock_series')
+            ->where('course_id', $courseId)
+            ->pluck('id')
+            ->toArray();
+        
+        // Get ALL mock tests from mock_list table - NO FILTERING by chapter progress
+        // Admin can assign any mock test regardless of batch progress
+        $mockTests = DB::table('mock_list')
+            ->join('mock_series', 'mock_series.id', '=', 'mock_list.mock_series_id')
+            ->whereIn('mock_list.mock_series_id', $mockSeriesIds)
+            ->select(
+                'mock_list.id',
+                'mock_list.name',
+                'mock_list.description',
+                'mock_list.total_questions',
+                'mock_list.duration',
+                'mock_list.section_questions',
+                'mock_list.sort_order',
+                'mock_series.id as series_id',
+                'mock_series.name as series_name',
+                'mock_series.detail as series_detail'
+            )
+            ->orderBy('mock_series.id')
+            ->orderBy('mock_list.sort_order')
             ->get();
         
-        $mockTests = [];
-        foreach ($mockSeries as $series) {
-            foreach ($series->mockList as $mock) {
-                $mockTests[] = [
-                    'id' => $mock->id,
-                    'name' => $mock->name,
-                    'description' => $mock->description,
-                    'series_id' => $series->id,
-                    'series_name' => $series->name,
-                    'series_detail' => $series->detail,
-                    'total_questions' => $mock->total_questions,
-                    'duration' => $mock->duration
-                ];
-            }
-        }
-        
-        // Get already assigned mock tests for this batch
+        // Get already assigned mock test IDs for this batch (checking mock_list_id)
         $assignedMockIds = \App\Models\BatchMockTest::where('batch_id', $id)
-            ->pluck('mock_series_id')
-            ->toArray();
+                            ->pluck('mock_list_id')
+                            ->toArray();
         
         return response()->json([
             'success' => true,
-            'courseName' => $courseName,
             'mockTests' => $mockTests,
-            'assignedMockIds' => $assignedMockIds
+            'assignedMockIds' => $assignedMockIds,
+            'batchName' => $batch->name,
+            'courseName' => $course->title ?? ''
+        ]);
+    }
+    
+    /**
+     * Save selected mock tests for a batch
+     */
+    public function saveMockTests(Request $request, $id)
+    {
+        $request->validate([
+            'mock_test_ids' => 'required|array',
+            'mock_test_ids.*' => 'exists:mock_list,id'
+        ]);
+        
+        $batch = Batch::findOrFail($id);
+        
+        $mocksToAdd = $request->input('mocks_to_add', []);
+        $mocksToRemove = $request->input('mocks_to_remove', []);
+        $allCurrentMocks = $request->mock_test_ids;
+        
+        // Handle removals - delete only the specific mock tests being removed
+        if (!empty($mocksToRemove)) {
+            \App\Models\BatchMockTest::where('batch_id', $id)
+                ->whereIn('mock_list_id', $mocksToRemove)
+                ->delete();
+        }
+        
+        // Handle additions - add only new mock tests
+        if (!empty($mocksToAdd)) {
+            // Get the current max sort order
+            $maxSortOrder = \App\Models\BatchMockTest::where('batch_id', $id)->max('sort_order') ?? -1;
+            
+            foreach ($mocksToAdd as $mockTestId) {
+                // Check if this mock test is not already assigned (safety check)
+                $exists = \App\Models\BatchMockTest::where('batch_id', $id)
+                    ->where('mock_list_id', $mockTestId)
+                    ->exists();
+                
+                if (!$exists) {
+                    // Get the mock_series_id for this mock test
+                    $mockTest = \App\Models\MockList::find($mockTestId);
+                    if ($mockTest) {
+                        \App\Models\BatchMockTest::create([
+                            'batch_id' => $id,
+                            'mock_series_id' => $mockTest->mock_series_id,
+                            'mock_list_id' => $mockTestId,
+                            'sort_order' => ++$maxSortOrder,
+                            'is_active' => 0,  // Default to inactive until manually activated
+                            'scheduled_at' => null  // No schedule by default
+                        ]);
+                    }
+                }
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Mock tests updated successfully. Schedules and activation status preserved for remaining tests.'
         ]);
     }
 
     /**
-     * Save mock tests for a batch
-     */
-    public function saveMockTests($id, Request $request)
-    {
-        $batch = \App\Models\Batch::find($id);
-        
-        if (!$batch) {
-            return redirect()->back()->withFlashError('Batch not found');
-        }
-        
-        $mockTestIds = $request->input('mock_test_ids', []);
-        
-        // Remove existing assignments
-        \App\Models\BatchMockTest::where('batch_id', $id)->delete();
-        
-        // Add new assignments
-        foreach ($mockTestIds as $mockId) {
-            $mock = \App\Models\MockList::find($mockId);
-            if ($mock) {
-                \App\Models\BatchMockTest::create([
-                    'batch_id' => $id,
-                    'mock_series_id' => $mock->mock_series_id,
-                    'sort_order' => 0
-                ]);
-            }
-        }
-        
-        return redirect()->back()->withFlashSuccess('Mock tests assigned successfully');
-    }
-
-    /**
-     * Get mock results for a batch
+     * Show mock results page for a batch
      */
     public function mockResults($id)
     {
-        $batch = Batch::find($id);
-        $course = $batch ? Course::find($batch->cid) : null;
+        $batch = Batch::findOrFail($id);
+        $course = Course::findOrFail($batch->cid);
+        
         return view('backend.batch.mock-results', compact('batch', 'course'));
     }
-
+    
     /**
-     * Get students list for a batch
+     * Get list of students for a batch
      */
     public function getStudentsList($id)
     {
-        return response()->json(['students' => []]);
+        $studentBatches = StudentTeacherBatch::where('bid', $id)->get();
+        
+        $students = [];
+        foreach ($studentBatches as $stb) {
+            $user = User::find($stb->uid);
+            if ($user) {
+                $students[] = [
+                    'id' => $user->id,
+                    'name' => trim($user->first_name . ' ' . ($user->middle_name ?? '') . ' ' . $user->last_name),
+                    'email' => $user->email
+                ];
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'students' => $students
+        ]);
     }
-
+    
     /**
-     * Get mock tests list for a batch
+     * Get list of mock tests assigned to a batch
      */
     public function getMockTestsList($id)
     {
-        return response()->json(['tests' => []]);
+        $mockTests = \App\Models\BatchMockTest::where('batch_id', $id)
+            ->with(['mockList:id,name,description,total_questions,duration', 'mockSeries:id,name'])
+            ->get()
+            ->map(function($item) {
+                $mockList = $item->mockList;
+                $mockSeries = $item->mockSeries;
+                
+                if (!$mockList) {
+                    return null;
+                }
+                
+                return [
+                    'id' => $item->id,
+                    'mock_list_id' => $mockList->id,
+                    'name' => $mockList->name,
+                    'series_name' => $mockSeries ? $mockSeries->name : 'N/A',
+                    'description' => $mockList->description,
+                    'total_questions' => $mockList->total_questions,
+                    'duration' => $mockList->duration
+                ];
+            })
+            ->filter() // Remove null entries
+            ->values();
+        
+        return response()->json([
+            'success' => true,
+            'mockTests' => $mockTests
+        ]);
     }
-
+    
     /**
-     * Get student mock result
+     * Get student's result for a specific mock test
      */
     public function getStudentMockResult($student_id, $mock_id)
     {
-        return view('backend.batch.student-mock-result', compact('student_id', 'mock_id'));
+        // Find the exam record for this student and mock test
+        $exam = \App\Models\MyExam::where('user_id', $student_id)
+            ->where('exam_id', $mock_id)
+            ->where('status', 'completed')
+            ->latest()
+            ->first();
+        
+        if (!$exam) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No completed exam found for this student and mock test.'
+            ]);
+        }
+        
+        // Calculate result (same logic as MockSeriesController@mockExamResult)
+        $questions = json_decode($exam->questions, true);
+        $answers = json_decode($exam->answers, true);
+        
+        $totalQuestions = 0;
+        $correctAnswers = 0;
+        $wrongAnswers = 0;
+        $unattempted = 0;
+        
+        foreach ($questions as $sectionId => $questionIds) {
+            foreach ($questionIds as $qid) {
+                $totalQuestions++;
+                $question = \App\Models\Question::find($qid);
+                
+                if (isset($answers[$qid])) {
+                    if ($question && $question->correct_answer == $answers[$qid]) {
+                        $correctAnswers++;
+                    } else {
+                        $wrongAnswers++;
+                    }
+                } else {
+                    $unattempted++;
+                }
+            }
+        }
+        
+        $score = $correctAnswers;
+        $percentage = ($totalQuestions > 0) ? ($correctAnswers / $totalQuestions) * 100 : 0;
+        
+        return response()->json([
+            'success' => true,
+            'result' => [
+                'exam_id' => $exam->id,
+                'exam_date' => \Carbon\Carbon::parse($exam->exam_date_time)->format('d M Y, h:i A'),
+                'duration' => $exam->duration,
+                'time_spent' => $exam->time_spent ? gmdate('H:i:s', $exam->time_spent) : 'N/A',
+                'total_questions' => $totalQuestions,
+                'correct_answers' => $correctAnswers,
+                'wrong_answers' => $wrongAnswers,
+                'unattempted' => $unattempted,
+                'score' => $score,
+                'percentage' => number_format($percentage, 1),
+                'status' => 'Completed'
+            ]
+        ]);
     }
 
 
 }
+ 

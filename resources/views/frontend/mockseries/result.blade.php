@@ -10,7 +10,7 @@
         border-radius: 12px;
         padding: 2rem;
         background: white;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
         margin-bottom: 1.5rem;
     }
     
@@ -87,9 +87,15 @@
     }
 </style>
 
+@auth
 @include("frontend.include.user-menu")
 </div>
 <div class="col-lg-8 col-xl-9">
+@else
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+@endauth
     <div class="profile-content-area my-6 card card-body">
         <div class="mb-6 pb-6">
             @include('includes.partials.messages')
@@ -99,9 +105,9 @@
                     <h3 class="mb-1">Mock Exam Result</h3>
                     <p class="text-muted mb-0">Your performance summary</p>
                 </div>
-                <a href="{{ route('myMockSeries.index') }}" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-arrow-left"></i> Back to Mock Series
-                </a>
+                {{-- <a href="{{ route('myMockSeries.index') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Back to Mock Tests
+                </a> --}}
             </div>
 
             <div class="result-card">
@@ -176,8 +182,14 @@
             </div>
         </div>
     </div>
+@auth
 </div>
 </div></div>
+@else
+        </div>
+    </div>
+</div>
+@endauth
 @stop
 
 @section('page_js')

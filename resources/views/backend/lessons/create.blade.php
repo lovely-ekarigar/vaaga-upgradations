@@ -66,6 +66,53 @@ use App\Models\Course;
             color: #6c757d;
             margin-top: 0.25rem;
         }
+  /* //for video */
+        .video-control-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .video-select {
+            flex: 0 0 85%;   /* Select thoda chhota */
+        }
+
+        .video-add-btn {
+            flex: 0 0 14%;   /* Button thoda bada */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Same height */
+        .video-select,
+        .video-add-btn {
+            height: 40px;
+        }
+
+
+        #video-template,
+    #video-list .form-group {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+}
+
+#video-template .form-control,
+#video-list .form-group .form-control {
+    flex: 0 0 85%;
+    height: 40px;
+}
+
+#video-template .remove-video,
+#video-list .form-group .remove-video {
+    flex: 0 0 14%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
     </style>
 @endpush
 
@@ -146,68 +193,107 @@ use App\Models\Course;
                     {!! Form::textarea('full_text', old('full_text'), ['class' => 'form-control editor', 'placeholder' => trans('labels.backend.lessons.fields.full_text')]) !!}
                 </div>
             </div>
+ <div class="row">
 
-            {{-- Downloadable Files Section --}}
-            <div class="row">
-                <div class="col-12 form-group">
-                    {!! Form::label('downloadable_files', trans('labels.backend.lessons.fields.downloadable_files'), ['class' => 'control-label']) !!}
-                    {!! Form::file('downloadable_files[]', [
-                        'multiple',
-                        'class' => 'form-control file-upload',
-                        'id' => 'downloadable_files',
-                        'accept' => '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.mp4,.mp3,.jpg,.jpeg,.png'
-                    ]) !!}
-                    <div class="file-upload-info">Max 50MB per file. Accepted: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, ZIP, MP4, MP3, JPG, PNG</div>
-                </div>
-            </div>
+    <!--{{-- <div class="col-md-6 form-group">-->
+    <!--    {!! Form::label('downloadable_files', trans('labels.backend.lessons.fields.downloadable_files').' '.trans('labels.backend.lessons.max_file_size'), ['class' => 'control-label']) !!}-->
+    <!--    {!! Form::file('downloadable_files[]', [-->
+    <!--        'multiple'=>  true,-->
+    <!--        'class' => 'form-control file-upload',-->
+    <!--        'id' => 'downloadable_files',-->
+    <!--        'accept' => "image/jpeg,image/gif,image/png,application/msword,application/pdf,video/mp4"-->
+    <!--    ]) !!}-->
+    <!--</div> --}}-->
 
-            {{-- PDF Section --}}
-            <div class="row">
-                <div class="col-12 form-group">
-                    {!! Form::label('add_pdf', trans('labels.backend.lessons.fields.add_pdf'), ['class' => 'control-label']) !!}
-                    {!! Form::file('add_pdf', [
-                        'class' => 'form-control file-upload',
-                        'id' => 'add_pdf',
-                        'accept' => '.pdf'
-                    ]) !!}
-                    <div class="file-upload-info">Max 50MB. PDF files only</div>
-                </div>
-            </div>
+    <div class="col-md-6 form-group">
+        {!! Form::label('add_pdf', trans('labels.backend.lessons.fields.add_pdf')) !!}
+        {!! Form::file('add_pdf[]', [
+            'class' => 'form-control file-upload',
+            'id' => 'add_pdf',
+            'multiple'=>true,
+            'accept' => ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+        ]) !!}
+        
+        <span class="form-text text-muted">
+        Allowed formats: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, JPEG, PNG, GIF, MP3, MP4
+    </span>
 
-            {{-- Audio Section --}}
-            <div class="row">
-                <div class="col-12 form-group">
-                    {!! Form::label('add_audio', trans('labels.backend.lessons.fields.add_audio'), ['class' => 'control-label']) !!}
-                    {!! Form::file('add_audio', [
-                        'class' => 'form-control file-upload',
-                        'id' => 'add_audio',
-                        'accept' => '.mp3,.wav,.ogg,.m4a'
-                    ]) !!}
-                    <div class="file-upload-info">Max 50MB. Accepted: MP3, WAV, OGG, M4A</div>
-                </div>
-            </div>
+    </div>
 
-            {{-- Video Section --}}
-            <div class="row">
+    </div>
+        <ul id="fileList"></ul>
+            <div id="pdf-preview" class="mt-2"></div>
+
+          <div class="row">
+    
+
+    <!-- Video Field -->
+    <div class="col-md-6 form-group">
+        {!! Form::label('add_video', trans('labels.backend.lessons.fields.add_video'), ['class' => 'control-label']) !!}
+
+        <div class="d-flex align-items-stretch gap-2 video-control-wrapper">
+
+    {!! Form::select('media_type', [
+    '' => 'Select One',
+    'youtube' => 'Youtube'
+], null, [
+    'class' => 'form-control video-select',
+    'id' => 'media_type'
+]) !!}
+
+    <button type="button" 
+            class="btn btn-primary video-add-btn" 
+            id="add-video-btn" 
+            disabled>
+        Add Video
+    </button>
+
+</div>
+        <!-- Hidden template for new video input -->
+        <div class="form-group d-none" id="video-template">
+    <input type="text" name="video[]" value="" class="form-control mb-2 video-input" placeholder="Paste YouTube link">
+    <a href="#" class="btn btn-xs btn-danger remove-video">@lang('labels.backend.lessons.remove')</a>
+</div>
+
+        <!-- Container where new video fields will appear -->
+        <div id="video-list"></div>
+
+
+        {!! Form::file('video_file', ['class' => 'form-control mt-3 d-none', 'id'=>'video_file']) !!}
+
+        @lang('labels.backend.lessons.video_guide')
+    </div>
+
+
+    <!-- Audio Field -->
+    <div class="col-md-6 form-group">
+        {!! Form::label('audio_files', trans('labels.backend.lessons.fields.add_audio'), ['class' => 'control-label']) !!}
+        {!! Form::file('add_audio', [
+            'class' => 'form-control file-upload',
+            'id' => 'add_audio',
+            'accept' => "audio/mpeg3"
+        ]) !!}
+    </div>
+
+            <!-- <div class="row">
                 <div class="col-md-12 form-group">
                     {!! Form::label('add_video', trans('labels.backend.lessons.fields.add_video'), ['class' => 'control-label']) !!}
-                    {!! Form::select('media_type', [
-                        'youtube' => 'YouTube',
-                        'vimeo' => 'Vimeo',
-                        'upload' => 'Upload Video',
-                        'embed' => 'Embed Code'
-                    ], null, ['class' => 'form-control', 'placeholder' => 'Select One', 'id' => 'media_type']) !!}
 
-                    {!! Form::text('video', old('video'), ['class' => 'form-control mt-3 d-none', 'placeholder' => trans('labels.backend.lessons.enter_video_url'), 'id' => 'video']) !!}
-                    {!! Form::file('video_file', ['class' => 'form-control mt-3 d-none', 'id' => 'video_file', 'accept' => 'video/mp4,video/avi,video/mov,video/webm']) !!}
-                    {!! Form::textarea('embed_code', null, ['class' => 'form-control mt-3 d-none', 'placeholder' => 'Paste embed code here', 'id' => 'embed_code', 'rows' => 4]) !!}
-                    
-                    <div class="file-upload-info mt-2" id="video-help-text">
-                        Select a video source to see upload options
-                    </div>
+                    {!! Form::select('media_type', ['youtube' => 'Youtube'],null,['class' => 'form-control', 'placeholder' => 'Select One','id'=>'media_type' ]) !!}
+
+                    old comment // {!! Form::text('video', old('video'), ['class' => 'form-control mt-3 d-none', 'placeholder' => trans('labels.backend.lessons.enter_video_url'),'id'=>'video'  ]) !!} --> 
+<!-- 
+                    {!! Form::file('video_file', ['class' => 'form-control mt-3 d-none', 'placeholder' => trans('labels.backend.lessons.enter_video_url'),'id'=>'video_file'  ]) !!}
+
+                    @lang('labels.backend.lessons.video_guide')
+
                 </div>
-            </div>
+            </div> -->
 
+
+     
+
+</div>
             <div class="row mt-4">
                 <div class="col-6 col-lg-3 form-group">
                     <div class="form-check">
@@ -235,67 +321,214 @@ use App\Models\Course;
 
 @push('after-scripts')
     <script src="{{asset('plugins/bootstrap-tagsinput/bootstrap-tagsinput.js')}}"></script>
-    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script type="text/javascript" src="{{asset('/vendor/unisharp/laravel-ckeditor/ckeditor.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/vendor/unisharp/laravel-ckeditor/adapters/jquery.js')}}"></script>
     <script src="{{asset('/vendor/laravel-filemanager/js/lfm.js')}}"></script>
     <script>
-        // Initialize CKEditor
-        CKEDITOR.replace('full_text', {
-            height: 400,
-            filebrowserUploadUrl: '{{ route("admin.uploadImageCkEditor") }}',
-            filebrowserUploadMethod: 'form',
-            extraAllowedContent: 'img[src,alt,width,height]'
-        });
-        
-        document.querySelector('form').addEventListener('submit', function () {
-            if (CKEDITOR.instances.full_text) CKEDITOR.instances.full_text.updateElement();
-        });
+        // $('.editor').each(function () {
 
-        // File size validation
-        $(document).on('change', 'input[type="file"]', function () {
+        //     CKEDITOR.replace($(this).attr('id'), {
+        //         filebrowserImageBrowseUrl: '/laravel-filemanager?type=Images',
+        //         filebrowserImageUploadUrl: '/laravel-filemanager/upload?type=Images&_token={{csrf_token()}}',
+        //         filebrowserBrowseUrl: '/laravel-filemanager?type=Files',
+        //         filebrowserUploadUrl: '/laravel-filemanager/upload?type=Files&_token={{csrf_token()}}',
+        //         extraPlugins: 'smiley,lineutils,widget,codesnippet,prism',
+        //     });
+
+        // });
+
+        var uploadField = $('input[type="file"]');
+
+        $(document).on('change', 'input[name="lesson_image"]', function () {
             var $this = $(this);
-            var maxSize = 500 * 1024 * 1024; // 500MB
-            
-            Array.from(this.files).forEach(function(file) {
-                if (file.size > maxSize) {
-                    alert('"' + file.name + '" exceeds the maximum file size of 500MB');
-                    $this.val('');
+            $(this.files).each(function (key, value) {
+                if (value.size > 5000000) {
+                    alert('"' + value.name + '"' + 'exceeds limit of maximum file upload size')
+                    $this.val("");
                 }
-            });
+            })
         });
 
-        // Media type toggle
-        function toggleMediaFields() {
-            var mediaType = $('#media_type').val();
-            
-            // Hide all first
-            $('#video, #video_file, #embed_code').addClass('d-none').prop('required', false);
-            
-            if (mediaType === 'youtube' || mediaType === 'vimeo') {
-                $('#video').removeClass('d-none').prop('required', true);
-                $('#video-help-text').text('Enter the full YouTube/Vimeo URL');
-            } else if (mediaType === 'upload') {
-                $('#video_file').removeClass('d-none').prop('required', false);
-                $('#video-help-text').text('Max 500MB. Accepted: MP4, AVI, MOV, WEBM');
-            } else if (mediaType === 'embed') {
-                $('#embed_code').removeClass('d-none').prop('required', true);
-                $('#video-help-text').text('Paste the embed iframe code');
+         $(document).on('change', '#media_type', function () {
+            if ($(this).val()) {
+                if ($(this).val() != 'upload') {
+                    $('#video').removeClass('d-none').attr('required', true)
+                    $('#video_file').addClass('d-none').attr('required', false)
+                } else if ($(this).val() == 'upload') {
+                    $('#video').addClass('d-none').attr('required', false)
+                    $('#video_file').removeClass('d-none').attr('required', true)
+                }
             } else {
-                $('#video-help-text').text('Select a video source to see upload options');
+                $('#video_file').addClass('d-none').attr('required', false)
+                $('#video').addClass('d-none').attr('required', false)
             }
+        })
+         $(".js-example-placeholder-singlex").select2({
+                placeholder: "Select course content",
+            });
+            $(document).on('change', '#course_id', function (e) {
+                var course_id = $(this).val();
+                window.location.href = "{{ route('admin.lessons.create') }}" + "?course_id=" + course_id
+            });
+
+/// added  for multi file upload
+
+let selectedFiles = [];
+
+// $(document).on('change', '#add_pdf', function (e) {
+//     let preview = $('#pdf-preview');
+//     preview.html('');
+
+//     selectedFiles = Array.from(e.target.files);
+
+//     renderPreview();
+// });
+
+
+
+
+$(document).on('change', '#add_pdf', function (e) {
+    selectedFiles = selectedFiles.concat(Array.from(e.target.files));
+    renderPreview();
+ 
+});
+function renderPreview() {
+    let preview = $('#pdf-preview');
+    preview.html('');
+
+    selectedFiles.forEach((file) => {
+        let fileURL = URL.createObjectURL(file);
+        let ext = file.name.split('.').pop().toLowerCase();
+
+        let div;
+
+        if (ext === 'pdf') {
+            // PDF preview with iframe
+            div = $(`
+                <div class="mb-3 border p-2" data-name="${file.name}">
+                    <p>
+                        <strong>${file.name}</strong>
+                        <button type="button" 
+                            class="btn btn-sm btn-danger float-right remove-btn"
+                            data-name="${file.name}">
+                            Remove
+                        </button>
+                    </p>
+                    <iframe src="${fileURL}" width="100%" height="500px"></iframe>
+                </div>
+            `);
+        } else {
+            // DOC/DOCX preview as download link
+            div = $(`
+                <div class="mb-3 border p-2" data-name="${file.name}">
+                    <p>
+                        <strong>${file.name}</strong>
+                        <button type="button" 
+                            class="btn btn-sm btn-danger float-right remove-btn"
+                            data-name="${file.name}">
+                            Remove
+                        </button>
+                    </p>
+                    <a href="${fileURL}" target="_blank">Download</a>
+                </div>
+            `);
         }
 
-        // On change
-        $('#media_type').on('change', toggleMediaFields);
+        preview.append(div);
+    });
 
-        // Select2 initialization
-        $(".js-example-placeholder-singlex").select2({
-            placeholder: "Select course content",
-        });
-        
-        // Course change handler
-        $(document).on('change', '#course_id', function (e) {
-            var course_id = $(this).val();
-            window.location.href = "{{ route('admin.lessons.create') }}" + "?course_id=" + course_id;
-        });
+    syncInputFiles();
+}
+
+
+$(document).on('click', '.remove-btn', function () {
+    let name = $(this).data('name');
+
+    selectedFiles = selectedFiles.filter(f => f.name !== name);
+
+    renderPreview();
+});
+
+function syncInputFiles() {
+    let dt = new DataTransfer();
+
+    selectedFiles.forEach(file => dt.items.add(file));
+
+    document.getElementById('add_pdf').files = dt.files;
+}
+
+$('#media_type').on('change', function () {
+    if ($(this).val() === 'youtube') {
+        $('#add-video-btn').prop('disabled', false);
+    } else {
+        $('#add-video-btn').prop('disabled', true);
+    }
+});
+$(document).ready(function () {
+
+    $('#media_type').on('change', function () {
+        $('#add-video-btn').prop('disabled', $(this).val() !== 'youtube');
+    });
+
+    $(document).off('click', '#add-video-btn').on('click', '#add-video-btn', function (e) {
+        e.preventDefault();
+
+        let lastInput = $('#video-list .video-input').last();
+
+        if (lastInput.length && lastInput.val().trim() === '') {
+            alert('Please enter YouTube link first');
+            lastInput.focus();
+            return;
+        }
+
+        let template = $('#video-template')
+            .clone()
+            .removeClass('d-none')
+            .removeAttr('id');
+
+        $('#video-list').append(template);
+    });
+
+    $(document).on('click', '.remove-video', function () {
+        $(this).closest('.form-group').remove();
+    });
+
+});
+
+//   $(document).on('change', '#add_pdf', function(e) {
+//     let preview = $('#pdf-preview');
+//     preview.html('');
+
+//     Array.from(e.target.files).forEach((file, index) => {
+//         let fileURL = URL.createObjectURL(file);
+
+//         let div = $(`
+//             <div class="mb-3 border p-2">
+//                 <p>
+//                     <strong>${file.name}</strong>
+//                     <button type="button" class="btn btn-sm btn-danger float-right" onclick="removePdf(${index})">Remove</button>
+//                 </p>
+//                 <iframe src="${fileURL}" width="100%" height="350px"></iframe>
+//             </div>
+//         `);
+
+//         preview.append(div);
+//     });
+// });
+
+// function removePdf(index) {
+//     let input = document.getElementById('add_pdf');
+//     let dt = new DataTransfer();
+//     let files = input.files;
+
+//     for (let i = 0; i < files.length; i++) {
+//         if (i !== index) dt.items.add(files[i]);
+//     }
+
+//     input.files = dt.files;
+//     input.dispatchEvent(new Event('change'));
+// }
+
     </script>
+
 @endpush

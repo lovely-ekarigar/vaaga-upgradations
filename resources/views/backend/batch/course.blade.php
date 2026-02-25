@@ -1,7 +1,7 @@
 <?php
 use App\Models\Course;
 ?>
-
+ 
 @inject('request', 'Illuminate\Http\Request')
 @extends('backend.layouts.app')
 @section('title','Batch list'.' | '.app_name())

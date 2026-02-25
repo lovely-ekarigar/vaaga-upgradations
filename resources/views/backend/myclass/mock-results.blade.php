@@ -6,7 +6,7 @@
 <style>
     .result-card {
         border: 1px solid #e0e0e0;
-        border-radius: 12px;
+        border-radius: 12px; 
         padding: 2rem;
         background: white;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -110,7 +110,7 @@
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h3 class="page-title mb-1">Mock Results</h3>
+                <h3 class="page-title mb-1">Mock Test Results</h3>
                 <p class="text-muted mb-0">Batch: <strong>{{ $batch->name }}</strong></p>
                 @if($course)
                 <p class="text-muted mb-0">Course: <strong>{{ $course->title }}</strong></p>
@@ -204,12 +204,12 @@
             </div>
 
             <!-- Subject-wise breakdown -->
-            <!-- <div class="result-card">
-                <h4 class="mb-3">Subject-wise Performance</h4>
-                <div id="subject-wise-results">
-                   
-                </div>
-            </div> -->
+            <div class="text-center mt-4">
+                    <a href="#" id="view-answer-key-btn" class="btn btn-primary btn-lg" style="display: none;">
+                        <i class="bi bi-clipboard-check me-2">View Answer Key </i> 
+                    </a>
+                </div> 
+          
         </div>
     </div>
 </div>
@@ -323,6 +323,11 @@ $(document).ready(function() {
                             messageHtml = '<div class="alert alert-warning"><i class="bi bi-lightbulb me-2"></i> Keep practicing! You\'ll do better next time. 📚</div>';
                         }
                         $('#result-message').html(messageHtml);
+                        
+                        // Show answer key button (tutor route - same as admin)
+                        if (result.exam_id) {
+                            $('#view-answer-key-btn').attr('href', '/user/admin-mock-exam-answer-key/' + result.exam_id).show();
+                        }
                         
                         // Display subject-wise results
                         let subjectHtml = '';

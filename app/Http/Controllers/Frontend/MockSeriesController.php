@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\MockSeries;
 use App\Models\MockList;
 use App\Models\Course;
-use App\Models\Slider;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Auth;
@@ -318,12 +317,7 @@ class MockSeriesController extends Controller
             ->sortByDesc('created_at')
             ->values();
         
-        // Fetch banner/slider for the dashboard
-        $slides = Slider::where('status', '=', 1)
-            ->orderBy('sequence', 'asc')
-            ->get();
-        
-        return view('frontend.mockseries.index', compact('mockSeries', 'slides'));
+        return view('frontend.mockseries.index', compact('mockSeries'));
     }
     
     /**
@@ -483,12 +477,41 @@ class MockSeriesController extends Controller
             return true;
         })->values(); // Reset array keys
         
-        // Fetch banner/slider for the page
-        $slides = Slider::where('status', '=', 1)
-            ->orderBy('sequence', 'asc')
-            ->get();
+        return view('frontend.mockseries.list', compact('batchMockTest', 'mockTests'));
+    }
+    
+    /**
+     * Show waiting page before starting mock exam
+     *
+     * @param int $mock_id
+     * @param int $batch_mock_test_id
+     * @return \Illuminate\View\View
+     */
+    public function waitingMockExam($mock_id, $batch_mock_test_id)
+    {
+        // Get batch mock test details
+        $batchMockTest = DB::table('batch_mock_tests')
+            ->where('id', $batch_mock_test_id)
+            ->first();
         
-        return view('frontend.mockseries.list', compact('batchMockTest', 'mockTests', 'slides'));
+        if (!$batchMockTest) {
+            abort(404, 'Mock test not found.');
+        }
+        
+        // Get mock test details
+        $mock = \App\Models\MockList::findOrFail($mock_id);
+        
+        // Check if exam already exists and is started
+        $myExam = \App\Models\MyExam::where("batch_mock_test_id", $batch_mock_test_id)
+            ->where('user_id', \Auth::user()->id)
+            ->where("exam_id", $mock_id)
+            ->first();
+        
+        // If exam already exists (resuming), show shorter countdown (2 seconds)
+        // If new exam, show full countdown (30 seconds)
+        $secondsUntilStart = ($myExam && $myExam->status == 'started') ? 2 : 30;
+        
+        return view('backend.testseries.waiting-mock', compact('mock', 'secondsUntilStart', 'mock_id', 'batch_mock_test_id'));
     }
     
     /**
@@ -1116,3 +1139,4 @@ class MockSeriesController extends Controller
         }
     }
 }
+ 

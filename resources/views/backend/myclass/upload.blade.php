@@ -6,7 +6,7 @@
 <style type="text/css">
   form {
     display: inline-block;
-  }
+  } 
 </style>
 
 <div class="card">

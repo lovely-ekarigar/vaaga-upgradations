@@ -9,7 +9,7 @@ use App\Models\Auth\User;
 
 @section('content')
 <style>
-  .loader {
+  .loader { 
     border: 7px solid #f3f3f3;
     border-radius: 50%;
     border-top: 7px solid #3498db;

@@ -2,7 +2,7 @@
 @extends('backend.layouts.app')
 @section('title','Attendance list'.' | '.app_name())
 
-@section('content')
+@section('content') 
 
  
     <div class="card">

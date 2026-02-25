@@ -4,7 +4,7 @@
 <title>Student Test| {{env('APP_NAME')}}</title>
 @stop
 @section('content')
-<style>
+<style> 
     .demo_box {
     background: #ffeb3b24;
     padding: 0px 8px;

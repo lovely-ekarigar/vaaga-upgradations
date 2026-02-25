@@ -8,9 +8,15 @@
   <div class="card-header">
     <h3 class="page-title float-left mb-0">Available Mock Tests - {{ $batch->name }}</h3>
     <div class="float-right">
-      <a href="{{ route('admin.myclass') }}" class="btn btn-secondary">
-        <i class="fa fa-arrow-left"></i> Back to Classes
-      </a>
+      @if(auth()->user()->hasRole('administrator'))
+        <a href="{{ route('admin.batch') }}" class="btn btn-secondary">
+          <i class="fa fa-arrow-left"></i> Back to Batches
+        </a> 
+      @else
+        <a href="{{ route('admin.myclass') }}" class="btn btn-secondary">
+          <i class="fa fa-arrow-left"></i> Back to Classes
+        </a>
+      @endif
     </div>
   </div>
   
@@ -33,14 +39,24 @@
           <tbody>
             @foreach($mockTests as $mock)
             <tr data-mock-id="{{ $mock->id }}">
-              <td>{{ $mock->name }}</td>
+              <td>
+                {{ $mock->name }}
+                @if(isset($mock->is_pending) && $mock->is_pending)
+                  <br><small class="text-muted"><i class="fa fa-info-circle"></i> {{ $mock->pending_reason ?? 'Progress requirements not met' }}</small>
+                @endif
+              </td>
               <td>
                 @php
+                  $isPending = isset($mock->is_pending) && $mock->is_pending;
                   $scheduledAt = $mock->scheduled_at ? \Carbon\Carbon::parse($mock->scheduled_at)->startOfDay() : null;
                   $today = \Carbon\Carbon::now()->startOfDay();
                   $isPastSchedule = $scheduledAt && $scheduledAt->lte($today);
                 @endphp
-                @if($mock->is_active == 1)
+                @if($isPending)
+                  <span class="badge badge-warning" title="{{ $mock->pending_reason ?? 'Progress requirements not met' }}">
+                    <i class="fa fa-clock"></i> Pending (Progress)
+                  </span>
+                @elseif($mock->is_active == 1)
                   <span class="badge badge-success">Manually Active</span>
                 @elseif($scheduledAt && $isPastSchedule)
                   <span class="badge badge-success">Auto-Active</span>
@@ -64,19 +80,25 @@
                 </div>
               </td>
               <td>
-                <a href="{{ route('admin.myclass.mockTestQuestions', $mock->id) }}?batch_id={{ $batch->id }}" 
-                   class="btn btn-sm btn-info" 
-                   target="_blank">
-                  <i class="fa fa-eye"></i> Preview Questions
-                </a>
+                @if(!$isPending)
+                  <a href="{{ route('admin.myclass.mockTestQuestions', $mock->id) }}?batch_id={{ $batch->id }}" 
+                     class="btn btn-sm btn-info" 
+                     target="_blank">
+                    <i class="fa fa-eye"></i> Preview Questions
+                  </a>
+                @else
+                  <button class="btn btn-sm btn-secondary" disabled title="{{ $mock->pending_reason ?? 'Progress requirements not met' }}">
+                    <i class="fa fa-eye"></i> Preview Questions
+                  </button>
+                @endif
                 
-                @if($mock->is_active)
+                @if($mock->is_active && !$isPending)
                   <button class="btn btn-sm btn-danger ml-1 deactivate-mock-btn" 
                           data-id="{{ $mock->id }}" 
                           data-batch="{{ $batch->id }}">
                     <i class="fa fa-times"></i> Deactivate
                   </button>
-                @elseif($mock->scheduled_at)
+                @elseif($mock->scheduled_at && !$isPending)
                   <button class="btn btn-sm btn-warning ml-1 cancel-schedule-btn" 
                           data-id="{{ $mock->id }}" 
                           data-batch="{{ $batch->id }}"

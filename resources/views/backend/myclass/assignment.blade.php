@@ -1,7 +1,7 @@
 @inject('request', 'Illuminate\Http\Request')
 @extends('backend.layouts.app')
 @section('title','Assignment'.' | '.app_name())
-
+ 
 @section('content')
 <style type="text/css">
     form {

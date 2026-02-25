@@ -60,6 +60,9 @@ class Kernel extends ConsoleKernel
             $schedule->command(GenerateSitemap::class)->monthly();
 
         }
+        
+        // Run the mock test activation command every minute
+        $schedule->command('mock:activate-scheduled')->everyMinute();
     }
 
     /**

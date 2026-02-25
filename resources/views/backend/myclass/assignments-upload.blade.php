@@ -3,7 +3,7 @@
 <title>Assignment upload for {{$batch->name}} } | {{env('APP_NAME')}}</title>
 @stop
 @section('content')
-
+ 
     @include("frontend.include.user-menu")
         </div>
         <div class="col-lg-8 col-xl-9">
