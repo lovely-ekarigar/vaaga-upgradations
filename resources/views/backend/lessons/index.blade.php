@@ -196,6 +196,12 @@ use App\Models\Course;
                 createdRow: function (row, data, dataIndex) {
                     $(row).attr('data-entry-id', data.id);
                 },
+                drawCallback: function(settings) {
+                    // Re-initialize delete forms after DataTable redraws (for AJAX-loaded content)
+                    if (typeof window.addDeleteForms === 'function') {
+                        window.addDeleteForms();
+                    }
+                },
                 language:{
                     url : "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/{{$locale_full_name}}.json",
                     buttons :{

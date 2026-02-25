@@ -8,25 +8,54 @@
  * Injects a form with that's fired on click of the link with a DELETE request.
  * Good because you don't have to dirty your HTML with delete forms everywhere.
  */
-function addDeleteForms() {
-    $('[data-method]').append(function () {
-        if (!$(this).find('form').length > 0) {
-            return "\n<form action='" + $(this).attr('href') + "' method='POST' name='delete_item' style='display:none'>\n" +
-                "<input type='hidden' name='_method' value='" + $(this).attr('data-method') + "'>\n" +
-                "<input type='hidden' name='_token' value='" + $('meta[name="csrf-token"]').attr('content') + "'>\n" +
-                '</form>\n';
-        } else { return '' }
-    })
-        .attr('href', '#')
-        .attr('style', 'cursor:pointer;')
-        .attr('onclick', '$(this).find("form").submit();');
-}
 
 /**
  * Place any jQuery/helper plugins in here.
  * Use window.jQuery for module compatibility (Vite/ES modules).
  */
-const $ = window.jQuery || window.$;
+
+// Ensure jQuery is globally available for inline handlers and other scripts
+if (typeof window.jQuery !== 'undefined') {
+    window.$ = window.jQuery;
+}
+
+// Use global jQuery
+const $ = window.jQuery;
+
+function addDeleteForms() {
+    $('[data-method]').each(function() {
+        const $link = $(this);
+        
+        // Only add form if it doesn't already exist
+        if ($link.find('form').length === 0) {
+            const formHtml = "\n<form action='" + $link.attr('href') + "' method='POST' name='delete_item' style='display:none'>\n" +
+                "<input type='hidden' name='_method' value='" + $link.attr('data-method') + "'>\n" +
+                "<input type='hidden' name='_token' value='" + $('meta[name="csrf-token"]').attr('content') + "'>\n" +
+                '</form>\n';
+            $link.append(formHtml);
+        }
+        
+        // Set href and click handler if not already set
+        if ($link.attr('href') !== '#') {
+            $link.attr('href', '#');
+        }
+        
+        // Use native JS onclick to avoid jQuery scope issues with minified bundles
+        $link.attr('style', 'cursor:pointer;');
+        $link.off('click.deleteForm').on('click.deleteForm', function(e) {
+            e.preventDefault();
+            const form = this.querySelector('form[name="delete_item"]');
+            if (form) {
+                // Trigger submit event that will be caught by the delegated handler
+                $(form).trigger('submit');
+            }
+        });
+    });
+}
+
+// Make addDeleteForms globally available
+window.addDeleteForms = addDeleteForms;
+
 $(function () {
     /**
      * Add the data-method="delete" forms to all delete links
@@ -43,45 +72,54 @@ $(function () {
     });
 
     /**
-     * Generic confirm form delete using Sweet Alert
+     * Generic confirm form delete using Sweet Alert 2
      */
     $('body').on('submit', 'form[name=delete_item]', function (e) {
         e.preventDefault();
 
         const form = this;
-        const link = $('a[data-method="delete"]');
-        const cancel = (link.attr('data-trans-button-cancel')) ? link.attr('data-trans-button-cancel') : 'Cancel';
-        const confirm = (link.attr('data-trans-button-confirm')) ? link.attr('data-trans-button-confirm') : 'Yes, delete';
-        const title = (link.attr('data-trans-title')) ? link.attr('data-trans-title') : 'Are you sure you want to delete this item?';
+        const $link = $(form).closest('a[data-method="delete"]');
+        const cancel = $link.attr('data-trans-button-cancel') || 'Cancel';
+        const confirmText = $link.attr('data-trans-button-confirm') || 'Yes, delete';
+        const title = $link.attr('data-trans-title') || 'Are you sure you want to delete this item?';
 
-        swal({
+        // Use SweetAlert2 API (swal.fire instead of swal)
+        swal.fire({
             title: title,
             showCancelButton: true,
-            confirmButtonText: confirm,
+            confirmButtonText: confirmText,
             cancelButtonText: cancel,
-            type: 'warning'
-        }).then((result) => {
-            result.value && form.submit();
+            icon: 'warning'
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                // Submit the form without jQuery to avoid event re-triggering
+                HTMLFormElement.prototype.submit.call(form);
+            }
         });
-    }).on('click', 'a[name=confirm_item]', function (e) {
-        /**
-         * Generic 'are you sure' confirm box
-         */
+    });
+
+    /**
+     * Generic 'are you sure' confirm box for links with confirm_item name
+     */
+    $('body').on('click', 'a[name=confirm_item]', function (e) {
         e.preventDefault();
 
         const link = $(this);
-        const title = (link.attr('data-trans-title')) ? link.attr('data-trans-title') : 'Are you sure you want to do this?';
-        const cancel = (link.attr('data-trans-button-cancel')) ? link.attr('data-trans-button-cancel') : 'Cancel';
-        const confirm = (link.attr('data-trans-button-confirm')) ? link.attr('data-trans-button-confirm') : 'Continue';
+        const title = link.attr('data-trans-title') || 'Are you sure you want to do this?';
+        const cancel = link.attr('data-trans-button-cancel') || 'Cancel';
+        const confirmText = link.attr('data-trans-button-confirm') || 'Continue';
 
-        swal({
+        // Use SweetAlert2 API
+        swal.fire({
             title: title,
             showCancelButton: true,
-            confirmButtonText: confirm,
+            confirmButtonText: confirmText,
             cancelButtonText: cancel,
-            type: 'info'
-        }).then((result) => {
-            result.value && window.location.assign(link.attr('href'));
+            icon: 'info'
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                window.location.assign(link.attr('href'));
+            }
         });
     });
 });
