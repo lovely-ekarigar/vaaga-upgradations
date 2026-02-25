@@ -5,7 +5,7 @@
     <div class="card-header" id="heading{{$item->id}}">
         <button class="menu-link" data-toggle="collapse" data-target="#collapse{{$item->id}}"
                 aria-expanded="false" aria-controls="collapse{{$item->id}}">
-            {{trans('custom-menu.'.$menu_name.'.'.str_slug($item->label))}}
+            {{trans('custom-menu.'.$menu_name.'.'.\Str::slug($item->label))}}
         </button>
     </div>
     <ul id="collapse{{$item->id}}" class="submenu collapse " aria-labelledby="heading{{$item->id}}"
@@ -17,6 +17,6 @@
 </li>
 @else
     <li class="card">
-        <a class="menu-link" id="menu-{{$item->id}}" href="{{$item->link}}">{{trans('custom-menu.'.$menu_name.'.'.str_slug($item->label))}}</a>
+        <a class="menu-link" id="menu-{{$item->id}}" href="{{$item->link}}">{{trans('custom-menu.'.$menu_name.'.'.\Str::slug($item->label))}}</a>
     </li>
 @endif

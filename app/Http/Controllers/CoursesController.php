@@ -1335,6 +1335,13 @@ public function payConfirm($ref,$type,Request $request){
       $razorpay_payment_id = $request->razorpay_payment_id;
         $razorpay_signature = $request->razorpay_signature;
    
+        // Verify Razorpay signature to prevent payment tampering
+        $secret = config('services.razorpay.secret');
+        $expectedSignature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $secret);
+        if (!hash_equals($expectedSignature, $razorpay_signature)) {
+            return redirect('/pay/'.$ref."?failed=true&error=invalid_signature");
+        }
+   
             $payfor = $type;
             
             

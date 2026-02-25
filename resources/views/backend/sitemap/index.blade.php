@@ -26,7 +26,7 @@
         <div class="card-body" id="newsletter">
             <h5>@lang('labels.backend.sitemap.sitemap_note')</h5>
             <a class="mb-2 d-block" target="_blank"
-               href="{{asset('sitemap-'.str_slug(config('app.name')).'/sitemap-index.xml')}}"><h6>Click here to see
+               href="{{asset('sitemap-'.\Str::slug(config('app.name')).'/sitemap-index.xml')}}"><h6>Click here to see
                     Sitemap Index File</h6></a>
 
             <div class="form-group row">

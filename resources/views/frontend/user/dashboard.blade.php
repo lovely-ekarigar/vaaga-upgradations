@@ -236,7 +236,7 @@
 
             <!-- RESTORED: Dashboard Statistics -->
             <div class="row mb-4">
-                {{-- HIDDEN: My Courses stat - sub-modules have issues
+                <!-- RESTORED: My Courses stat -->
                 <div class="col-md-3 col-6 mb-3">
                     <div class="stat-card">
                         <div class="stat-icon courses">
@@ -246,7 +246,6 @@
                         <div class="stat-label">My Courses</div>
                     </div>
                 </div>
-                --}}
                 <div class="col-md-4 col-6 mb-3">
                     <div class="stat-card">
                         <div class="stat-icon tests">
@@ -276,7 +275,7 @@
                 </div>
             </div>
 
-            {{-- HIDDEN: My Courses Section - sub-modules have issues
+            <!-- RESTORED: My Courses Section -->
             <div class="section-card">
                 <div class="section-header">
                     <h5 class="section-title">
@@ -338,7 +337,6 @@
                     @endif
                 </div>
             </div>
-            --}}
 
             <!-- RESTORED: My Test Series Section -->
             <div class="section-card">
@@ -514,7 +512,7 @@
                 </div>
                 <div class="section-body">
                     <div class="row">
-                        {{-- HIDDEN: My Courses quick action - sub-modules have issues
+                        <!-- RESTORED: My Courses quick action -->
                         <div class="col-md-4">
                             <a href="{{ route('student.courses') }}" class="quick-action-btn">
                                 <div class="quick-action-icon">
@@ -526,7 +524,6 @@
                                 </div>
                             </a>
                         </div>
-                        --}}
                         <div class="col-md-4">
                             <a href="{{ route('courses.all') }}" class="quick-action-btn">
                                 <div class="quick-action-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">

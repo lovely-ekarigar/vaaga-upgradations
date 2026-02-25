@@ -792,7 +792,7 @@ $orders->where("end_date","<=",date("Y-m-d"));
      */
     public function massDestroy(Request $request)
     {
-        if ($request->input('ids')) {
+        if ($request->has('ids') && is_array($request->input('ids'))) {
             $entries = Order::whereIn('id', $request->input('ids'))->get();
             foreach ($entries as $entry) {
                 if ($entry->status = 1) {

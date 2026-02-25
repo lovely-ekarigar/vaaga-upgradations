@@ -22,9 +22,20 @@ class IsVerified
      */
     public function handle($request, Closure $next, $guard = null)
     {
+        // Skip OTP if admin is impersonating a user (Login As feature)
+        if (session()->has('admin_user_id') && session()->has('temp_user_id')) {
+            // Admin is logged in as another user (Tutor/Student)
+            // Skip OTP verification for impersonation sessions
+            return $next($request);
+        }
+
+        if (!auth()->check()) {
+            return redirect()->route('frontend.auth.login');
+        }
+        
         if (!auth()->user()->otp_verified) {
             
-            $otp = rand(1000,9999);
+            $otp = random_int(100000, 999999); // 6-digit OTP for better security
             $user = User::find(auth()->user()->id);
            if($user->phone){
             $user->otp = $otp;

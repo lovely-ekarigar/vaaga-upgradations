@@ -119,17 +119,8 @@
 <div class="nav flex-column flex-lg-row d-none d-lg-flex">
    <ul class="navbar-nav ms-auto align-items-center">
       @if(auth()->check())
-      <li class="nav-item dropdown">
-         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{{ auth()->user()->picture ?? asset('newassets/img/avatar.png') }}" class="rounded-circle me-2" width="32" height="32" alt="{{ auth()->user()->full_name }}">
-            <span class="d-none d-lg-inline">{{ auth()->user()->first_name ?? auth()->user()->name }}</span>
-         </a>
-         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="/user/dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
-            <li><a class="dropdown-item" href="/user/account"><i class="bi bi-person me-2"></i>My Profile</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="{{ route('frontend.auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-         </ul>
+      <li class="nav-item">
+         <a href="/user/dashboard" class="btn btn-sm btn-primary mb-0 ms-2 text-nowrap">Dashboard</a>
       </li>
       @else
       <li class="nav-item">

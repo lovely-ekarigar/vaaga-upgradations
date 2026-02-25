@@ -1,9 +1,5 @@
 <!DOCTYPE html>
-@langrtl
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="rtl">
-@else
-    <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    @endlangrtl
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @if(app()->getLocale() == 'ar') dir="rtl" @endif>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -162,11 +158,11 @@
                                                         <li class="nav-item">
                                                             <a href="{{asset($menu->link)}}"
                                                                class="nav-link {{ active_class(Active::checkRoute('frontend.user.dashboard')) }}"
-                                                               id="menu-{{$menu->id}}">{{trans('custom-menu.'.$menu_name.'.'.str_slug($menu->label))}}</a>
+                                                               id="menu-{{$menu->id}}">{{trans('custom-menu.'.$menu_name.'.'.\Str::slug($menu->label))}}</a>
                                                         </li>
                                                     @else
                                                         <li class="menu-item-has-children ul-li-block">
-                                                            <a href="#!">{{trans('custom-menu.'.$menu_name.'.'.str_slug($menu->label))}}</a>
+                                                            <a href="#!">{{trans('custom-menu.'.$menu_name.'.'.\Str::slug($menu->label))}}</a>
                                                             <ul class="sub-menu">
                                                                 @foreach($menu->subs as $item)
                                                                     @include('frontend.layouts.partials.dropdown', $item)
@@ -225,11 +221,11 @@
                                                         <li class="">
                                                             <a href="{{asset($menu->link)}}"
                                                                class="nav-link {{ active_class(Active::checkRoute('frontend.user.dashboard')) }}"
-                                                               id="menu-{{$menu->id}}">{{trans('custom-menu.'.$menu_name.'.'.str_slug($menu->label))}}</a>
+                                                               id="menu-{{$menu->id}}">{{trans('custom-menu.'.$menu_name.'.'.\Str::slug($menu->label))}}</a>
                                                         </li>
                                                     @else
                                                         <li class="">
-                                                            <a href="#!">{{trans('custom-menu.'.$menu_name.'.'.str_slug($menu->label))}}</a>
+                                                            <a href="#!">{{trans('custom-menu.'.$menu_name.'.'.\Str::slug($menu->label))}}</a>
                                                             <ul class="">
                                                                 @foreach($menu->subs as $item)
                                                                     @include('frontend.layouts.partials.dropdown', $item)

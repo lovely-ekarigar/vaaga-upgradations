@@ -276,7 +276,7 @@ public function sendPush($ids,$title,$msg){
     $headings=array("en"=>$title);
     
     $fields = array(
-      'app_id' => "14b961ad-14f5-4d89-8b94-c529886061a7",
+      'app_id' => config('services.onesignal.app_id'),
       'include_player_ids' => $ids,
       'contents' => $content,
       'headings' => $headings
@@ -287,7 +287,7 @@ public function sendPush($ids,$title,$msg){
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8','Authorization: Basic YTgwYjU2ZGItNTZkOS00ODkwLThhNGYtNjhiNWM3MTk3NTJm'));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8', 'Authorization: Basic ' . config('services.onesignal.rest_api_key')));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_HEADER, FALSE);
     curl_setopt($ch, CURLOPT_POST, TRUE);

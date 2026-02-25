@@ -1,5 +1,6 @@
 <?php
 use App\Models\UserNotification;
+use Illuminate\Support\Str;
 ?>
 
 @inject('request', 'Illuminate\Http\Request')

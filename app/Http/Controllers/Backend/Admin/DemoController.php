@@ -293,7 +293,7 @@ Mail::to($user)->send(new FeedbackEmail($user,$id));
 
 $userx = User::find($stb->teacher_id);
 if($userx){
-Mail::to($user)->send(new FeedbackEmail($userx,$id));
+Mail::to($userx)->send(new FeedbackEmail($userx,$id));
 }
 
 

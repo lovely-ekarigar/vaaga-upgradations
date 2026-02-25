@@ -73,22 +73,22 @@ class LoginController extends Controller
             $authSuccess = \Illuminate\Support\Facades\Auth::attempt($credentials, $request->has('remember'));
             if($authSuccess) {
                 $request->session()->regenerate();
-                // if(auth()->user()->active > 0){
+                if(auth()->user()->active > 0){
                     if(auth()->user()->isAdmin()){
                         $redirect = 'dashboard';
                     }else{
                         $redirect = 'back';
                     }
                     return response(['success' => true,'redirect' => $redirect], Response::HTTP_OK);
-                // }else{
-                //     \Illuminate\Support\Facades\Auth::logout();
+                }else{
+                    \Illuminate\Support\Facades\Auth::logout();
 
-                //     return
-                //         response([
-                //             'success' => false,
-                //             'message' => 'Login failed. Account is not active'
-                //         ], Response::HTTP_FORBIDDEN);
-                // }
+                    return
+                        response([
+                            'success' => false,
+                            'message' => 'Login failed. Account is not active'
+                        ], Response::HTTP_FORBIDDEN);
+                }
             }else{
                 return
                     response([

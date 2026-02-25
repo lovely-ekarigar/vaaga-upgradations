@@ -120,7 +120,7 @@ class RegisterController extends Controller
         $g = new General();
         $g->sendOtp($data['phone'],$otp);
         $userForRole = User::find($user->id);
-        $userForRole->confirmed = 1;
+        $userForRole->confirmed = 0;
         $userForRole->save();
         $userForRole->assignRole('student');
         return $user;
