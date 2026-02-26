@@ -222,7 +222,8 @@ use App\Models\Course;
 
     </div>
         <ul id="fileList"></ul>
-            <div id="pdf-preview" class="mt-2"></div>
+           <div id="pdf-preview" class="mt-2 row"></div>
+
 
           <div class="row">
     
@@ -397,48 +398,25 @@ function renderPreview() {
     preview.html('');
 
     selectedFiles.forEach((file) => {
-        let fileURL = URL.createObjectURL(file);
-        let ext = file.name.split('.').pop().toLowerCase();
-
-        let div;
-
-        if (ext === 'pdf') {
-            // PDF preview with iframe
-            div = $(`
-                <div class="mb-3 border p-2" data-name="${file.name}">
-                    <p>
-                        <strong>${file.name}</strong>
-                        <button type="button" 
-                            class="btn btn-sm btn-danger float-right remove-btn"
+        let div = $(`
+            <div class="col-md-6 mb-2">
+                <div class="border p-2 d-flex justify-content-between align-items-center rounded">
+                    <span class="text-truncate" style="max-width: 70%;">${file.name}</span>
+                    <button type="button" 
+                            class="btn btn-sm btn-danger remove-btn"
                             data-name="${file.name}">
-                            Remove
-                        </button>
-                    </p>
-                    <iframe src="${fileURL}" width="100%" height="500px"></iframe>
+                        Remove
+                    </button>
                 </div>
-            `);
-        } else {
-            // DOC/DOCX preview as download link
-            div = $(`
-                <div class="mb-3 border p-2" data-name="${file.name}">
-                    <p>
-                        <strong>${file.name}</strong>
-                        <button type="button" 
-                            class="btn btn-sm btn-danger float-right remove-btn"
-                            data-name="${file.name}">
-                            Remove
-                        </button>
-                    </p>
-                    <a href="${fileURL}" target="_blank">Download</a>
-                </div>
-            `);
-        }
+            </div>
+        `);
 
         preview.append(div);
     });
 
-    syncInputFiles();
+    syncInputFiles(); // updates the actual file input
 }
+
 
 
 $(document).on('click', '.remove-btn', function () {

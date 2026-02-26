@@ -26,7 +26,7 @@ use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\Media;
 use App\Mail\Frontend\Demo\StudentTestByEmail;
 use App\Models\AiSensy;
 use Session;

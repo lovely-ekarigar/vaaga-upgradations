@@ -39,9 +39,7 @@ import 'bootstrap';
 if (typeof window.jQuery === 'undefined' || !window.jQuery.fn) {
     window.$ = window.jQuery = $;
 } else {
-    // Use existing CDN-loaded jQuery and ensure both module and global scope use it
-    $ = window.jQuery;
-    window.$ = window.jQuery;
+    window.$ = window.jQuery = window.jQuery;
 }
 window.swal = swal;
 window._ = _; // Lodash

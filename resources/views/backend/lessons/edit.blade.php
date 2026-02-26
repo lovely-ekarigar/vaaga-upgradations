@@ -113,6 +113,79 @@ use App\Models\Course;
             border-radius: 0.5rem;
             padding: 1rem;
         }
+        
+        
+        
+/* //for video */
+        .video-control-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .video-select {
+            flex: 0 0 85%;   /* Select thoda chhota */
+        }
+
+        .video-add-btn {
+            flex: 0 0 14%;   /* Button thoda bada */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Same height */
+        .video-select,
+        .video-add-btn {
+            height: 40px;
+        }
+
+
+        #video-template,
+    #video-list .form-group {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+}
+
+#video-template .form-control,
+#video-list .form-group .form-control {
+    flex: 0 0 85%;
+    height: 40px;
+}
+
+#video-template .remove-video,
+#video-list .form-group .remove-video {
+    flex: 0 0 14%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+#youtube-preview-row iframe {
+    width: 100%;
+    height: 200px;
+    border-radius: 6px;
+}
+
+.youtube-video-wrapper {
+    width: 100%;
+}
+
+.youtube-controls {
+    width: 100%;
+}
+
+.youtube-controls input {
+    width: 100%;
+}
+
+.youtube-controls button {
+    width: 100%;
+}
     </style>
 @endpush
 
@@ -204,184 +277,171 @@ use App\Models\Course;
                 </div>
             </div>
 
-            {{-- Downloadable Files Section --}}
-            <div class="row">
-                <div class="col-12 form-group">
-                    {!! Form::label('downloadable_files', trans('labels.backend.lessons.fields.downloadable_files').' (Max 50MB each)', ['class' => 'control-label']) !!}
-                    {!! Form::file('downloadable_files[]', [
-                        'multiple',
-                        'class' => 'form-control file-upload',
-                        'id' => 'downloadable_files',
-                        'accept' => '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.mp4,.mp3,.jpg,.jpeg,.png'
-                    ]) !!}
-                    
-                    {{-- Existing Downloadable Files --}}
-                    @if($lesson->downloadableMedia && $lesson->downloadableMedia->count() > 0)
-                        <div class="mt-3">
-                            <h6 class="text-muted mb-2">Existing Files:</h6>
-                            @foreach($lesson->downloadableMedia as $media)
-                                <div class="media-preview-card">
-                                    <div class="media-preview-header">
-                                        <div class="media-preview-info">
-                                            <i class="bi {{ $media->icon_class }} media-preview-icon"></i>
-                                            <div>
-                                                <div class="media-preview-title">{{ $media->name }}</div>
-                                                <div class="media-preview-meta">
-                                                    {{ $media->formatted_size }} • {{ strtoupper($media->file_type) }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ $media->file_url }}" target="_blank" class="btn btn-sm btn-info">
-                                                <i class="bi bi-eye"></i> Preview
-                                            </a>
-                                            <a href="#" data-media-id="{{$media->id}}" class="btn btn-sm btn-danger remove-file">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            </div>
+           <!-- downloadble and pdf   -->
 
-            {{-- PDF Section --}}
-            <div class="row">
-                <div class="col-12 form-group">
-                    {!! Form::label('add_pdf', trans('labels.backend.lessons.fields.add_pdf').' (Max 50MB)', ['class' => 'control-label']) !!}
-                    {!! Form::file('add_pdf', [
-                        'class' => 'form-control file-upload',
-                        'id' => 'add_pdf',
-                        'accept' => '.pdf'
-                    ]) !!}
-                    
-                    @if($lesson->mediaPDF)
-                        <div class="media-preview-card mt-3">
-                            <div class="media-preview-header">
-                                <div class="media-preview-info">
-                                    <i class="bi bi-file-pdf text-danger media-preview-icon" style="font-size: 2.5rem;"></i>
-                                    <div>
-                                        <div class="media-preview-title">{{ $lesson->mediaPDF->name }}</div>
-                                        <div class="media-preview-meta">{{ $lesson->mediaPDF->formatted_size }}</div>
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <a href="{{ $lesson->mediaPDF->file_url }}" target="_blank" class="btn btn-sm btn-info">
-                                        <i class="bi bi-eye"></i> View PDF
-                                    </a>
-                                    <a href="#" data-media-id="{{$lesson->mediaPDF->id}}" class="btn btn-sm btn-danger remove-file">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="pdf-preview-container mt-2">
-                                <iframe src="{{ $lesson->mediaPDF->file_url }}" width="100%" height="400px"></iframe>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
+<div class="row">
 
-            {{-- Audio Section --}}
-            <div class="row">
-                <div class="col-12 form-group">
-                    {!! Form::label('add_audio', trans('labels.backend.lessons.fields.add_audio').' (MP3, WAV, OGG - Max 50MB)', ['class' => 'control-label']) !!}
-                    {!! Form::file('add_audio', [
-                        'class' => 'form-control file-upload',
-                        'id' => 'add_audio',
-                        'accept' => '.mp3,.wav,.ogg,.m4a'
-                    ]) !!}
-                    
-                    @if($lesson->mediaAudio)
-                        <div class="media-preview-card mt-3">
-                            <div class="media-preview-header">
-                                <div class="media-preview-info">
-                                    <i class="bi bi-music-note-beamed text-success media-preview-icon" style="font-size: 2.5rem;"></i>
-                                    <div>
-                                        <div class="media-preview-title">{{ $lesson->mediaAudio->name }}</div>
-                                        <div class="media-preview-meta">{{ $lesson->mediaAudio->formatted_size }}</div>
-                                    </div>
-                                </div>
-                                <a href="#" data-media-id="{{$lesson->mediaAudio->id}}" class="btn btn-sm btn-danger remove-file">
-                                    <i class="bi bi-trash"></i>
+    <div class="col-md-6 form-group">
+        {!! Form::label('add_pdf', trans('labels.backend.lessons.fields.add_pdf')) !!}
+
+        {!! Form::file('add_pdf[]', [
+            'class' => 'form-control file-upload',
+            'id' => 'add_pdf',
+            'multiple' => true,
+            'accept' => '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.mp3,.mp4'
+        ]) !!}
+
+        <span class="form-text text-muted">
+            Allowed formats: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, JPEG, PNG, GIF, MP3, MP4
+        </span>
+    </div>
+
+</div>
+
+
+<div class="row mt-2" id="old-pdf-list">
+    @foreach($lesson->media->where('type','lesson_pdf') as $media)
+        <div class="col-md-6 mb-2 old-pdf" data-id="{{ $media->id }}">
+            <div class="border p-2 d-flex justify-content-between align-items-center">
+               <span>
+    {{ $media->name }} ({{ number_format($media->size, 2) }} KB)
+</span>
+
+                <button type="button"
+                        class="btn btn-sm btn-danger remove-old-pdf"
+                        data-id="{{ $media->id }}">
+                    Remove
+                </button>
+            </div>
+        </div>
+    @endforeach
+</div>
+
+
+<div class="row mt-2" id="pdf-preview"></div>
+
+<input type="hidden" name="removed_old_pdfs" id="removed_old_pdfs">
+
+
+       <div class="row">
+
+    <div class="col-md-6 form-group">
+
+        {!! Form::label('add_video', trans('labels.backend.lessons.fields.add_video'), ['class' => 'control-label']) !!}
+
+        <div class="video-control-wrapper">
+
+            {!! Form::select('media_type', [
+                '' => 'Select One',
+                'youtube' => 'Youtube'
+            ], null, [
+                'class' => 'form-control video-select',
+                'id' => 'media_type'
+            ]) !!}
+
+            <button type="button"
+                    class="btn btn-primary video-add-btn"
+                    id="add-video-btn"
+                    disabled>
+                Add Video
+            </button>
+
+        </div>
+
+        <!-- Hidden template for new video input -->
+        <div class="form-group d-none" id="video-template">
+            <input type="text" name="video[]" value="" class="form-control mb-2 video-input" placeholder="Paste YouTube link">
+            <a href="#" class="btn btn-xs btn-danger remove-video">@lang('labels.backend.lessons.remove')</a>
+        </div>
+
+        <!-- Container where new video fields will appear -->
+        <div id="video-list"></div>
+
+        {!! Form::file('video_file', [
+            'class' => 'form-control mt-3 d-none',
+            'id' => 'video_file'
+        ]) !!}
+
+        @lang('labels.backend.lessons.video_guide')
+    </div>
+
+
+
+    <div class="col-md-6 form-group">
+
+        {!! Form::label('pdf_files', trans('labels.backend.lessons.fields.add_audio'), ['class' => 'control-label']) !!}
+
+        {!! Form::file('add_audio', [
+            'class' => 'form-control file-upload',
+            'id' => 'add_audio',
+            'accept' => 'audio/mpeg3'
+        ]) !!}
+
+        <div class="photo-block mt-3">
+            <div class="files-list">
+                @if($lesson->media)
+                    @foreach($lesson->media as $media)
+                        @if($media->type=='lesson_audio')
+                            <p class="form-group">
+                                <a href="{{ asset('storage/uploads/'.$media->name) }}"
+                                   target="_blank">
+                                    {{ $media->name }} ({{ $media->size }} KB)
                                 </a>
-                            </div>
-                            <div class="audio-preview-container mt-2">
-                                <audio controls class="w-100">
-                                    <source src="{{ $lesson->mediaAudio->file_url }}" type="{{ $lesson->mediaAudio->mime_type ?? 'audio/mpeg' }}">
-                                    Your browser does not support the audio element.
+
+                                <a href="#"
+                                   data-media-id="{{$media->id}}"
+                                   class="btn btn-xs btn-danger delete remove-file">
+                                    @lang('labels.backend.lessons.remove')
+                                </a>
+
+                                <audio controls>
+                                    <source src="{{ $media->url }}" type="audio/mp3" />
                                 </audio>
-                            </div>
-                        </div>
-                    @endif
-                </div>
+                            </p>
+                        @endif
+                    @endforeach
+                @endif
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="row mt-4" id="youtube-preview-row">
+
+    @foreach($lesson->media->where('type','youtube') as $media)
+        <div class="col-md-3 mb-4 youtube-item" data-id="{{ $media->id }}">
+
+            <div class="youtube-video-wrapper">
+                <iframe
+                    src="https://www.youtube.com/embed/{{ strtok($media->file_name, '?') }}"
+                    frameborder="0"
+                    allowfullscreen>
+                </iframe>
             </div>
 
-            {{-- Video Section --}}
-            <div class="row">
-                <div class="col-md-12 form-group">
-                    {!! Form::label('add_video', trans('labels.backend.lessons.fields.add_video'), ['class' => 'control-label']) !!}
-                    {!! Form::select('media_type', [
-                        'youtube' => 'YouTube',
-                        'vimeo' => 'Vimeo', 
-                        'upload' => 'Upload Video',
-                        'embed' => 'Embed Code'
-                    ], optional($lesson->mediaVideo)->type, ['class' => 'form-control', 'placeholder' => 'Select One', 'id' => 'media_type']) !!}
+            <div class="youtube-controls mt-2">
+                <input type="text"
+                       name="video[]"
+                       value="{{ $media->url }}"
+                       class="form-control mb-2">
 
-                    {!! Form::text('video', optional($lesson->mediaVideo)->url, ['class' => 'form-control mt-3 d-none', 'placeholder' => trans('labels.backend.lessons.enter_video_url'), 'id' => 'video']) !!}
-
-                    {!! Form::file('video_file', ['class' => 'form-control mt-3 d-none', 'id' => 'video_file', 'accept' => 'video/mp4,video/avi,video/mov,video/webm']) !!}
-                    
-                    {!! Form::textarea('embed_code', optional($lesson->mediaVideo)->url, ['class' => 'form-control mt-3 d-none', 'placeholder' => 'Paste embed code here', 'id' => 'embed_code', 'rows' => 4]) !!}
-                    
-                    <input type="hidden" name="old_video_file" value="{{ optional($lesson->mediaVideo)->type == 'upload' ? $lesson->mediaVideo->url : '' }}">
-
-                    {{-- Existing Videos --}}
-                    @if($lesson->mediaVideo)
-                        <div class="media-preview-card mt-3">
-                            <div class="media-preview-header">
-                                <div class="media-preview-info">
-                                    <i class="bi bi-play-circle-fill text-primary media-preview-icon" style="font-size: 2.5rem;"></i>
-                                    <div>
-                                        <div class="media-preview-title">
-                                            {{ $lesson->mediaVideo->name }} 
-                                            <span class="badge bg-info">{{ ucfirst($lesson->mediaVideo->type) }}</span>
-                                        </div>
-                                        @if($lesson->mediaVideo->type == 'upload')
-                                            <div class="media-preview-meta">{{ $lesson->mediaVideo->formatted_size }}</div>
-                                        @endif
-                                    </div>
-                                </div>
-                                <a href="#" data-media-id="{{$lesson->mediaVideo->id}}" class="btn btn-sm btn-danger remove-file">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </div>
-                            
-                            {{-- Video Preview --}}
-                            @if($lesson->mediaVideo->is_video)
-                                <div class="video-preview-container mt-2 ratio ratio-16x9">
-                                    @if($lesson->mediaVideo->is_external && $lesson->mediaVideo->embed_url)
-                                        <iframe src="{{ $lesson->mediaVideo->embed_url }}" 
-                                                title="{{ $lesson->mediaVideo->name }}"
-                                                frameborder="0" 
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                                allowfullscreen>
-                                        </iframe>
-                                    @elseif($lesson->mediaVideo->type == 'upload')
-                                        <video controls preload="metadata">
-                                            <source src="{{ $lesson->mediaVideo->file_url }}" type="{{ $lesson->mediaVideo->mime_type ?? 'video/mp4' }}">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    @endif
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-                </div>
+                <button type="button"
+                        class="btn btn-sm btn-danger w-100 remove-old-video"
+                        data-id="{{ $media->id }}">
+                    Remove
+                </button>
             </div>
 
+        </div>
+    @endforeach
+
+</div>
+
+<input type="hidden" name="removed_old_videos" id="removed_old_videos">
             <div class="row mt-4">
                 <div class="col-6 col-lg-3 form-group">
                     <div class="form-check">
@@ -408,81 +468,241 @@ use App\Models\Course;
 
 @push('after-scripts')
     <script src="{{asset('plugins/bootstrap-tagsinput/bootstrap-tagsinput.js')}}"></script>
-    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+
+    <script type="text/javascript" src="{{asset('/vendor/unisharp/laravel-ckeditor/ckeditor.js')}}"></script>
+    <script type="text/javascript" src="{{asset('/vendor/unisharp/laravel-ckeditor/adapters/jquery.js')}}"></script>
     <script src="{{asset('/vendor/laravel-filemanager/js/lfm.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+<script>
+//     $(document).ready(function() {
+//   $('.editor').summernote({height: 250});
+// });
+</script>
     <script>
-        // Initialize CKEditor
-        CKEDITOR.replace('full_text', {
-            height: 400,
-            filebrowserUploadUrl: '{{ route("admin.uploadImageCkEditor") }}',
-            filebrowserUploadMethod: 'form',
-            extraAllowedContent: 'img[src,alt,width,height]'
-        });
-        
-        document.querySelector('form').addEventListener('submit', function () {
-            if (CKEDITOR.instances.full_text) CKEDITOR.instances.full_text.updateElement();
-        });
+        // $('.editor').each(function () {
 
-        // Remove media file
-        $(document).on('click', '.remove-file', function (e) {
-            e.preventDefault();
-            var $this = $(this);
-            var $parent = $this.closest('.media-preview-card');
-            var confirmation = confirm('{{trans('strings.backend.general.are_you_sure')}}');
-            
-            if (confirmation) {
-                var media_id = $this.data('media-id');
-                $.post('{{route('admin.media.destroy')}}', {
-                    media_id: media_id, 
-                    _token: '{{csrf_token()}}'
-                }, function (data, status) {
-                    if (data.success) {
-                        $parent.fadeOut(300, function() { $(this).remove(); });
-                    } else {
-                        alert('Something went wrong. Please try again.');
-                    }
-                });
-            }
-        });
+        //     CKEDITOR.replace($(this).attr('id'), {
+        //         filebrowserImageBrowseUrl: '/laravel-filemanager?type=Images',
+        //         filebrowserImageUploadUrl: '/laravel-filemanager/upload?type=Images&_token={{csrf_token()}}',
+        //         filebrowserBrowseUrl: '/laravel-filemanager?type=Files',
+        //         filebrowserUploadUrl: '/laravel-filemanager/upload?type=Files&_token={{csrf_token()}}',
 
-        // File size validation
-        $(document).on('change', 'input[type="file"]', function () {
-            var $this = $(this);
-            var maxSize = 500 * 1024 * 1024; // 500MB
-            
-            Array.from(this.files).forEach(function(file) {
-                if (file.size > maxSize) {
-                    alert('"' + file.name + '" exceeds the maximum file size of 500MB');
-                    $this.val('');
+        //         extraPlugins: 'smiley,lineutils,widget,codesnippet,prism',
+        //     });
+
+        // });
+        $(document).ready(function () {
+            $(document).on('click', '.delete', function (e) {
+                e.preventDefault();
+                var parent = $(this).parent('.form-group');
+                var confirmation = confirm('{{trans('strings.backend.general.are_you_sure')}}')
+                if (confirmation) {
+                    var media_id = $(this).data('media-id');
+                    $.post('{{route('admin.media.destroy')}}', {media_id: media_id, _token: '{{csrf_token()}}'},
+                        function (data, status) {
+                            if (data.success) {
+                                parent.remove();
+                            } else {
+                                alert('Something Went Wrong')
+                            }
+                        });
                 }
-            });
+            })
+       
+
+        var uploadField = $('input[type="file"]');
+
+
+        $(document).on('change', 'input[name="lesson_image"]', function () {
+            var $this = $(this);
+            $(this.files).each(function (key, value) {
+                if (value.size > 5000000) {
+                    alert('"' + value.name + '"' + 'exceeds limit of maximum file upload size')
+                    $this.val("");
+                }
+            })
         });
 
-        // Media type toggle
-        function toggleMediaFields() {
-            var mediaType = $('#media_type').val();
-            
-            // Hide all first
-            $('#video, #video_file, #embed_code').addClass('d-none').prop('required', false);
-            
-            if (mediaType === 'youtube' || mediaType === 'vimeo') {
-                $('#video').removeClass('d-none').prop('required', true);
-            } else if (mediaType === 'upload') {
-                $('#video_file').removeClass('d-none').prop('required', false);
-            } else if (mediaType === 'embed') {
-                $('#embed_code').removeClass('d-none').prop('required', true);
+        @if($lesson->mediavideo)
+        @if($lesson->mediavideo->type !=  'upload')
+        $('#video').removeClass('d-none').attr('required', true);
+        $('#video_file').addClass('d-none').attr('required', false);
+        $('.video-player').addClass('d-none');
+        @elseif($lesson->mediavideo->type == 'upload')
+        $('#video').addClass('d-none').attr('required', false);
+        $('#video_file').removeClass('d-none').attr('required', false);
+        $('.video-player').removeClass('d-none');
+        @else
+        $('.video-player').addClass('d-none');
+        $('#video_file').addClass('d-none').attr('required', false);
+        $('#video').addClass('d-none').attr('required', false);
+        @endif
+        @endif
+
+      $(document).on('change', '#media_type', function () { 
+        console.log("Hello");
+            if ($(this).val()) {
+                if ($(this).val() != 'upload') {
+                    $('#video').removeClass('d-none').attr('required', true)
+                    $('#video_file').addClass('d-none').attr('required', false)
+                } else if ($(this).val() == 'upload') {
+                    $('#video').addClass('d-none').attr('required', false)
+                    $('#video_file').removeClass('d-none').attr('required', true)
+                }
+            } else {
+                $('#video_file').addClass('d-none').attr('required', false)
+                $('#video').addClass('d-none').attr('required', false)
             }
+        })
+$(".js-example-placeholder-singlex").select2({
+                placeholder: "Select course content",
+            });
+
+
+
+            //updae to multi ?
+            let selectedFiles = [];
+let removedOldPdfs = [];
+
+$(document).on('change', '#add_pdf', function (e) {
+    selectedFiles = selectedFiles.concat(Array.from(e.target.files));
+    renderPreview();
+});
+function renderPreview() {
+    let preview = $('#pdf-preview');
+    preview.html('');
+
+    selectedFiles.forEach((file) => {
+        preview.append(`
+            <div class="col-md-6 mb-2 pdf-item">
+                <div class="border p-2 d-flex justify-content-between align-items-center">
+                    <span>${file.name}</span>
+                    <button type="button"
+                            class="btn btn-sm btn-danger remove-new"
+                            data-name="${file.name}">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        `);
+    });
+
+    syncInput();
+}
+$(document).on('click', '.remove-new', function () {
+    let name = $(this).data('name');
+    selectedFiles = selectedFiles.filter(f => f.name !== name);
+    renderPreview();
+});
+
+function syncInput() {
+    let dt = new DataTransfer();
+    selectedFiles.forEach(file => dt.items.add(file));
+    document.getElementById('add_pdf').files = dt.files;
+}
+
+// OLD PDF remove
+$(document).on('click', '.remove-old-pdf', function () {
+    let id = $(this).data('id');
+    removedOldPdfs.push(id);
+    $(this).closest('.old-pdf').remove();
+});
+
+// form submit se pehle
+$('form').on('submit', function () {
+    $('#removed_old_pdfs').val(removedOldPdfs.join(','));
+});
+// ================= VIDEO MODULE (SAME AS CREATE) =================
+
+$(document).ready(function () {
+
+    function toggleVideoButton() {
+        $('#add-video-btn').prop(
+            'disabled',
+            $('#media_type').val() !== 'youtube'
+        );
+    }
+
+    // Run on page load
+    toggleVideoButton();
+
+    // On change
+    $('#media_type').on('change', function () {
+        toggleVideoButton();
+    });
+
+    // Add Video Button Click
+    $(document).off('click', '#add-video-btn').on('click', '#add-video-btn', function (e) {
+        e.preventDefault();
+
+        let lastInput = $('#video-list .video-input').last();
+
+        if (lastInput.length && lastInput.val().trim() === '') {
+            alert('Please enter YouTube link first');
+            lastInput.focus();
+            return;
         }
 
-        // Initial state
-        toggleMediaFields();
+        let template = $('#video-template')
+            .clone()
+            .removeClass('d-none')
+            .removeAttr('id');
 
-        // On change
-        $('#media_type').on('change', toggleMediaFields);
+        $('#video-list').append(template);
+    });
 
-        // Select2 initialization
-        $(".js-example-placeholder-singlex").select2({
-            placeholder: "Select course content",
-        });
+   // Remove OLD YouTube video (DB wale)
+$(document).on('click', '.remove-old-video', function (e) {
+    e.preventDefault();
+
+    let mediaId = $(this).data('id');
+
+    let removed = $('#removed_old_videos').val();
+
+    if (removed) {
+        removed += ',' + mediaId;
+    } else {
+        removed = mediaId;
+    }
+
+    $('#removed_old_videos').val(removed);
+
+    $(this).closest('.youtube-item').remove();
+});
+});
+
+// document.addEventListener('DOMContentLoaded', function () {
+//     const mediaSelect = document.getElementById('media_type');
+//     const addBtn = document.getElementById('add-video-btn');
+//     const videoList = document.getElementById('video-list');
+//     const template = document.getElementById('video-template');
+
+//     // Show Add button only if YouTube selected
+//     mediaSelect.addEventListener('change', function() {
+//         if(this.value === 'youtube'){
+//             addBtn.classList.remove('d-none');
+//         } else {
+//             addBtn.classList.add('d-none');
+//         }
+//     });
+
+//     // Add new field
+//     addBtn.addEventListener('click', function () {
+//         const clone = template.cloneNode(true);
+//         clone.classList.remove('d-none');
+//         clone.removeAttribute('id');
+//         videoList.appendChild(clone);
+//     });
+
+//     // Remove field
+//     videoList.addEventListener('click', function(e){
+//         if(e.target && e.target.classList.contains('remove-video')){
+//             e.preventDefault();
+//             e.target.closest('.form-group').remove();
+//         }
+//     });
+// });
+
+ });
     </script>
 @endpush

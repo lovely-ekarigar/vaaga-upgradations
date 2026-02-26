@@ -1,6 +1,5 @@
 <?php
 use App\Models\UserNotification;
-use Illuminate\Support\Str;
 ?>
 
 @inject('request', 'Illuminate\Http\Request')
@@ -180,6 +179,22 @@ use Illuminate\Support\Str;
                                 <span class="title">Test Series</span>
                             </a>
                         </li>
+                           @can('mocktest_access')
+                            <li class="nav-item">
+                                <a class="nav-link {{ $request->segment(2) == 'mocktests' ? 'active' : '' }}"
+                                    href="{{ route('admin.mocktests.index') }}">
+                                    <span class="title">Mock Tests</span>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('lesson_create')
+                            <li class="nav-item">
+                                <a class="nav-link {{ $request->segment(2) == 'mock' ? 'active' : '' }}"
+                                    href="{{ route('mockseries.index') }}">
+                                    <span class="title">Mock Tests</span>
+                                </a>
+                            </li>
+                        @endcan
                         <li class="nav-item">
                             <a class="nav-link {{ $request->segment(2) == 'purchase' || $request->segment(2) == 'purchase-list' ? 'active' : '' }}"
                                 href="{{ route('admin.testseries.purchaseList') }}">
@@ -198,22 +213,7 @@ use Illuminate\Support\Str;
                                 <span class="title">Marketing</span>
                             </a>
                         </li>
-                        @can('mocktest_access')
-                            <li class="nav-item">
-                                <a class="nav-link {{ $request->segment(2) == 'mocktests' ? 'active' : '' }}"
-                                    href="{{ route('admin.mocktests.index') }}">
-                                    <span class="title">Mock Tests</span>
-                                </a>
-                            </li>
-                        @endcan
-                        @can('lesson_create')
-                            <li class="nav-item">
-                                <a class="nav-link {{ $request->segment(2) == 'mock' ? 'active' : '' }}"
-                                    href="{{ route('mockseries.index') }}">
-                                    <span class="title">Mock Tests</span>
-                                </a>
-                            </li>
-                        @endcan
+                     
                     </ul>
                 </li>
             @endif

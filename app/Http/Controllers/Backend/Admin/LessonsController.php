@@ -345,67 +345,204 @@ class LessonsController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateLessonsRequest $request, $id)
+      public function update(UpdateLessonsRequest $request, $id)
     {
         if (!Gate::allows('lesson_edit')) {
             return abort(401);
         }
-        
         $lesson = Lesson::findOrFail($id);
-        
-        // Update basic fields
+        if ((int)$request->free_lesson == 1) {
+            $lesson->free_lesson=1;
+        }else{
+            $lesson->free_lesson=0;
+        }
+        $lesson->duration=$request->duration;
         $lesson->update($request->except('downloadable_files', 'lesson_image'));
-        
-        $lesson->content_id = trim($request->content_id ?? '');
-        $lesson->free_lesson = $request->boolean('free_lesson');
-        $lesson->published = $request->boolean('published');
-        $lesson->duration = $request->duration;
-        
-        if (!$request->filled('slug') || $request->slug === '') {
-            $lesson->slug = Str::slug($request->title);
+         $lesson->content_id = trim($request->content_id);
+        if (($request->slug == "") || $request->slug == null) {
+            $lesson->slug = str_slug($request->title);
+            
         }
-        
-        // Handle lesson image upload
-        if ($request->hasFile('lesson_image')) {
-            // Delete old image
-            if ($lesson->lesson_image) {
-                $this->deleteFile($lesson->lesson_image);
+$lesson->save();
+        //Saving  videos
+        if ($request->media_type != "") {
+            $model_type = Lesson::class;
+            $model_id = $lesson->id;
+            $size = 0;
+            $media = '';
+            $url = '';
+            $video_id = '';
+            $name = $lesson->title . ' - video';
+            $media = $lesson->mediavideo;
+            if ($media == "") {
+                $media = new  Media();
             }
-            $lesson->lesson_image = $this->uploadImage($request->file('lesson_image'));
+            if ($request->media_type != 'upload') {
+                // if (($request->media_type == 'youtube') || ($request->media_type == 'vimeo')) {
+                //     $video = $request->video;
+                //     $url = $video;
+                //     $video_id = array_last(explode('/', $request->video));
+                //     $size = 0;
+
+                // } else if ($request->media_type == 'embed') {
+                //     $url = $request->video;
+                //     $filename = $lesson->title . ' - video';
+                // }
+                // $media->model_type = $model_type;
+                // $media->model_id = $model_id;
+                // $media->name = $name;
+                // $media->url = $url;
+                // $media->type = $request->media_type;
+                // $media->file_name = $video_id;
+                // $media->size = 0;
+                // $media->save();
+
+
+
+                if (($request->media_type == 'youtube') || ($request->media_type == 'vimeo')) {
+
+    $videos = (array) $request->video;
+
+    foreach ($videos as $video) {
+
+        if (empty($video)) {
+            continue; // hidden template se aa raha null skip
         }
 
-        // Handle video media
-        $this->handleVideoMedia($request, $lesson);
+        $video_id = array_last(explode('/', $video));
 
-        // Handle PDF upload - delete old if new one is uploaded
-        if ($request->hasFile('add_pdf')) {
-            $oldPdf = $lesson->mediaPDF;
-            if ($oldPdf) {
-                $this->mediaUploadService->delete($oldPdf);
+        $exists = Media::where('url', $video)
+            ->where('type', $request->media_type)
+            ->where('model_type', Lesson::class)
+            ->where('model_id', $lesson->id)
+            ->first();
+
+        if (!$exists) {
+            $media = new Media();
+            $media->model_type = $model_type;
+            $media->model_id = $model_id;
+            $media->name = $name;
+            $media->url = $video;
+            $media->type = $request->media_type;
+            $media->file_name = $video_id;
+            $media->size = 0;
+            $media->save();
+        }
+    }
+}
+
             }
-            $this->mediaUploadService->uploadPDF($request->file('add_pdf'), Lesson::class, $lesson->id, $lesson->title . ' - PDF');
-        }
 
-        // Handle Audio upload - delete old if new one is uploaded
-        if ($request->hasFile('add_audio')) {
-            $oldAudio = $lesson->mediaAudio;
-            if ($oldAudio) {
-                $this->mediaUploadService->delete($oldAudio);
+            if ($request->media_type == 'upload') {
+                if (\Illuminate\Support\Facades\Request::hasFile('video_file')) {
+                    $file = \Illuminate\Support\Facades\Request::file('video_file');
+                    $filename = time() . '-' . $file->getClientOriginalName();
+                    $size = $file->getSize() / 1024;
+                    $path = public_path() . '/storage/uploads/';
+                    $file->move($path, $filename);
+
+                    $video_id = $filename;
+                    $url = asset('storage/uploads/' . $filename);
+
+                    $media = Media::where('type', '=', $request->media_type)
+                        ->where('model_type', '=', 'App\Models\Lesson')
+                        ->where('model_id', '=', $lesson->id)
+                        ->first();
+
+                    if ($media == null) {
+                        $media = new Media();
+                    }
+                    $media->model_type = $model_type;
+                    $media->model_id = $model_id;
+                    $media->name = $name;
+                    $media->url = $url;
+                    $media->type = $request->media_type;
+                    $media->file_name = $video_id;
+                    $media->size = 0;
+                    $media->save();
+
+                }
             }
-            $this->mediaUploadService->uploadAudio($request->file('add_audio'), Lesson::class, $lesson->id, $lesson->title . ' - Audio');
+        }
+     
+
+
+// Delete removed old PDFs
+if($request->removed_old_pdfs){
+    $ids = explode(',', $request->removed_old_pdfs);
+
+    $pdfs = Media::whereIn('id', $ids)
+        ->where('type', 'lesson_pdf')
+        ->where('model_id', $lesson->id)
+        ->get();
+
+    foreach($pdfs as $pdf){
+        // Delete the file from storage
+        $filePath = public_path('storage/uploads/'.$pdf->file_name);
+        if(file_exists($filePath)){
+            unlink($filePath);
+        }
+        // Delete the record from DB
+        $pdf->delete();
+    }
+}
+// Delete removed old videos
+if($request->removed_old_videos){
+    $ids = explode(',', $request->removed_old_videos);
+
+    Media::whereIn('id', $ids)
+        ->where('type', 'youtube')
+        ->where('model_id', $lesson->id)
+        ->delete();
+}
+
+// Save new multiple PDFs
+if($request->hasFile('add_pdf')){
+    foreach($request->file('add_pdf') as $file){
+        $filename = time().'_'.$file->getClientOriginalName();
+        $size = $file->getSize() / 1024;
+
+        $path = public_path('/storage/uploads/');
+        $file->move($path, $filename);
+
+        Media::create([
+            'model_type' => Lesson::class,
+            'model_id' => $lesson->id,
+            'name' => $filename,
+            'url' => asset('storage/uploads/'.$filename),
+            'type' => 'lesson_pdf',
+            'file_name' => $filename,
+            'size' => $size,
+        ]);
+    }
+}
+
+
+
+        $request = $this->saveAllFiles($request, 'downloadable_files', Lesson::class, $lesson);
+
+        $sequence = 1;
+        if (count($lesson->course->courseTimeline) > 0) {
+            $sequence = $lesson->course->courseTimeline->max('sequence');
+            $sequence = $sequence + 1;
         }
 
-        // Handle downloadable files
-        $this->handleDownloadableFiles($request, $lesson);
+        if ((int)$request->published == 1) {
+            $timeline = CourseTimeline::where('model_type', '=', Lesson::class)
+                ->where('model_id', '=', $lesson->id)
+                ->where('course_id', $request->course_id)->first();
+            if ($timeline == null) {
+                $timeline = new CourseTimeline();
+            }
+            $timeline->course_id = $request->course_id;
+            $timeline->model_id = $lesson->id;
+            $timeline->model_type = Lesson::class;
+            $timeline->sequence = $sequence;
+            $timeline->save();
+        }
 
-        $lesson->save();
 
-        // Update course timeline
-        $this->updateCourseTimeline($lesson, $request->course_id);
-
-        return redirect()
-            ->route('admin.lessons.index', ['course_id' => $request->course_id])
-            ->withFlashSuccess(__('alerts.backend.general.updated'));
+        return redirect()->route('admin.lessons.index', ['course_id' => $request->course_id])->withFlashSuccess(__('alerts.backend.general.updated'));
     }
 
     /**

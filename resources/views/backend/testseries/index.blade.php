@@ -1,3 +1,4 @@
+@inject('request', 'Illuminate\Http\Request')
 @extends('frontend.layout.sub-master')
 @section('title')
 <title>Test Series | {{ env('APP_NAME') }}</title>
@@ -140,7 +141,7 @@
                                             <strong>Number of Tests:</strong> {{ $ts->testSeries->total_test ?? 0 }}
                                         </p>
                                         @php
-                                            $number = preg_replace('/\D/', '', $ts->testSeries->validity);
+                                            $number = (int) preg_replace('/\D/', '', $ts->testSeries->validity);
                                             $validTill = \Carbon\Carbon::parse($ts->created_at->addMonths($number));
                                             $isActive = $validTill->isFuture();
                                             $status = $isActive ? 'Active' : 'Expired';
@@ -148,13 +149,14 @@
                                         @endphp
                                         <p class="validity-info mb-0">Valid Till: {{ $validTill->format('d M Y') }}</p>
                                     </div>
-                                    
-                                   <div class="action-buttons d-flex gap-2">
-                                    <span class="badge {{ $badgeClass }} status-badge">{{ $status }}</span>
-
-                                    
-                                    
-                                    <div class="d-flex gap-2">
+                                    <div class="action-buttons">
+                                        @if($isActive)
+                                            <a href="{{ route('myTestSeries.list', ['id' => $ts->id]) }}" class="btn btn-primary btn-sm">
+                                                <i class="bi bi-eye"></i> View Tests
+                                            </a>
+                                        @endif
+                                        <span class="badge {{ $badgeClass }} status-badge">{{ $status }}</span>
+                                       <div class="d-flex gap-2">
                                         @if($isActive)
                                             <!-- View Tests -->
                                             <a href="{{ route('myTestSeries.list', ['id' => $ts->id]) }}" class="btn btn-primary btn-sm">
@@ -173,7 +175,6 @@
                                             @endif
                                     </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>

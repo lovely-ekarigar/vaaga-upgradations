@@ -31,6 +31,10 @@ use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\NotificationController;
 
+
+
+use Illuminate\Support\Facades\Route;
+
 /* 
  * Global Routes    
  * Routes that are used between both frontend and backend. 
@@ -254,19 +258,7 @@ Route::delete('leads/{lead}', [MarketingController::class, 'destroyLead'])->name
 
 
   Route::get('purchase/test-series', [TestSeriesController::class, 'purchaseList'])->name('testseries.purchaseList'); 
-// shruti
 
- Route::get('test-series/{testSeries}/study-material', [TestSeriesController::class, 'studyMaterial'])
-     ->name('testSeries.study-material');
-
-Route::get('lesson/{lesson}/materials', [TestSeriesController::class, 'lessonMaterials'])
-     ->name('lesson.materials');
-
-Route::get('/test-series/{id}/videos', [TestSeriesController::class, 'videos'])
-    ->name('testSeries.videos');
-
-Route::get('/lesson/{lessonId}/videos', [TestSeriesController::class, 'lessonVideos'])
-    ->name('lesson.videos');
 
   Route::get('question/report', [TestSeriesController::class, 'questionReport'])->name('testseries.questionReport'); 
 
@@ -450,6 +442,28 @@ Route::get('user/take/{id}', [TestSeriesController::class, 'takeExam'])->name('m
 Route::post('user/submit-exam', [TestSeriesController::class, 'submitExam'])->name('myTestSeries.submitExam');
 Route::get('user/exam/thank-you', [TestSeriesController::class, 'thankYou'])->name('myTestSeries.thankYou');
 Route::get('user/exam/result/{id}', [TestSeriesController::class, 'examResult'])->name('myTestSeries.examResult');
+
+
+//shruti
+// List lessons based on Test Series
+
+
+Route::get('test-series/{testSeries}/study-material', [TestSeriesController::class, 'studyMaterial'])
+     ->name('testSeries.study-material');
+
+// List lesson files
+Route::get('lesson/{lesson}/materials', [TestSeriesController::class, 'lessonMaterials'])
+     ->name('lesson.materials');
+
+
+Route::get('/test-series/{id}/videos', [TestSeriesController::class, 'videos'])
+    ->name('testSeries.videos');
+
+Route::get('/lesson/{lessonId}/videos', [TestSeriesController::class, 'lessonVideos'])
+    ->name('lesson.videos');
+    
+    
+    
 
 // Mock Test Series Routes (attempt route must be before list so /x/y/attempt is not matched as list /x)
 Route::get('user/my-mock-series', [MockSeriesController::class, 'myMockSeries'])->name('myMockSeries.index');
