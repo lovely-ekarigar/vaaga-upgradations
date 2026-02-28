@@ -106,7 +106,7 @@ pdfjsLib.getDocument(url).promise.then(function(pdf) {
 
         pdf.getPage(pageNum).then(function(page) {
 
-            const viewport = page.getViewport({ scale: 1.5 });
+            const viewport = page.getViewport({ scale: 3 });
 
             const canvas = document.createElement("canvas");
             const context = canvas.getContext("2d");

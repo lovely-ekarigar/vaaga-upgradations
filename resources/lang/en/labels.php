@@ -246,7 +246,7 @@ return array (
         'published' => 'Published',
         'position' => 'Position',
         'youtube_videos' => 'YouTube Videos',
-        'add_pdf' => 'Add PDF',
+        'add_pdf' => 'Add Documents',
         'add_video' => 'Add Video',
         'media_video' => 'Media Video',
         'media_audio' => 'Media Audio',

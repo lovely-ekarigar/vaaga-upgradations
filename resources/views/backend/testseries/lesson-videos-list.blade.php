@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="container mt-12 mb-10">
-    <h4 class="mb-3">Study Material: {{ $testSeries->name ?? 'Test Series' }}</h4>
+    <h4 class="mb-3">Self Paced Videos: {{ $testSeries->name ?? 'Test Series' }}</h4>
 
     @if($lessons->count() > 0)
         <ul class="list-group">

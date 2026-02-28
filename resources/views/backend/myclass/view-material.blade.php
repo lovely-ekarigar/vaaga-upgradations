@@ -28,7 +28,7 @@
             {{-- If PDFs exist --}}
             @if($lessonMedia->count() > 0)
 
-                <h5>Lesson PDFs</h5>
+                <h5>Lesson Documents</h5>
 
                 <!-- @foreach($lessonMedia as $media)
                     <div class="mb-4">
@@ -61,7 +61,7 @@
 
 
             @else
-                <p>No PDFs available for this lesson.</p>
+                <p>No Documents available for this lesson.</p>
             @endif
 
         @endif

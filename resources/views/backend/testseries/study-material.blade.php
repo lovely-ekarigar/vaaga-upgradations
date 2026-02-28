@@ -1,3 +1,4 @@
+dd($testSeries);
 @extends('frontend.layout.sub-master')
 
 @section('title')
@@ -26,4 +27,5 @@
         </div>
     @endif
 </div>
+
 @stop

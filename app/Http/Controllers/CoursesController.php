@@ -192,70 +192,79 @@ return $data['success'];
     
     }
     
-    public function demoCourse(Request $request){
-        $ret ='';
-        if($request->cat_id){
-            $cat_id = $request->cat_id;
-            $cat = Category::find($cat_id);
-            if($cat->is_board=='1'){
-                $boards = Board::get();
-                $ret ='<select class="form-control mb-3 form-select l2" id="select_board"><option value="">Select Board</option>';
-                foreach($boards as $b){
-                    $ret .= '<option value="'.$b->id.'">'.$b->name.'</option>';
-                }
-                $ret .= "</select>";
-                
-            }else{
-                
-                
-                $cats = Category::where("parent",$cat_id)->orderBy("sort_order","asc")->get();
-                
-                    if(count($cats)>0){
-                $ret ='<select class="form-control mb-3 form-select courseCategory l3" id="select_cat"><option value="">Select Sub Category</option>';
-                foreach($cats as $b){
-                    $ret .= '<option value="'.$b->id.'">'.$b->name.'</option>';
-                }
-                $ret .= "</select>";
-                    }
-                
-                  if(count($cats)==0){
-                $courses = Course::where("category_id",$request->cat_id)->orderBy("sort_order","asc")->get();
-                
-                 $ret ='<select class="form-control mb-3 form-select l4" id="select_course"><option value="">Select Course</option>';
-                foreach($courses as $b){
-                    $ret .= '<option value="'.$b->id.'">'.$b->title.'</option>';
-                }
-                $ret .= "</select>";
-                  }
+   public function demoCourse(Request $request)
+{
+    $ret = '';
+
+    //  Category selected → show subcategory OR course
+    if ($request->cat_id) {
+
+        $cats = Category::where("parent", $request->cat_id)
+                        ->orderBy("sort_order", "asc")
+                        ->get();
+
+        if ($cats->count() > 0) {
+            $ret = '<select class="form-control mb-3 form-select l3" id="select_subcat">
+                        <option value="">Select Sub Category</option>';
+            foreach ($cats as $c) {
+                $ret .= '<option value="'.$c->id.'">'.$c->name.'</option>';
             }
-            
-            
-        }  
-        
-        
-        if($request->board_id){
-            
-            // $courses = Course::where("category_id",$request->bcat_id)->where("board_id",$request->board_id)->get();
-           
-                
-               $cats = Category::where("board_id",$request->board_id)->where('parent',$request->category_id)->orderBy("sort_order","asc")->get();
-                
-                $ret ='<select class="form-control mb-3 form-select courseCategory l5" id="select_cat"><option value="">Select Class</option>';
-                foreach($cats as $b){
-                    $ret .= '<option value="'.$b->id.'">'.$b->name.'</option>';
-                }
-                $ret .= "</select>";
-                    
-                
-                 
-                 
-                 
-                
-            
+            $ret .= '</select>';
+            return $ret;   // STOP 
         }
+
+        // no subcategory → show course
+        $courses = Course::where("category_id", $request->cat_id)
+                         ->orderBy("sort_order", "asc")
+                         ->get();
+
+        $ret = '<select class="form-control mb-3 form-select l4" id="select_course">
+                    <option value="">Select Course</option>';
+        foreach ($courses as $c) {
+            $ret .= '<option value="'.$c->id.'">'.$c->title.'</option>';
+        }
+        $ret .= '</select>';
+
+        return $ret;   // STOP
+    }
+
+    //  Subcategory selected → show course
+    if ($request->subcat_id) {
+
+        $courses = Course::where("category_id", $request->subcat_id)
+                         ->orderBy("sort_order", "asc")
+                         ->get();
+
+        $ret = '<select class="form-control mb-3 form-select l4" id="select_course">
+                    <option value="">Select Course</option>';
+        foreach ($courses as $c) {
+            $ret .= '<option value="'.$c->id.'">'.$c->title.'</option>';
+        }
+        $ret .= '</select>';
+
         return $ret;
     }
-    
+
+    //  Board selected → show class
+    if ($request->board_id) {
+
+        $cats = Category::where("board_id", $request->board_id)
+                        ->where('parent', $request->category_id)
+                        ->orderBy("sort_order", "asc")
+                        ->get();
+
+        $ret = '<select class="form-control mb-3 form-select l5" id="select_class">
+                    <option value="">Select Class</option>';
+        foreach ($cats as $c) {
+            $ret .= '<option value="'.$c->id.'">'.$c->name.'</option>';
+        }
+        $ret .= '</select>';
+
+        return $ret;
+    }
+
+    return '';
+}
     public function demoRequest(Request $request){
        
         // dd($request->all());

@@ -12,9 +12,8 @@ use Illuminate\Support\Str;
 
 
 @section('title')
-<title>Maths, Science & English Olympiad Online Classes | Expert Coaching </title>
-<meta name="description"
-   content="Join expert-led Maths, Science & English Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀">
+<title>Olympiad Online Classes for Maths, Science & English - VaaGa Academy </title>
+<meta name="description" content="VaaGa Academy offers expert online Olympiad coaching for Maths, Science & English for Grade 2-8 students. Boost your child's performance with live classes and mock tests!">
 <meta name="keywords"
    content="Vaaga Academy,Vaaga Academy Gurgaon,online education platforms in India,Best elearning platforms in India,Online learning platform for students,Top online learning platforms in india,Online live learning platform for school students,Live Online Learning Classes for school students">
 
@@ -104,6 +103,19 @@ use Illuminate\Support\Str;
       cursor: pointer;
       color: #000;
    }
+   
+   .page-heading {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0B3B8C; /* Change as per your theme */
+    line-height: 1.3;
+    margin-bottom: 1rem;
+}
+@media (max-width: 768px) {
+    .page-heading {
+        font-size: 1.8rem;
+    }
+}
 
    /* Extra small devices (phones, 600px and down) */
    @media only screen and (max-width: 600px) {
@@ -445,47 +457,53 @@ use Illuminate\Support\Str;
 
 
 
-   <section class="section pt-0 pb-5">
-      <div class="container">
-         <div class="row justify-content-center section-heading">
-            <div class="col-lg-8 text-center text-lg-left">
+   <section class="section pb-5">
+  <div class="container">
+    
+    <!-- Centered Heading -->
+    <div class="row justify-content-center">
+      <div class="col-lg-10 text-center">
+        <h1>
+          Olympiad Online Classes for Maths, Science & English - VaaGa Academy
+        </h1>
+      </div>
+    </div>
 
-            </div>
-         </div>
-         <div class="row justify-content-center gy-4">
-            <div class="col-md-4">
-               <div class="card1 hover scale">
-                  <div class="card-body p-3">
-                     <a href="https://vaagaacademy.com/category/olympiad ">
-                        <!--javascript:void(0)-->
-                        <img src="{{asset('/frontend/assets/img/home/1.png')}}" loading="lazy" class="img-fluid enquiry"
-                           alt="Science Olympiad">
-                     </a>
-                  </div>
-               </div>
-            </div>
-            <div class="col-md-4">
-               <div class="card1 hover scale">
-                  <div class="card-body p-3">
-                     <a href="https://vaagaacademy.com/category/olympiad">
-                        <img src="{{asset('/frontend/assets/img/home/2.png')}}" loading="lazy" class="img-fluid enquiry"
-                           alt="Maths Olympiad">
-                     </a>
-                  </div>
-               </div>
-            </div>
-            <div class="col-md-4">
-               <div class="card1 hover scale">
-                  <div class="card-body p-3">
-                     <a href="https://vaagaacademy.com/category/olympiad">
-                        <img src="{{asset('/frontend/assets/img/home/3.png')}}" loading="lazy" class="img-fluid enquiry"
-                           alt="Maths Olympiad">
-                     </a>
-                  </div>
-               </div>
-            </div>
-         </div>
-   </section>
+    <!-- Cards Section -->
+    <div class="row justify-content-center gy-4 mt-3">
+      <div class="col-md-4">
+        <div class="card1 hover scale text-center">
+          <div class="card-body p-3">
+            <a href="https://vaagaacademy.com/category/olympiad">
+              <img src="{{asset('/frontend/assets/img/home/1.png')}}" loading="lazy" class="img-fluid enquiry" alt="Science Olympiad">
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card1 hover scale text-center">
+          <div class="card-body p-3">
+            <a href="https://vaagaacademy.com/category/olympiad">
+              <img src="{{asset('/frontend/assets/img/home/2.png')}}" loading="lazy" class="img-fluid enquiry" alt="Maths Olympiad">
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card1 hover scale text-center">
+          <div class="card-body p-3">
+            <a href="https://vaagaacademy.com/category/olympiad">
+              <img src="{{asset('/frontend/assets/img/home/3.png')}}" loading="lazy" class="img-fluid enquiry" alt="Maths Olympiad">
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</section>
    
    
    
@@ -497,7 +515,7 @@ use Illuminate\Support\Str;
                     <div class="card-body p-5">
                         <div class="text-center mb-5">
                             <span class="badge bg-primary mb-3 px-3 py-2">Premium Test Series</span>
-                            <h2 class="display-5 fw-bold text-dark mb-3">Olympiads  Test Series</h2>
+                            <h2 class="display-5 fw-bold text-dark mb-3">Olympiads Test Series</h2>
                             <p class="lead text-muted mb-4">Master your exams with our comprehensive test series designed to boost your performance</p>
                         </div>
 
@@ -587,8 +605,7 @@ use Illuminate\Support\Str;
       <div class="container">
          <div class="row justify-content-center section-heading">
             <div class="col-lg-8 text-center text-lg-left">
-               <h1 class="h1 mb-0 text-center text-lg-left f24">Excel in Maths, Science & English Olympiads with Expert
-                  Online Classes</h1>
+               <h2 class="h1 mb-0 text-center text-lg-left f24">Online Olympiad Classes for Maths, Science & English - VaaGa Academy</h2>
             </div>
          </div>
          <div class="row justify-content-center gy-4">
@@ -1231,14 +1248,15 @@ $catx = Category::find($course->category->parent);
 
 
 
-   <!-- <section class="section bg-fixed bg-center bg-cover bg-no-repeat" style="background-image: url(/banner.webp);" id="demo">
+   
+    <section class="section bg-fixed bg-center bg-cover bg-no-repeat" style="background-image: url(/banner.webp);" id="demo">
       <div class="container">
-         <div class="row">
+         <div class="row justify-content-center">
             <div class="col-lg-6 col-xl-5 ">
                <div class="card">
                   <div class="card-body text-center">
                      <h3 class="bg-light-after after-50px pb-3 mb-3">Book Free Demo Class</h3>
-                     <p>Are you ready to take the next step towards achieving your career goals? Let VaaGaa Academy be your trusted partner</p>
+                     <p>Are you ready to take the next step towards achieving your career goals? Let VaaGa Academy be your trusted partner</p>
                      <form class="rdx-mailform" method="post" action="{{route('home.demorequest')}}">
                         @csrf
                         <div class="mb-3">
@@ -1285,25 +1303,25 @@ $catx = Category::find($course->category->parent);
                         </div>
 
                         <div class="mb15">
-                        <div class="g-recaptcha mb-3" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                        <div class="g-recaptcha mb-3" data-sitekey="{{ config('services.recaptcha.site_key') }}"  data-callback="onRecaptchaSuccess"></div>
                         </div> 
 
-                         <button class="btn btn-primary w-100" type="submit">Submit</button> 
-                        <div>
-                           <button class="btn btn-primary w-100" data-sitekey="6Le-sVUmAAAAAI9X2Oe9oN6ldmWo6-J1EeuJp081" data-callback='onSubmit' data-action='submit' type="submit" id="submitDemo" style="display:none;" name="send">Submit</button> 
+                         <button class="btn btn-primary w-100" disabled type="submit">Submit</button> 
+                        <!--<div>-->
+                        <!--   <button class="btn btn-primary w-100" data-sitekey="6Le-sVUmAAAAAI9X2Oe9oN6ldmWo6-J1EeuJp081" data-callback='onSubmit' data-action='submit' type="submit" id="submitDemo" style="display:none;" name="send">Submit</button> -->
 
-                           <button class="btn btn-primary w-100" type="submit" id="submitDemo" style="display:none;" name="send">Submit</button>
+                        <!--   <button class="btn btn-primary w-100" type="submit" id="submitDemo" style="display:none;" name="send">Submit</button>-->
 
-                        </div>
+                        <!--</div>-->
                      </form>
-                     <button class="btn btn-warning rounded-0" type="submit">Contact Now</button>
+                     <!--<button class="btn btn-warning rounded-0" type="submit">Contact Now</button>-->
                   </div>
                </div>
 
             </div>
          </div>
       </div>
-   </section> -->
+   </section> 
 
    <?php
 
@@ -1471,7 +1489,7 @@ $catx = Category::find($course->category->parent);
       </div>
    </section>
 
-   <a class="book-demo-button d-none" href="#demo">
+   <a class="book-demo-button " href="#demo">
       <div>
          <i class="bi bi-mouse2-fill"></i> Book Free Demo
       </div>
@@ -1518,6 +1536,8 @@ $catx = Category::find($course->category->parent);
 <script>
    $(document).ready(function() {
    var board_id = '';
+   var course_id = '';
+   var category_id = '';
    
    $(document).on("click",".vplay",function(){
        
@@ -1531,93 +1551,184 @@ $catx = Category::find($course->category->parent);
       //  document.getElementById("demo-form").submit();
    }
 
-   var course_id = '';
-   var category_id = '';
-   $(document).on("change", ".courseCategory", function() {
-      var cat_id = $(this).val();
-      category_id = cat_id;
-      $("#demo_course_id").val("");
-      console.log(cat_id);
-      // $(".demo-course-list").html(""); 
-      $("#submitDemo").hide();
 
-      if (cat_id != '') {
-         $.ajax({
-            url: '/get-demo-course',
-            data: {
-               cat_id: cat_id
-            },
-            success: function(res) {
-               $(".demo-course-list").append(res);
-            }
-         })
-      }
+   
+   function toggleSubmit() {
+        let name = $('#contact-name').val().trim();
+        let email = $('#contact-email').val().trim();
+        let phone = $('#contact-phone').val().trim();
+        let courseId = $('#demo_course_id').val();
+        let recaptcha = grecaptcha ? grecaptcha.getResponse() : ''; // live check
 
-   });
-   $(document).on("change", ".l2", function() {
+        if (name && email && phone && courseId && recaptcha.length > 0) {
+            $('button[type="submit"]').prop('disabled', false);
+        } else {
+            $('button[type="submit"]').prop('disabled', true);
+        }
+    }
 
-      $(".l5").remove();
-      $(".l4").remove();
-
-   });
+    $('#contact-name, #contact-email, #contact-phone').on('input', toggleSubmit);
 
 
-   $(document).on("change", ".l1", function() {
+   
+   
+//   $(document).on("change", ".courseCategory", function() {                   old 
+//       var cat_id = $(this).val();
+//       category_id = cat_id;
+//       $("#demo_course_id").val("");
+//       console.log(cat_id);
+//       // $(".demo-course-list").html(""); 
+//       $("#submitDemo").hide();
 
-      $(".l2").remove();
-      $(".l3").remove();
-      $(".l4").remove();
-      $(".l5").remove();
-   });
+//       if (cat_id != '') {
+//          $.ajax({
+//             url: '/get-demo-course',
+//             data: {
+//               cat_id: cat_id
+//             },
+//             success: function(res) {
+//               $(".demo-course-list").append(res);
+//             }
+//          })
+//       }
 
-   $(document).on("change", ".l5", function() {
+//   });
+
+   //new
+   
+   
+    // ---------------- Dynamic dropdowns using delegation ----------------
+    $(document).on('change', '#courseCategory', function() {
+        let cat_id = $(this).val();
+        $(".demo-course-list").html("");
+        $("#demo_course_id").val("");
+        toggleSubmit();
+
+        if (cat_id) {
+            $.ajax({
+                url: '/get-demo-course',
+                data: { cat_id: cat_id },
+                success: function(res) {
+                    $(".demo-course-list").html(res);
+                    toggleSubmit();
+                }
+            });
+        }
+    });
+   
+
+    // $(document).on("change", ".l2", function() {
+    //     $(".l5").remove();
+    //     $(".l4").remove();
+    //     toggleSubmit();
+    // });
+
+    // $(document).on("change", ".l1", function() {
+    //     $(".l2").remove();
+    //     $(".l3").remove();
+    //     $(".l4").remove();
+    //     $(".l5").remove();
+    //     toggleSubmit();
+    // });
+
+    // $(document).on("change", ".l5", function() {
+    //     $(".l4").remove();
+    //     toggleSubmit();
+    // });
+   
+   
+  $(document).on('change', '#select_subcat', function() {
+        var subcat_id = $(this).val();
+        $(".l4").remove();
+        $("#demo_course_id").val("");
+        toggleSubmit();
+
+        if (subcat_id) {
+            $.ajax({
+                url: '/get-demo-course',
+                data: { subcat_id: subcat_id },
+                success: function(res) {
+                    $(".demo-course-list").append(res);
+                    toggleSubmit();
+                }
+            });
+        }
+    });
+    
+    
+    
+    
+    $(document).on('change', '.l1', function() {
+        $(".l2, .l3, .l4, .l5").remove();
+        toggleSubmit();
+    });
+
+    $(document).on('change', '.l2', function() {
+        $(".l4, .l5").remove();
+        toggleSubmit();
+    });
+
+    $(document).on('change', '.l5', function() {
+        $(".l4").remove();
+        toggleSubmit();
+    });
+
+    
+//   $(document).on("change", "#select_board", function() {
+//       board_id = $(this).val();
+//       console.log(board_id);
+//       // $(".demo-course-list").html("");  
+//       $("#demo_course_id").val("");
+//       $("#submitDemo").hide();
+
+//       if (category_id != '') {
+//          $.ajax({
+//             url: '/get-demo-course',
+//             data: {
+//               board_id: board_id,
+//               category_id: category_id
+//             },
+//             success: function(res) {
+//               $(".demo-course-list").append(res);
+//             }
+//          })
+//       }
+
+//   });
 
 
-      $(".l4").remove();
+
+//   $(document).on("change", "#select_course", function() {
+
+//       var cid = $(this).val();
+//     //   if (cid == "") {
+//     //      $("#submitDemo").hide();
+//     //   } else {
+//     //      $("#submitDemo").show();
+//     //   }
 
 
+//       course_id = cid;
 
-   });
-   $(document).on("change", "#select_board", function() {
-      board_id = $(this).val();
-      console.log(board_id);
-      // $(".demo-course-list").html("");  
-      $("#demo_course_id").val("");
-      $("#submitDemo").hide();
+//       $("#demo_course_id").val(course_id);
+//       console.log(cid);
 
-      if (category_id != '') {
-         $.ajax({
-            url: '/get-demo-course',
-            data: {
-               board_id: board_id,
-               category_id: category_id
-            },
-            success: function(res) {
-               $(".demo-course-list").append(res);
-            }
-         })
-      }
+//   })   old
 
-   });
+  // ---------------- Course selection ----------------
+    $(document).on('change', '#select_course', function() {
+        var cid = $(this).val();
+        course_id = cid;
+        $("#demo_course_id").val(course_id);
+        toggleSubmit();
+    });
 
+    // ---------------- Recaptcha callback ----------------
+    window.onRecaptchaSuccess = function() {
+        toggleSubmit();
+    };
 
-
-   $(document).on("change", "#select_course", function() {
-
-      var cid = $(this).val();
-      if (cid == "") {
-         $("#submitDemo").hide();
-      } else {
-         $("#submitDemo").show();
-      }
-
-
-      course_id = cid;
-
-      $("#demo_course_id").val(course_id);
-      console.log(cid);
-
-   })
+    toggleSubmit(); // initial check
 
    var swiper = new Swiper($("#course_slider"));
 

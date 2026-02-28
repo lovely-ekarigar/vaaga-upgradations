@@ -15,7 +15,7 @@
 
             <div class="col-md-4 mb-4 mt-5">
                 <div class="card shadow-sm">
-                    <div class="card-body">
+                    <div class="card-body p-2">
 
                         @if($videoId)
                             <div class="vplay text-center"

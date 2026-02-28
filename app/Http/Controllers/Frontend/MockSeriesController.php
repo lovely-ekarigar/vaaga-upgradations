@@ -814,9 +814,9 @@ class MockSeriesController extends Controller
             return abort(404);
         }
         
-        // Calculate result
+        // Calculate result using the same logic as answer key
         $questions = json_decode($exam->questions, true);
-        $answers = json_decode($exam->answers, true);
+        $userAnswers = json_decode($exam->answers, true) ?? [];
         
         $totalQuestions = 0;
         $correctAnswers = 0;
@@ -828,8 +828,42 @@ class MockSeriesController extends Controller
                 $totalQuestions++;
                 $question = \App\Models\Question::find($qid);
                 
-                if (isset($answers[$qid])) {
-                    if ($question && $question->correct_answer == $answers[$qid]) {
+                if (!$question) {
+                    continue;
+                }
+                
+                // Parse options - preserve base64 images
+                $options = $question->options;
+                if (is_string($options)) {
+                    $options = json_decode($options, true);
+                }
+                $optionKeyMapping = []; // Map old keys to new numeric indices
+                
+                if (is_array($options)) {
+                    $index = 0;
+                    foreach ($options as $key => $opt) {
+                        $optionKeyMapping[$key] = $index; // Map 'option1' => 0, 'option2' => 1, etc.
+                        $index++;
+                    }
+                }
+                
+                // Get user answer and correct answer, convert to numeric index
+                $userAnswer = isset($userAnswers[$qid]) ? $userAnswers[$qid] : null;
+                $correctAnswer = $question->correct_answer;
+                
+                // Convert option keys to numeric indices
+                if ($userAnswer !== null && isset($optionKeyMapping[$userAnswer])) {
+                    $userAnswer = $optionKeyMapping[$userAnswer];
+                }
+                if (isset($optionKeyMapping[$correctAnswer])) {
+                    $correctAnswer = $optionKeyMapping[$correctAnswer];
+                }
+                
+                $isCorrect = ($userAnswer !== null && $userAnswer == $correctAnswer);
+                $isAttempted = ($userAnswer !== null);
+                
+                if ($isAttempted) {
+                    if ($isCorrect) {
                         $correctAnswers++;
                     } else {
                         $wrongAnswers++;

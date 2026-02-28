@@ -129,6 +129,7 @@
             @if($testSeries->count() > 0)
                 <div class="test-series-list">
                     @foreach($testSeries as $ts)
+                 
                         <div class="test-series-card">
                             <div class="test-series-content">
                                 <div class="d-flex flex-column flex-md-row justify-content-between">
@@ -150,11 +151,11 @@
                                         <p class="validity-info mb-0">Valid Till: {{ $validTill->format('d M Y') }}</p>
                                     </div>
                                     <div class="action-buttons">
-                                        @if($isActive)
-                                            <a href="{{ route('myTestSeries.list', ['id' => $ts->id]) }}" class="btn btn-primary btn-sm">
-                                                <i class="bi bi-eye"></i> View Tests
-                                            </a>
-                                        @endif
+                                        <!--@if($isActive)-->
+                                        <!--    <a href="{{ route('myTestSeries.list', ['id' => $ts->id]) }}" class="btn btn-primary btn-sm">-->
+                                        <!--        <i class="bi bi-eye"></i> View Tests-->
+                                        <!--    </a>-->
+                                        <!--@endif-->
                                         <span class="badge {{ $badgeClass }} status-badge">{{ $status }}</span>
                                        <div class="d-flex gap-2">
                                         @if($isActive)
@@ -163,15 +164,16 @@
                                                 <i class="bi bi-eye"></i> View Tests
                                             </a>
 
-                                            <!-- Study Material -->
-                                            <a href="{{ route('testSeries.study-material', $ts->id) }}" class="btn btn-info btn-sm">
-                                                <i class="bi bi-book"></i> Study Material
-                                            </a>
+                                          <!-- Study Material -->
+    <a href="{{ route('testSeries.study-material', $ts->testSeries->id) }}" class="btn btn-info btn-sm">
+        <i class="bi bi-book"></i> Study Material
+    </a>
 
-                                           <!-- Self-Paced Videos -->
-                                           <a href="{{ route('testSeries.videos', $ts->id) }}" class="btn btn-warning btn-sm">
-                                         <i class="bi bi-play-circle"></i> Self-Paced Videos
-                                        </a>
+    <!-- Videos -->
+    <a href="{{ route('testSeries.videos', $ts->testSeries->id) }}" class="btn btn-warning btn-sm">
+        <i class="bi bi-play-circle"></i> Self-Paced Videos
+    </a>
+                                        
                                             @endif
                                     </div>
                                     </div>

@@ -78,10 +78,10 @@ class TestSeriesController extends Controller
     {
         // Get the test series
         $testSeries = TestSeries::findOrFail($testSeriesId);
-
+     
         // Get course_id from test series
         $courseId = $testSeries->course_id;
-
+        
         // Fetch all lessons for that course
         $lessons = Lesson::where('course_id', $courseId)
                          ->orderBy('id')
@@ -704,7 +704,7 @@ $end   = $start->copy()->addMinutes($exam->duration);
     public function myTestSeries(){
         
         $testSeries = TestSeriesPurchase::with('course','testSeries')->where("user_id",Auth::user()->id)->where("payment_status","paid")->orderBy("id","desc")->get();
-        // dd($testSeries);
+        //  dd($testSeries);
      	return view('backend.testseries.index',compact('testSeries'));
     }
     

@@ -1,0 +1,359 @@
+# Vaaga Academy File Organization Script
+# This script organizes all documentation, SQL, and asset files into _archive folder
+
+$ErrorActionPreference = "Continue"
+$projectRoot = "C:\Projects\vaagaacademy"
+$archiveDir = "$projectRoot\_archive"
+
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host "  Vaaga Academy File Organization" -ForegroundColor Cyan
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host ""
+
+# Create archive directories
+Write-Host "Creating archive directories..." -ForegroundColor Yellow
+$dirs = @("reports", "sql", "assets", "scripts")
+foreach ($dir in $dirs) {
+    $path = "$archiveDir\$dir"
+    if (!(Test-Path $path)) {
+        New-Item -ItemType Directory -Path $path -Force | Out-Null
+        Write-Host "  Created: _archive\$dir" -ForegroundColor Green
+    } else {
+        Write-Host "  Already exists: _archive\$dir" -ForegroundColor Gray
+    }
+}
+Write-Host ""
+
+# Define files to move by category
+$mdFiles = @(
+    "1ON1_PRICING_IMPLEMENTATION_SUMMARY.md",
+    "ADMIN_DASHBOARD_AUDIT_REPORT.md",
+    "AGENTS.md",
+    "app_comparison_final_report.md",
+    "ARCHITECTURAL_RECONCILIATION_REPORT.md",
+    "BEST_SOLUTION.md",
+    "CKEditor_AND_DB_FIX.md",
+    "CKEDITOR_IMPLEMENTATION_COMPLETE.md",
+    "CKEDITOR_QUESTIONS_FIX.md",
+    "CLEANUP_TEMP_FILES.md",
+    "COMPARE_AND_EXPORT.md",
+    "COMPLETE_FIXES_SUMMARY.md",
+    "COMPLETE_FIX_GUIDE.md",
+    "COMPLETE_SOLUTION.md",
+    "COMPREHENSIVE_END_TO_END_AUDIT_REPORT.md",
+    "COMPREHENSIVE_FEATURE_PARITY_AUDIT_FINAL.md",
+    "COMPREHENSIVE_ROUTE_CONTROLLER_AUDIT_REPORT.md",
+    "CONFLICT_RESOLUTION_REPORT.md",
+    "COPY_IMAGES_INSTRUCTIONS.md",
+    "CORE_LMS_FEATURES_AUDIT_REPORT.md",
+    "COURSE_MODE_CHANGE_FEATURE.md",
+    "CRITICAL_FIXES_NEEDED.md",
+    "CRITICAL_FIXES_SCRIPT.md",
+    "DASHBOARD_FIXES_APPLIED.md",
+    "DASHBOARD_FIXES_REPORT.md",
+    "DATABASE_ANALYSIS_REPORT.md",
+    "DATABASE_COMPARISON_REPORT.md",
+    "DATA_DISPLAY_FIXES.md",
+    "DEEP_COMPARISON_REPORT.md",
+    "DEFINITIVE_FIX.md",
+    "DEPLOYMENT_GUIDE.md",
+    "DEPLOYMENT_HOSTINGER.md",
+    "DEPLOY_INSTRUCTIONS.md",
+    "DEPLOY_TO_PRODUCTION.md",
+    "DETAILED_ROUTE_RECONCILIATION_AUDIT.md",
+    "EDGE_CASES_BUSINESS_LOGIC_AUDIT_REPORT.md",
+    "EDGE_CASES_QUICK_REFERENCE.md",
+    "ELOQUENT_MODELS_AUDIT_REPORT.md",
+    "EMI_DASHBOARD_IMPLEMENTATION_SUMMARY.md",
+    "EMI_DASHBOARD_SETUP.md",
+    "EMI_DISPLAY_UPDATE_SUMMARY.md",
+    "EMI_DUE_DATE_CALCULATION_FIX.md",
+    "EMI_PAYMENT_TRACKING_SYSTEM.md",
+    "EMI_REMINDER_SYSTEM.md",
+    "EMI_TRANSPARENT_TRACKING_IMPLEMENTATION.md",
+    "EXPECTED_TABLES_LIST.md",
+    "FEATURE_RESTORATION_SUMMARY.md",
+    "FINAL_CONFIG_AND_APP_COMPARISON.md",
+    "FINAL_DELIVERY_SUMMARY.md",
+    "FINAL_FIXES_APPLIED.md",
+    "FINAL_FIX_HINDI.md",
+    "FINAL_FIX_INSTRUCTIONS.md",
+    "FINAL_FIX_STEPS.md",
+    "FINAL_MODEL_COMPARISON_SUMMARY.md",
+    "FINAL_SOLUTION.md",
+    "FINAL_SOLUTION_HINDI.md",
+    "FINAL_TESTING_CHECKLIST.md",
+    "FIXES_APPLIED.md",
+    "FIXES_IMPLEMENTATION_SUMMARY.md",
+    "FIX_COLUMN_TYPE.md",
+    "FIX_INSTRUCTIONS.md",
+    "FIX_INVOICE_TABLE.md",
+    "FIX_MISSING_TABLES.md",
+    "FIX_NOW.md",
+    "FIX_ORDER_TABLE.md",
+    "FIX_PAGE_EXPIRED.md",
+    "FIX_PRODUCTION.md",
+    "FIX_QUESTIONS_DELETED_AT_FINAL.md",
+    "FIX_QUESTIONS_SIMPLE.md",
+    "FIX_ROLE_ERROR.md",
+    "FIX_SUPERVISOR_ROLE.md",
+    "FIX_TEST_SERIES_COLUMNS.md",
+    "FIX_TEST_SERIES_ORDER_ID_COLUMN.md",
+    "FIX_TEST_SERIES_TABLE.md",
+    "FIX_VIDEO_LINKS.md",
+    "FRONTEND_AUDIT_REPORT.md",
+    "FRONTEND_AUDIT_SUMMARY.md",
+    "FRONTEND_VIEWS_AUDIT_REPORT.md",
+    "GST_CALCULATION_LOGIC.md",
+    "GST_REPORTS_FIXES_SUMMARY.md",
+    "HOW_TO_FIX.md",
+    "IMPLEMENTATION_COMPLETE.md",
+    "IMPLEMENTATION_SUMMARY.md",
+    "INVOICE_FIX_CHECKLIST.md",
+    "INVOICE_FIX_SUMMARY.md",
+    "INVOICE_GENERATION_FIX_COMPLETE.md",
+    "ISSUES_FIX_COMPLETE_SUMMARY.md",
+    "LARAVEL_CONFIG_AND_CRITICAL_FILES_AUDIT_REPORT.md",
+    "MISSING_TABLES_SUMMARY.md",
+    "MOCKTEST_VIEWS_AUDIT_REPORT.md",
+    "MOCK_TABLES_MISSING_FIX.md",
+    "MOCK_TESTS_FIX_SUMMARY.md",
+    "MOCK_TEST_MIGRATION_COMPLETE_GUIDE.md",
+    "MOCK_TEST_SERIES_CONTROLLER_AUDIT_REPORT.md",
+    "MOCK_TEST_SERIES_MIGRATION_AUDIT_REPORT.md",
+    "MOCK_TEST_SERIES_MODELS_AUDIT_REPORT.md",
+    "MOCK_TEST_SERIES_ROUTE_AUDIT_REPORT.md",
+    "MOCK_TEST_TUTOR_IMPLEMENTATION_GUIDE.md",
+    "MODEL_COMPARISON_REPORT.md",
+    "NAVIGATION_PAGES_FIX_REPORT.md",
+    "ONLY_QUESTION_CHANGES.md",
+    "PAYMENT_IMPROVEMENTS_IMPLEMENTATION_SUMMARY.md",
+    "PAYMENT_LINK_IMPLEMENTATION_SUMMARY.md",
+    "PAYMENT_ORDER_AUDIT_REPORT.md",
+    "PAYMENT_ORDER_REFACTOR_COMPLETE_SUMMARY.md",
+    "PERMANENT_FIX_CSRF.md",
+    "PHP_FPM_RESTART_SAFE.md",
+    "PRICING_CAPTURE_FIX_SUMMARY.md",
+    "PRODUCTION_DEPLOYMENT_CHECKLIST.md",
+    "PROJECT_AUDIT_SUMMARY.md",
+    "PROJECT_COMPARISON_REPORT.md",
+    "PROJECT_FIXES_SUMMARY.md",
+    "QUESTION_BANK_UPGRADE_SUMMARY.md",
+    "QUICK_CHECK_COMMANDS.md",
+    "resources_comparison_report.md",
+    "README_SOURCE.md",
+    "REMOVE_DELETED_AT_COLUMN.md",
+    "REMOVE_DELETED_AT_SAFE.md",
+    "REMOVE_DELETED_AT_SIMPLE.md",
+    "ROUTES_API_AUDIT_REPORT.md",
+    "ROUTE_FIXES_APPLIED.md",
+    "SETUP_LOCAL_ENVIRONMENT.md",
+    "SHADOW_FIELDS_ANALYSIS.md",
+    "SIDEBAR_MENU_FIX_SUMMARY.md",
+    "SKILL_PAYMENT_IMPROVEMENTS.md",
+    "SOFTDELETES_REMOVED.md",
+    "SOLUTION_IF_COLUMN_EXISTS.md",
+    "STEP_BY_STEP_FIX.md",
+    "STORAGE_DATABASE_COMPARISON_REPORT.md",
+    "STORAGE_SYNC_REPORT.md",
+    "STUDENT_DASHBOARD_AUDIT_REPORT.md",
+    "STUDENT_DASHBOARD_FIXES_SUMMARY.md",
+    "TABLE_ANALYSIS_AND_FIX_GUIDE.md",
+    "TEACHER_STUDENT_FEATURES_AUDIT_REPORT.md",
+    "TEST_COD_NOW.md",
+    "TEST_SERIES_COUPON_IMPLEMENTATION.md",
+    "TEST_SERIES_ORDER_INTEGRATION_SUMMARY.md",
+    "TROUBLESHOOTING.md",
+    "TUTOR_DASHBOARD_AUDIT_REPORT.md",
+    "TUTOR_DASHBOARD_FIXES_SUMMARY.md",
+    "UI_FIXES_SUMMARY.md",
+    "UPGRADE_QUESTIONS_TABLE.md",
+    "URGENT_FIX.md",
+    "VERIFY_AND_FIX.md",
+    "VERIFY_INVOICE_FIXES.md",
+    "VIEWS_RESOURCES_AUDIT_REPORT.md"
+)
+
+$sqlFiles = @(
+    "ADD_ALL_MISSING_COLUMNS.sql",
+    "ADD_COLUMNS_DIRECT.sql",
+    "ADD_EMI_ADMIN_ADJUSTMENT_COLUMNS.sql",
+    "ADD_EMI_ENABLED_COLUMN.sql",
+    "ADD_EMI_PAYMENT_STATUS_COLUMNS.sql",
+    "ADD_INVOICE_COLUMNS_SIMPLE.sql",
+    "ADD_INVOICE_DATE_COLUMN.sql",
+    "ADD_MISSING_COLUMNS_FIX.sql",
+    "ADD_MISSING_COLUMNS_SAFE.sql",
+    "ADD_ORDER_COLUMNS.sql",
+    "ADD_ORDER_COLUMNS_SIMPLE.sql",
+    "ADD_ORDER_ID_COLUMN_FIX.sql",
+    "ADD_ORDER_PRICING_COLUMNS.sql",
+    "ADD_TEST_SERIES_COUPON_FIELDS.sql",
+    "ALTERNATIVE_FIX_WITH_DEFAULT.sql",
+    "APPLY_FIX_NOW.md",
+    "ASSIGN_TUTOR_TO_BATCH.sql",
+    "CHECK_AND_FIX_TABLES.sql",
+    "CHECK_ASSIGNMENT_DATA.sql",
+    "CHECK_NOTE_CATEGORIES.sql",
+    "CHECK_STATUS.sql",
+    "COMPLETE_DATABASE_FIX.sql",
+    "COMPLETE_FIX.sql",
+    "COMPLETE_ORDER_TABLE_FIX.sql",
+    "CORRECT_INSERT.sql",
+    "CREATE_ALL_MISSING_TABLES.sql",
+    "CREATE_MOCK_TABLES.sql",
+    "CREATE_MOCK_TESTS_FIX.sql",
+    "CREATE_MOCK_TESTS_TABLE.sql",
+    "DEBUG_TESTS_QUERIES.sql",
+    "DEFINITIVE_FIX.sql",
+    "diagnose_questions_table.sql",
+    "EMERGENCY_FIX.sql",
+    "EXPORT_THESE_TABLES.sql",
+    "FIND_MISSING_TABLES.sql",
+    "FIX_BATCH_EXAM_TABLE.sql",
+    "FIX_COLUMN_TYPE.sql",
+    "FIX_ENHANCED_REPORT_CONTROLLER.sql",
+    "FIX_GST_REPORTS.sql",
+    "FIX_INVOICE_DATE_NOW.sql",
+    "FIX_INVOICE_TABLE.sql",
+    "FIX_MISSING_ROLES.sql",
+    "FIX_MISSING_TABLES.sql",
+    "FIX_NOW.sql",
+    "fix_questions_deleted_at.sql",
+    "FIX_QUESTIONS_DELETED_AT_FINAL.sql",
+    "fix_questions_deleted_at_phpmyadmin.sql",
+    "fix_questions_deleted_at_safe.sql",
+    "FIX_QUESTIONS_SIMPLE.sql",
+    "FIX_SUPERVISOR_ROLE.sql",
+    "FIX_TEST_SERIES_COLUMNS.sql",
+    "FIX_TEST_SERIES_TABLE.sql",
+    "FIX_VIDEO_LINKS.sql",
+    "get_tables_sql.sql",
+    "IMMEDIATE_FIX.sql",
+    "QUICK_FIX_ALL_COLUMNS.sql",
+    "QUICK_FIX_ORDER_COLUMNS.sql",
+    "QUICK_FIX_ORDERS_PAGE.sql",
+    "QUICK_FIX_SUBSCRIPTION.sql",
+    "REMOVE_DELETED_AT_COLUMN.sql",
+    "REMOVE_DELETED_AT_SAFE.sql",
+    "REMOVE_DELETED_AT_SIMPLE.sql",
+    "rollback_questions_deleted_at.sql",
+    "RUN_THIS_FIRST.sql",
+    "RUN_THIS_FIX.sql",
+    "RUN_THIS_NOW.sql",
+    "SIMPLE_DEFINITIVE_FIX.sql",
+    "SIMPLE_FIX.sql",
+    "STEP_BY_STEP_FIX.sql",
+    "URGENT_FIX_ALL_INVOICE_COLUMNS.sql",
+    "URGENT_FIX_SQL.sql",
+    "VERIFY_COLUMN.sql",
+    "VERIFY_DATABASE_SCHEMA.sql",
+    "VERIFY_MODEL_FIELDS.sql"
+)
+
+$assetFiles = @(
+    "batch-progress-fixed.png",
+    "contact_page_current.png",
+    "contact_page_full.png",
+    "contact_page_new_design.png",
+    "contact_page_with_header.png",
+    "homepage_fixed.png",
+    "homepage_working.png",
+    "lessons_page_debug.png"
+)
+
+$scriptFiles = @(
+    "cleanup_and_push.sh",
+    "fix-storage.sh",
+    "fresh_push.sh"
+)
+
+# Function to move files
+function Move-FilesToArchive {
+    param($files, $destination, $category)
+    
+    Write-Host "Moving $category files..." -ForegroundColor Yellow
+    $moved = 0
+    $notFound = 0
+    $failed = 0
+    
+    foreach ($file in $files) {
+        $source = "$projectRoot\$file"
+        if (Test-Path $source) {
+            try {
+                Move-Item -Path $source -Destination "$archiveDir\$destination\$file" -Force
+                $moved++
+            } catch {
+                Write-Host "  Failed: $file" -ForegroundColor Red
+                $failed++
+            }
+        } else {
+            $notFound++
+        }
+    }
+    
+    Write-Host "  Moved: $moved, Not found: $notFound, Failed: $failed" -ForegroundColor $(if ($failed -eq 0) { "Green" } else { "Red" })
+    return $moved
+}
+
+# Move files
+$totalMoved = 0
+$totalMoved += Move-FilesToArchive -files $mdFiles -destination "reports" -category "Markdown Reports"
+$totalMoved += Move-FilesToArchive -files $sqlFiles -destination "sql" -category "SQL Scripts"
+$totalMoved += Move-FilesToArchive -files $assetFiles -destination "assets" -category "Image Assets"
+$totalMoved += Move-FilesToArchive -files $scriptFiles -destination "scripts" -category "Shell Scripts"
+
+Write-Host ""
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host "  Organization Complete!" -ForegroundColor Cyan
+Write-Host "=========================================" -ForegroundColor Cyan
+Write-Host "Total files moved: $totalMoved" -ForegroundColor Green
+Write-Host ""
+Write-Host "Archive structure:" -ForegroundColor Cyan
+Write-Host "  _archive/" -ForegroundColor Gray
+Write-Host "    ├── reports/  - Documentation and audit reports" -ForegroundColor Gray
+Write-Host "    ├── sql/      - SQL migration and fix scripts" -ForegroundColor Gray
+Write-Host "    ├── assets/   - Screenshots and visual documentation" -ForegroundColor Gray
+Write-Host "    └── scripts/  - Shell scripts for maintenance" -ForegroundColor Gray
+
+# Create README.md
+$readmeContent = @"# Project Documentation Archive
+
+## Description
+
+This folder contains historical documentation, SQL scripts, and related files for the Vaaga Academy project. These files represent snapshots of the project's evolution, including audit reports, database migrations, bug fixes, and implementation summaries.
+
+---
+
+## Directory Structure
+
+### reports/
+**Purpose:** All markdown documentation and audit reports (.md files)
+
+### sql/
+**Purpose:** All SQL migration and fix scripts (.sql files)
+
+### assets/
+**Purpose:** Screenshots and visual documentation (.png, .jpg files)
+
+### scripts/
+**Purpose:** Shell scripts for maintenance (.sh files)
+
+---
+
+## Usage Guidelines
+
+- **Reports:** Reference when understanding past decisions or troubleshooting
+- **SQL Scripts:** Use as templates for database operations; verify before production use
+- **Assets:** Reference for UI/UX comparisons and historical design decisions
+- **Scripts:** Review and test in a safe environment before executing
+
+---
+
+*Organized: $(Get-Date -Format 'yyyy-MM-dd')*
+"@
+
+$readmePath = "$archiveDir\README.md"
+$readmeContent | Out-File -FilePath $readmePath -Encoding utf8
+Write-Host ""
+Write-Host "Created: _archive\README.md" -ForegroundColor Green

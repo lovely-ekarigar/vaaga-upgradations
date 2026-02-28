@@ -61,7 +61,7 @@ Mock Series Management | {{ env('APP_NAME') }}
                         
                         <!-- Add New Mock Series Button -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMockSeriesModal">
-                            <i class="fas fa-plus"></i> Add New Mock Series
+                            <i class="fas fa-plus"></i> Add New Mock Tests
                         </button>
                     </div>
                 </div>
@@ -134,7 +134,7 @@ Mock Series Management | {{ env('APP_NAME') }}
          <a href="{{route('mockseries.testlist',['id'=>$series->id])}}" class="btn btn-sm btn-outline-success add-tests-btn" 
                 data-id="{{ $series->id }}"
                 data-name="{{ $series->name }}">
-            Mocks
+            Tests
         </a>
 
         

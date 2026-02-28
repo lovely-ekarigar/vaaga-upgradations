@@ -1,0 +1,189 @@
+const fs = require('fs');
+const path = require('path');
+
+const mdFiles = [
+    "1ON1_PRICING_IMPLEMENTATION_SUMMARY.md",
+    "ADMIN_DASHBOARD_AUDIT_REPORT.md",
+    "CKEditor_AND_DB_FIX.md",
+    "CKEDITOR_IMPLEMENTATION_COMPLETE.md",
+    "CKEDITOR_QUESTIONS_FIX.md",
+    "CLEANUP_TEMP_FILES.md",
+    "COMPARE_AND_EXPORT.md",
+    "COMPLETE_FIXES_SUMMARY.md",
+    "COMPLETE_FIX_GUIDE.md",
+    "COMPREHENSIVE_END_TO_END_AUDIT_REPORT.md",
+    "COMPREHENSIVE_FEATURE_PARITY_AUDIT_FINAL.md",
+    "COMPREHENSIVE_ROUTE_CONTROLLER_AUDIT_REPORT.md",
+    "CONFLICT_RESOLUTION_REPORT.md",
+    "COPY_IMAGES_INSTRUCTIONS.md",
+    "CORE_LMS_FEATURES_AUDIT_REPORT.md",
+    "COURSE_MODE_CHANGE_FEATURE.md",
+    "CRITICAL_FIXES_NEEDED.md",
+    "CRITICAL_FIXES_SCRIPT.md",
+    "DASHBOARD_FIXES_APPLIED.md",
+    "DASHBOARD_FIXES_REPORT.md",
+    "DATABASE_ANALYSIS_REPORT.md",
+    "DATABASE_COMPARISON_REPORT.md",
+    "DATA_DISPLAY_FIXES.md",
+    "DEEP_COMPARISON_REPORT.md",
+    "DEFINITIVE_FIX.md",
+    "DEPLOYMENT_GUIDE.md",
+    "DEPLOYMENT_HOSTINGER.md",
+    "DEPLOY_INSTRUCTIONS.md",
+    "DEPLOY_TO_PRODUCTION.md",
+    "DETAILED_ROUTE_RECONCILIATION_AUDIT.md",
+    "EDGE_CASES_BUSINESS_LOGIC_AUDIT_REPORT.md",
+    "EDGE_CASES_QUICK_REFERENCE.md",
+    "ELOQUENT_MODELS_AUDIT_REPORT.md",
+    "EMI_DASHBOARD_IMPLEMENTATION_SUMMARY.md",
+    "EMI_DASHBOARD_SETUP.md",
+    "EMI_DISPLAY_UPDATE_SUMMARY.md",
+    "EMI_DUE_DATE_CALCULATION_FIX.md",
+    "EMI_PAYMENT_TRACKING_SYSTEM.md",
+    "EMI_REMINDER_SYSTEM.md",
+    "EMI_TRANSPARENT_TRACKING_IMPLEMENTATION.md",
+    "EXPECTED_TABLES_LIST.md",
+    "FEATURE_RESTORATION_SUMMARY.md",
+    "FINAL_CONFIG_AND_APP_COMPARISON.md",
+    "FINAL_DELIVERY_SUMMARY.md",
+    "FINAL_FIXES_APPLIED.md",
+    "FINAL_FIX_HINDI.md",
+    "FINAL_FIX_INSTRUCTIONS.md",
+    "FINAL_FIX_STEPS.md",
+    "FINAL_MODEL_COMPARISON_SUMMARY.md",
+    "FINAL_SOLUTION.md",
+    "FINAL_SOLUTION_HINDI.md",
+    "FINAL_TESTING_CHECKLIST.md",
+    "FIXES_APPLIED.md",
+    "FIXES_IMPLEMENTATION_SUMMARY.md",
+    "FIX_COLUMN_TYPE.md",
+    "FIX_INSTRUCTIONS.md",
+    "FIX_INVOICE_TABLE.md",
+    "FIX_MISSING_TABLES.md",
+    "FIX_NOW.md",
+    "FIX_ORDER_TABLE.md",
+    "FIX_PAGE_EXPIRED.md",
+    "FIX_PRODUCTION.md",
+    "FIX_QUESTIONS_DELETED_AT_FINAL.md",
+    "FIX_QUESTIONS_SIMPLE.md",
+    "FIX_ROLE_ERROR.md",
+    "FIX_SUPERVISOR_ROLE.md",
+    "FIX_TEST_SERIES_COLUMNS.md",
+    "FIX_TEST_SERIES_ORDER_ID_COLUMN.md",
+    "FIX_TEST_SERIES_TABLE.md",
+    "FIX_VIDEO_LINKS.md",
+    "FRONTEND_AUDIT_REPORT.md",
+    "FRONTEND_AUDIT_SUMMARY.md",
+    "FRONTEND_VIEWS_AUDIT_REPORT.md",
+    "GST_CALCULATION_LOGIC.md",
+    "GST_REPORTS_FIXES_SUMMARY.md",
+    "HOW_TO_FIX.md",
+    "IMPLEMENTATION_COMPLETE.md",
+    "IMPLEMENTATION_SUMMARY.md",
+    "INVOICE_FIX_CHECKLIST.md",
+    "INVOICE_FIX_SUMMARY.md",
+    "INVOICE_GENERATION_FIX_COMPLETE.md",
+    "ISSUES_FIX_COMPLETE_SUMMARY.md",
+    "LARAVEL_CONFIG_AND_CRITICAL_FILES_AUDIT_REPORT.md",
+    "MISSING_TABLES_SUMMARY.md",
+    "MOCKTEST_VIEWS_AUDIT_REPORT.md",
+    "MOCK_TABLES_MISSING_FIX.md",
+    "MOCK_TESTS_FIX_SUMMARY.md",
+    "MOCK_TEST_MIGRATION_COMPLETE_GUIDE.md",
+    "MOCK_TEST_SERIES_CONTROLLER_AUDIT_REPORT.md",
+    "MOCK_TEST_SERIES_MIGRATION_AUDIT_REPORT.md",
+    "MOCK_TEST_SERIES_MODELS_AUDIT_REPORT.md",
+    "MOCK_TEST_SERIES_ROUTE_AUDIT_REPORT.md",
+    "MOCK_TEST_TUTOR_IMPLEMENTATION_GUIDE.md",
+    "MODEL_COMPARISON_REPORT.md",
+    "NAVIGATION_PAGES_FIX_REPORT.md",
+    "ONLY_QUESTION_CHANGES.md",
+    "PAYMENT_IMPROVEMENTS_IMPLEMENTATION_SUMMARY.md",
+    "PAYMENT_LINK_IMPLEMENTATION_SUMMARY.md",
+    "PAYMENT_ORDER_AUDIT_REPORT.md",
+    "PAYMENT_ORDER_REFACTOR_COMPLETE_SUMMARY.md",
+    "PERMANENT_FIX_CSRF.md",
+    "PHP_FPM_RESTART_SAFE.md",
+    "PRICING_CAPTURE_FIX_SUMMARY.md",
+    "PRODUCTION_DEPLOYMENT_CHECKLIST.md",
+    "PROJECT_AUDIT_REPORT.md",
+    "PROJECT_COMPARISON_REPORT.md",
+    "PROJECT_FIXES_SUMMARY.md",
+    "QUESTION_BANK_UPGRADE_SUMMARY.md",
+    "QUICK_CHECK_COMMANDS.md",
+    "README.md",
+    "README_SOURCE.md",
+    "REMOVE_DELETED_AT_COLUMN.md",
+    "REMOVE_DELETED_AT_SAFE.md",
+    "REMOVE_DELETED_AT_SIMPLE.md",
+    "ROUTES_API_AUDIT_REPORT.md",
+    "ROUTE_FIXES_APPLIED.md",
+    "SETUP_LOCAL_ENVIRONMENT.md",
+    "SHADOW_FIELDS_ANALYSIS.md",
+    "SIDEBAR_MENU_FIX_SUMMARY.md",
+    "SKILL_PAYMENT_IMPROVEMENTS.md",
+    "SOFTDELETES_REMOVED.md",
+    "SOLUTION_IF_COLUMN_EXISTS.md",
+    "STEP_BY_STEP_FIX.md",
+    "STORAGE_DATABASE_COMPARISON_REPORT.md",
+    "STORAGE_SYNC_REPORT.md",
+    "STUDENT_DASHBOARD_AUDIT_REPORT.md",
+    "STUDENT_DASHBOARD_FIXES_SUMMARY.md",
+    "TABLE_ANALYSIS_AND_FIX_GUIDE.md",
+    "TEACHER_STUDENT_FEATURES_AUDIT_REPORT.md",
+    "TEST_COD_NOW.md",
+    "TEST_SERIES_COUPON_IMPLEMENTATION.md",
+    "TEST_SERIES_ORDER_INTEGRATION_SUMMARY.md",
+    "TROUBLESHOOTING.md",
+    "TUTOR_DASHBOARD_AUDIT_REPORT.md",
+    "TUTOR_DASHBOARD_FIXES_SUMMARY.md",
+    "UI_FIXES_SUMMARY.md",
+    "UPGRADE_QUESTIONS_TABLE.md",
+    "URGENT_FIX.md",
+    "VERIFY_AND_FIX.md",
+    "VERIFY_INVOICE_FIXES.md"
+];
+
+const rootDir = process.cwd();
+const archiveDir = path.join(rootDir, '_archive', 'reports');
+
+// Create archive directory
+if (!fs.existsSync(archiveDir)) {
+    fs.mkdirSync(archiveDir, { recursive: true });
+    console.log(`Created directory: ${archiveDir}`);
+} else {
+    console.log(`Directory already exists: ${archiveDir}`);
+}
+
+// Move files
+let moved = 0;
+let failed = 0;
+let notFound = 0;
+
+for (const filename of mdFiles) {
+    const src = path.join(rootDir, filename);
+    const dst = path.join(archiveDir, filename);
+    
+    if (fs.existsSync(src)) {
+        try {
+            fs.renameSync(src, dst);
+            console.log(`✓ Moved: ${filename}`);
+            moved++;
+        } catch (err) {
+            console.error(`✗ Failed to move ${filename}: ${err.message}`);
+            failed++;
+        }
+    } else {
+        console.log(`⚠ File not found: ${filename}`);
+        notFound++;
+    }
+}
+
+// Summary
+console.log(`\n${'='.repeat(60)}`);
+console.log('SUMMARY');
+console.log('='.repeat(60));
+console.log(`Total files to move: ${mdFiles.length}`);
+console.log(`Successfully moved: ${moved}`);
+console.log(`Failed: ${failed}`);
+console.log(`Not found: ${notFound}`);
