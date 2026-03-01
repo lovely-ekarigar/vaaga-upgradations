@@ -38,7 +38,7 @@ use App\Models\Course;
                         <tr>
                             <th>@lang('labels.backend.orders.fields.reference_no')</th>
                             <td>
-                               ORD-{{$order->id}}
+                               {{ $order->reference_no ?: 'ORD-' . $order->id }}
                             </td>
                         </tr>
                         <tr>

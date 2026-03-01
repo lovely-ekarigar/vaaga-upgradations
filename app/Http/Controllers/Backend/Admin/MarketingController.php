@@ -29,12 +29,11 @@ class MarketingController extends Controller
         }
         
         // Now try Eloquent model queries
-        // Use withTrashed() temporarily to check if soft deletes are causing issues
         try {
-            $totalCampaigns = MarketingCampaign::withTrashed()->count();
-            $totalLeads = MarketingLead::withTrashed()->count();
-            $activeLeads = MarketingLead::withTrashed()->where('status', 'active')->count();
-            $inactiveLeads = MarketingLead::withTrashed()->where('status', 'inactive')->count();
+            $totalCampaigns = MarketingCampaign::count();
+            $totalLeads = MarketingLead::count();
+            $activeLeads = MarketingLead::where('status', 'active')->count();
+            $inactiveLeads = MarketingLead::where('status', 'inactive')->count();
         } catch (\Exception $e) {
             \Log::error('Eloquent Query Failed', ['error' => $e->getMessage()]);
             // Fall back to raw counts
@@ -44,18 +43,16 @@ class MarketingController extends Controller
             $inactiveLeads = $rawInactiveLeads;
         }
         
-        // Get data for dropdowns - use withTrashed() to bypass soft delete issues
-        //$campaigns = MarketingCampaign::withTrashed()->latest()->get();
-        //$lists = MarketingList::withTrashed()->get();
+        // Get data for dropdowns
         $campaigns = MarketingCampaign::latest()->get();
-$lists = MarketingList::all();
+        $lists = MarketingList::all();
         $courses = Course::where('published', 1)->get();
         
         // Get unique values for filters (from existing leads) - only if leads exist
         if ($totalLeads > 0) {
-            $subjects = MarketingLead::withTrashed()->select('subject')->distinct()->whereNotNull('subject')->pluck('subject');
-            $grades = MarketingLead::withTrashed()->select('grade')->distinct()->whereNotNull('grade')->pluck('grade');
-            $skips = MarketingLead::withTrashed()->select('skip')->distinct()->whereNotNull('skip')->pluck('skip');
+            $subjects = MarketingLead::select('subject')->distinct()->whereNotNull('subject')->pluck('subject');
+            $grades = MarketingLead::select('grade')->distinct()->whereNotNull('grade')->pluck('grade');
+            $skips = MarketingLead::select('skip')->distinct()->whereNotNull('skip')->pluck('skip');
         } else {
             $subjects = collect([]);
             $grades = collect([]);
@@ -95,8 +92,8 @@ $lists = MarketingList::all();
     {
         $status = $request->get('status', 'all');
         
-        // Build query - use withTrashed() to include all records
-        $query = MarketingLead::withTrashed();
+        // Build query
+        $query = MarketingLead::query();
         
         // Apply status filter
         if ($status && $status !== 'all') {
@@ -121,14 +118,14 @@ $lists = MarketingList::all();
         // Get paginated leads
         $leads = $query->latest()->paginate(20);
         
-        // Get statistics - use withTrashed() to include all records
-        $totalLeads = MarketingLead::withTrashed()->count();
-        $activeLeads = MarketingLead::withTrashed()->where('status', 'active')->count();
-        $inactiveLeads = MarketingLead::withTrashed()->where('status', 'inactive')->count();
-        $convertedLeads = MarketingLead::withTrashed()->where('status', 'converted')->count();
+        // Get statistics
+        $totalLeads = MarketingLead::count();
+        $activeLeads = MarketingLead::where('status', 'active')->count();
+        $inactiveLeads = MarketingLead::where('status', 'inactive')->count();
+        $convertedLeads = MarketingLead::where('status', 'converted')->count();
         
-        // Get lists for dropdown - use withTrashed()
-        $lists = MarketingList::withTrashed()->get();
+        // Get lists for dropdown
+        $lists = MarketingList::all();
         
         // Get unique sources for filter
         $sources = MarketingLead::select('source')->distinct()->whereNotNull('source')->pluck('source');
@@ -152,13 +149,13 @@ $lists = MarketingList::all();
     {
         $listId = $request->get('list_id');
         
-        // Get all lists for dropdown - use withTrashed()
-        $lists = MarketingList::withTrashed()->get();
+        // Get all lists for dropdown
+        $lists = MarketingList::all();
         
         // Get leads for selected list
         if ($listId) {
-            $list = MarketingList::withTrashed()->findOrFail($listId);
-            $leads = $list->leads()->withTrashed()->paginate(20);
+            $list = MarketingList::findOrFail($listId);
+            $leads = $list->leads()->paginate(20);
         } else {
             $leads = collect([]);
         }

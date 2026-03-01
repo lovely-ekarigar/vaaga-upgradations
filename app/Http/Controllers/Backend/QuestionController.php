@@ -504,29 +504,28 @@ public function saveQuestion(Request $request)
   public function index(Request $request)
 {
      $query = Question::orderBy("id","desc");
-if($request->subject_id){
-  
-
-    $query->where("course_id",$request->subject_id);
-}
- if ($request->chapter_id && $request->chapter_id!='all') {
+    if($request->subject_id){
+        $query->where("course_id",$request->subject_id);
+    }
+    if ($request->chapter_id && $request->chapter_id!='all') {
         $query->where("chapter_id", $request->chapter_id);
     }
     if($request->difficulty){    
          $query->where("difficulty", $request->difficulty);
     }
     
-      if($request->verification_status){    
+    if($request->verification_status){    
          $query->where("verification_status", $request->verification_status);
     }
-      if($request->key){    
+    if($request->key){    
          $query->where("question_text","like", "%".$request->key."%");
     }
     
-  $questions = $query->paginate(25);
-    // totals (respecting filter)
-    $totalQuestions = $questions->count();
-    $totalMarks     = $questions->sum('marks');
+    // Calculate totals BEFORE pagination (clone query to preserve filters)
+    $totalQuestions = $query->count();
+    $totalMarks = $query->sum('marks');
+    
+    $questions = $query->paginate(25);
  
 $subjects = Course::where('published','1')->orderBy("sort_order",'asc')->get();
 // dd($questions[0]);

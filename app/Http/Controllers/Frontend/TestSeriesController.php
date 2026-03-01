@@ -50,9 +50,7 @@ class TestSeriesController extends Controller
 
         $reports = QuestionReport::with('user')->orderBy("id","desc")->paginate(25);
         
-           return view('admin.reports', compact('reports'));
-
-        
+        return view('admin.reports', compact('reports'));
     }
     
     
@@ -711,29 +709,31 @@ $end   = $start->copy()->addMinutes($exam->duration);
     
     public function myTestSeries(){
         
-        $testSeries = TestSeriesPurchase::with('course','testSeries')->where("user_id",Auth::user()->id)->where("payment_status","paid")->orderBy("id","desc")->get();
+        $testSeries = TestSeriesPurchase::with('course','testSeries')
+            ->where("user_id",Auth::user()->id)
+            ->where("payment_status","paid")
+            ->where("status","active")  // Added status check for active purchases only
+            ->orderBy("id","desc")
+            ->get();
         //  dd($testSeries);
      	return view('backend.testseries.index',compact('testSeries'));
     }
     
     
     public function paySuccess(){
-        // dd();
         if(Session::has('test_success')){
-            // Session::forget('test_success');
-             return view('rzp-test-success');
-             
-        }else{
+            Session::forget('test_success');  // Clean up session after showing success page
+            return view('rzp-test-success');
+        } else {
             return redirect('/user/dashboard');
         }
     }
     
     public function payConfirm($id, Request $request){
         
-          $keyId = env('RZP_KEY');
-    $keySecret = env('RZP_SECRET');
+        $keyId = env('RZP_KEY');
+        $keySecret = env('RZP_SECRET');
         $razorpay_payment_id = $request->razorpay_payment_id;
-        
         $razorpay_order_id = $request->razorpay_order_id;
         $razorpay_signature = $request->razorpay_signature;
         
@@ -743,87 +743,119 @@ $end   = $start->copy()->addMinutes($exam->duration);
             return abort(404);
         }
         
-       $order_id = $tp->rzp_order_id;
-
-    // API endpoint to fetch payments of a specific order
-    $url = "https://api.razorpay.com/v1/orders/$order_id/payments";
-
-    // Initialize cURL
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_USERPWD, $keyId . ":" . $keySecret); // Basic Auth
-    curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-
-    // Execute request
-    $response = curl_exec($ch);
-
-    if (curl_errno($ch)) {
-        echo 'cURL error: ' . curl_error($ch);
-        exit;
-    }
-
-    curl_close($ch);
-
-    $result = json_decode($response, true);
-
-
-  
-
-//dd($clean);
-    if (isset($result['items']) && count($result['items']) > 0) {
-        $payment = $result['items'][0];
-        $status = $payment['status'];
-
-        if ($status === 'captured') {
-           
-          $tp->rzp_payment_id = $payment['id'];
-        $tp->payment_status = 'paid';
-        $tp->status='active';
-        $tp->update();
-        
-          $phone = $result['items'][0]['contact'];
-$clean = preg_replace('/^\+91/', '', $phone);
-
-
-
-        
-        $user = User::find($tp->user_id);
-        
-        if(!$user->phone){
-            $user->phone = $clean;
-            $user->update();
+        // Verify Razorpay signature for security
+        if ($razorpay_payment_id && $razorpay_signature) {
+            $generated_signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $keySecret);
+            if (!hash_equals($generated_signature, $razorpay_signature)) {
+                Log::error('Razorpay signature verification failed', [
+                    'order_id' => $razorpay_order_id,
+                    'tp_id' => $tp->id
+                ]);
+                return redirect('/buy-test/' . base64_encode($tp->test_series_id))->with('error', 'Payment verification failed. Please try again.');
+            }
         }
-        $course = Course::find($tp->course_id);
         
-          $whatsappPayload = [
-            'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
-            'campaignName' => 'test_series_enrollment_v1',
-            'destination' => '+91'.$user->phone,
-            'userName' => $user->name,
-            'source' => 'test_series_enrollment_v1',
-            'templateParams' => [$course->title],
-            'tags' => ['test_series_enrollment_v1', 'new-test_series_enrollment_v1'],
-            'attributes' => ['user_id' => $user->id],
-        ];
-        
-         $xt= AiSensy::send($whatsappPayload);
-         
-          Mail::to($user->email)->send(new StudentTestByEmail($course));
-           
-           
+        $order_id = $tp->rzp_order_id;
 
+        // API endpoint to fetch payments of a specific order
+        $url = "https://api.razorpay.com/v1/orders/$order_id/payments";
+
+        // Initialize cURL
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, $keyId . ":" . $keySecret); // Basic Auth
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+
+        // Execute request
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            Log::error('Razorpay API cURL error', [
+                'error' => curl_error($ch),
+                'order_id' => $order_id
+            ]);
+            curl_close($ch);
+            return redirect('/buy-test/' . base64_encode($tp->test_series_id))->with('error', 'Payment verification error. Please contact support.');
+        }
+
+        curl_close($ch);
+        $result = json_decode($response, true);
+
+        if (isset($result['items']) && count($result['items']) > 0) {
+            // Get the most recent payment (last item) for consistency
+            $payment = $result['items'][count($result['items']) - 1];
+            $status = $payment['status'];
+
+            if ($status === 'captured') {
+                // Payment successful - update record and redirect to success
+                $tp->rzp_payment_id = $payment['id'];
+                $tp->payment_status = 'paid';
+                $tp->status = 'active';
+                $tp->cron_checked = '1';
+                $tp->update();
+                
+                $phone = $payment['contact'] ?? null;
+                if ($phone) {
+                    $clean = preg_replace('/^\+91/', '', $phone);
+                    $user = User::find($tp->user_id);
+                    
+                    if($user && !$user->phone){
+                        $user->phone = $clean;
+                        $user->update();
+                    }
+                }
+                
+                $user = $user ?? User::find($tp->user_id);
+                $course = Course::find($tp->course_id);
+                
+                // Send notifications only if user and course exist
+                if ($user && $course) {
+                    try {
+                        $whatsappPayload = [
+                            'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
+                            'campaignName' => 'test_series_enrollment_v1',
+                            'destination' => '+91'.$user->phone,
+                            'userName' => $user->name,
+                            'source' => 'test_series_enrollment_v1',
+                            'templateParams' => [$course->title],
+                            'tags' => ['test_series_enrollment_v1', 'new-test_series_enrollment_v1'],
+                            'attributes' => ['user_id' => $user->id],
+                        ];
+                        
+                        AiSensy::send($whatsappPayload);
+                        Mail::to($user->email)->send(new StudentTestByEmail($course));
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send test series notification', [
+                            'tp_id' => $tp->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+                
+                Session::put("test_success", true);
+                return redirect('/purchase/success');
+            } else {
+                // Payment not captured - mark as checked but redirect back with error
+                $tp->cron_checked = '1';
+                $tp->update();
+                Log::warning('Test series payment not captured', [
+                    'tp_id' => $tp->id,
+                    'status' => $status,
+                    'payment_id' => $payment['id'] ?? null
+                ]);
+                return redirect('/buy-test/' . base64_encode($tp->test_series_id))->with('error', 'Payment not completed. Please try again.');
+            }
         } else {
-            $tp->cron_checked='1';
-        $tp->update();
+            // No payment found for this order
+            $tp->cron_checked = '1';
+            $tp->update();
+            Log::warning('No payment found for test series order', [
+                'tp_id' => $tp->id,
+                'rzp_order_id' => $order_id
+            ]);
+            return redirect('/buy-test/' . base64_encode($tp->test_series_id))->with('error', 'No payment found. Please try again.');
         }
-    } else {
-       $tp->cron_checked='1';
-        $tp->update();
-    }
-         
-        Session::put("test_success",true);
-        return redirect('/purchase/success');
     }
     
     
@@ -1063,6 +1095,9 @@ public function buyTest($id){
   $tp->test_series_id = $id;
   $tp->course_id = $testSeries->course_id;
   $tp->amount = $testSeries->offer_price;
+  $tp->payment_status = 'unpaid';  // Explicitly set initial payment status
+  $tp->status = 'inactive';         // Explicitly set initial status
+  $tp->cron_checked = '0';          // Explicitly set for cron job processing
   $tp->save();
   
    $rzp_id=   $this->createRzpOrder("ts_".$tp->id,$testSeries->offer_price);

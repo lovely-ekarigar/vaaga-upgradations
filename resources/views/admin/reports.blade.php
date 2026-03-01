@@ -31,12 +31,20 @@ Question Reports | {{ env('APP_NAME') }}
                         </thead>
                         <tbody>
                             @forelse($reports as $key => $report)
+                                {{-- Debug row - remove after fixing --}}
+                                @if($key === 0)
+                                <tr class="table-warning">
+                                    <td colspan="5">
+                                        <small><strong>Debug:</strong></small>
+                                        <pre style="font-size:10px; margin:0;">{{ json_encode($report->toArray(), JSON_PRETTY_PRINT) }}</pre>
+                                    </td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td>{{ ($reports->firstItem() ?? 1) + $key }}</td>
-                                    <td>{{ $report->reporter->name ?? '-' }}</td>
-                                   
+                                    <td>{{ $report->user->name ?? '-' }}</td>
                                     <td><a href="/user/questions-bank/{{$report->question_id}}/edit" target="_blank">{{ $report->question_id }}</a></td>
-                                    <td>{{ $report->report_reason ?? '-' }}</td>
+                                    <td>{{ $report->message ?? '-' }}</td>
                                     <td>{{ $report->created_at->format('d M Y, h:i A') }}</td>
                                 </tr>
                             @empty
