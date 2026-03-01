@@ -1,7 +1,7 @@
 @extends('backend.layouts.app')
 
 @section('title')
-<title>Live Exam Tracking | {{ env('APP_NAME') }}</title> 
+Live Exam Tracking | {{ env('APP_NAME') }}
 @stop
 
 @section('content')
