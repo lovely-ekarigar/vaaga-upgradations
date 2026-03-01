@@ -48,21 +48,42 @@ body{
 }
 </style>
 
+@php
+    // Build the file URL
+    $pdfUrl = $media->url;
+    if (empty($pdfUrl)) {
+        $pdfUrl = asset('storage/uploads/' . $media->file_name);
+    }
+    
+    // Check if file exists
+    $filePath = public_path('storage/uploads/' . $media->file_name);
+    $fileExists = file_exists($filePath);
+@endphp
+
 <div class="container mt-10">
-    
-    
-
-    <div class="pdf-wrapper">
-        {{-- <iframe 
-            src="{{ $media->url }}#toolbar=0&navpanes=0">
-        </iframe> --}}
-
-   <div id="pdf-container"></div>
-
-
-        <!-- transparent blocker -->
-        <!-- <div class="pdf-protect"></div> -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>{{ $media->name ?? 'Document' }}</h4>
+        <a href="{{ $pdfUrl }}" 
+           class="btn btn-primary" 
+           download>
+            <i class="bi bi-download"></i> Download
+        </a>
     </div>
+
+    @if(!$fileExists)
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i> 
+            <strong>File not found:</strong> The PDF file could not be found on the server. 
+            Please contact support or try downloading directly.
+        </div>
+    @else
+        <div class="pdf-wrapper">
+            <div id="pdf-container"></div>
+            <div id="pdf-error" class="alert alert-danger d-none">
+                Unable to load PDF. <a href="{{ $pdfUrl }}" target="_blank">Click here to view</a> or use the download button above.
+            </div>
+        </div>
+    @endif
 </div>
  
 
@@ -93,42 +114,43 @@ document.onkeydown = function(e) {
 };
 </script>
 <script>
-const url = "{{ $media->url }}";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
+const url = "{{ $pdfUrl }}";
 const container = document.getElementById("pdf-container");
+const errorDiv = document.getElementById("pdf-error");
 
-pdfjsLib.getDocument(url).promise.then(function(pdf) {
+// Check if URL is valid
+if (!url || url === '' || url === '{{ asset('storage/uploads/') }}') {
+    container.innerHTML = '<div class="alert alert-warning">PDF URL not available.</div>';
+} else {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    pdfjsLib.getDocument(url).promise.then(function(pdf) {
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            pdf.getPage(pageNum).then(function(page) {
+                const viewport = page.getViewport({ scale: 1.5 });
+                const canvas = document.createElement("canvas");
+                const context = canvas.getContext("2d");
 
-        pdf.getPage(pageNum).then(function(page) {
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.style.width = "100%";
+                canvas.style.marginBottom = "15px";
 
-            const viewport = page.getViewport({ scale: 3 });
+                container.appendChild(canvas);
 
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            canvas.style.width = "100%";
-            canvas.style.marginBottom = "15px";
-
-            container.appendChild(canvas);
-
-            page.render({
-                canvasContext: context,
-                viewport: viewport
+                page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                });
             });
-
-        });
-
-    }
-
-});
+        }
+    }).catch(function(error) {
+        console.error('PDF loading error:', error);
+        container.style.display = 'none';
+        errorDiv.classList.remove('d-none');
+    });
+}
 </script>
 
 @stop

@@ -444,16 +444,24 @@ class LessonsController extends Controller
             }
         }
 
-        // Delete old PDFs
+        // Delete old PDFs/Documents
         if ($request->removed_old_pdfs) {
-            $pdfs = Media::whereIn('id', explode(',', $request->removed_old_pdfs))
-                ->where('type', 'lesson_pdf')
+            $documents = Media::whereIn('id', explode(',', $request->removed_old_pdfs))
+                ->where(function ($q) {
+                    $q->where('type', 'lesson_pdf')
+                      ->orWhere('type', 'application/pdf')
+                      ->orWhere('type', 'application/msword')
+                      ->orWhere('type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+                      ->orWhere('file_name', 'like', '%.pdf')
+                      ->orWhere('file_name', 'like', '%.doc')
+                      ->orWhere('file_name', 'like', '%.docx');
+                })
                 ->where('model_id', $lesson->id)
                 ->get();
-            foreach ($pdfs as $pdf) {
-                $fp = public_path('uploads/' . $pdf->file_name);
+            foreach ($documents as $doc) {
+                $fp = public_path('uploads/' . $doc->file_name);
                 if (file_exists($fp)) unlink($fp);
-                $pdf->delete();
+                $doc->delete();
             }
         }
 

@@ -211,18 +211,24 @@ public function viewMaterial($lesson_id, $batch_id)
     // 5. Default empty
     $lessonMedia = collect();
 
-    // 6. Agar allowed hai tabhi PDFs lao
+    // 6. Agar allowed hai tabhi PDFs/Documents lao
     if ($lessonStatus) {
-      $lessonMedia = Media::where('model_id', $lesson_id)
-    ->where('model_type', 'App\Models\Lesson')
-    ->where(function ($q) {
-        $q->where('type', 'lesson_pdf')
-          ->orWhere('type', 'application/pdf');
-    })
-    ->orderBy('id', 'desc')
-    ->get();
-
-
+        $lessonMedia = Media::where('model_id', $lesson_id)
+            ->where('model_type', 'App\Models\Lesson')
+            ->where(function ($q) {
+                $q->where('type', 'lesson_pdf')
+                  ->orWhere('type', 'application/pdf')
+                  ->orWhere('type', 'application/msword')
+                  ->orWhere('type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+                  ->orWhere(function ($subQ) {
+                      // Check file_name extension for doc/docx/pdf
+                      $subQ->where('file_name', 'like', '%.docx')
+                           ->orWhere('file_name', 'like', '%.doc')
+                           ->orWhere('file_name', 'like', '%.pdf');
+                  });
+            })
+            ->orderBy('id', 'desc')
+            ->get();
     }
 //     dd([
 //     'lesson' => $lesson,
@@ -243,14 +249,41 @@ public function viewMaterial($lesson_id, $batch_id)
 //shruti
 public function viewPdf($id)
 {
-    $media = Media::findOrFail($id);
-
-    // extra safety: only PDFs allowed
-    if (!str_contains($media->type, 'pdf')) {
-        abort(404);
+    // Validate ID is numeric and not zero
+    if (!is_numeric($id) || $id <= 0) {
+        abort(400, 'Invalid media ID provided');
     }
-
-    return view('backend.myclass.view-pdf', compact('media'));
+    
+    $media = Media::findOrFail($id);
+    
+    // Ensure file_name exists
+    if (empty($media->file_name)) {
+        abort(404, 'File information is incomplete');
+    }
+    
+    // Get file extension reliably
+    $fileName = $media->file_name;
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    
+    // Check if file exists on disk
+    $filePath = public_path('storage/uploads/' . $media->file_name);
+    if (!file_exists($filePath)) {
+        abort(404, 'File not found on server');
+    }
+    
+    // For PDF files, use the PDF viewer
+    if ($fileExt === 'pdf') {
+        return view('backend.myclass.view-pdf', compact('media'));
+    }
+    
+    // For Word documents, redirect to Google Docs Viewer
+    if (in_array($fileExt, ['docx', 'doc'])) {
+        $fileUrl = urlencode(asset('storage/uploads/' . $media->file_name));
+        return redirect("https://docs.google.com/gview?embedded=1&url={$fileUrl}");
+    }
+    
+    // Default: redirect to file URL
+    return redirect(asset('storage/uploads/' . $media->file_name));
 }
 
 public function runningStatus(){

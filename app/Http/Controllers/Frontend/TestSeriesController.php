@@ -111,15 +111,23 @@ class TestSeriesController extends Controller
     $lesson = Lesson::findOrFail($lessonId);
     // dd($lessonId);
     $lessonId = (int)$lessonId;
-    // Fetch all files attached to this lesson
+    // Fetch all files attached to this lesson (PDFs and Documents)
     $media = Media::where('model_id', $lessonId)
         ->where('model_type', 'App\Models\Lesson')
         ->where(function ($q) {
             $q->where('type', 'lesson_pdf')
-              ->orWhere('type', 'application/pdf');
+              ->orWhere('type', 'application/pdf')
+              ->orWhere('type', 'application/msword')
+              ->orWhere('type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+              ->orWhere(function ($subQ) {
+                  // Check file_name extension for doc/docx/pdf
+                  $subQ->where('file_name', 'like', '%.docx')
+                       ->orWhere('file_name', 'like', '%.doc')
+                       ->orWhere('file_name', 'like', '%.pdf');
+              });
         })
         ->orderBy('id', 'desc')
-        ->get(); // <-- very important to actually execute the query
+        ->get();
 
     // dd($media); // debug to check if it returns records
 

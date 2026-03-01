@@ -21,18 +21,28 @@ class Media extends Model
     }
 
     /**
-     * Get file URL attribute
+     * Get URL attribute - ensures correct URL for local files
      */
-    public function getFileUrlAttribute(): ?string
+    public function getUrlAttribute($value): ?string
     {
+        // For external files (YouTube, Vimeo, etc.), return stored URL
         if ($this->is_external) {
-            return $this->url;
+            return $value;
         }
         
+        // For local files, return proper storage URL
         if ($this->file_name) {
             return asset('storage/uploads/' . $this->file_name);
         }
         
+        return $value;
+    }
+
+    /**
+     * Get file URL attribute (alias for getUrlAttribute)
+     */
+    public function getFileUrlAttribute(): ?string
+    {
         return $this->url;
     }
 
@@ -68,8 +78,9 @@ class Media extends Model
      */
     public function getIsVideoAttribute(): bool
     {
+        $mimeType = $this->attributes['mime_type'] ?? null;
         return in_array($this->type, ['upload', 'youtube', 'vimeo', 'embed']) || 
-               str_starts_with($this->mime_type ?? '', 'video/');
+               str_starts_with($mimeType ?? '', 'video/');
     }
 
     /**
@@ -77,8 +88,9 @@ class Media extends Model
      */
     public function getIsAudioAttribute(): bool
     {
+        $mimeType = $this->attributes['mime_type'] ?? null;
         return $this->type === 'lesson_audio' || 
-               str_starts_with($this->mime_type ?? '', 'audio/');
+               str_starts_with($mimeType ?? '', 'audio/');
     }
 
     /**
@@ -86,8 +98,10 @@ class Media extends Model
      */
     public function getIsPdfAttribute(): bool
     {
+        $mimeType = $this->attributes['mime_type'] ?? null;
         return $this->type === 'lesson_pdf' || 
-               ($this->mime_type ?? '') === 'application/pdf';
+               $mimeType === 'application/pdf' ||
+               str_ends_with(strtolower($this->file_name ?? ''), '.pdf');
     }
 
     /**
@@ -95,7 +109,9 @@ class Media extends Model
      */
     public function getIsImageAttribute(): bool
     {
-        return str_starts_with($this->mime_type ?? '', 'image/');
+        $mimeType = $this->attributes['mime_type'] ?? null;
+        return str_starts_with($mimeType ?? '', 'image/') ||
+               in_array(strtolower(pathinfo($this->file_name ?? '', PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
     }
 
     /**
