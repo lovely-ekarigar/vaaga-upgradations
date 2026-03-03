@@ -276,14 +276,97 @@ public function viewPdf($id)
         return view('backend.myclass.view-pdf', compact('media'));
     }
     
-    // For Word documents, redirect to Google Docs Viewer
+    // For Word documents, use Mammoth.js client-side viewer
     if (in_array($fileExt, ['docx', 'doc'])) {
-        $fileUrl = urlencode(asset('storage/uploads/' . $media->file_name));
-        return redirect("https://docs.google.com/gview?embedded=1&url={$fileUrl}");
+        return view('backend.myclass.view-docx-mammoth', compact('media'));
     }
     
     // Default: redirect to file URL
     return redirect(asset('storage/uploads/' . $media->file_name));
+}
+
+public function viewDoc($id)
+{
+    // DEBUG: Log entry point
+    \Log::info('viewDoc called with ID: ' . $id);
+    
+    if (!is_numeric($id) || $id <= 0) {
+        \Log::error('viewDoc: Invalid media ID: ' . $id);
+        abort(400, 'Invalid media ID');
+    }
+    
+    // DEBUG: Log before database query
+    \Log::info('viewDoc: Looking for media with ID: ' . $id);
+    
+    $media = \App\Models\Media::find($id);
+    
+    if (!$media) {
+        \Log::error('viewDoc: Media not found for ID: ' . $id);
+        abort(404, 'Media record not found for ID: ' . $id);
+    }
+    
+    // DEBUG: Log media found
+    \Log::info('viewDoc: Media found', ['id' => $media->id, 'file_name' => $media->file_name]);
+    
+    if (empty($media->file_name)) {
+        \Log::error('viewDoc: File name empty for media ID: ' . $id);
+        abort(404, 'File not found');
+    }
+    
+    $ext = strtolower(pathinfo($media->file_name, PATHINFO_EXTENSION));
+    if (!in_array($ext, ['docx', 'doc'])) {
+        \Log::error('viewDoc: Not a document file', ['media_id' => $id, 'extension' => $ext]);
+        abort(404, 'Not a document file');
+    }
+    
+    \Log::info('viewDoc: Rendering view for media ID: ' . $id);
+    
+    // Read file content and encode as base64 for embedded viewing
+    $filePath = storage_path('app/public/uploads/' . $media->file_name);
+    $fileContent = file_get_contents($filePath);
+    $fileContentBase64 = base64_encode($fileContent);
+    
+    return view('backend.myclass.view-docx-embed', compact('media', 'fileContentBase64'));
+}
+
+public function serveDoc($id)
+{
+    // Validate ID is numeric and not zero
+    if (!is_numeric($id) || $id <= 0) {
+        abort(400, 'Invalid media ID provided');
+    }
+    
+    $media = Media::findOrFail($id);
+    
+    // Ensure file_name exists
+    if (empty($media->file_name)) {
+        abort(404, 'File information is incomplete');
+    }
+    
+    // Get file extension reliably
+    $fileName = $media->file_name;
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    
+    // Verify it's a DOCX file
+    if (!in_array($fileExt, ['docx', 'doc'])) {
+        abort(404, 'Not a document file');
+    }
+    
+    // Check if file exists on disk
+    $filePath = storage_path('app/public/uploads/' . $media->file_name);
+    if (!file_exists($filePath)) {
+        abort(404, 'File not found on server');
+    }
+    
+    // Serve the file with inline Content-Disposition for browser's built-in viewer
+    $contentType = $fileExt === 'docx' 
+        ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        : 'application/msword';
+    
+    return response()->file($filePath, [
+        'Content-Type' => $contentType,
+        'Content-Disposition' => 'inline; filename="' . $media->file_name . '"',
+    ]);
 }
 
 public function runningStatus(){

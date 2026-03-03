@@ -81,29 +81,15 @@ class MediaUploadService
     ];
 
     /**
-     * DOCX Conversion Service
-     */
-    protected DocxConversionService $conversionService;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->conversionService = new DocxConversionService();
-    }
-
-    /**
      * Upload a file and create Media record
      *
      * @param UploadedFile $file
      * @param string $modelType
      * @param int $modelId
      * @param string|null $customName
-     * @param array $options Optional settings: ['convert_to_pdf' => true/false]
      * @return Media|null
      */
-    public function upload(UploadedFile $file, string $modelType, int $modelId, ?string $customName = null, array $options = []): ?Media
+    public function upload(UploadedFile $file, string $modelType, int $modelId, ?string $customName = null): ?Media
     {
         $mimeType = $file->getMimeType();
         $extension = $this->getExtensionFromMimeType($mimeType);
@@ -134,22 +120,7 @@ class MediaUploadService
         $media->url = Storage::disk($this->disk)->url($this->basePath . '/' . $filename);
         $media->save();
 
-        // Convert DOCX/DOC to PDF if enabled (default: true for office documents)
-        $shouldConvert = $options['convert_to_pdf'] ?? true;
-        if ($shouldConvert && $this->isConvertibleDocument($extension)) {
-            $this->conversionService->convertMedia($media);
-        }
-
         return $media;
-    }
-
-    /**
-     * Check if file extension is a convertible document
-     */
-    protected function isConvertibleDocument(string $extension): bool
-    {
-        $convertibleExtensions = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
-        return in_array(strtolower($extension), $convertibleExtensions);
     }
 
     /**
@@ -237,44 +208,6 @@ class MediaUploadService
     }
 
     /**
-     * Upload a document file (DOCX, DOC, etc.) with automatic PDF conversion
-     *
-     * @param UploadedFile $file
-     * @param string $modelType
-     * @param int $modelId
-     * @param string|null $customName
-     * @return Media|null
-     */
-    public function uploadDocument(UploadedFile $file, string $modelType, int $modelId, ?string $customName = null): ?Media
-    {
-        $mimeType = $file->getMimeType();
-        $extension = $this->getExtensionFromMimeType($mimeType) ?? $file->getClientOriginalExtension();
-        
-        $filename = $this->generateFilename($file, $extension);
-        $path = $this->storeFile($file, $filename);
-        
-        if (!$path) {
-            return null;
-        }
-
-        $media = new Media();
-        $media->model_type = $modelType;
-        $media->model_id = $modelId;
-        $media->name = $customName ?? $file->getClientOriginalName();
-        $media->file_name = $filename;
-        $media->mime_type = $mimeType;
-        $media->size = $file->getSize();
-        $media->type = 'document';
-        $media->url = Storage::disk($this->disk)->url($this->basePath . '/' . $filename);
-        $media->save();
-
-        // Automatically convert to PDF
-        $this->conversionService->convertMedia($media);
-
-        return $media;
-    }
-
-    /**
      * Store file to disk
      *
      * @param UploadedFile $file
@@ -339,10 +272,7 @@ class MediaUploadService
     public function delete(Media $media): bool
     {
         try {
-            // Delete converted PDF if exists
-            $this->conversionService->deleteConvertedFile($media);
-            
-            // Delete original file from storage
+            // Delete file from storage
             $filepath = $this->basePath . '/' . $media->file_name;
             if (Storage::disk($this->disk)->exists($filepath)) {
                 Storage::disk($this->disk)->delete($filepath);
@@ -373,17 +303,6 @@ class MediaUploadService
         }
         
         return null;
-    }
-
-    /**
-     * Get view URL (returns PDF URL for converted documents)
-     *
-     * @param Media $media
-     * @return string|null
-     */
-    public function getViewUrl(Media $media): ?string
-    {
-        return $this->conversionService->getViewUrl($media);
     }
 
     /**
@@ -448,15 +367,5 @@ class MediaUploadService
     public function isImage(string $mimeType): bool
     {
         return str_starts_with($mimeType, 'image/');
-    }
-
-    /**
-     * Get the conversion service instance
-     *
-     * @return DocxConversionService
-     */
-    public function getConversionService(): DocxConversionService
-    {
-        return $this->conversionService;
     }
 }

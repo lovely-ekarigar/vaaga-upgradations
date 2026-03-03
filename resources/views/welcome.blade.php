@@ -44,21 +44,267 @@ use Illuminate\Support\Str;
 
 @verbatim
 <script type="application/ld+json">
-   {
-  "@context": "http://schema.org/",
+{
+  "@context": "https://schema.org",
   "@type": "Organization",
-  "@id": "https://www.vaagaacademy.com/",
-
-  "legalName": "Vaagaacademy",
-  "description": "Join expert-led Maths, Science & English Olympiad online classes. Get structured lessons, practice tests & strategies to boost your score. Enroll now for top results! 🚀 ",
-  "url": "https://www.vaagaacademy.com/",
-  "email" : "info@vaagaacademy.com",
-  "logo" : "https://www.vaagaacademy.com/newassets/img/favicon.png",
-  "SameAs" :[
-    "https://www.facebook.com/profile.php?id=100095502854507",
-      "https://www.youtube.com/channel/UCLc_WUBiIdvi1aMwMk4Ixyg",
-        "https://www.instagram.com/vaagaacademy/"
-    ]
+  "name": "VaaGa Academy",
+  "url": "https://vaagaacademy.com",
+  "logo": "https://vaagaacademy.com/newassets/img/logo.webp",
+  "sameAs": [
+    "https://www.facebook.com/vaagaacademyclass/",
+    "https://www.instagram.com/vaagaacademy/",
+    "https://www.youtube.com/@VaaGaAcademy",
+    "https://www.linkedin.com/company/vaaga-academy/"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+91-7022678333",
+    "contactType": "Customer Service",
+    "areaServed": "IN",
+    "availableLanguage": "English"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Sector-86",
+    "addressLocality": "Gurugram",
+    "addressRegion": "Haryana",
+    "postalCode": "122004",
+    "addressCountry": "IN"
+  },
+  "description": "VaaGa Academy provides expert online Olympiad coaching for Class 2-8 in Maths, Science, and English. Prepare for IMO, NSO, IEO exams with interactive classes and mock tests.",
+  "courses": [
+    {
+      "@type": "Course",
+      "name": "Maths Olympiad for Class 2",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Maths Olympiad coaching for Class 2 students. Prepare for IMO with live online classes, mock tests, and personalized feedback for better performance.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Science Olympiad for Class 2",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Science Olympiad coaching for Class 2 students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "English Olympiad for Class 2",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert English Olympiad coaching for Class 2 students. Prepare for IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Maths Olympiad for Class 3",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Maths Olympiad coaching for Class 3 students. Prepare for IMO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Science Olympiad for Class 3",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Science Olympiad coaching for Class 3 students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "English Olympiad for Class 3",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert English Olympiad coaching for Class 3 students. Prepare for IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Maths Olympiad for Class 4",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Maths Olympiad coaching for Class 4 students. Prepare for IMO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Science Olympiad for Class 4",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Science Olympiad coaching for Class 4 students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "English Olympiad for Class 4",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert English Olympiad coaching for Class 4 students. Prepare for IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Maths Olympiad for Class 5",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Maths Olympiad coaching for Class 5 students. Prepare for IMO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Science Olympiad for Class 5",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Science Olympiad coaching for Class 5 students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "English Olympiad for Class 5",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert English Olympiad coaching for Class 5 students. Prepare for IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Maths Olympiad for Class 6",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Maths Olympiad coaching for Class 6 students. Prepare for IMO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Science Olympiad for Class 6",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Science Olympiad coaching for Class 6 students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "English Olympiad for Class 6",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert English Olympiad coaching for Class 6 students. Prepare for IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Maths Olympiad for Class 7",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Maths Olympiad coaching for Class 7 students. Prepare for IMO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Science Olympiad for Class 7",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Science Olympiad coaching for Class 7 students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "English Olympiad for Class 7",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert English Olympiad coaching for Class 7 students. Prepare for IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Maths Olympiad for Class 8",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Maths Olympiad coaching for Class 8 students. Prepare for IMO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "Science Olympiad for Class 8",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert Science Olympiad coaching for Class 8 students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "English Olympiad for Class 8",
+      "courseMode": "Online",
+      "educationalCredentialAwarded": "Olympiad Certification",
+      "description": "VaaGa Academy offers expert English Olympiad coaching for Class 8 students. Prepare for IEO exams with interactive live classes, mock tests, and personalized feedback.",
+      "provider": {
+        "@type": "Organization",
+        "name": "VaaGa Academy"
+      }
+    }
+  ]
 }
 </script>
 @endverbatim

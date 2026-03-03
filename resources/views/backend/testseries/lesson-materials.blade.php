@@ -27,10 +27,9 @@
                             <i class="bi bi-eye"></i> View PDF
                         </a>
                     @elseif($isDocx)
-                        {{-- Word Document - Use Google Docs Viewer --}}
-                        <a href="https://docs.google.com/gview?embedded=1&url={{ urlencode(asset('storage/uploads/' . $file->file_name)) }}" 
-                           class="btn btn-sm btn-success"
-                           target="_blank">
+                        {{-- Word Document - Use Mammoth.js viewer --}}
+                        <a href="{{ route('lesson.doc.view', $file->id) }}" 
+                           class="btn btn-sm btn-success">
                             <i class="bi bi-eye"></i> View Document
                         </a>
                     @else

@@ -61,13 +61,8 @@ body{
 @endphp
 
 <div class="container mt-10">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="mb-3">
         <h4>{{ $media->name ?? 'Document' }}</h4>
-        <a href="{{ $pdfUrl }}" 
-           class="btn btn-primary" 
-           download>
-            <i class="bi bi-download"></i> Download
-        </a>
     </div>
 
     @if(!$fileExists)
@@ -80,7 +75,7 @@ body{
         <div class="pdf-wrapper">
             <div id="pdf-container"></div>
             <div id="pdf-error" class="alert alert-danger d-none">
-                Unable to load PDF. <a href="{{ $pdfUrl }}" target="_blank">Click here to view</a> or use the download button above.
+                Unable to load PDF. Please try again later or contact support.
             </div>
         </div>
     @endif

@@ -145,7 +145,8 @@ use App\Models\Recording;
                      <a class="btn btn-secondary btn-sm mb-1" href="/user/batch/batch-feedback/{{$l->id}}">Feedbacks</a>
                      <a class="btn btn-primary btn-sm mb-1" href="/user/myclass/assignment/{{$l->id}}">Assignments</a>
                      <a class="btn btn-primary btn-sm mb-1" href="/user/myclass/upload/{{$l->id}}">Course Material</a>
-                     <a class="btn btn-dark btn-sm mb-1" href="/user/myclass/upload/{{$l->id}}">Study Material</a>
+                     <!--<a class="btn btn-dark btn-sm mb-1" href="/user/myclass/upload/{{$l->id}}">Study Material</a>-->
+                     <a class="btn btn-dark btn-sm mb-1" href="{{ route('study-material', ['id' => $l->id]) }}">Study Material</a>
                      <a class="btn btn-primary btn-sm mb-1" href="/user/myclass/exam/{{$l->id}}">Subjective Exams</a>
                      <a class="btn btn-success btn-sm mb-1" href="/user/myclass/fees/{{$l->id}}">Fees</a>
                      <a class="btn btn-info btn-sm mb-1" href="/user/myclass/attend/{{$l->id}}">Attendance</a>

@@ -81,11 +81,9 @@
                     <i class="bi bi-eye"></i> View PDF
                 </a>
             @elseif($isDocx)
-                {{-- Word Document - Use Google Docs Viewer (needs public URL) --}}
-                <a href="https://docs.google.com/gview?embedded=1&url={{ urlencode($fileUrl) }}" 
-                   class="btn btn-sm btn-success"
-                   target="_blank"
-                   rel="noopener noreferrer">
+                {{-- Word Document - Use custom DOCX viewer page --}}
+                <a href="{{ route('lesson.doc.view', $media->id) }}" 
+                   class="btn btn-sm btn-success">
                     <i class="bi bi-eye"></i> View Document
                 </a>
             @else

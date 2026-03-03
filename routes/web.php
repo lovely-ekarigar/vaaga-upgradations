@@ -585,9 +585,12 @@ Route::get('/user/view-material/{lesson_id}/{batch_id}', [MyclassController::cla
 
 Route::get('/lesson-pdf/{id}', [MyclassController::class, 'viewPdf'])
     ->name('lesson.pdf.view');
-    
-    
-    
+
+Route::get('/lesson-doc/{id}', [MyclassController::class, 'viewDoc'])
+    ->name('lesson.doc.view');
+
+Route::get('/lesson-doc-file/{id}', [MyclassController::class, 'serveDoc'])
+    ->name('lesson.doc.serve');
 
 Route::get('/search', [HomeController::class, 'searchCourse'])->name('search');
 Route::get('/search-course', [HomeController::class, 'searchCourse'])->name('search-course');

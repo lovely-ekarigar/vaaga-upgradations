@@ -123,4 +123,12 @@ return [
         'secret_key' => env('RECAPTCHA_SECRET_KEY'),
         'min_score' => env('RECAPTCHA_MIN_SCORE', .5),
     ],
+
+    'msg91' => [
+        'authkey' => env('MSG91_AUTHKEY', '401284ApGWjkfa66b6263aP1'),
+        'template_id' => env('MSG91_OTP_TEMPLATE_ID', '64bc0cc6d6fc0517d05b6562'),
+        'sender_id' => env('MSG91_SENDER_ID', 'VAAAGA'),
+        'api_url' => env('MSG91_API_URL', 'https://control.msg91.com/api/v5/flow'),
+        'enabled' => env('MSG91_ENABLED', true),
+    ],
 ];

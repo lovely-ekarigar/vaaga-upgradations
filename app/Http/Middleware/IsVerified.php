@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Models\Auth\User;
 use App\Models\General;
+use App\Models\Elearn;
 use Session;
 use Auth;
 /**
@@ -38,12 +39,22 @@ class IsVerified
             $otp = random_int(100000, 999999); // 6-digit OTP for better security
             $user = User::find(auth()->user()->id);
            if($user->phone){
+               
             $user->otp = $otp;
             $user->save();
            
             Session::put('user_id',$user->id);
-             $g = new General();
-            $g->sendOtp($user->phone,$otp);
+            
+            
+            //shruti
+            $phone = preg_replace('/[^0-9]/', '', $user->phone);
+            $phone = substr($phone, -10);
+
+
+            //  $g = new General();
+             $e = new Elearn();
+            // $g->sendOtp($user->phone,$otp);
+            $e->sendROTP($otp, $user->phone);
              Auth::logout();
             return redirect("/otp");
             }
