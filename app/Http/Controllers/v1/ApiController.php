@@ -2467,16 +2467,26 @@ $cid=$request->course_id;
 }
 
 public function joinClasss(Request $request){
+  // Add validation
+  $request->validate([
+    'cid' => 'required',
+    'api_id' => 'required',
+    'bid' => 'required'
+  ]);
   
 $cid=$request->cid;
 $api_id=$request->api_id;
 $user = auth()->user();
 $sj=new StudentJoin;
-$sj->uid=auth()->user()->id;
-$sj->date=date("Y-m-d");
-$sj->time=date("H:i:s");
-$sj->bid=$request->bid;
-$sj->save();
+$sj->user_id=auth()->user()->id;
+$sj->batch_id=$request->bid;
+$sj->status='joined';
+
+if(!$sj->save()){
+  \Log::error('Failed to save StudentJoin', ['user_id' => auth()->user()->id, 'bid' => $request->bid]);
+} else {
+  \Log::info('StudentJoin saved successfully', ['student_join_id' => $sj->id, 'user_id' => auth()->user()->id, 'batch_id' => $request->bid]);
+}
 
 
  $user=User::find(auth()->user()->id);

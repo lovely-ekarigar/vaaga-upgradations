@@ -137,6 +137,73 @@ Batch Live Tracking | {{ env('APP_NAME') }}
         </div>
     </div>
     @endif
+
+    <hr class="my-4">
+
+    {{-- Student Join Records Section --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Student Join Records (App)</h4>
+        <span class="badge bg-info text-white">
+            <i class="fas fa-database fa-sm me-1"></i> Database Records
+        </span>
+    </div>
+
+    @if($studentJoins->count() > 0)
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="py-2 ps-3">Student Name</th>
+                                <th class="py-2">Batch</th>
+                                <th class="py-2 text-center">Join Time</th>
+                                <th class="py-2 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($studentJoins as $join)
+                            <tr>
+                                <td class="ps-3 py-2">
+                                    @if($join->user)
+                                        {{ $join->user->first_name }} {{ $join->user->last_name }}
+                                    @else
+                                        <span class="text-muted">Unknown (ID: {{ $join->user_id }})</span>
+                                    @endif
+                                </td>
+                                <td class="py-2">
+                                    @if($join->batch)
+                                        {{ $join->batch->name }}
+                                    @else
+                                        <span class="text-muted">Batch #{{ $join->batch_id }}</span>
+                                    @endif
+                                </td>
+                                <td class="py-2 text-center">
+                                    <span class="badge bg-light text-dark">
+                                        {{ $join->created_at ? $join->created_at->format('h:i A') : 'N/A' }}
+                                    </span>
+                                </td>
+                                <td class="py-2 text-center">
+                                    <span class="badge bg-success">Joined</span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white py-2">
+                <small class="text-muted">Total Records: {{ $studentJoins->count() }}</small>
+            </div>
+        </div>
+    @else
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-4">
+                <i class="fas fa-info-circle text-muted mb-2"></i>
+                <p class="text-muted mb-0">No student join records found for today</p>
+            </div>
+        </div>
+    @endif
 </div>
 
 <style>

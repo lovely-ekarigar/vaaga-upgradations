@@ -370,14 +370,28 @@ public function serveDoc($id)
 }
 
 public function runningStatus(){
-    
     $el = new Elearn();
+    $meetings = $el->eClass("getMeetings",[]);
+    $meetings = $meetings['meetings'] ?? [];
     
+    // Fetch today's student joins with user and batch info
+    $today = date('Y-m-d');
+    $studentJoins = \App\Models\StudentJoin::with(['user', 'batch'])
+        ->whereDate('created_at', $today)
+        ->orderBy('created_at', 'desc')
+        ->get();
     
-    $meetings =$el->eClass("getMeetings",[]);
-    $meetings = $meetings['meetings'];
- 
-     return view('backend.myclass.tracklive',compact('meetings'));
+    // Group joins by batch_id for easier display
+    $joinsByBatch = [];
+    foreach($studentJoins as $join){
+        $batchId = $join->batch_id;
+        if(!isset($joinsByBatch[$batchId])){
+            $joinsByBatch[$batchId] = [];
+        }
+        $joinsByBatch[$batchId][] = $join;
+    }
+    
+    return view('backend.myclass.tracklive', compact('meetings', 'studentJoins', 'joinsByBatch'));
 }
 
 public function calendar(){
@@ -1265,10 +1279,10 @@ if($request->date){
 
 foreach($reusr as $u){
     $st=User::find($u->uid);
-    $is=StudentJoin::where("uid",$u->uid)->where("date",date("Y-m-d",strtotime($date)))->first();
+    $is=StudentJoin::where("user_id",$u->uid)->whereDate("created_at",date("Y-m-d",strtotime($date)))->first();
     if($is){
         $st["present"]=true;
-        $st["time"]=$is->time;
+        $st["time"]=$is->created_at ? $is->created_at->format('h:i A') : '';
 
     }else{
        $st["present"]=false; 
@@ -1296,10 +1310,10 @@ $reusr=StudentTeacherBatch::where("bid",$request->bid)->get();
 
 foreach($reusr as $u){
     $st=User::find($u->uid);
-    $is=StudentJoin::where("uid",$u->uid)->where("date",$request->date)->first();
+    $is=StudentJoin::where("user_id",$u->uid)->whereDate("created_at",$request->date)->first();
     if($is){
         $st["present"]=true;
-        $st["time"]=$is->time;
+        $st["time"]=$is->created_at ? $is->created_at->format('h:i A') : '';
 
     }else{
        $st["present"]=false; 
@@ -3401,11 +3415,15 @@ public function joinClasss($id,$meetid){
 if(auth()->user()!=null){
 
 $sj=new StudentJoin;
-$sj->uid=auth()->user()->id;
-$sj->date=date("Y-m-d");
-$sj->time=date("H:i:s");
-$sj->bid=$id;
-$sj->save();
+$sj->user_id=auth()->user()->id;
+$sj->batch_id=$id;
+$sj->status='joined';
+
+if(!$sj->save()){
+  \Log::error('Failed to save StudentJoin in web route', ['user_id' => auth()->user()->id, 'batch_id' => $id]);
+} else {
+  \Log::info('StudentJoin saved via web', ['student_join_id' => $sj->id, 'user_id' => auth()->user()->id, 'batch_id' => $id]);
+}
 
   $api_id=$meetid; 
 

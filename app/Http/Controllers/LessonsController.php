@@ -18,9 +18,15 @@ class LessonsController extends Controller
     private $path;
 
 public function runClass(Request $request){
-    $sid=$request->sid;
-    // dd(base64_decode($sid));
-     return view('run', compact('sid'));
+    $sid = $request->sid;
+    $url = base64_decode($sid);
+    
+    // Validate the decoded URL
+    if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
+        abort(400, 'Invalid class URL');
+    }
+    
+    return redirect($url);
 }
     public function __construct()
     {
