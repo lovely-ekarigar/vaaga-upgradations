@@ -2,12 +2,49 @@
 use App\Models\Category;
 use App\Models\Board;
 use App\Models\Coupon;
+
+// Generate meta data dynamically if not set in database
+$catName = $find_parent_category->name;
+$catSlug = $find_parent_category->slug;
+$metaTitle = $find_parent_category->meta_title;
+$metaDescription = $find_parent_category->meta_description;
+$metaKeywords = $find_parent_category->meta_keyword;
+
+// If meta is empty, generate from category name/slug
+if (empty($metaTitle) || empty($metaDescription)) {
+    // Extract class number from slug or name
+    $classNum = '';
+    if (preg_match('/class-?(\d+)/i', $catSlug, $matches) || preg_match('/class\s+(\d+)/i', $catName, $matches)) {
+        $classNum = $matches[1];
+    }
+    
+    // Check if main olympiad category
+    if ($catSlug == 'olympiad' || stripos($catName, 'olympiad') !== false && empty($classNum)) {
+        $metaTitle = 'Olympiad Online Coaching for Class 2–8 - VaaGa Academy';
+        $metaDescription = 'VaaGa Academy offers expert Olympiad coaching for Class 2–8 students in Maths, Science & English. Prepare for IMO, NSO & IEO exams with live sessions, mock tests, and personalized feedback.';
+        $metaKeywords = 'Olympiad coaching, Olympiad online classes, IMO preparation, NSO preparation, IEO preparation, Maths Olympiad, Science Olympiad, English Olympiad, Class 2-8 Olympiad, SOF Olympiad, VaaGa Academy, Live Olympiad classes, Olympiad mock tests, Online Olympiad coaching';
+    } elseif ($classNum) {
+        $metaTitle = "Olympiad Classes for Class {$classNum} - VaaGa Academy";
+        $metaDescription = "VaaGa Academy offers expert Olympiad coaching for Class {$classNum} students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.";
+        $metaKeywords = "Class {$classNum} Olympiad, Class {$classNum} IMO, Class {$classNum} NSO, Class {$classNum} IEO, Olympiad coaching Class {$classNum}, Olympiad preparation Class {$classNum}, Online Olympiad classes Class {$classNum}, Maths Science English Olympiad Class {$classNum}, SOF Olympiad Class {$classNum}, VaaGa Academy Olympiad, Best Olympiad coaching online, Live Olympiad classes, Olympiad mock tests Class {$classNum}";
+    } else {
+        // Fallback
+        $metaTitle = $catName . ' - VaaGa Academy';
+        $metaDescription = 'VaaGa Academy offers expert online Olympiad coaching for students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.';
+        $metaKeywords = 'Olympiad coaching, Online Olympiad classes, IMO preparation, NSO preparation, IEO preparation, VaaGa Academy';
+    }
+}
 ?>
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>{{$find_parent_category->meta_title}}| {{env('APP_NAME')}}</title>
-<meta name="description" content="{{$find_parent_category->meta_description}}">
-<meta name="keywords" content="{{$find_parent_category->meta_keyword}}">
+<title>{{ $metaTitle }} | {{env('APP_NAME')}}</title>
+<meta name="description" content="{{ $metaDescription }}">
+<meta name="keywords" content="{{ $metaKeywords }}">
+<meta property="og:title" content="{{ $metaTitle }}" />
+<meta property="og:description" content="{{ $metaDescription }}" />
+<meta property="og:type" content="website" />
+<meta name="twitter:title" content="{{ $metaTitle }}" />
+<meta name="twitter:description" content="{{ $metaDescription }}" />
 @stop
 
 @section('page_css')

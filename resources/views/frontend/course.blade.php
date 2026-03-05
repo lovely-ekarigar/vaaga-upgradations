@@ -5,21 +5,61 @@
    ?>
 <?php 
    $bd = $course->board_id ? Board::find($course->board_id) : null;
+   
+   // DEBUG: Output what we have from database
+   $courseTitle = $course->title;
+   $dbMetaTitle = $course->meta_title;
+   $dbMetaDescription = $course->meta_description;
+   $dbMetaKeywords = $course->meta_keywords;
+   
+   // Generate meta data dynamically if not set in database
+   $metaTitle = $dbMetaTitle;
+   $metaDescription = $dbMetaDescription;
+   $metaKeywords = $dbMetaKeywords;
+   
+   // If meta is empty, generate from course title
+   if (empty($metaDescription)) {
+       // Extract class number and subject from title
+       $classNum = '';
+       $subject = '';
+       $exam = '';
+       
+       if (preg_match('/Class\s+(\d+)/i', $courseTitle, $matches)) {
+           $classNum = $matches[1];
+       }
+       
+       if (stripos($courseTitle, 'Maths') !== false) {
+           $subject = 'Maths';
+           $exam = 'IMO';
+       } elseif (stripos($courseTitle, 'Science') !== false) {
+           $subject = 'Science';
+           $exam = 'NSO';
+       } elseif (stripos($courseTitle, 'English') !== false) {
+           $subject = 'English';
+           $exam = 'IEO';
+       }
+       
+       if ($classNum && $subject) {
+           $metaTitle = "{$subject} Olympiad for Class {$classNum} - VaaGa Academy";
+           $metaDescription = "VaaGa Academy offers expert {$subject} Olympiad coaching for Class {$classNum} students. Prepare for {$exam} exams with interactive live classes, mock tests, and personalized feedback.";
+           $metaKeywords = "{$subject} Olympiad Class {$classNum}, {$exam} Class {$classNum}, {$subject} Olympiad preparation, {$subject} Olympiad coaching online, {$exam} preparation Class {$classNum}, {$subject} Olympiad training, {$subject} Olympiad mock tests, SOF Olympiad, Olympiad exams Class {$classNum}, Online Olympiad coaching, Live Olympiad classes, VaaGa Academy, Best Olympiad coaching, Olympiad study material";
+       } else {
+           // Fallback
+           $metaTitle = $courseTitle . ' - VaaGa Academy';
+           $metaDescription = 'VaaGa Academy offers expert Olympiad coaching for students. Prepare for IMO, NSO & IEO exams with interactive live classes, mock tests, and personalized feedback.';
+           $metaKeywords = 'Olympiad coaching, IMO preparation, NSO preparation, IEO preparation, Online Olympiad classes, VaaGa Academy';
+       }
+   }
    ?>
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>  @if($bd) {{$bd->name}} - @endif @if($pcategory)
-   {{$pcategory->name}}
-   @else
-   {{$category->name}}
-   @endif - {{$course->title}} | {{env('APP_NAME')}}
-</title>
-<meta name="description" content="{{$course->meta_description}}">
-<meta name="keywords" content="{{$course->meta_keywords}}">
+<title>{{ $metaTitle }} | {{env('APP_NAME')}}</title>
+<meta name="description" content="{{ $metaDescription }}">
+<meta name="keywords" content="{{ $metaKeywords }}">
 <meta property="og:locale" content="en_US" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="@if($bd) {{$bd->name}} - @endif {{$category->name}} - {{$course->title}} | {{env('APP_NAME')}}" />
-<meta property="og:description" content="{{$course->meta_description}}" />
+<meta property="og:title" content="{{ $metaTitle }} | {{env('APP_NAME')}}" />
+<meta property="og:description" content="{{ $metaDescription }}" />
 <meta property="og:url" content="{{URL::to('/courses')}}/{{$course->slug}}" />
 <meta property="og:site_name" content="VaaGa Academy | Online Learning Platforms For School Students" />
 <meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-0 days',strtotime($course->created_at)))}}" />
@@ -27,10 +67,16 @@
 <meta property="og:image" content="https://www.vaagaacademy.com/storage/uploads/{{$course->course_image}}" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="{{env('TWITTER_HANDLE')}}" />
-<meta name="twitter:title" content="@if($bd) {{$bd->name}} - @endif {{$category->name}} - {{$course->title}} | {{env('APP_NAME')}}" />
-<meta name="twitter:description" content="{{$course->meta_description}}" />
+<meta name="twitter:title" content="{{ $metaTitle }} | {{env('APP_NAME')}}" />
+<meta name="twitter:description" content="{{ $metaDescription }}" />
 <meta name="twitter:image" content="https://www.vaagaacademy.com/storage/uploads/{{$course->course_image}}" />
 <link rel="canonical" href="{{URL::to('/courses')}}/{{$course->slug}}">
+<!-- DEBUG INFO - Remove after testing -->
+<!-- DB Title: {{ $courseTitle }} -->
+<!-- DB Meta Title: {{ $dbMetaTitle ?? 'NULL' }} -->
+<!-- DB Meta Desc: {{ $dbMetaDescription ?? 'NULL' }} -->
+<!-- DB Meta Keywords: {{ $dbMetaKeywords ?? 'NULL' }} -->
+<!-- Generated: {{ empty($dbMetaDescription) ? 'YES (fallback used)' : 'NO (using DB)' }} -->
 @stop
 @section('content')
 <style type="text/css">
@@ -187,28 +233,6 @@
                   @endif
                   | {{$course->title}}
                </h1>
-               <!-- <div class="nav justify-content-center"><span class="mb-2 pe-3">Lessons: <span class="text-dark">{{count($course->lessons)}}</span></span> <span class="mb-2 pe-3">Student enrolled: <span class="text-dark">{{ $course->students()->count() }}</span></span> <span class="mb-2 pe-3">Timing: <span class="text-dark">
-                  <?php
-                     $totalSec=0;
-                     foreach($course->lessons as $l){
-                     
-                     $totalSec += (strtotime("2020-10-10 ".$l->duration) - strtotime("2020-10-10 00:00:00"));
-                     
-                     }
-                     $hrs = (int)($totalSec/3600);
-                     $mins = (int)(($totalSec-$hrs*3600)/60);
-                      if($hrs>0){
-                     
-                     echo $hrs." hrs ";
-                      }
-                      if($mins>0){
-                     
-                     echo $mins." mins";
-                      }
-                     
-                     ?>
-                  </span>
-                  </span> <span class="mb-2 text-primary">{{$course->type}}</span></div> -->
             </div>
          </div>
       </div>
@@ -222,9 +246,6 @@
                   <div class="col-md-12">
                      <div class="card shadow-lg">
                         <div class="card-body">
-                           <!-- <div class="border-bottom pb-2 mb-3">
-                              <h3 class="h4 mb-2">{{$course->title}}</h3>
-                              </div> -->
                            <h5 class="mb-3 pt-2">Overview</h5>
                            <div class="nav mb-3">
                               @if($course)
@@ -366,8 +387,8 @@
                                                 <span class="pricing_type">Monthly Subscription</span>
                                                 </label>
                                              </li>
+                                             @endif
                                           </ul>
-                                          @endif
                                        </div>
                                     </div>
                                  </div>
@@ -563,35 +584,6 @@
                         </div>
                      </div>
                   </div>
-                  <!-- <div class="col-md-12">
-                     <div class="card mt-5">
-                        <div class="card-header bg-transparent p-3"><span class="h5 m-0">Related Course</span></div>
-                        <div class="list-group list-group-flush">
-                           <a href="#" class="list-group-item list-group-item-action d-flex py-3">
-                              <div>
-                                 <div class="avatar rounded overflow-hidden"><img src="{{asset('storage/uploads/1671613939-2.png')}}" title="" alt=""></div>
-                              </div>
-                              <div class="ps-3">
-                                 <h6>Demo Course 1</h6>
-                                
-                                  <span>₹ 5000</span>
-                              </div>
-                           </a>
-                           <a href="#" class="list-group-item list-group-item-action d-flex py-3">
-                              <div>
-                                 <div class="avatar rounded overflow-hidden"><img src="{{asset('storage/uploads/1671613939-2.png')}}" title="" alt=""></div>
-                              </div>
-                              <div class="ps-3">
-                                 <h6>Demo Course 1</h6>
-                                 
-                                 <span>₹ 5000</span>
-                              </div>
-                           </a>
-                          
-                          
-                        </div>
-                     </div>
-                     </div> -->
                </div>
             </div>
          </div>
@@ -630,4 +622,3 @@
 </script>
 <?php } ?>
 @stop
-
