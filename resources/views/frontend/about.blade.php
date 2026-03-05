@@ -1,24 +1,24 @@
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>E-Learning Platforms in India | {{env('APP_NAME')}}</title>
+<title>VaaGa Academy - Online Olympiad Coaching for Students | About Us</title>
 
-<meta name="description" content="Join us at VaaGa Academy, where excellence meets education. Become a vital part of one of India's leading online learning platforms tailored for school students.">
-<meta name="keywords" content="Vaaga Academy,Vaaga Academy Gurgaon,online education platforms in India,Best elearning platforms in India,Online learning platform for students,Top online learning platforms in india,Online live learning platform for school students,Live Online Learning Classes for school students">
+<meta name="description" content="Learn more about VaaGa Academy's mission to provide expert online Olympiad coaching for Class 2–8 students. We specialize in Maths, Science & English coaching for IMO, NSO & IEO exams.">
+<meta name="keywords" content="About VaaGa Academy, Online Olympiad coaching, Olympiad coaching mission, IMO NSO IEO coaching, Maths Science English coaching, Best Olympiad academy, Online learning platform, Olympiad preparation India">
 
 <meta property="og:locale" content="en_US" />
     <meta property="og:type" content="article" />
-    <meta property="og:title" content="E-Learning Platforms in India | {{env('APP_NAME')}}" />
-    <meta property="og:description" content="Join us at VaaGa Academy, where excellence meets education. Become a vital part of one of India's leading online learning platforms tailored for school students." />
+    <meta property="og:title" content="VaaGa Academy - Online Olympiad Coaching for Students | About Us" />
+    <meta property="og:description" content="Learn more about VaaGa Academy's mission to provide expert online Olympiad coaching for Class 2–8 students. We specialize in Maths, Science & English coaching for IMO, NSO & IEO exams." />
     <meta property="og:url" content="{{URL::to('/about')}}" />
-    <meta property="og:site_name" content="E-Learning Platforms in India | {{env('APP_NAME')}}" />
+    <meta property="og:site_name" content="VaaGa Academy | Online Learning Platforms For School Students" />
     <meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
     <meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
     <meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
    
    <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="{{env('TWITTER_HANDLE')}}" />
-<meta name="twitter:title" content="E-Learning Platforms in India | {{env('APP_NAME')}}" />
-<meta name="twitter:description" content="Join us at VaaGa Academy, where excellence meets education. Become a vital part of one of India's leading online learning platforms tailored for school students." />
+<meta name="twitter:title" content="VaaGa Academy - Online Olympiad Coaching for Students | About Us" />
+<meta name="twitter:description" content="Learn more about VaaGa Academy's mission to provide expert online Olympiad coaching for Class 2–8 students. We specialize in Maths, Science & English coaching for IMO, NSO & IEO exams." />
 <meta name="twitter:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
 <link rel="canonical" href="{{URL::to('/about')}}">
 

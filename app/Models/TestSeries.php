@@ -29,6 +29,7 @@ class TestSeries extends Model
      */
     protected $fillable = [
         'name',
+        'slug',
         'detail',
         'course_id',
         'status',
@@ -36,7 +37,10 @@ class TestSeries extends Model
         'offer_price',
         'total_test',
         'validity',
-        'difficulty'
+        'difficulty',
+        'meta_title',
+        'meta_description',
+        'meta_keywords'
     ];
 
     /**
