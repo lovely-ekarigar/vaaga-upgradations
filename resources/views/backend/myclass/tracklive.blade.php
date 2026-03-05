@@ -25,8 +25,9 @@ Batch Live Tracking | {{ env('APP_NAME') }}
 }
     @endphp
 
-    @if(!empty($allMeetings))
+    @if(!empty($allMeetings) || !empty($activeClasses))
         <div class="row g-3">
+            {{-- Show meetings from BBB API --}}
             @foreach($allMeetings as $index => $meeting)
             
             <div class="col-md-6">
@@ -128,6 +129,49 @@ Batch Live Tracking | {{ env('APP_NAME') }}
                 </div>
             </div>
             @endforeach
+            
+            {{-- Show active classes from today's recordings (when BBB API doesn't return them) --}}
+            @if(empty($allMeetings) && !empty($activeClasses))
+                @foreach($activeClasses as $index => $class)
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-2 px-3 d-flex justify-content-between align-items-center border-bottom">
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-success me-2"></span>
+                                <h6 class="mb-0 text-truncate" style="max-width: 200px" title="{{ $class['meetingName'] }}">
+                                    {{ $class['meetingName'] }}
+                                </h6>
+                            </div>
+                            <small class="text-muted">
+                                <span class="badge bg-info">From Recording</span>
+                            </small>
+                        </div>
+                        
+                        <div class="card-body p-0">
+                            <div class="d-flex border-bottom">
+                                <div class="p-2 flex-grow-1 border-end">
+                                    <small class="text-muted d-block">Started</small>
+                                    <small class="fw-semibold">{{ date('d M h:i A', strtotime($class['recording']->created_at)) }}</small>
+                                </div>
+                                <div class="p-2 flex-grow-1 border-end">
+                                    <small class="text-muted d-block">Meeting ID</small>
+                                    <small class="fw-semibold text-truncate" style="max-width: 120px; display: inline-block;">{{ $class['meetingID'] }}</small>
+                                </div>
+                                <div class="p-2 text-center" style="width: 95px">
+                                    <small class="text-muted d-block">Status</small>
+                                    <small class="fw-semibold text-success">Active</small>
+                                </div>
+                            </div>
+                            @if($class['batch'])
+                            <div class="p-2 bg-light">
+                                <small class="text-muted">Batch: <strong>{{ $class['batch']->name }}</strong></small>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            @endif
         </div>
     @else
     <div class="card border-0 shadow-sm">
@@ -148,7 +192,7 @@ Batch Live Tracking | {{ env('APP_NAME') }}
         </span>
     </div>
 
-    @if($studentJoins->count() > 0)
+    @if(is_array($studentJoins) ? count($studentJoins) > 0 : $studentJoins->count() > 0)
         <div class="card border-0 shadow-sm">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -193,16 +237,90 @@ Batch Live Tracking | {{ env('APP_NAME') }}
                 </div>
             </div>
             <div class="card-footer bg-white py-2">
-                <small class="text-muted">Total Records: {{ $studentJoins->count() }}</small>
+                <small class="text-muted">Total Records: {{ is_array($studentJoins) ? count($studentJoins) : $studentJoins->count() }}</small>
             </div>
         </div>
     @else
-        <div class="card border-0 shadow-sm">
-            <div class="card-body text-center py-4">
-                <i class="fas fa-info-circle text-muted mb-2"></i>
-                <p class="text-muted mb-0">No student join records found for today</p>
+        {{-- Show Live Meeting Attendees from BBB when DB records are empty --}}
+        @php
+            $hasAttendees = false;
+            foreach($activeClasses as $class) {
+                if(!empty($class['attendees'])) {
+                    $hasAttendees = true;
+                    break;
+                }
+            }
+        @endphp
+        
+        @if($hasAttendees)
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 text-muted">Live Meeting Attendees (BBB)</h5>
+                <span class="badge bg-warning text-dark">
+                    <i class="fas fa-video fa-sm me-1"></i> Real-time from BBB
+                </span>
             </div>
-        </div>
+            
+            @foreach($activeClasses as $class)
+                @if(!empty($class['attendees']))
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-light py-2">
+                        <strong>{{ $class['meetingName'] }}</strong>
+                        <span class="badge bg-success ms-2">{{ count($class['attendees']) }} Attendee(s)</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="py-2 ps-3">Name</th>
+                                        <th class="py-2 text-center">Role</th>
+                                        <th class="py-2 text-center">Audio</th>
+                                        <th class="py-2 text-center">Video</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($class['attendees'] as $attendee)
+                                    <tr>
+                                        <td class="ps-3 py-2">
+                                            {{ $attendee['fullName'] ?? 'Unknown' }}
+                                        </td>
+                                        <td class="py-2 text-center">
+                                            <span class="badge {{ (strtolower($attendee['role'] ?? '') == 'moderator') ? 'bg-primary' : 'bg-light text-dark' }}">
+                                                {{ ucfirst(strtolower($attendee['role'] ?? 'Viewer')) }}
+                                            </span>
+                                        </td>
+                                        <td class="py-2 text-center">
+                                            @if(($attendee['hasJoinedVoice'] ?? 'false') == 'true')
+                                                <i class="fas fa-microphone text-success"></i>
+                                            @else
+                                                <i class="fas fa-microphone-slash text-muted"></i>
+                                            @endif
+                                        </td>
+                                        <td class="py-2 text-center">
+                                            @if(($attendee['hasVideo'] ?? 'false') == 'true')
+                                                <i class="fas fa-video text-success"></i>
+                                            @else
+                                                <i class="fas fa-video-slash text-muted"></i>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            @endforeach
+        @else
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-info-circle text-muted mb-2"></i>
+                    <p class="text-muted mb-0">No student join records found for today</p>
+                    <small class="text-muted d-block mt-2">Note: Database tracking requires student_joins table columns</small>
+                </div>
+            </div>
+        @endif
     @endif
 </div>
 

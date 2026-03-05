@@ -2477,17 +2477,26 @@ public function joinClasss(Request $request){
 $cid=$request->cid;
 $api_id=$request->api_id;
 $user = auth()->user();
-$sj=new StudentJoin;
-$sj->user_id=auth()->user()->id;
-$sj->batch_id=$request->bid;
-$sj->status='joined';
 
-if(!$sj->save()){
-  \Log::error('Failed to save StudentJoin', ['user_id' => auth()->user()->id, 'bid' => $request->bid]);
-} else {
-  \Log::info('StudentJoin saved successfully', ['student_join_id' => $sj->id, 'user_id' => auth()->user()->id, 'batch_id' => $request->bid]);
+// Try to save student join record (wrapped in try-catch to handle missing columns)
+try {
+    $sj=new StudentJoin;
+    $sj->user_id=auth()->user()->id;
+    $sj->batch_id=$request->bid;
+    $sj->status='joined';
+    
+    if(!$sj->save()){
+      \Log::error('Failed to save StudentJoin', ['user_id' => auth()->user()->id, 'bid' => $request->bid]);
+    } else {
+      \Log::info('StudentJoin saved successfully', ['student_join_id' => $sj->id, 'user_id' => auth()->user()->id, 'batch_id' => $request->bid]);
+    }
+} catch (\Exception $e) {
+    \Log::warning('StudentJoin tracking skipped - table columns may be missing', [
+        'user_id' => auth()->user()->id, 
+        'batch_id' => $request->bid,
+        'error' => $e->getMessage()
+    ]);
 }
-
 
  $user=User::find(auth()->user()->id);
 

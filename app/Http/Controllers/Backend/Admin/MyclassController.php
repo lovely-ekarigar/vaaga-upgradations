@@ -374,12 +374,70 @@ public function runningStatus(){
     $meetings = $el->eClass("getMeetings",[]);
     $meetings = $meetings['meetings'] ?? [];
     
-    // Fetch today's student joins with user and batch info
+    // Fetch today's recordings as fallback when BBB API doesn't return meetings
+    // This handles cases where meeting is on a different BBB server
     $today = date('Y-m-d');
-    $studentJoins = \App\Models\StudentJoin::with(['user', 'batch'])
-        ->whereDate('created_at', $today)
-        ->orderBy('created_at', 'desc')
+    $todaysRecordings = Recording::whereDate('created_at', $today)
+        ->whereNotNull('api_class_id')
+        ->orderBy('id', 'desc')
         ->get();
+    
+    // Create a list of active classes from recordings for display
+    // Also try to fetch meeting info with attendees from BBB
+    $activeClasses = [];
+    $meetingAttendees = []; // Store attendees from BBB API
+    
+    foreach($todaysRecordings as $recording){
+        $batch = Batch::where('parent_api_class_id', $recording->parent)->first();
+        
+        // Try to get meeting info from BBB API (includes attendees)
+        $meetingInfo = $el->eClass("getMeetingInfo", ["meetingID" => $recording->api_class_id]);
+        $attendees = [];
+        $participantCount = '-';
+        $moderatorCount = '-';
+        
+        if(isset($meetingInfo['returncode']) && $meetingInfo['returncode'] == 'SUCCESS'){
+            // Meeting found on BBB
+            $participantCount = $meetingInfo['participantCount'] ?? '-';
+            $moderatorCount = $meetingInfo['moderatorCount'] ?? '-';
+            
+            // Get attendees
+            if(isset($meetingInfo['attendees'])){
+                $attendees = $meetingInfo['attendees']['attendee'] ?? [];
+                // Handle single attendee case
+                if(isset($attendees['fullName'])){
+                    $attendees = [$attendees];
+                }
+            }
+            
+            // Store attendees for display
+            $meetingAttendees[$recording->api_class_id] = $attendees;
+        }
+        
+        $activeClasses[] = [
+            'meetingName' => $batch ? $batch->name : 'Unknown Class',
+            'meetingID' => $recording->api_class_id,
+            'internalMeetingID' => $recording->api_class_id,
+            'startTime' => strtotime($recording->created_at) * 1000,
+            'participantCount' => $participantCount,
+            'moderatorCount' => $moderatorCount,
+            'running' => 'true',
+            'recording' => $recording,
+            'batch' => $batch,
+            'attendees' => $attendees
+        ];
+    }
+    
+    // Fetch today's student joins with user and batch info
+    $studentJoins = [];
+    try {
+        $studentJoins = \App\Models\StudentJoin::with(['user', 'batch'])
+            ->whereDate('created_at', $today)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    } catch (\Exception $e) {
+        \Log::warning('Could not fetch student joins - table may have missing columns');
+    }
     
     // Group joins by batch_id for easier display
     $joinsByBatch = [];
@@ -391,7 +449,7 @@ public function runningStatus(){
         $joinsByBatch[$batchId][] = $join;
     }
     
-    return view('backend.myclass.tracklive', compact('meetings', 'studentJoins', 'joinsByBatch'));
+    return view('backend.myclass.tracklive', compact('meetings', 'studentJoins', 'joinsByBatch', 'activeClasses'));
 }
 
 public function calendar(){
@@ -1008,8 +1066,12 @@ $userType=$request->type;
         $course = Course::find($batch->cid);
         $tb = TeacherBatch::where("bid",$batch->id)->first();
         $teacher = User::find($tb->tid);
+        
+        // For testing: Override with Demo Tutor if you want to test with specific tutor
+        // Uncomment the next 2 lines and replace with Demo Tutor's user ID
+        // $demoTutor = User::find(DEMO_TUTOR_USER_ID_HERE);
+        // if($demoTutor) $teacher = $demoTutor;
        
-     
        return view('backend.myclass.waiting', compact('batch','course','teacher','id'));
     }
     
@@ -3414,15 +3476,24 @@ public function joinClasss($id,$meetid){
   
 if(auth()->user()!=null){
 
-$sj=new StudentJoin;
-$sj->user_id=auth()->user()->id;
-$sj->batch_id=$id;
-$sj->status='joined';
-
-if(!$sj->save()){
-  \Log::error('Failed to save StudentJoin in web route', ['user_id' => auth()->user()->id, 'batch_id' => $id]);
-} else {
-  \Log::info('StudentJoin saved via web', ['student_join_id' => $sj->id, 'user_id' => auth()->user()->id, 'batch_id' => $id]);
+// Try to save student join record (wrapped in try-catch to handle missing columns)
+try {
+    $sj=new StudentJoin;
+    $sj->user_id=auth()->user()->id;
+    $sj->batch_id=$id;
+    $sj->status='joined';
+    
+    if(!$sj->save()){
+      \Log::error('Failed to save StudentJoin in web route', ['user_id' => auth()->user()->id, 'batch_id' => $id]);
+    } else {
+      \Log::info('StudentJoin saved via web', ['student_join_id' => $sj->id, 'user_id' => auth()->user()->id, 'batch_id' => $id]);
+    }
+} catch (\Exception $e) {
+    \Log::warning('StudentJoin tracking skipped - table columns may be missing', [
+        'user_id' => auth()->user()->id, 
+        'batch_id' => $id,
+        'error' => $e->getMessage()
+    ]);
 }
 
   $api_id=$meetid; 
