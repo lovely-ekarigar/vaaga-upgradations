@@ -7,17 +7,42 @@
 
     <div class="card">
         <div class="card-header">
-            <h3 class="page-title float-left mb-0">@lang('labels.backend.courses.title')</h3>
+            <h3 class="page-title float-left mb-0">
+                @lang('labels.backend.courses.title')
+                @if(isset($category) && $category)
+                    <small class="text-muted">- {{ $category->name }}</small>
+                @endif
+            </h3>
             
             @can('course_create')
                 <div class="float-right">
-                    <a href="{{ route('admin.courses.create') }}"
-                       class="btn btn-success">@lang('strings.backend.general.app_add_new')</a>
-
+                    @if(isset($category) && $category)
+                        <a href="{{ route('admin.courses.create', ['category_id' => $category->id]) }}"
+                           class="btn btn-success">@lang('strings.backend.general.app_add_new')</a>
+                        <a href="{{ route('admin.categories.index') }}"
+                           class="btn btn-secondary">Back to Categories</a>
+                    @else
+                        <a href="{{ route('admin.courses.create') }}"
+                           class="btn btn-success">@lang('strings.backend.general.app_add_new')</a>
+                    @endif
                 </div>
             @endcan
         </div>
         <div class="card-body">
+            @if(isset($category) && $category)
+                @php
+                    $childCats = \App\Models\Category::where('parent', $category->id)->get();
+                    $childIds = $childCats->pluck('id')->toArray();
+                    $courseCount = \App\Models\Course::whereIn('category_id', array_merge([$category->id], $childIds))->count();
+                @endphp
+                <div class="alert alert-info">
+                    <strong>Showing courses from: {{ $category->name }}</strong> 
+                    @if($childCats->count() > 0)
+                        <br><small>Including {{ $childCats->count() }} sub-categories ({{ $courseCount }} total courses)</small>
+                    @endif
+                </div>
+            @endif
+            
             <div class="table-responsive">
                 <div class="d-block">
                     <ul class="list-inline">

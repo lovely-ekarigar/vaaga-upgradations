@@ -31,13 +31,16 @@ class CoursesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
 
         if (!Gate::allows('course_access')) {
             return abort(401);
         }
 
+        // Get category ID from query parameter (when clicking from categories list)
+        $catId = $request->input('cat_id');
+        $category = null;
 
         if (request('show_deleted') == 1) {
             if (!Gate::allows('course_delete')) {
@@ -45,11 +48,33 @@ class CoursesController extends Controller
             }
             $courses = Course::onlyTrashed()->ofTeacher()->get();
         } else {
-            $courses = Course::ofTeacher()->orderBy("id","desc")->get();
+            $query = Course::ofTeacher()->orderBy("id","desc");
+            
+            // Filter by category if cat_id is provided (include children)
+            if ($catId) {
+                $category = Category::find($catId);
+                $categoryIds = [$catId];
+                
+                if ($category) {
+                    // Get child categories
+                    $children = Category::where('parent', $catId)->get();
+                    foreach ($children as $child) {
+                        $categoryIds[] = $child->id;
+                        // Get grandchildren too
+                        $grandchildren = Category::where('parent', $child->id)->get();
+                        foreach ($grandchildren as $gc) {
+                            $categoryIds[] = $gc->id;
+                        }
+                    }
+                }
+                
+                $query->whereIn('category_id', $categoryIds);
+            }
+            
+            $courses = $query->get();
         }
-        // dd($courses);
-
-        return view('backend.courses.index', compact('courses'));
+        
+        return view('backend.courses.index', compact('courses', 'category'));
     }
 
     
@@ -182,9 +207,29 @@ $cc->save();
                 })->orderBy('sort_order', 'asc')->get();
         } else if (request('cat_id') != "") {
             $id = request('cat_id');
+            
+            // Get this category and all its children
+            $category = Category::find($id);
+            $categoryIds = [$id];
+            
+            if ($category) {
+                // Get child categories
+                $children = Category::where('parent', $id)->get();
+                foreach ($children as $child) {
+                    $categoryIds[] = $child->id;
+                    // Get grandchildren too
+                    $grandchildren = Category::where('parent', $child->id)->get();
+                    foreach ($grandchildren as $gc) {
+                        $categoryIds[] = $gc->id;
+                    }
+                }
+            }
+            
             $courses = Course::ofTeacher()
                 ->whereHas('category')
-                ->where('category_id', '=', $id)->orderBy('sort_order', 'asc')->get();
+                ->whereIn('category_id', $categoryIds)
+                ->orderBy('sort_order', 'asc')
+                ->get();
         } else {
             $courses = Course::ofTeacher()
                 ->whereHas('category')
