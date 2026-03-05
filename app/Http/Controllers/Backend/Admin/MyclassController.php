@@ -375,7 +375,6 @@ public function runningStatus(){
     $meetings = $meetings['meetings'] ?? [];
     
     // Fetch today's recordings as fallback when BBB API doesn't return meetings
-    // This handles cases where meeting is on a different BBB server
     $today = date('Y-m-d');
     $todaysRecordings = Recording::whereDate('created_at', $today)
         ->whereNotNull('api_class_id')
@@ -428,16 +427,11 @@ public function runningStatus(){
         ];
     }
     
-    // Fetch today's student joins with user and batch info
-    $studentJoins = [];
-    try {
-        $studentJoins = \App\Models\StudentJoin::with(['user', 'batch'])
-            ->whereDate('created_at', $today)
-            ->orderBy('created_at', 'desc')
-            ->get();
-    } catch (\Exception $e) {
-        \Log::warning('Could not fetch student joins - table may have missing columns');
-    }
+    // Fetch ALL student joins (showing recent 50 records)
+    $studentJoins = \App\Models\StudentJoin::with(['user', 'batch'])
+        ->orderBy('id', 'desc')
+        ->limit(50)
+        ->get();
     
     // Group joins by batch_id for easier display
     $joinsByBatch = [];
@@ -3476,25 +3470,14 @@ public function joinClasss($id,$meetid){
   
 if(auth()->user()!=null){
 
-// Try to save student join record (wrapped in try-catch to handle missing columns)
-try {
-    $sj=new StudentJoin;
-    $sj->user_id=auth()->user()->id;
-    $sj->batch_id=$id;
-    $sj->status='joined';
-    
-    if(!$sj->save()){
-      \Log::error('Failed to save StudentJoin in web route', ['user_id' => auth()->user()->id, 'batch_id' => $id]);
-    } else {
-      \Log::info('StudentJoin saved via web', ['student_join_id' => $sj->id, 'user_id' => auth()->user()->id, 'batch_id' => $id]);
-    }
-} catch (\Exception $e) {
-    \Log::warning('StudentJoin tracking skipped - table columns may be missing', [
-        'user_id' => auth()->user()->id, 
-        'batch_id' => $id,
-        'error' => $e->getMessage()
-    ]);
-}
+// Save student join record
+$sj = new StudentJoin;
+$sj->user_id = auth()->user()->id;
+$sj->batch_id = $id;
+$sj->status = 'joined';
+$sj->created_at = now();
+$sj->updated_at = now();
+$saved = $sj->save();
 
   $api_id=$meetid; 
 

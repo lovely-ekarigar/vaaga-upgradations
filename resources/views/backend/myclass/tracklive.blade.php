@@ -143,7 +143,7 @@ Batch Live Tracking | {{ env('APP_NAME') }}
                                 </h6>
                             </div>
                             <small class="text-muted">
-                                <span class="badge bg-info">From Recording</span>
+                                <span class="badge bg-info">{{ count($class['attendees'] ?? []) }} Attendee(s)</span>
                             </small>
                         </div>
                         
@@ -162,9 +162,52 @@ Batch Live Tracking | {{ env('APP_NAME') }}
                                     <small class="fw-semibold text-success">Active</small>
                                 </div>
                             </div>
-                            @if($class['batch'])
-                            <div class="p-2 bg-light">
-                                <small class="text-muted">Batch: <strong>{{ $class['batch']->name }}</strong></small>
+                            
+                            {{-- Live Attendees from BBB API --}}
+                            @if(!empty($class['attendees']))
+                            <div class="table-responsive">
+                                <table class="table table-sm table-borderless mb-0">
+                                    <thead>
+                                        <tr class="text-muted border-bottom">
+                                            <th class="fw-normal py-1 ps-3" style="width: 35%">Name</th>
+                                            <th class="fw-normal py-1 text-center" style="width: 20%">Role</th>
+                                            <th class="fw-normal py-1 text-center" style="width: 15%" title="Hand Raised"><i class="fas fa-hand-paper"></i></th>
+                                            <th class="fw-normal py-1 text-center" style="width: 15%"><i class="fas fa-microphone"></i></th>
+                                            <th class="fw-normal py-1 pe-3 text-center" style="width: 15%"><i class="fas fa-video"></i></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($class['attendees'] as $attendee)
+                                        <tr class="border-bottom">
+                                            <td class="ps-3 py-1">
+                                                <small class="text-truncate d-block" style="max-width: 120px" title="{{ $attendee['fullName'] ?? '-' }}">{{ $attendee['fullName'] ?? '-' }}</small>
+                                            </td>
+                                            <td class="text-center py-1">
+                                                <small class="badge {{ strtolower($attendee['role'] ?? '') === 'moderator' ? 'bg-primary text-white' : 'bg-light text-dark' }}">
+                                                    {{ ucfirst(strtolower($attendee['role'] ?? '-')) }}
+                                                </small>
+                                            </td>
+                                            <td class="text-center py-1">
+                                                @if(($attendee['raiseHand'] ?? 'false') == 'true')
+                                                    <span class="badge bg-warning text-dark" title="Hand Raised!"><i class="fas fa-hand-paper fa-xs"></i></span>
+                                                @else
+                                                    <small class="text-muted">-</small>
+                                                @endif
+                                            </td>
+                                            <td class="text-center py-1">
+                                                <i class="fas fa-xs {{ ($attendee['hasJoinedVoice'] ?? 'false') === 'true' ? 'fa-microphone text-success' : 'fa-microphone-slash text-secondary' }}"></i>
+                                            </td>
+                                            <td class="pe-3 text-center py-1">
+                                                <i class="fas fa-xs {{ ($attendee['hasVideo'] ?? 'false') === 'true' ? 'fa-video text-success' : 'fa-video-slash text-secondary' }}"></i>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @else
+                            <div class="text-center py-3">
+                                <small class="text-muted"><i class="fas fa-user-slash me-1"></i> No attendees detected</small>
                             </div>
                             @endif
                         </div>
@@ -185,6 +228,13 @@ Batch Live Tracking | {{ env('APP_NAME') }}
     <hr class="my-4">
 
     {{-- Student Join Records Section --}}
+    
+    {{-- Today's Records Only --}}
+    @php
+        $todayJoins = $studentJoins->filter(function($j) { return $j->created_at->format('Y-m-d') == date('Y-m-d'); });
+        $todayCount = $todayJoins->count();
+    @endphp
+    
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0">Student Join Records (App)</h4>
         <span class="badge bg-info text-white">
@@ -192,8 +242,13 @@ Batch Live Tracking | {{ env('APP_NAME') }}
         </span>
     </div>
 
-    @if(is_array($studentJoins) ? count($studentJoins) > 0 : $studentJoins->count() > 0)
-        <div class="card border-0 shadow-sm">
+    {{-- TODAY'S DATABASE RECORDS --}}
+    @if($todayCount > 0)
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0">Today's Joined Students ({{ $todayCount }})</h5>
+            <span class="badge bg-success">Database Records</span>
+        </div>
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-sm table-hover mb-0">
@@ -206,24 +261,24 @@ Batch Live Tracking | {{ env('APP_NAME') }}
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($studentJoins as $join)
-                            <tr>
+                            @foreach($todayJoins as $join)
+                            <tr class="table-primary">
                                 <td class="ps-3 py-2">
                                     @if($join->user)
                                         {{ $join->user->first_name }} {{ $join->user->last_name }}
                                     @else
-                                        <span class="text-muted">Unknown (ID: {{ $join->user_id }})</span>
+                                        <span class="text-muted">User ID: {{ $join->user_id }}</span>
                                     @endif
                                 </td>
                                 <td class="py-2">
                                     @if($join->batch)
                                         {{ $join->batch->name }}
                                     @else
-                                        <span class="text-muted">Batch #{{ $join->batch_id }}</span>
+                                        <span class="text-muted">Batch ID: {{ $join->batch_id }}</span>
                                     @endif
                                 </td>
                                 <td class="py-2 text-center">
-                                    <span class="badge bg-light text-dark">
+                                    <span class="badge bg-primary">
                                         {{ $join->created_at ? $join->created_at->format('h:i A') : 'N/A' }}
                                     </span>
                                 </td>
@@ -236,92 +291,13 @@ Batch Live Tracking | {{ env('APP_NAME') }}
                     </table>
                 </div>
             </div>
-            <div class="card-footer bg-white py-2">
-                <small class="text-muted">Total Records: {{ is_array($studentJoins) ? count($studentJoins) : $studentJoins->count() }}</small>
-            </div>
         </div>
     @else
-        {{-- Show Live Meeting Attendees from BBB when DB records are empty --}}
-        @php
-            $hasAttendees = false;
-            foreach($activeClasses as $class) {
-                if(!empty($class['attendees'])) {
-                    $hasAttendees = true;
-                    break;
-                }
-            }
-        @endphp
-        
-        @if($hasAttendees)
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0 text-muted">Live Meeting Attendees (BBB)</h5>
-                <span class="badge bg-warning text-dark">
-                    <i class="fas fa-video fa-sm me-1"></i> Real-time from BBB
-                </span>
-            </div>
-            
-            @foreach($activeClasses as $class)
-                @if(!empty($class['attendees']))
-                <div class="card border-0 shadow-sm mb-3">
-                    <div class="card-header bg-light py-2">
-                        <strong>{{ $class['meetingName'] }}</strong>
-                        <span class="badge bg-success ms-2">{{ count($class['attendees']) }} Attendee(s)</span>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover mb-0">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th class="py-2 ps-3">Name</th>
-                                        <th class="py-2 text-center">Role</th>
-                                        <th class="py-2 text-center">Audio</th>
-                                        <th class="py-2 text-center">Video</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($class['attendees'] as $attendee)
-                                    <tr>
-                                        <td class="ps-3 py-2">
-                                            {{ $attendee['fullName'] ?? 'Unknown' }}
-                                        </td>
-                                        <td class="py-2 text-center">
-                                            <span class="badge {{ (strtolower($attendee['role'] ?? '') == 'moderator') ? 'bg-primary' : 'bg-light text-dark' }}">
-                                                {{ ucfirst(strtolower($attendee['role'] ?? 'Viewer')) }}
-                                            </span>
-                                        </td>
-                                        <td class="py-2 text-center">
-                                            @if(($attendee['hasJoinedVoice'] ?? 'false') == 'true')
-                                                <i class="fas fa-microphone text-success"></i>
-                                            @else
-                                                <i class="fas fa-microphone-slash text-muted"></i>
-                                            @endif
-                                        </td>
-                                        <td class="py-2 text-center">
-                                            @if(($attendee['hasVideo'] ?? 'false') == 'true')
-                                                <i class="fas fa-video text-success"></i>
-                                            @else
-                                                <i class="fas fa-video-slash text-muted"></i>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                @endif
-            @endforeach
-        @else
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center py-4">
-                    <i class="fas fa-info-circle text-muted mb-2"></i>
-                    <p class="text-muted mb-0">No student join records found for today</p>
-                    <small class="text-muted d-block mt-2">Note: Database tracking requires student_joins table columns</small>
-                </div>
-            </div>
-        @endif
+        <div class="alert alert-light mb-3">
+            <small class="text-muted">No students joined today yet.</small>
+        </div>
     @endif
+    
 </div>
 
 <style>

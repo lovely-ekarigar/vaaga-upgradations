@@ -9,12 +9,36 @@ class StudentJoin extends Model
 {
     protected $guarded = [];
     
+    // Map old column names to new for compatibility
+    protected $appends = ['user_id', 'batch_id'];
+    
+    // Use old column names for database operations
+    public function setUserIdAttribute($value)
+    {
+        $this->attributes['uid'] = $value;
+    }
+    
+    public function getUserIdAttribute()
+    {
+        return $this->attributes['uid'] ?? null;
+    }
+    
+    public function setBatchIdAttribute($value)
+    {
+        $this->attributes['bid'] = $value;
+    }
+    
+    public function getBatchIdAttribute()
+    {
+        return $this->attributes['bid'] ?? null;
+    }
+    
     /**
      * Get the user associated with this join record.
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'uid', 'id');
     }
     
     /**
@@ -22,7 +46,7 @@ class StudentJoin extends Model
      */
     public function batch()
     {
-        return $this->belongsTo(Batch::class, 'batch_id');
+        return $this->belongsTo(Batch::class, 'bid', 'id');
     }
 }
  
