@@ -93,12 +93,23 @@
             <h4 class="text-primary mb-4">Course Progress for {{$batch->name}}</h4>
             
             @php
-                // Group classes by date and filter valid ones
-                $groupedClasses = $list->filter(function ($class) {
-                    return isset($class->length) && is_numeric($class->length) && $class->length >= 10;
-                })->groupBy(function($item) {
-                    return Carbon::parse($item->recording_date)->format('Y-m-d');
+                // Show all recordings except those with invalid 1970 dates
+                $filteredList = $list->filter(function ($class) {
+                    // Only filter out 1970 dates (like OLD code did)
+                    if (!empty($class->recording_date) && strpos($class->recording_date, '1970') !== false) {
+                        return false;
+                    }
+                    return true;
                 });
+                
+                // Group by date - use recording_date if available, otherwise use created_at
+                $groupedClasses = $filteredList->groupBy(function($item) {
+                    if (!empty($item->recording_date) && strpos($item->recording_date, '1970') === false) {
+                        return Carbon::parse($item->recording_date)->format('Y-m-d');
+                    }
+                    // Fallback to created_at date if recording_date is null
+                    return Carbon::parse($item->created_at)->format('Y-m-d');
+                })->sortKeysDesc();
 
                 $validClassCount = $groupedClasses->count();
             @endphp
@@ -252,18 +263,35 @@
     </td>
     
     @foreach($classes as $class)
+        @php
+            // Calculate duration from start_time and end_time (stored in milliseconds)
+            $duration = 'N/A';
+            if (isset($class->start_time) && isset($class->end_time) && 
+                is_numeric($class->start_time) && is_numeric($class->end_time) &&
+                $class->end_time > $class->start_time) {
+                $lengthMins = ($class->end_time - $class->start_time) / (1000 * 60);
+                if ($lengthMins > 0) {
+                    $duration = round($lengthMins) . ' mins';
+                }
+            }
+        @endphp
+        
         @if(!$loop->first)
             <tr>
         @endif
         
         <td><span class="badge badge-delivered text-white">Delivered</span></td>
-        <td class="duration-valid">{{ round($class->length) }} mins</td>
+        <td class="duration-valid">{{ $duration }}</td>
         <td>
-            <a href="https://asia-eu-2.meeting-recordings.com/playback/presentation/2.3/{{$class->internal_id}}" 
-               target="_blank" 
-               class="btn btn-sm btn-primary">
-                Watch Recording
-            </a>
+            @if(!empty($class->internal_id))
+                <a href="https://asia-eu-2.meeting-recordings.com/playback/presentation/2.3/{{$class->internal_id}}" 
+                   target="_blank" 
+                   class="btn btn-sm btn-primary">
+                    Watch Recording
+                </a>
+            @else
+                <span class="text-muted">Recording not available</span>
+            @endif
             
             @if($class->objection)
                 <div class="objection-info mt-2">
@@ -412,6 +440,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <form id="objectionForm">
+        @csrf
         <div class="modal-header">
           <h5 class="modal-title" id="objectionModalLabel">Raise Objection</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -478,7 +507,7 @@ $(document).ready(function () {
             method: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',
-                recording_ids: recordingIds,
+                recording_id: recordingIds,
                 reason: reason
             },
             success: function (response) {

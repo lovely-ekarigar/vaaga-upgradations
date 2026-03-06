@@ -7,9 +7,13 @@ use App\Console\Commands\FixPermissions;
 use App\Console\Commands\GenerateSitemap;
 use App\Console\Commands\LessonTestChaterStudentsFix;
 use App\Console\Commands\TeacherProfileFix;
+use App\Console\Commands\UpdateRecordingLengths;
+use App\Console\Commands\ActivateScheduledMockTests;
 use App\Models\TeacherProfile;
+use App\Models\MyExam;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class Kernel.
@@ -26,6 +30,7 @@ class Kernel extends ConsoleKernel
         GenerateSitemap::class,
         TeacherProfileFix::class,
         LessonTestChaterStudentsFix::class,
+        UpdateRecordingLengths::class,
     ];
 
     /**
@@ -63,6 +68,35 @@ class Kernel extends ConsoleKernel
         
         // Run the mock test activation command every minute
         $schedule->command('mock:activate-scheduled')->everyMinute();
+        
+        // Update recording lengths from BBB API every hour
+        $schedule->command('recordings:update-lengths')->hourly();
+        
+        // Cleanup abandoned exams after 24 hours of inactivity
+        $schedule->call(function () {
+            try {
+                $abandonedCount = MyExam::where('status', 'started')
+                    ->where('last_ping', '<', time() - (24 * 60 * 60))
+                    ->update(['status' => 'abandoned']);
+                
+                if ($abandonedCount > 0) {
+                    Log::info("Marked {$abandonedCount} exam(s) as abandoned");
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to cleanup abandoned exams: ' . $e->getMessage());
+            }
+        })->daily();
+        
+        // Refresh BBB meetings cache every 5 minutes during active hours (9 AM - 9 PM)
+        $schedule->call(function () {
+            try {
+                $el = new \App\Models\Elearn();
+                $meetings = $el->eClass("getMeetings", []);
+                \Illuminate\Support\Facades\Cache::put('bbb_meetings', $meetings['meetings'] ?? [], 300);
+            } catch (\Exception $e) {
+                Log::error('Failed to cache BBB meetings: ' . $e->getMessage());
+            }
+        })->everyFiveMinutes()->between('9:00', '21:00');
     }
 
     /**

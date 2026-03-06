@@ -372,78 +372,9 @@ public function serveDoc($id)
 public function runningStatus(){
     $el = new Elearn();
     $meetings = $el->eClass("getMeetings",[]);
-    $meetings = $meetings['meetings'] ?? [];
     
-    // Fetch today's recordings as fallback when BBB API doesn't return meetings
-    $today = date('Y-m-d');
-    $todaysRecordings = Recording::whereDate('created_at', $today)
-        ->whereNotNull('api_class_id')
-        ->orderBy('id', 'desc')
-        ->get();
-    
-    // Create a list of active classes from recordings for display
-    // Also try to fetch meeting info with attendees from BBB
-    $activeClasses = [];
-    $meetingAttendees = []; // Store attendees from BBB API
-    
-    foreach($todaysRecordings as $recording){
-        $batch = Batch::where('parent_api_class_id', $recording->parent)->first();
-        
-        // Try to get meeting info from BBB API (includes attendees)
-        $meetingInfo = $el->eClass("getMeetingInfo", ["meetingID" => $recording->api_class_id]);
-        $attendees = [];
-        $participantCount = '-';
-        $moderatorCount = '-';
-        
-        if(isset($meetingInfo['returncode']) && $meetingInfo['returncode'] == 'SUCCESS'){
-            // Meeting found on BBB
-            $participantCount = $meetingInfo['participantCount'] ?? '-';
-            $moderatorCount = $meetingInfo['moderatorCount'] ?? '-';
-            
-            // Get attendees
-            if(isset($meetingInfo['attendees'])){
-                $attendees = $meetingInfo['attendees']['attendee'] ?? [];
-                // Handle single attendee case
-                if(isset($attendees['fullName'])){
-                    $attendees = [$attendees];
-                }
-            }
-            
-            // Store attendees for display
-            $meetingAttendees[$recording->api_class_id] = $attendees;
-        }
-        
-        $activeClasses[] = [
-            'meetingName' => $batch ? $batch->name : 'Unknown Class',
-            'meetingID' => $recording->api_class_id,
-            'internalMeetingID' => $recording->api_class_id,
-            'startTime' => strtotime($recording->created_at) * 1000,
-            'participantCount' => $participantCount,
-            'moderatorCount' => $moderatorCount,
-            'running' => 'true',
-            'recording' => $recording,
-            'batch' => $batch,
-            'attendees' => $attendees
-        ];
-    }
-    
-    // Fetch ALL student joins (showing recent 50 records)
-    $studentJoins = \App\Models\StudentJoin::with(['user', 'batch'])
-        ->orderBy('id', 'desc')
-        ->limit(50)
-        ->get();
-    
-    // Group joins by batch_id for easier display
-    $joinsByBatch = [];
-    foreach($studentJoins as $join){
-        $batchId = $join->batch_id;
-        if(!isset($joinsByBatch[$batchId])){
-            $joinsByBatch[$batchId] = [];
-        }
-        $joinsByBatch[$batchId][] = $join;
-    }
-    
-    return view('backend.myclass.tracklive', compact('meetings', 'studentJoins', 'joinsByBatch', 'activeClasses'));
+    // Pass raw API response to view - let view extract meeting data
+    return view('backend.myclass.tracklive', compact('meetings'));
 }
 
 public function calendar(){
@@ -1103,30 +1034,40 @@ public function commitment($id)
     $userId = Auth::id(); 
     
     
-     $test_list=[];
-       
-    $examUser = ExamUser::where("sync_id",Auth::user()->id)->first();
-
-    if($examUser){
-        
-        $examBatchUsers = ExamBatchUser::where("user_id",$examUser->id)->get()->pluck("batch_id")->toArray();
-        $examBatch = ExamBatch::where("sync_id",$batch->id)->first();
-         
-       $examTests = ExamBatchTest::whereIn("batch_id",[$examBatch->id])->orderBy("id","desc")->get();
+    $test_list=[];
     
-       foreach ($examTests as $et){
-           
-           $test = ExamTest::find($et->test_id);
-           $mytest = ExamMyTest::where("user_id",$examUser->id)->where("test_id",$et->test_id)->where('status','submitted')->first();
-           //Closing submitted with ref ticket no 131.
-          // $mytest = ExamMyTest::where("user_id",$examUser->id)->where("test_id",$et->test_id)->where('status','submitted')->first();
-           //if($mytest){ 
-           $et->test = $test;
-           $et->mytest = $mytest;
-           $test_list[] = $et;
-          // }
-       }
-       
+    // Exam system integration - wrapped in try-catch to handle missing tables
+    try {
+        $examUser = ExamUser::where("sync_id", Auth::user()->id)->first();
+
+        if($examUser){
+            $examBatchUsers = ExamBatchUser::where("user_id", $examUser->id)
+                ->get()
+                ->pluck("batch_id")
+                ->toArray();
+            $examBatch = ExamBatch::where("sync_id", $batch->id)->first();
+            
+            if($examBatch) {
+                $examTests = ExamBatchTest::whereIn("batch_id", [$examBatch->id])
+                    ->orderBy("id", "desc")
+                    ->get();
+            
+                foreach ($examTests as $et){
+                    $test = ExamTest::find($et->test_id);
+                    $mytest = ExamMyTest::where("user_id", $examUser->id)
+                        ->where("test_id", $et->test_id)
+                        ->where('status', 'submitted')
+                        ->first();
+                    $et->test = $test;
+                    $et->mytest = $mytest;
+                    $test_list[] = $et;
+                }
+            }
+        }
+    } catch (\Exception $e) {
+        // Log error but don't break the page
+        \Log::warning('Exam system not available: ' . $e->getMessage());
+        $test_list = [];
     }
     
     
@@ -2804,65 +2745,70 @@ if(count($response)==0){
 
 public function testMissed(Request $request)
 {
-    $test_list = [];
-    $batches = Batch::all();
+    try {
+        $test_list = [];
+        $batches = Batch::all();
 
-    foreach ($batches as $batch) {
-        $batchUsers = StudentTeacherBatch::where("bid", $batch->id)
-            ->pluck('uid')
-            ->toArray();
+        foreach ($batches as $batch) {
+            $batchUsers = StudentTeacherBatch::where("bid", $batch->id)
+                ->pluck('uid')
+                ->toArray();
 
-        foreach ($batchUsers as $bu) {
-            $examUser = ExamUser::where("sync_id", $bu)->first();
+            foreach ($batchUsers as $bu) {
+                $examUser = ExamUser::where("sync_id", $bu)->first();
 
-            if (!$examUser) {
-                continue;
-            }
-
-            $examBatch = ExamBatch::where("sync_id", $batch->id)->first();
-            if (!$examBatch) {
-                continue;
-            }
-
-            $examTests = ExamBatchTest::where("batch_id", $examBatch->id)
-                ->orderBy("id", "desc")
-                ->get();
-
-            foreach ($examTests as $et) {
-                $test = ExamTest::find($et->test_id);
-                if (!$test) {
+                if (!$examUser) {
                     continue;
                 }
 
-                $mytest = ExamMyTest::where("user_id", $examUser->id)
-                    ->where("test_id", $et->test_id)
-                    ->first();
+                $examBatch = ExamBatch::where("sync_id", $batch->id)->first();
+                if (!$examBatch) {
+                    continue;
+                }
 
-                $et->test = $test;
-                $et->mytest = $mytest;
+                $examTests = ExamBatchTest::where("batch_id", $examBatch->id)
+                    ->orderBy("id", "desc")
+                    ->get();
 
-                if ($mytest) {
-                    // convert will_start to Carbon
-                    $willStart = $mytest->will_start instanceof Carbon
-                        ? $mytest->will_start
-                        : Carbon::parse(date("Y-m-d",$mytest->will_start));
+                foreach ($examTests as $et) {
+                    $test = ExamTest::find($et->test_id);
+                    if (!$test) {
+                        continue;
+                    }
 
-                    $today = Carbon::today();
+                    $mytest = ExamMyTest::where("user_id", $examUser->id)
+                        ->where("test_id", $et->test_id)
+                        ->first();
 
-                    if (
-                        $mytest->status !== 'submitted' &&
-                        $today->equalTo($willStart->addDay()) &&
-                        $mytest->notification_count < 2 &&
-                        in_array($mytest->user_id, [ 2445])
-                    ) {
-                        $test_list[] = $et;
+                    $et->test = $test;
+                    $et->mytest = $mytest;
+
+                    if ($mytest) {
+                        // convert will_start to Carbon
+                        $willStart = $mytest->will_start instanceof Carbon
+                            ? $mytest->will_start
+                            : Carbon::parse(date("Y-m-d",$mytest->will_start));
+
+                        $today = Carbon::today();
+
+                        if (
+                            $mytest->status !== 'submitted' &&
+                            $today->equalTo($willStart->addDay()) &&
+                            $mytest->notification_count < 2 &&
+                            in_array($mytest->user_id, [ 2445])
+                        ) {
+                            $test_list[] = $et;
+                        }
                     }
                 }
             }
         }
-    }
 
-    dd($test_list);
+        dd($test_list);
+    } catch (\Exception $e) {
+        \Log::error('testMissed error: ' . $e->getMessage());
+        return redirect()->back()->withFlashDanger('Exam system is currently unavailable.');
+    }
 }
 
 public function testPages(Request $request,$id)
@@ -3026,16 +2972,14 @@ catch(\Exception $e){
 
 
 public function waitingExam($batch_id,$user_id,$test_id,$mytest){
-    
-    
-   
-      $examBatch = ExamBatch::where("sync_id",$batch_id)->first();
-      
-       $test = ExamBatchTest::find($mytest);
-     
-    
-     
-    return view('backend.myclass.examwaiting',compact('test','batch_id','user_id','test_id'));
+    try {
+        $examBatch = ExamBatch::where("sync_id",$batch_id)->first();
+        $test = ExamBatchTest::find($mytest);
+        return view('backend.myclass.examwaiting',compact('test','batch_id','user_id','test_id'));
+    } catch (\Exception $e) {
+        \Log::error('waitingExam error: ' . $e->getMessage());
+        return redirect()->back()->withFlashDanger('Exam system is currently unavailable.');
+    }
 }
 public function submitTest(Request $request){
 
@@ -3385,18 +3329,24 @@ $el=new Elearn;
         
     }
     
-   $listQuery = Recording::where("parent", $batch->parent_api_class_id)
-    ->orderBy("id", "desc");
+    $userId = Auth::id();
+    
+    $listQuery = Recording::where("parent", $batch->parent_api_class_id)
+        ->orderBy("id", "desc")
+        ->with(['objection' => function($q) use ($userId) {
+            $q->where('objection_by', $userId);
+        }]);
 
-// Apply joining date filter if available
-if ($commit && !empty($commit->joining_date)) {
-    $listQuery->whereDate('created_at', '>=', $commit->joining_date);
-}
+    // Apply joining date filter if available (using created_at like OLD code)
+    if ($commit && !empty($commit->joining_date)) {
+        $listQuery->whereDate('created_at', '>=', $commit->joining_date);
+    }
 
-if ($commit && !empty($commit->completion_date)) {
-    $listQuery->whereDate('recording_date', '<=', $commit->completion_date);
-}
-$list = $listQuery->get();
+    if ($commit && !empty($commit->completion_date)) {
+        $listQuery->whereDate('recording_date', '<=', $commit->completion_date);
+    }
+    
+    $list = $listQuery->get();
 
 
     // dd($list);
