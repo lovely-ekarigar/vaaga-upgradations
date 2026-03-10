@@ -561,6 +561,7 @@ Route::group(['middleware' => 'role:administrator|teacher'], function () {
     Route::get('myclass/fees/{id}', [MyclassController::class, 'batchFees'])->name('myclass.fees');
     Route::post('myclass/fees/{id}', [MyclassController::class, 'batchFeesUpdate'])->name('myclass.updatefees');
     Route::get('track/batch', [MyclassController::class, 'runningStatus'])->name('myclass.runningStatus');
+    Route::get('track/batch/debug', [MyclassController::class, 'runningStatusDebug'])->name('myclass.runningStatusDebug');
      Route::get('track/exam', [MyclassController::class, 'runningStatusExam'])->name('myclass.runningStatus.exam');
    
     

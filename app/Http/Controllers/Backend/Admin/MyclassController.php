@@ -377,6 +377,38 @@ public function runningStatus(){
     return view('backend.myclass.tracklive',compact('meetings'));
 }
 
+public function runningStatusDebug(){
+    $el = new Elearn();
+    $meetings = $el->eClass("getMeetings",[]);
+
+    echo "<h2>Raw API Response:</h2>";
+    echo "<pre>";
+    print_r($meetings);
+    echo "</pre>";
+
+    if(isset($meetings['meetings'])){
+        echo "<h2>After extracting 'meetings':</h2>";
+        echo "<pre>";
+        print_r($meetings['meetings']);
+        echo "</pre>";
+    }
+
+    echo "<h2>Meetings passed to view:</h2>";
+    $meetingsData = $meetings['meetings'] ?? [];
+    echo "<pre>";
+    print_r($meetingsData);
+    echo "</pre>";
+
+    echo "<h2>Meeting format check:</h2>";
+    if(isset($meetingsData['meeting'])){
+        echo "Has 'meeting' key (single meeting): ";
+        print_r($meetingsData['meeting']);
+    } else {
+        echo "No 'meeting' key found";
+    }
+    exit;
+}
+
 public function calendar(){
 
     $uo = new Unavailability;
