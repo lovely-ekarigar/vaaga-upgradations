@@ -31,17 +31,19 @@ class UpdateRecordingLengths extends Command
     public function handle(): int
     {
         $this->info('Starting recording length update...');
-        
+
         try {
-            // Get recordings that need updating
-            $query = Recording::whereNull('recording_date')
-                ->orWhere('recording_date', '')
-                ->orWhere(function ($q) {
-                    // Also check recordings from last 7 days that might have been updated
-                    $q->where('created_at', '>=', now()->subDays(7))
-                      ->whereNull('length');
+            // Get recordings that need updating - with proper grouping
+            $query = Recording::where(function ($q) {
+                    $q->whereNull('recording_date')
+                      ->orWhere('recording_date', '')
+                      ->orWhere(function ($q2) {
+                          // Also check recordings from last 7 days that might have been updated
+                          $q2->where('created_at', '>=', now()->subDays(7))
+                            ->whereNull('length');
+                      });
                 });
-            
+
             if (!$this->option('force')) {
                 // Skip if checked in last hour (unless force flag)
                 $query->where(function ($q) {
@@ -49,9 +51,16 @@ class UpdateRecordingLengths extends Command
                       ->orWhere('updated_at', '<=', now()->subHour());
                 });
             }
-            
+
+            // Also require api_class_id to exist
+            $query->whereNotNull('api_class_id')
+                  ->where('api_class_id', '!=', '');
+
             $recordings = $query->limit($this->option('limit'))->get();
-            
+
+            $this->info("Query: " . $query->toSql());
+            $this->info("Found " . $recordings->count() . " recordings with null recording_date");
+
             if ($recordings->isEmpty()) {
                 $this->info('No recordings need updating.');
                 return Command::SUCCESS;
@@ -77,13 +86,18 @@ class UpdateRecordingLengths extends Command
                     }
                     
                     // Call BBB API
+                    $this->info("Processing recording ID: {$recording->id}, api_class_id: {$recording->api_class_id}");
+
                     $meetInfo = $el->eClass("getRecordings", [
                         'meetingID' => $recording->api_class_id
                     ]);
-                    
+
+                    $this->info("API Response: " . json_encode($meetInfo));
+
                     // Check for valid response
                     if (!isset($meetInfo['returncode']) || $meetInfo['returncode'] !== 'SUCCESS') {
                         $failed++;
+                        $this->info("FAILED - BBB API returned non-success for recording ID: {$recording->id}");
                         Log::warning('BBB API returned non-success', [
                             'recording_id' => $recording->id,
                             'api_class_id' => $recording->api_class_id,
