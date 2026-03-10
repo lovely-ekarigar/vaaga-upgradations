@@ -177,3 +177,7 @@ error_log
 # Configuration backups
 *.ini.bak
 php.ini.bak
+
+
+.claude/
+.claude-flow/

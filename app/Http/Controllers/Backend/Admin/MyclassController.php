@@ -372,9 +372,9 @@ public function serveDoc($id)
 public function runningStatus(){
     $el = new Elearn();
     $meetings = $el->eClass("getMeetings",[]);
-    
-    // Pass raw API response to view - let view extract meeting data
-    return view('backend.myclass.tracklive', compact('meetings'));
+    $meetings = $meetings['meetings'];
+
+    return view('backend.myclass.tracklive',compact('meetings'));
 }
 
 public function calendar(){
@@ -3329,24 +3329,18 @@ $el=new Elearn;
         
     }
     
-    $userId = Auth::id();
-    
-    $listQuery = Recording::where("parent", $batch->parent_api_class_id)
-        ->orderBy("id", "desc")
-        ->with(['objection' => function($q) use ($userId) {
-            $q->where('objection_by', $userId);
-        }]);
+   $listQuery = Recording::where("parent", $batch->parent_api_class_id)
+    ->orderBy("id", "desc");
 
-    // Apply joining date filter if available (using created_at like OLD code)
-    if ($commit && !empty($commit->joining_date)) {
-        $listQuery->whereDate('created_at', '>=', $commit->joining_date);
-    }
+// Apply joining date filter if available
+if ($commit && !empty($commit->joining_date)) {
+    $listQuery->whereDate('created_at', '>=', $commit->joining_date);
+}
 
-    if ($commit && !empty($commit->completion_date)) {
-        $listQuery->whereDate('recording_date', '<=', $commit->completion_date);
-    }
-    
-    $list = $listQuery->get();
+if ($commit && !empty($commit->completion_date)) {
+    $listQuery->whereDate('recording_date', '<=', $commit->completion_date);
+}
+$list = $listQuery->get();
 
 
     // dd($list);
