@@ -12,18 +12,18 @@
             <th>@lang('labels.frontend.user.profile.email')</th>
             <td>{{ $user->email }}</td>
         </tr>
-        @if($logged_in_user->hasRole('teacher'))
+        @if($user->hasRole('teacher'))
             <tr>
                 <th>@lang('labels.backend.access.users.tabs.content.overview.status')</th>
-                <td>{!! $logged_in_user->status_label !!}</td>
+                <td>{!! $user->status_label !!}</td>
             </tr>
             <tr>
                 <th>@lang('labels.backend.general_settings.user_registration_settings.fields.gender')</th>
-                <td>{!! $logged_in_user->gender !!}</td>
+                <td>{!! $user->gender !!}</td>
             </tr>
             @php
-                $teacherProfile = $logged_in_user->teacherProfile?:'';
-                $payment_details = $logged_in_user->teacherProfile?json_decode($logged_in_user->teacherProfile->payment_details):new stdClass();
+                $teacherProfile = $user->teacherProfile?:'';
+                $payment_details = $user->teacherProfile?json_decode($user->teacherProfile->payment_details):new stdClass();
             @endphp
             <tr>
                 <th>@lang('labels.teacher.facebook_link')</th>
