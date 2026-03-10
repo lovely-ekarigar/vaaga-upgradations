@@ -1,4 +1,4 @@
-{{ html()->modelForm($logged_in_user, 'PATCH', route('admin.profile.update'))->class('form-horizontal')->attribute('enctype', 'multipart/form-data')->open() }}
+{{ html()->modelForm($user, 'PATCH', route('admin.profile.update'))->class('form-horizontal')->attribute('enctype', 'multipart/form-data')->open() }}
 <div class="row">
     <div class="col">
         <div class="form-group">
@@ -6,15 +6,15 @@
 
             <div>
                 <input type="radio" name="avatar_type"
-                       value="gravatar" {{ $logged_in_user->avatar_type == 'gravatar' ? 'checked' : '' }} /> {{__('validation.attributes.frontend.gravatar')}}
+                       value="gravatar" {{ $user->avatar_type == 'gravatar' ? 'checked' : '' }} /> {{__('validation.attributes.frontend.gravatar')}}
                 &nbsp;&nbsp;
                 <input type="radio" name="avatar_type"
-                       value="storage" {{ $logged_in_user->avatar_type == 'storage' ? 'checked' : '' }} /> {{__('validation.attributes.frontend.upload')}}
+                       value="storage" {{ $user->avatar_type == 'storage' ? 'checked' : '' }} /> {{__('validation.attributes.frontend.upload')}}
   <span style="color: #aaa;" class="pt-2">Image extension should be <b>jpg, jpeg, png</b> only</span>
-                @foreach($logged_in_user->providers as $provider)
+                @foreach($user->providers as $provider)
                     @if(strlen($provider->avatar))
                         <input type="radio" name="avatar_type"
-                               value="{{ $provider->provider }}" {{ $logged_in_user->avatar_type == $provider->provider ? 'checked' : '' }} /> {{ ucfirst($provider->provider) }}
+                               value="{{ $provider->provider }}" {{ $user->avatar_type == $provider->provider ? 'checked' : '' }} /> {{ ucfirst($provider->provider) }}
                     @endif
                 @endforeach
             </div>
@@ -84,10 +84,10 @@
         </div><!--form-group-->
     </div><!--col-->
 </div><!--row-->
-@if($logged_in_user->hasRole('teacher'))
+@if($user->hasRole('teacher'))
     @php
-        $teacherProfile = $logged_in_user->teacherProfile?:'';
-        $payment_details = $logged_in_user->teacherProfile?json_decode($logged_in_user->teacherProfile->payment_details):optional();
+        $teacherProfile = $user->teacherProfile?:'';
+        $payment_details = $user->teacherProfile?json_decode($user->teacherProfile->payment_details):optional();
     @endphp
     <div class="row">
         <div class="col">
@@ -95,13 +95,13 @@
                 {{ html()->label(__('labels.backend.general_settings.user_registration_settings.fields.gender'))->for('gender') }}
                 <div class="">
                     <label class="radio-inline mr-3 mb-0">
-                        <input type="radio" name="gender" value="male" {{ $logged_in_user->gender == 'male'?'checked':'' }}> {{__('validation.attributes.frontend.male')}}
+                        <input type="radio" name="gender" value="male" {{ $user->gender == 'male'?'checked':'' }}> {{__('validation.attributes.frontend.male')}}
                     </label>
                     <label class="radio-inline mr-3 mb-0">
-                        <input type="radio" name="gender" value="female" {{ $logged_in_user->gender == 'female'?'checked':'' }}> {{__('validation.attributes.frontend.female')}}
+                        <input type="radio" name="gender" value="female" {{ $user->gender == 'female'?'checked':'' }}> {{__('validation.attributes.frontend.female')}}
                     </label>
                     <label class="radio-inline mr-3 mb-0">
-                        <input type="radio" name="gender" value="other" {{ $logged_in_user->gender == 'other'?'checked':'' }}> {{__('validation.attributes.frontend.other')}}
+                        <input type="radio" name="gender" value="other" {{ $user->gender == 'other'?'checked':'' }}> {{__('validation.attributes.frontend.other')}}
                     </label>
                 </div>
             </div>
@@ -175,7 +175,7 @@
             </div><!--form-group-->
         </div><!--col-->
     </div><!--row-->
-    <div class="bank_details" style="display:{{ $logged_in_user->teacherProfile->payment_method == 'bank'?'':'none' }}">
+    <div class="bank_details" style="display:{{ $user->teacherProfile->payment_method == 'bank'?'':'none' }}">
 
         <div class="row">
             <div class="col">
@@ -330,7 +330,7 @@
 
 
 @endif
-@if ($logged_in_user->canChangeEmail())
+@if ($user->canChangeEmail())
     <div class="row">
         <div class="col">
             <div class="alert alert-info">
@@ -363,29 +363,29 @@
                     @if(in_array($item->type,$inputs))
                         {{ html()->label(__('labels.backend.general_settings.user_registration_settings.fields.'.$item->name))->for('last_name') }}
 
-                        <input  class="form-control mb-0" @if($item->name=='phone') maxlength="10" minlength="10" type="text" @else type="{{$item->type}}"  @endif value="{{$logged_in_user[$item->name]}}"
+                        <input  class="form-control mb-0" @if($item->name=='phone') maxlength="10" minlength="10" type="text" @else type="{{$item->type}}"  @endif value="{{$user[$item->name]}}"
                                name="{{$item->name}}"
                                placeholder="{{__('labels.backend.general_settings.user_registration_settings.fields.'.$item->name)}}">
                     @elseif($item->type == 'gender')
                         <label class="radio-inline mr-3 mb-0">
-                            <input type="radio" @if($logged_in_user[$item->name] == 'male') checked
+                            <input type="radio" @if($user[$item->name] == 'male') checked
                                    @endif name="{{$item->name}}"
                                    value="male"> {{__('validation.attributes.frontend.male')}}
                         </label>
                         <label class="radio-inline mr-3 mb-0">
-                            <input type="radio" @if($logged_in_user[$item->name] == 'female') checked
+                            <input type="radio" @if($user[$item->name] == 'female') checked
                                    @endif  name="{{$item->name}}"
                                    value="female"> {{__('validation.attributes.frontend.female')}}
                         </label>
                         <label class="radio-inline mr-3 mb-0">
-                            <input type="radio" @if($logged_in_user[$item->name] == 'other') checked
+                            <input type="radio" @if($user[$item->name] == 'other') checked
                                    @endif  name="{{$item->name}}"
                                    value="other"> {{__('validation.attributes.frontend.other')}}
                         </label>
                     @elseif($item->type == 'textarea')
                         <textarea name="{{$item->name}}"
                                   placeholder="{{__('labels.backend.general_settings.user_registration_settings.fields.'.$item->name)}}"
-                                  class="form-control mb-0">{{$logged_in_user[$item->name]}}</textarea>
+                                  class="form-control mb-0">{{$user[$item->name]}}</textarea>
                     @endif
                 </div>
             </div>
