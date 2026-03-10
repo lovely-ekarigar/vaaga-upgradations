@@ -131,4 +131,9 @@ return [
         'api_url' => env('MSG91_API_URL', 'https://control.msg91.com/api/v5/flow'),
         'enabled' => env('MSG91_ENABLED', true),
     ],
+
+    'bigbluemeeting' => [
+        'url' => env('BBB_API_URL', 'https://manager.bigbluemeeting.com'),
+        'key' => env('BBB_API_KEY', '53iZbj6YMUJsKNhgoXC3kn1o2Vg1fBV5gQyqFiCgl0'),
+    ],
 ];

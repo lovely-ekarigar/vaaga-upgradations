@@ -11,12 +11,13 @@ class Elearn
 $fields_string = http_build_query($params);
 //$url = 'http://preferwork.com/api/get/Uyn4YZLPaEqnRBd7g9dP3vztS6fk55N/'.$req.'?'.$fields_string;
 
-$key="53iZbj6YMUJsKNhgoXC3kn1o2Vg1fBV5gQyqFiCgl0";
+$key = config('services.bigbluemeeting.key', '53iZbj6YMUJsKNhgoXC3kn1o2Vg1fBV5gQyqFiCgl0');
+$baseUrl = config('services.bigbluemeeting.url', 'https://manager.bigbluemeeting.com');
 $fields_string = http_build_query($params);
 $shstr=$req.$fields_string.$key;
 $csx=sha1($shstr);
 
-$url = 'https://manager.bigbluemeeting.com/bigbluebutton/api/'.$req.'?'.$fields_string."&checksum=".$csx;
+$url = $baseUrl.'/bigbluebutton/api/'.$req.'?'.$fields_string."&checksum=".$csx;
 //dd($url);
     $ch = curl_init();
 
@@ -41,12 +42,13 @@ public function eClassJson($req,$params){
 $fields_string = http_build_query($params);
 //$url = 'http://preferwork.com/api/get/Uyn4YZLPaEqnRBd7g9dP3vztS6fk55N/'.$req.'?'.$fields_string;
 
-$key="53iZbj6YMUJsKNhgoXC3kn1o2Vg1fBV5gQyqFiCgl0";
+$key = config('services.bigbluemeeting.key', '53iZbj6YMUJsKNhgoXC3kn1o2Vg1fBV5gQyqFiCgl0');
+$baseUrl = config('services.bigbluemeeting.url', 'https://manager.bigbluemeeting.com');
 $fields_string = http_build_query($params);
 $shstr=$req.$fields_string.$key;
 $csx=sha1($shstr);
 
-$url = 'https://manager.bigbluemeeting.com/bigbluebutton/api/'.$req.'?'.$fields_string."&checksum=".$csx;
+$url = $baseUrl.'/bigbluebutton/api/'.$req.'?'.$fields_string."&checksum=".$csx;
 //dd($url);
     $ch = curl_init();
 
@@ -76,12 +78,13 @@ $out=array();
    
           
                 $req="join";
-        $key="53iZbj6YMUJsKNhgoXC3kn1o2Vg1fBV5gQyqFiCgl0";
+        $key = config('services.bigbluemeeting.key', '53iZbj6YMUJsKNhgoXC3kn1o2Vg1fBV5gQyqFiCgl0');
+        $baseUrl = config('services.bigbluemeeting.url', 'https://manager.bigbluemeeting.com');
 
 $shstr=$req.$fields_string.$key;
 $csx=sha1($shstr);
 
-$url = 'https://manager.bigbluemeeting.com/bigbluebutton/api/'.$req.'?'.$fields_string."&checksum=".$csx;
+$url = $baseUrl.'/bigbluebutton/api/'.$req.'?'.$fields_string."&checksum=".$csx;
 //   $ch = curl_init();
 
 //          // set url
