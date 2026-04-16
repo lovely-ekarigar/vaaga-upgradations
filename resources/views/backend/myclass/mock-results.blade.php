@@ -227,8 +227,10 @@ $(document).ready(function() {
         url: '/user/myclass/' + batchId + '/students-list',
         type: 'GET',
         success: function(response) {
+            console.log('Students API Response:', response);
             if (response.success && response.students.length > 0) {
                 response.students.forEach(function(student) {
+                    console.log('Student:', student);
                     $('#student-select').append(
                         $('<option></option>')
                             .attr('value', student.id)
@@ -241,7 +243,8 @@ $(document).ready(function() {
                 );
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error('Error loading students:', xhr.responseText);
             alert('Error loading students list');
         }
     });
@@ -251,12 +254,14 @@ $(document).ready(function() {
         url: '/user/myclass/' + batchId + '/mock-tests-list',
         type: 'GET',
         success: function(response) {
+            console.log('Mock Tests API Response:', response);
             if (response.success && response.mockTests.length > 0) {
                 response.mockTests.forEach(function(mockTest) {
+                    console.log('Mock Test:', mockTest);
                     $('#mock-test-select').append(
                         $('<option></option>')
-                            .attr('value', mockTest.id)
-                            .text(mockTest.name)
+                            .attr('value', mockTest.mock_list_id)
+                            .text(mockTest.name + ' (' + mockTest.series_name + ')')
                     );
                 });
             } else {
@@ -265,7 +270,8 @@ $(document).ready(function() {
                 );
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error('Error loading mock tests:', xhr.responseText);
             alert('Error loading mock tests list');
         }
     });
@@ -283,6 +289,10 @@ $(document).ready(function() {
                 success: function(response) {
                     $('#loading-message').hide();
                     
+                    // Debug: Log the entire response
+                    console.log('API Response:', response);
+                    console.log('Result object:', response.result);
+                    
                     if (response.success) {
                         const result = response.result;
                         
@@ -295,22 +305,10 @@ $(document).ready(function() {
                         $('#result-attempted-at').text(result.attempted_at);
                         $('#result-time-taken').text(result.time_taken);
                         
-                        // Calculate totals for correct/incorrect/skipped
-                        let totalCorrect = 0;
-                        let totalIncorrect = 0;
-                        let totalSkipped = 0;
-                        
-                        if (result.subject_wise && result.subject_wise.length > 0) {
-                            result.subject_wise.forEach(function(subject) {
-                                totalCorrect += parseInt(subject.correct || 0);
-                                totalIncorrect += parseInt(subject.incorrect || 0);
-                                totalSkipped += parseInt(subject.skipped || 0);
-                            });
-                        }
-                        
-                        $('#result-correct').text(totalCorrect);
-                        $('#result-wrong').text(totalIncorrect);
-                        $('#result-unattempted').text(totalSkipped);
+                        // Use direct counts from API response
+                        $('#result-correct').text(result.correct_answers || 0);
+                        $('#result-wrong').text(result.wrong_answers || 0);
+                        $('#result-unattempted').text(result.unattempted || 0);
                         
                         // Show performance message
                         const percentage = parseFloat(result.percentage);
@@ -366,11 +364,17 @@ $(document).ready(function() {
                 },
                 error: function(xhr) {
                     $('#loading-message').hide();
+                    console.error('Error Response:', xhr);
+                    console.error('Status:', xhr.status);
+                    console.error('Response Text:', xhr.responseText);
+                    
                     if (xhr.status === 404) {
                         $('#no-result-message').show();
                         $('#result-container').hide();
+                    } else if (xhr.status === 403) {
+                        alert('Access denied. You do not have permission to view this result.');
                     } else {
-                        alert('Error fetching result');
+                        alert('Error fetching result: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Unknown error'));
                     }
                 }
             });

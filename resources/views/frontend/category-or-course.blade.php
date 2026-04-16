@@ -37,7 +37,7 @@ if (empty($metaTitle) || empty($metaDescription)) {
 ?>
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>{{ $metaTitle }} | {{env('APP_NAME')}}</title>
+<title>{{ $metaTitle }}</title>
 <meta name="description" content="{{ $metaDescription }}">
 <meta name="keywords" content="{{ $metaKeywords }}">
 <meta property="og:title" content="{{ $metaTitle }}" />
@@ -114,7 +114,9 @@ $catx = Category::find($find_parent_category->parent);
       <div class="container position-relative">
          <div class="row">
             <div class="col-lg-8">
-               <h1 class="text-white h1">{{$find_parent_category->name}}</h1>
+               <!--<h1 class="text-white h1">{{$find_parent_category->name}}</h1>-->
+               <h1 class="text-white h1">{{ $metaTitle }}</h1>
+
                <ol class="breadcrumb breadcrumb-light">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
                 @if($catx)

@@ -13,12 +13,12 @@ use App\Models\Recording;
    <div class="card-header">
       <h3 class="page-title float-left mb-0">Batch list</h3>  
       
-      @can('course_create')
-      <div class="float-right">
-         <a href="{{ route('admin.batch.create') }}"
-            class="btn btn-success">@lang('strings.backend.general.app_add_new')</a>
-      </div>
-      @endcan
+@if(auth()->user()->hasRole('administrator') || auth()->user()->hasRole('backend-support-staff'))
+    <div class="float-right">
+        <a href="{{ route('admin.batch.create') }}"
+           class="btn btn-success">@lang('strings.backend.general.app_add_new')</a>
+    </div>
+@endif
    </div>
    <div class="card-body">
       <div class="table-responsive">
@@ -145,7 +145,6 @@ use App\Models\Recording;
                      <a class="btn btn-secondary btn-sm mb-1" href="/user/batch/batch-feedback/{{$l->id}}">Feedbacks</a>
                      <a class="btn btn-primary btn-sm mb-1" href="/user/myclass/assignment/{{$l->id}}">Assignments</a>
                      <a class="btn btn-primary btn-sm mb-1" href="/user/myclass/upload/{{$l->id}}">Course Material</a>
-                     <!--<a class="btn btn-dark btn-sm mb-1" href="/user/myclass/upload/{{$l->id}}">Study Material</a>-->
                      <a class="btn btn-dark btn-sm mb-1" href="{{ route('study-material', ['id' => $l->id]) }}">Study Material</a>
                      <a class="btn btn-primary btn-sm mb-1" href="/user/myclass/exam/{{$l->id}}">Subjective Exams</a>
                      <a class="btn btn-success btn-sm mb-1" href="/user/myclass/fees/{{$l->id}}">Fees</a>

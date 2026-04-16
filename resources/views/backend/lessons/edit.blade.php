@@ -115,53 +115,112 @@ use App\Models\Course;
         }
         
         
-        
-/* //for video */
-        .video-control-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
+ /* //for video */
+    /* VIDEO CONTROL */
 
-        .video-select {
-            flex: 0 0 85%;   /* Select thoda chhota */
-        }
-
-        .video-add-btn {
-            flex: 0 0 14%;   /* Button thoda bada */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Same height */
-        .video-select,
-        .video-add-btn {
-            height: 40px;
-        }
-
-
-        #video-template,
-    #video-list .form-group {
+.video-control-wrapper {
+    width: 100%;
     display: flex;
-    align-items: stretch;
     gap: 10px;
+    margin-bottom: 8px;
+}
+
+.video-select {
+    flex: 1;
+}
+
+.video-add-btn button {
+    width: 120px;
+}
+
+/* ADD VIDEO DEFAULT STATE */
+.video-add-btn button {
+    background: #ccc;
+    border-color: #ccc;
+    color: #333;
+}
+
+/* ACTIVE STATE */
+.video-add-btn button.active {
+    background: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+
+/* TOP SECTION : SELECT + ADD VIDEO */
+
+.video-control-wrapper {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.video-select {
+    flex: 1;
+}
+
+.video-add-btn button {
+    width: 110px;
+    height: 40px;
+}
+
+
+/* YOUTUBE DYNAMIC FIELD */
+
+#video-template,
+#video-list .form-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
 }
 
 #video-template .form-control,
 #video-list .form-group .form-control {
-    flex: 0 0 85%;
+    flex: 1;   /* instead of 85% */
     height: 40px;
+    min-width: 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 #video-template .remove-video,
 #video-list .form-group .remove-video {
-    flex: 0 0 14%;
+    flex: 0 0 90px;
     height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+}
+
+
+/* MOBILE RESPONSIVE */
+
+@media (max-width:768px){
+
+    /*.video-control-wrapper{*/
+    /*    flex-direction: column;*/
+    /*}*/
+
+    /*.video-add-btn button{*/
+    /*    width: 100%;*/
+    /*}*/
+
+    #video-template,
+    #video-list .form-group{
+        flex-direction: row;
+    }
+    
+.video-add-btn button {
+    width: 110px;
+    height: 40px;
+}
+
+    #video-template .remove-video,
+    #video-list .form-group .remove-video{
+        width: 90px;
+    }
+
 }
 
 
@@ -630,26 +689,32 @@ $(document).ready(function () {
     $('#media_type').on('change', function () {
         toggleVideoButton();
     });
+// Add Video Button Click
+$(document).off('click', '#add-video-btn').on('click', '#add-video-btn', function (e) {
+    e.preventDefault();
 
-    // Add Video Button Click
-    $(document).off('click', '#add-video-btn').on('click', '#add-video-btn', function (e) {
-        e.preventDefault();
+    let lastInput = $('#video-list .video-input').last();
 
-        let lastInput = $('#video-list .video-input').last();
+    if (lastInput.length && lastInput.val().trim() === '') {
+        alert('Please enter YouTube link first');
+        lastInput.focus();
+        return;
+    }
 
-        if (lastInput.length && lastInput.val().trim() === '') {
-            alert('Please enter YouTube link first');
-            lastInput.focus();
-            return;
-        }
+    let template = $('#video-template')
+        .clone()
+        .removeClass('d-none')
+        .removeAttr('id');
 
-        let template = $('#video-template')
-            .clone()
-            .removeClass('d-none')
-            .removeAttr('id');
+    $('#video-list').append(template);
+});
 
-        $('#video-list').append(template);
-    });
+
+// Remove NEW YouTube video field
+$(document).on('click', '.remove-video', function (e) {
+    e.preventDefault();
+    $(this).closest('.form-group').remove();
+});
 
    // Remove OLD YouTube video (DB wale)
 $(document).on('click', '.remove-old-video', function (e) {

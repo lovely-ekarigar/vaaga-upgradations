@@ -238,11 +238,15 @@ $blog->meta_keywords = $request->meta_keywords;
 
         // $request = $this->saveFiles($request);
         $blog->user_id = auth()->user()->id;
-        $blog->image = $request->featured_image;
+        // $blog->image = $request->featured_image;
         $blog->meta_title = $request->meta_title;
         $blog->content = $message;
         $blog->meta_description = $request->meta_description;
         $blog->meta_keywords = $request->meta_keywords;
+            if ($request->hasFile('featured_image')) {
+        $request = $this->saveFiles($request);
+    }
+    $blog->image = $request->featured_image;
         $blog->save();
 
         //Adding tags

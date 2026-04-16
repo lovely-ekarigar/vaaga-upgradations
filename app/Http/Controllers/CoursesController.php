@@ -511,6 +511,10 @@ public function thankYou(){
 $total=$courses->sum('price_1');
          }else if($request->course_mode=='onetoone_monthly'){
 $total=$courses->sum('monthly_price_1');
+         }else if($request->course_mode=='regular_monthly'){
+$total=$courses->sum('regular_monthly');
+         }else if($request->course_mode=='regular_monthly_1'){
+$total=$courses->sum('regular_monthly_1');
          }else if($request->course_mode=='onetomany_full'){
             $total=$courses->sum('price');
         }else if($request->course_mode=='full'){
@@ -550,8 +554,21 @@ $total=$courses->sum('monthly_price_1');
         $order->course_mode = $request->course_mode;
         $order->gst = $gst;
         $order->payment_method = $request->payment_method;
-        $order->payment_type = 1;
+            // Set payment_type based on payment_method
+        $paymentTypes = [
+            'stripe' => 1,
+            'paypal' => 2,
+            'offline' => 3,
+            'razorpay' => 4
+        ];
+        $order->payment_type = $paymentTypes[strtolower($request->payment_method ?? 'razorpay')] ?? 4;
         $order->aff_code = Cookie::get('affiliate_code');
+        // Set payment_cycle based on course_mode
+        if (in_array($request->course_mode, ['onetoone_full', 'onetomany_full', 'full'])) {
+            $order->payment_cycle = 'full';
+        } else {
+            $order->payment_cycle = 'monthly';
+        }
         $order->save();
         //Getting and Adding items
         
@@ -567,14 +584,18 @@ $price=0;
 $price=$course->price_1;
          }else if($request->course_mode=='onetoone_monthly'){
 $price=$course->monthly_price_1;
+         }else if($request->course_mode=='regular_monthly'){
+$price=$course->regular_monthly;
+         }else if($request->course_mode=='regular_monthly_1'){
+$price=$course->regular_monthly_1;
          }else if($request->course_mode=='onetomany_full'){
 $price=$course->price;
 }else if($request->course_mode=='full'){
-    $total=$courses->sum('full_price');
+    $price=$course->full_price;
 }else if($request->course_mode=='quarterly'){
-    $total=$courses->sum('quarterly_price');
+    $price=$course->quarterly_price;
 }else{
-   $total=$courses->sum('monthly_price'); 
+   $price=$course->monthly_price;
  }
 
             $order->items()->create([
@@ -583,8 +604,16 @@ $price=$course->price;
                 'price' => ceil($price),
             ]);
         }
-        $orx = Order::find($order->id);
-        $orx->total_cycle = $duration;
+                $orx = Order::find($order->id);
+        // Set total_cycle:
+        // - full course types => 1
+        // - regular monthly => 0 (custom requirement)
+        // - other monthly types => course duration
+        if ($request->course_mode === 'regular_monthly' || $request->course_mode === 'regular_monthly_1') {
+            $orx->total_cycle = 0;
+        } else {
+            $orx->total_cycle = in_array($request->course_mode, ['full', 'onetoone_full', 'onetomany_full']) ? 1 : $duration;
+        }
         $orx->paid_cycle = 0;
         $orx->update();
 
@@ -795,9 +824,10 @@ $price=$course->price;
     }
     
     public function applyCoupon($total,$coupon){
-        
-        
-        $gst = $total - $total*100/118;
+
+
+        $gst = 0;
+      $totalWithGst = $total;
       $total = $total - $gst;
     $discount =0;
         $coupon = Coupon::where('code', '=', $coupon)
@@ -835,7 +865,7 @@ $price=$course->price;
                 $type = null;
                 if($coupon->type == 1){
                     $type = '-'.$coupon->amount.'%';
-                    $discount = $total*$coupon->amount/100;
+                    $discount = $totalWithGst*$coupon->amount/100;
                 }else{
                     $type = '-'.$coupon->amount;
                     if($total > $coupon->amount){
@@ -1040,6 +1070,10 @@ $conf = Config::where("key","affiliate_user")->first();
         $total=$courses->sum('price_1');
                 }else if($request->course_mode=='onetoone_monthly'){
         $total=$courses->sum('monthly_price_1');
+                }else if($request->course_mode=='regular_monthly'){
+        $total=$courses->sum('regular_monthly');
+            }else if($request->course_mode=='regular_monthly_1'){
+        $total=$courses->sum('regular_monthly_1');
                 }else if($request->course_mode=='onetomany_full'){
         $total=$courses->sum('price');
         }else if($request->course_mode=='full'){
@@ -1054,7 +1088,7 @@ $conf = Config::where("key","affiliate_user")->first();
 
 
 
-      $gst = $total - $total*100/118;
+      $gst = 0;
       $total = $total - $gst;
    
         // $coupon = Coupon::where('code', '=', $coupon)
@@ -1085,7 +1119,11 @@ $conf = Config::where("key","affiliate_user")->first();
                 } else if($request->course_mode === 'monthly'){
                     
                      $coupon = Coupon::find($fc->coupon_id_monthly_price);
-                }else {
+                } else if($request->course_mode === 'regular_monthly'){
+                    $coupon = null;
+                } else if($request->course_mode === 'regular_monthly_1'){
+                    $coupon = null;
+                }else{
                     $coupon = null;
                 }
             } else {
@@ -1167,42 +1205,198 @@ $conf = Config::where("key","affiliate_user")->first();
 
     public function renew(Request $request){
 
-        $return = array("success"=>false,"msg"=>"");
-        $order = Order::find($request->oid);
-        if(!$order){
-        return  array("success"=>false,"msg"=>"Order not found");
-        }
-        if($order->user_id != Auth::user()->id){
-            return  array("success"=>false,"msg"=>"Order not found");
-        }
+        try {
+            $order = Order::find($request->oid);
+            if(!$order){
+                return response()->json(["success"=>false,"msg"=>"Order not found"]);
+            }
+            if($order->user_id != Auth::user()->id){
+                return response()->json(["success"=>false,"msg"=>"Order not found"]);
+            }
 
-        $subs = Subscription::where("order_id",$order->id)->where("status","0")->first();
-        if($subs){
-            $ref=uniqid();
-            $subs->renew_date = date("Y-m-d");
-            $subs->reference_no = $ref;
-            $subs->update();
-             return  array("success"=>true,"order_id"=>$ref);
-        }else{
+            // Check if ANY subscription entry exists for this order
+            $anySubscription = Subscription::where("order_id", $order->id)->first();
+            
+            // If no subscription exists at all, create the initial subscription entry first
+            if(!$anySubscription) {
+                \Log::info('No subscription entry found for order, creating initial subscription', [
+                    'order_id' => $order->id,
+                    'order_reference_no' => $order->reference_no,
+                    'order_status' => $order->status,
+                    'order_paid_cycle' => $order->paid_cycle
+                ]);
+                
+                // Create the initial subscription entry (cycle_no = 1) using order's reference_no
+                $initialSub = new Subscription;
+                $initialSub->order_id = $order->id;
+                $initialSub->cycle_no = 1;
+                $initialSub->amount = $order->amount;
+                $initialSub->gst = $order->gst;
+                $initialSub->discount = $order->discount;
+                $initialSub->coupon_id = $order->coupon_id;
+                $initialSub->user_id = $order->user_id;
+                $initialSub->course_mode = $order->course_mode;
+                $initialSub->reference_no = $order->reference_no; // Use order's reference_no
+                $initialSub->status = 1; // Mark as paid since the order is already paid
+                $initialSub->transaction_id = $order->transaction_id;
+                $initialSub->renew_date = $order->created_at;
+                $initialSub->end_date = $order->end_date;
+                
+                if(!$initialSub->save()){
+                    \Log::error('Failed to create initial subscription in renew', [
+                        'order_id' => $order->id
+                    ]);
+                    return response()->json(["success"=>false,"msg"=>"Failed to create initial subscription"], 500);
+                }
+                
+                \Log::info('Initial subscription created successfully', [
+                    'order_id' => $order->id,
+                    'subscription_id' => $initialSub->id,
+                    'cycle_no' => $initialSub->cycle_no,
+                    'reference_no' => $initialSub->reference_no
+                ]);
+            }
 
+            // Check if there's already a pending (unpaid) subscription for this renewal
+            // Handle both integer 0 and empty string for status
+            $pendingSubs = Subscription::where("order_id",$order->id)
+                ->where(function($q) {
+                    $q->where("status", 0)
+                      ->orWhere("status", "")
+                      ->orWhereNull("status");
+                })
+                ->orderBy('cycle_no', 'desc')
+                ->first();
+            
+            if($pendingSubs){
+                \Log::info('Renew - Found existing pending subscription', [
+                    'subscription_id' => $pendingSubs->id,
+                    'cycle_no' => $pendingSubs->cycle_no,
+                    'reference_no' => $pendingSubs->reference_no
+                ]);
+                // If there's already a pending subscription, just return it
+                return response()->json(["success"=>true,"order_id"=>$pendingSubs->reference_no]);
+            }
+
+            // Get the latest paid subscription to determine next cycle number
+            $lastPaidSubs = Subscription::where("order_id",$order->id)
+                ->where("status","1")
+                ->orderBy('cycle_no', 'desc')
+                ->first();
+            
+            // Calculate next cycle number: paid_cycle + 1
+            // This ensures cycle_no matches with the payment cycle
+            $nextCycleNo = ($order->paid_cycle ?? 0) + 1;
+            
+            \Log::info('Creating new subscription entry for renewal', [
+                'order_id' => $order->id,
+                'current_paid_cycle' => $order->paid_cycle,
+                'next_cycle_no' => $nextCycleNo,
+                'last_paid_cycle_no' => $lastPaidSubs ? $lastPaidSubs->cycle_no : 0
+            ]);
+
+            // Always create a NEW subscription entry for each renewal
             $sub = new Subscription;
             $sub->order_id = $order->id;
+            $sub->cycle_no = $nextCycleNo;
             $sub->amount = $order->amount;
             $sub->gst = $order->gst;
             $sub->discount = $order->discount;
             $sub->coupon_id = $order->coupon_id;
             $sub->user_id = Auth::user()->id;
+            $sub->course_mode = $order->course_mode;
             $ref=uniqid();
-            $sub->renew_date = date("Y-m-d");
+            $sub->renew_date = date("Y-m-d H:i:s");
             $sub->reference_no = $ref;
-            $sub->save();
-            return  array("success"=>true,"order_id"=>$ref);
+            $sub->status = (int)0; // Pending payment - force integer type
+            
+            if(!$sub->save()){
+                \Log::error('Failed to save subscription in renew', [
+                    'order_id' => $order->id,
+                    'cycle_no' => $nextCycleNo,
+                    'reference_no' => $ref
+                ]);
+                return response()->json(["success"=>false,"msg"=>"Failed to create subscription"], 500);
+            }
+            
+            \Log::info('Subscription save() returned true', [
+                'subscription_id' => $sub->id,
+                'reference_no' => $ref,
+                'order_id' => $order->id
+            ]);
+            
+            // Force refresh the model from database to ensure it's committed
+            $sub->refresh();
+            
+            // Clear query builder cache
+            \DB::connection()->flushQueryLog();
+            
+            // Add a small sleep to ensure database write completes (especially on replicated DBs)
+            usleep(100000); // 100ms
+            
+            // Verify the subscription was saved using direct DB query to bypass any model scopes
+            // Handle both integer 0 and empty string for status
+            $verifySubscription = \DB::table('subscriptions')
+                ->where('reference_no', $ref)
+                ->where(function($q) {
+                    $q->where('status', 0)
+                      ->orWhere('status', '')
+                      ->orWhereNull('status');
+                })
+                ->first();
+            
+            if(!$verifySubscription){
+                \Log::error('Subscription not found after save in renew', [
+                    'order_id' => $order->id,
+                    'reference_no' => $ref,
+                    'subscription_id' => $sub->id,
+                    'attempted_query' => 'SELECT * FROM subscriptions WHERE reference_no = '.$ref.' AND status = 0'
+                ]);
+                
+                // Try one more time with just the ID
+                $verifyById = \DB::table('subscriptions')->where('id', $sub->id)->first();
+                if($verifyById){
+                    \Log::info('Found subscription by ID but not by reference_no', [
+                        'subscription_id' => $verifyById->id,
+                        'db_reference_no' => $verifyById->reference_no,
+                        'expected_reference_no' => $ref,
+                        'status' => $verifyById->status
+                    ]);
+                    // If we can find it by ID, return success anyway
+                    return response()->json(["success"=>true,"order_id"=>$ref]);
+                }
+                
+                return response()->json(["success"=>false,"msg"=>"Subscription verification failed"], 500);
+            }
+            
+            \Log::info('Subscription created and verified successfully', [
+                'subscription_id' => $verifySubscription->id,
+                'order_id' => $verifySubscription->order_id,
+                'reference_no' => $verifySubscription->reference_no,
+                'cycle_no' => $verifySubscription->cycle_no,
+                'amount' => $verifySubscription->amount,
+                'status' => $verifySubscription->status
+            ]);
+            
+            return response()->json(["success"=>true,"order_id"=>$ref]);
+        } catch (\Exception $e) {
+            \Log::error('Renew subscription error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'oid' => $request->oid,
+                'user_id' => Auth::check() ? Auth::user()->id : null,
+            ]);
+            return response()->json(["success"=>false,"msg"=>"Server error: ".$e->getMessage()], 500);
         }
-
 
     }
 
     public function successPay(Request $request){
+        \Log::info('SuccessPay START', [
+            'request_all' => $request->all()
+        ]);
+        
          $tid = $request->TRANSACTIONID;
  $status = $request->TRANSACTIONPAYMENTSTATUS;
    $oid = explode("-",$tid);
@@ -1212,41 +1406,372 @@ $conf = Config::where("key","affiliate_user")->first();
  $order = Order::find($oid[1]);
 $orderx = Order::find($oid[1]);
  $cycle=$order->paid_cycle;
+ 
+ \Log::info('SuccessPay - ORDER payment', [
+     'order_id' => $order->id,
+     'current_paid_cycle' => $cycle
+ ]);
    }else{
     $order = Subscription::with('user')->find($oid[1]);
+    
+    if(!$order) {
+        \Log::error('Subscription not found in successPay', ['subscription_id' => $oid[1]]);
+        return redirect('/')->with('error', 'Subscription not found');
+    }
+    
     $orderx = Order::find($order->order_id);
+    
+    if(!$orderx) {
+        \Log::error('Parent order not found in successPay', ['subscription_id' => $order->id, 'order_id' => $order->order_id]);
+        return redirect('/')->with('error', 'Order not found');
+    }
+    
      $cycle=$orderx->paid_cycle;
+     
+     \Log::info('SuccessPay - SUBSCRIPTION payment loaded', [
+         'subscription_id' => $order->id,
+         'order_id' => $orderx->id,
+         'subscription_status' => $order->status,
+         'subscription_end_date' => $order->end_date,
+         'order_end_date' => $orderx->end_date,
+         'order_paid_cycle' => $orderx->paid_cycle,
+         'course_mode' => $orderx->course_mode
+     ]);
    }
    
  if($status=='SUCCESS'){
 
-
-
     $aptid = $request->APTRANSACTIONID;
+
+    // Check if this subscription is already paid to prevent duplicate cycle increment on repayment
+    // IMPORTANT: Check this BEFORE setting status to "1"
+    $isAlreadyPaid = false;
+    if($oid[0]=="ORDER"){
+        // For ORDER payments, check if order is already paid
+        $isAlreadyPaid = ($order->status == "1");
+        \Log::info('SuccessPay - Checking if order already paid', [
+            'order_id' => $order->id,
+            'current_status' => $order->status,
+            'is_already_paid' => $isAlreadyPaid
+        ]);
+    } else if($oid[0]=="SUBSCRIPTION" && $order instanceof Subscription){
+        $isAlreadyPaid = ($order->status == "1");
+        \Log::info('SuccessPay - Checking if subscription already paid', [
+            'subscription_id' => $order->id,
+            'current_status' => $order->status,
+            'is_already_paid' => $isAlreadyPaid
+        ]);
+    }
   
     // $item = Order::find($oid[0]);
     $order->status= "1";
-    if(str_contains($order->course_mode,"monthly")){
-        if($orderx->end_date){
-        if(date("Y-m-d")<date("Y-m-d",strtotime($orderx->end_date))){
-
-            $orderx->end_date= date("Y-m-d",strtotime("+1 Months",strtotime($orderx->end_date)));
-            $order->end_date= date("Y-m-d",strtotime("+1 Months",strtotime($orderx->end_date)));
-        }else{
-            $orderx->end_date= date("Y-m-d",strtotime("+1 Months",time()));
-            $order->end_date= date("Y-m-d",strtotime("+1 Months",time()));
-        }
-    }else{
-       $orderx->end_date= date("Y-m-d",strtotime("+1 Months",time())); 
-       $order->end_date= date("Y-m-d",strtotime("+1 Months",time())); 
-    }
+    // Use course_mode from parent Order ($orderx) for both ORDER and SUBSCRIPTION
+    $courseMode = $orderx->course_mode ?? '';
     
-}
+    \Log::info('SuccessPay - Checking course_mode', [
+        'payfor' => $oid[0],
+        'course_mode' => $courseMode,
+        'contains_monthly' => str_contains($courseMode,"monthly"),
+        'current_order_end_date' => $orderx->end_date,
+        'is_renewal' => ($orderx->end_date && date("Y-m-d") < date("Y-m-d",strtotime($orderx->end_date)))
+    ]);
+    
+       // Capture the current end_date BEFORE any modifications for last EMI logic
+    $previousEndDate = $orderx->end_date;
+
+    if(str_contains($courseMode,"monthly")){
+        if (in_array($courseMode, ['regular_monthly', 'regular_monthly_1'])) {
+            $baseEndDate = $orderx->end_date ?: date("Y-m-d");
+            $newEndDate = date("Y-m-d", strtotime("+1 Months", strtotime($baseEndDate)));
+            $orderx->end_date = $newEndDate;
+            $order->end_date = $newEndDate;
+
+            \Log::info('SuccessPay - Regular monthly: extending end_date from previous by +1 month', [
+                'course_mode' => $courseMode,
+                'base_end_date' => $baseEndDate,
+                'new_end_date' => $newEndDate
+            ]);
+        } else {
+        // Check if this is a renewal with valid end_date
+        if($orderx->end_date && date("Y-m-d") < date("Y-m-d",strtotime($orderx->end_date))){
+            // Renewal: extend from existing end_date by 1 month
+            $oldEndDate = $orderx->end_date;
+            $newEndDate = date("Y-m-d",strtotime("+1 Months",strtotime($oldEndDate)));
+            $orderx->end_date = $newEndDate;
+            $order->end_date = $newEndDate;
+            
+            \Log::info('SuccessPay - Renewal: extending end_date', [
+                'old_end_date' => $oldEndDate,
+                'new_end_date' => $newEndDate
+            ]);
+        } else {
+            // New purchase or expired subscription: check for batch enrollment
+            $courseIds = $orderx->items->pluck('item_id')->toArray();
+            $userId = $orderx->user_id;
+            
+            $enrolledBatch = \DB::table('student_teacher_batches')
+                ->join('batches', 'student_teacher_batches.bid', '=', 'batches.id')
+                ->whereIn('batches.cid', $courseIds)
+                ->where('student_teacher_batches.uid', $userId)
+                ->select('batches.start_date')
+                ->first();
+            
+            if ($enrolledBatch && $enrolledBatch->start_date) {
+                // Use day from batch start_date, month from purchase date + 1 month
+                $batchDay = Carbon::parse($enrolledBatch->start_date)->day;
+                $newEndDate = Carbon::now()->addMonth()->day($batchDay)->format('Y-m-d');
+                $orderx->end_date = $newEndDate;
+                $order->end_date = $newEndDate;
+                
+                \Log::info('SuccessPay - New/expired: using batch date', [
+                    'batch_start_date' => $enrolledBatch->start_date,
+                    'new_end_date' => $newEndDate
+                ]);
+            } else {
+                // Default: use purchase date + 1 month
+                $newEndDate = date("Y-m-d",strtotime("+1 Months",time()));
+                $orderx->end_date = $newEndDate;
+                $order->end_date = $newEndDate;
+                
+                \Log::info('SuccessPay - New/expired: using default +1 month', [
+                    'new_end_date' => $newEndDate
+                ]);
+            }
+        }
+        }
+    } else if(str_contains($courseMode, "full")) {
+        // Full course purchase: set end_date to batch start date + 6 months (if batch assigned), else order date + 6 months
+        $courseIds = $orderx->items->pluck('item_id')->toArray();
+        $userId = $orderx->user_id;
+
+        $enrolledBatch = \DB::table('student_teacher_batches')
+            ->join('batches', 'student_teacher_batches.bid', '=', 'batches.id')
+            ->whereIn('batches.cid', $courseIds)
+            ->where('student_teacher_batches.uid', $userId)
+            ->select('batches.start_date')
+            ->first();
+
+        if ($enrolledBatch && $enrolledBatch->start_date) {
+            $newEndDate = Carbon::parse($enrolledBatch->start_date)->addMonths(6)->format('Y-m-d');
+            \Log::info('SuccessPay - Full course: using batch start date + 6 months', [
+                'batch_start_date' => $enrolledBatch->start_date,
+                'new_end_date' => $newEndDate
+            ]);
+        } else {
+            $newEndDate = Carbon::now()->addMonths(6)->format('Y-m-d');
+            \Log::info('SuccessPay - Full course: using order date + 6 months', [
+                'new_end_date' => $newEndDate
+            ]);
+        }
+        $orderx->end_date = $newEndDate;
+        $order->end_date = $newEndDate;
+    } else {
+        \Log::warning('SuccessPay - Course mode does not contain monthly or full', [
+            'course_mode' => $courseMode,
+            'order_id' => $orderx->id,
+            'payfor' => $oid[0]
+        ]);
+    }
+          
           $order->transaction_id= $aptid;
           $orderx->transaction_id= $aptid;
-          $orderx->paid_cycle= $cycle+1;
-          $order->update();
-          $orderx->update();
+          
+          // Only increment paid_cycle if this is a new payment (not a repayment)
+          if(!$isAlreadyPaid){
+              $orderx->paid_cycle= $cycle+1;
+              \Log::info('SuccessPay - Incrementing paid_cycle', [
+                  'old_paid_cycle' => $cycle,
+                  'new_paid_cycle' => $cycle+1
+              ]);
+          } else {
+              \Log::info('SuccessPay - Skipping paid_cycle increment (repayment)', [
+                  'paid_cycle' => $orderx->paid_cycle
+              ]);
+          }
+          
+          // Validate cycle_no for subscription entries (already set during subscription creation)
+          if($oid[0]=="SUBSCRIPTION" && $order instanceof Subscription){
+              // Verify that cycle_no matches the expected value
+              $expectedCycleNo = $cycle + 1;
+              if($order->cycle_no != $expectedCycleNo){
+                  \Log::warning('SuccessPay - cycle_no mismatch detected', [
+                      'subscription_id' => $order->id,
+                      'current_cycle_no' => $order->cycle_no,
+                      'expected_cycle_no' => $expectedCycleNo,
+                      'order_paid_cycle' => $orderx->paid_cycle
+                  ]);
+                  // Fix the cycle_no if there's a mismatch
+                  $order->cycle_no = $expectedCycleNo;
+              }
+              
+              \Log::info('SuccessPay - Validated subscription cycle_no', [
+                  'subscription_id' => $order->id,
+                  'cycle_no' => $order->cycle_no,
+                  'order_paid_cycle' => $orderx->paid_cycle
+              ]);
+          }
+          
+          // Check if this is the last cycle payment - if yes, extend end_date by 6 months from batch start date
+          if(!in_array($courseMode, ['regular_monthly', 'regular_monthly_1']) && $orderx->total_cycle && ($cycle + 1) >= $orderx->total_cycle){
+              // This is the last cycle payment - get batch start date and extend by 6 months
+              $courseIds = $orderx->items->pluck('item_id')->toArray();
+              $userId = $orderx->user_id;
+
+              $enrolledBatch = \DB::table('student_teacher_batches')
+                  ->join('batches', 'student_teacher_batches.bid', '=', 'batches.id')
+                  ->whereIn('batches.cid', $courseIds)
+                  ->where('student_teacher_batches.uid', $userId)
+                  ->select('batches.start_date')
+                  ->first();
+
+              if ($enrolledBatch && $enrolledBatch->start_date) {
+                  // Use batch start date + 6 months for orders table
+                  $newEndDate = Carbon::parse($enrolledBatch->start_date)->addMonths(6)->format('Y-m-d');
+                  $orderx->end_date = $newEndDate;
+
+                  // For subscriptions table on last EMI, use previous end_date + 1 month
+                  if($oid[0] == "SUBSCRIPTION") {
+                      $subscriptionEndDate = Carbon::parse($previousEndDate)->addMonth()->format('Y-m-d');
+                      $order->end_date = $subscriptionEndDate;
+
+                      \Log::info('SuccessPay - Last cycle payment: orders table +6 months, subscriptions table = original end_date +1 month', [
+                          'total_cycle' => $orderx->total_cycle,
+                          'paid_cycle_after_payment' => $cycle + 1,
+                          'batch_start_date' => $enrolledBatch->start_date,
+                          'original_end_date' => $previousEndDate,
+                          'orders_end_date' => $newEndDate,
+                          'subscription_end_date' => $subscriptionEndDate
+                      ]);
+                  } else {
+                      $order->end_date = $newEndDate;
+
+                      \Log::info('SuccessPay - Last cycle payment: extending end_date by 6 months from batch start date', [
+                          'total_cycle' => $orderx->total_cycle,
+                          'paid_cycle_after_payment' => $cycle + 1,
+                          'batch_start_date' => $enrolledBatch->start_date,
+                          'new_end_date' => $newEndDate
+                      ]);
+                  }
+              } else {
+                  // Fallback: use order date + 6 months if no batch found
+                  $currentDate = $orderx->created_at ? Carbon::parse($orderx->created_at)->format('Y-m-d') : date("Y-m-d");
+                  $newEndDate = Carbon::parse($currentDate)->addMonths(6)->format('Y-m-d');
+                  $orderx->end_date = $newEndDate;
+
+                  // For subscriptions table on last EMI, use previous end_date + 1 month
+                  if($oid[0] == "SUBSCRIPTION") {
+                      $subscriptionEndDate = Carbon::parse($previousEndDate)->addMonth()->format('Y-m-d');
+                      $order->end_date = $subscriptionEndDate;
+
+                      \Log::warning('SuccessPay - Last cycle payment: No batch found, orders table +6 months, subscriptions table = original end_date +1 month', [
+                          'total_cycle' => $orderx->total_cycle,
+                          'paid_cycle_after_payment' => $cycle + 1,
+                          'order_date' => $currentDate,
+                          'original_end_date' => $previousEndDate,
+                          'orders_end_date' => $newEndDate,
+                          'subscription_end_date' => $subscriptionEndDate
+                      ]);
+                  } else {
+                      $order->end_date = $newEndDate;
+
+                      \Log::warning('SuccessPay - Last cycle payment: No batch found, using order date + 6 months', [
+                          'total_cycle' => $orderx->total_cycle,
+                          'paid_cycle_after_payment' => $cycle + 1,
+                          'order_date' => $currentDate,
+                          'new_end_date' => $newEndDate
+                      ]);
+                  }
+              }
+          } 
+          
+          \Log::info('SuccessPay - About to save values', [
+              'payfor' => $oid[0],
+              'order_type' => get_class($order),
+              'orderx_type' => get_class($orderx),
+              'order_status' => $order->status,
+              'order_end_date' => $order->end_date,
+              'order_transaction_id' => $order->transaction_id,
+              'orderx_end_date' => $orderx->end_date,
+              'orderx_paid_cycle' => $orderx->paid_cycle,
+              'orderx_transaction_id' => $orderx->transaction_id
+          ]);
+          
+          // Save updates
+          try {
+              $orderSaved = $order->save();
+              $orderxSaved = $orderx->save();
+              
+              \Log::info('SuccessPay - Save completed', [
+                  'order_saved' => $orderSaved,
+                  'orderx_saved' => $orderxSaved
+              ]);
+              
+              // Reload from database to verify
+              $order->refresh();
+              $orderx->refresh();
+              
+              \Log::info('SuccessPay - After reload from DB', [
+                  'order_id' => $order->id,
+                  'order_status' => $order->status,
+                  'order_end_date' => $order->end_date,
+                  'orderx_id' => $orderx->id,
+                  'orderx_end_date' => $orderx->end_date,
+                  'orderx_paid_cycle' => $orderx->paid_cycle
+              ]);
+          } catch (\Exception $e) {
+              \Log::error('SuccessPay - Error saving payment updates', [
+                  'error' => $e->getMessage(),
+                  'trace' => $e->getTraceAsString()
+              ]);
+              throw $e;
+          }
+          
+          // Create first subscription entry for ORDER payments (first-time purchase)
+          if($oid[0]=="ORDER" && !$isAlreadyPaid && $orderx->status == 1){
+              // Check if subscription already exists for this order and cycle
+              $existingSubscription = Subscription::where('order_id', $orderx->id)
+                  ->where('cycle_no', $orderx->paid_cycle)
+                  ->first();
+              
+              if(!$existingSubscription){
+                  try {
+                      $firstSubscription = new Subscription();
+                      $firstSubscription->order_id = $orderx->id;
+                      $firstSubscription->cycle_no = $orderx->paid_cycle;
+                      $firstSubscription->amount = $orderx->amount;
+                      $firstSubscription->gst = $orderx->gst;
+                      $firstSubscription->discount = $orderx->discount;
+                      $firstSubscription->coupon_id = $orderx->coupon_id;
+                      $firstSubscription->user_id = $orderx->user_id;
+                      $firstSubscription->course_mode = $orderx->course_mode;
+                      $firstSubscription->reference_no = $orderx->reference_no;
+                      $firstSubscription->transaction_id = $aptid;
+                      $firstSubscription->renew_date = date("Y-m-d H:i:s");
+                      $firstSubscription->end_date = $orderx->end_date;
+                      $firstSubscription->status = 1; // Paid
+                      $firstSubscription->save();
+                      
+                      \Log::info('SuccessPay - Created first subscription entry for ORDER', [
+                          'order_id' => $orderx->id,
+                          'subscription_id' => $firstSubscription->id,
+                          'cycle_no' => $firstSubscription->cycle_no,
+                          'reference_no' => $firstSubscription->reference_no
+                      ]);
+                  } catch (\Exception $e) {
+                      \Log::error('SuccessPay - Failed to create first subscription', [
+                          'order_id' => $orderx->id,
+                          'error' => $e->getMessage()
+                      ]);
+                  }
+              } else {
+                  \Log::info('SuccessPay - Subscription already exists for this order/cycle', [
+                      'order_id' => $orderx->id,
+                      'cycle_no' => $orderx->paid_cycle,
+                      'subscription_id' => $existingSubscription->id
+                  ]);
+              }
+          }
+          
      $ids=[];
 $items=[];
 
@@ -1340,59 +1865,416 @@ $item = Order::find($oid[1]);
 
 public function payConfirm($ref,$type,Request $request){
     
+    \Log::info('PayConfirm START', [
+        'ref' => $ref,
+        'type' => $type,
+        'request_all' => $request->all()
+    ]);
+    
     $razorpay_order_id = $request->razorpay_order_id;
       $razorpay_payment_id = $request->razorpay_payment_id;
         $razorpay_signature = $request->razorpay_signature;
    
         // Verify Razorpay signature to prevent payment tampering
-        $secret = config('services.razorpay.secret');
+        $secret = env('RZP_SECRET');
+        
+        \Log::info('Signature verification details', [
+            'secret' => substr($secret, 0, 4) . '...', // Log first 4 chars only
+            'razorpay_order_id' => $razorpay_order_id,
+            'razorpay_payment_id' => $razorpay_payment_id
+        ]);
+        
         $expectedSignature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, $secret);
         if (!hash_equals($expectedSignature, $razorpay_signature)) {
-            return redirect('/pay/'.$ref."?failed=true&error=invalid_signature");
+            \Log::error('Razorpay signature verification failed', [
+                'ref' => $ref,
+                'type' => $type,
+                'expected' => $expectedSignature,
+                'received' => $razorpay_signature,
+                'secret_length' => strlen($secret)
+            ]);
+            return redirect('/pay/'.$ref."?failed=true&error=invalid_signature&payment_for=".strtoupper($type));
         }
    
             $payfor = $type;
             
+            \Log::info('PayConfirm - Signature verified', [
+                'ref' => $ref,
+                'payfor' => $payfor,
+                'razorpay_payment_id' => $razorpay_payment_id
+            ]);
             
                
    if($payfor=="ORDER"){
  $order = Order::where("reference_no",$ref)->first();
 $orderx = Order::where("reference_no",$ref)->first();
  $cycle=$order->paid_cycle;
+ 
+ \Log::info('PayConfirm - ORDER payment', [
+     'order_id' => $order->id,
+     'current_paid_cycle' => $cycle,
+     'current_end_date' => $orderx->end_date
+ ]);
    }else{
     $order = Subscription::with('user')->where("reference_no",$ref)->first();
+    
+    if(!$order) {
+        \Log::error('Subscription not found', ['ref' => $ref]);
+        return redirect('/')->with('error', 'Subscription not found');
+    }
+    
     $orderx = Order::find($order->order_id);
+    
+    if(!$orderx) {
+        \Log::error('Parent order not found', ['subscription_id' => $order->id, 'order_id' => $order->order_id]);
+        return redirect('/')->with('error', 'Order not found');
+    }
+    
      $cycle=$orderx->paid_cycle;
+     
+     \Log::info('PayConfirm - SUBSCRIPTION payment - loaded from DB', [
+         'subscription_id' => $order->id,
+         'order_id' => $orderx->id,
+         'subscription_status' => $order->status,
+         'subscription_end_date' => $order->end_date,
+         'order_end_date' => $orderx->end_date,
+         'order_paid_cycle' => $orderx->paid_cycle,
+         'course_mode' => $orderx->course_mode
+     ]);
    }
    
  
 
-
+    // Check if this subscription is already paid to prevent duplicate cycle increment on repayment
+    // IMPORTANT: Check this BEFORE setting status to "1"
+    $isAlreadyPaid = false;
+    if($payfor=="ORDER"){
+        // For ORDER payments, check if order is already paid
+        $isAlreadyPaid = ($order->status == "1");
+        \Log::info('PayConfirm - Checking if order already paid', [
+            'order_id' => $order->id,
+            'current_status' => $order->status,
+            'is_already_paid' => $isAlreadyPaid
+        ]);
+    } else if($payfor=="SUBSCRIPTION" && $order instanceof Subscription){
+        $isAlreadyPaid = ($order->status == "1");
+        \Log::info('PayConfirm - Checking if subscription already paid', [
+            'subscription_id' => $order->id,
+            'current_status' => $order->status,
+            'is_already_paid' => $isAlreadyPaid
+        ]);
+    }
 
   
     // $item = Order::find($oid[0]);
     $order->status= "1";
-    if(str_contains($order->course_mode,"monthly")){
-        if($orderx->end_date){
-        if(date("Y-m-d")<date("Y-m-d",strtotime($orderx->end_date))){
-
-            $orderx->end_date= date("Y-m-d",strtotime("+1 Months",strtotime($orderx->end_date)));
-            $order->end_date= date("Y-m-d",strtotime("+1 Months",strtotime($orderx->end_date)));
-        }else{
-            $orderx->end_date= date("Y-m-d",strtotime("+1 Months",time()));
-            $order->end_date= date("Y-m-d",strtotime("+1 Months",time()));
-        }
-    }else{
-       $orderx->end_date= date("Y-m-d",strtotime("+1 Months",time())); 
-       $order->end_date= date("Y-m-d",strtotime("+1 Months",time())); 
-    }
+    // Use course_mode from parent Order ($orderx) for both ORDER and SUBSCRIPTION
+    $courseMode = $orderx->course_mode ?? '';
     
-}
+    \Log::info('PayConfirm - Checking course_mode', [
+        'payfor' => $payfor,
+        'course_mode' => $courseMode,
+        'contains_monthly' => str_contains($courseMode,"monthly"),
+        'current_order_end_date' => $orderx->end_date,
+        'is_renewal' => ($orderx->end_date && date("Y-m-d") < date("Y-m-d",strtotime($orderx->end_date)))
+    ]);
+        
+    // Capture the current end_date BEFORE any modifications for last EMI logic
+    $previousEndDate = $orderx->end_date;
+
+    if(str_contains($courseMode,"monthly")){
+        if (in_array($courseMode, ['regular_monthly', 'regular_monthly_1'])) {
+            $baseEndDate = $orderx->end_date ?: date("Y-m-d");
+            $newEndDate = date("Y-m-d", strtotime("+1 Months", strtotime($baseEndDate)));
+            $orderx->end_date = $newEndDate;
+            $order->end_date = $newEndDate;
+
+            \Log::info('PayConfirm - Regular monthly: extending end_date from previous by +1 month', [
+                'course_mode' => $courseMode,
+                'base_end_date' => $baseEndDate,
+                'new_end_date' => $newEndDate
+            ]);
+        } else {
+        // Check if this is a renewal with valid end_date
+        if($orderx->end_date && date("Y-m-d") < date("Y-m-d",strtotime($orderx->end_date))){
+            // Renewal: extend from existing end_date by 1 month
+            $oldEndDate = $orderx->end_date;
+            $newEndDate = date("Y-m-d",strtotime("+1 Months",strtotime($oldEndDate)));
+            $orderx->end_date = $newEndDate;
+            $order->end_date = $newEndDate;
+            
+            \Log::info('PayConfirm - Renewal: extending end_date', [
+                'old_end_date' => $oldEndDate,
+                'new_end_date' => $newEndDate
+            ]);
+        } else {
+            // New purchase or expired subscription: check for batch enrollment
+            $courseIds = $orderx->items->pluck('item_id')->toArray();
+            $userId = $orderx->user_id;
+            
+            $enrolledBatch = \DB::table('student_teacher_batches')
+                ->join('batches', 'student_teacher_batches.bid', '=', 'batches.id')
+                ->whereIn('batches.cid', $courseIds)
+                ->where('student_teacher_batches.uid', $userId)
+                ->select('batches.start_date')
+                ->first();
+            
+            if ($enrolledBatch && $enrolledBatch->start_date) {
+                // Use day from batch start_date, month from purchase date + 1 month
+                $batchDay = Carbon::parse($enrolledBatch->start_date)->day;
+                $newEndDate = Carbon::now()->addMonth()->day($batchDay)->format('Y-m-d');
+                $orderx->end_date = $newEndDate;
+                $order->end_date = $newEndDate;
+                
+                \Log::info('PayConfirm - New/expired: using batch date', [
+                    'batch_start_date' => $enrolledBatch->start_date,
+                    'new_end_date' => $newEndDate
+                ]);
+            } else {
+                // Default: use purchase date + 1 month
+                $newEndDate = date("Y-m-d",strtotime("+1 Months",time()));
+                $orderx->end_date = $newEndDate;
+                $order->end_date = $newEndDate;
+                
+                \Log::info('PayConfirm - New/expired: using default +1 month', [
+                    'new_end_date' => $newEndDate
+                ]);
+            }
+        }
+        }
+    } else if(str_contains($courseMode, "full")) {
+        // Full course purchase: set end_date to batch start date + 6 months (if batch assigned), else order date + 6 months
+        $courseIds = $orderx->items->pluck('item_id')->toArray();
+        $userId = $orderx->user_id;
+
+        $enrolledBatch = \DB::table('student_teacher_batches')
+            ->join('batches', 'student_teacher_batches.bid', '=', 'batches.id')
+            ->whereIn('batches.cid', $courseIds)
+            ->where('student_teacher_batches.uid', $userId)
+            ->select('batches.start_date')
+            ->first();
+
+        if ($enrolledBatch && $enrolledBatch->start_date) {
+            $newEndDate = Carbon::parse($enrolledBatch->start_date)->addMonths(6)->format('Y-m-d');
+            \Log::info('PayConfirm - Full course: using batch start date + 6 months', [
+                'batch_start_date' => $enrolledBatch->start_date,
+                'new_end_date' => $newEndDate
+            ]);
+        } else {
+            $newEndDate = Carbon::now()->addMonths(6)->format('Y-m-d');
+            \Log::info('PayConfirm - Full course: using order date + 6 months', [
+                'new_end_date' => $newEndDate
+            ]);
+        }
+        $orderx->end_date = $newEndDate;
+        $order->end_date = $newEndDate;
+    } else {
+        \Log::warning('PayConfirm - Course mode does not contain monthly or full', [
+            'course_mode' => $courseMode,
+            'order_id' => $orderx->id,
+            'payfor' => $payfor
+        ]);
+    }
+          
           $order->transaction_id= $razorpay_payment_id;
           $orderx->transaction_id= $razorpay_payment_id;
-          $orderx->paid_cycle= $cycle+1;
-          $order->update();
-          $orderx->update();
+          
+          // Only increment paid_cycle if this is a new payment (not a repayment)
+          if(!$isAlreadyPaid){
+              $orderx->paid_cycle= $cycle+1;
+              \Log::info('PayConfirm - Incrementing paid_cycle', [
+                  'old_paid_cycle' => $cycle,
+                  'new_paid_cycle' => $cycle+1
+              ]);
+          } else {
+              \Log::info('PayConfirm - Skipping paid_cycle increment (repayment)', [
+                  'paid_cycle' => $orderx->paid_cycle
+              ]);
+          }
+          
+          // Validate cycle_no for subscription entries (already set during subscription creation)
+          if($payfor=="SUBSCRIPTION" && $order instanceof Subscription){
+              // Verify that cycle_no matches the expected value
+              $expectedCycleNo = $cycle + 1;
+              if($order->cycle_no != $expectedCycleNo){
+                  \Log::warning('PayConfirm - cycle_no mismatch detected', [
+                      'subscription_id' => $order->id,
+                      'current_cycle_no' => $order->cycle_no,
+                      'expected_cycle_no' => $expectedCycleNo,
+                      'order_paid_cycle' => $orderx->paid_cycle
+                  ]);
+                  // Fix the cycle_no if there's a mismatch
+                  $order->cycle_no = $expectedCycleNo;
+              }
+              
+              \Log::info('PayConfirm - Validated subscription cycle_no', [
+                  'subscription_id' => $order->id,
+                  'cycle_no' => $order->cycle_no,
+                  'order_paid_cycle' => $orderx->paid_cycle
+              ]);
+          }
+          
+          // Check if this is the last cycle payment - if yes, extend end_date by 6 months from batch start date
+           if(!in_array($courseMode, ['regular_monthly', 'regular_monthly_1']) && $orderx->total_cycle && ($cycle + 1) >= $orderx->total_cycle){
+              // This is the last cycle payment - get batch start date and extend by 6 months
+              $courseIds = $orderx->items->pluck('item_id')->toArray();
+              $userId = $orderx->user_id;
+
+              $enrolledBatch = \DB::table('student_teacher_batches')
+                  ->join('batches', 'student_teacher_batches.bid', '=', 'batches.id')
+                  ->whereIn('batches.cid', $courseIds)
+                  ->where('student_teacher_batches.uid', $userId)
+                  ->select('batches.start_date')
+                  ->first();
+
+              if ($enrolledBatch && $enrolledBatch->start_date) {
+                  // Use batch start date + 6 months for orders table
+                  $newEndDate = Carbon::parse($enrolledBatch->start_date)->addMonths(6)->format('Y-m-d');
+                  $orderx->end_date = $newEndDate;
+
+                  // For subscriptions table on last EMI, use previous end_date + 1 month
+                  if($payfor == "SUBSCRIPTION") {
+                      $subscriptionEndDate = Carbon::parse($previousEndDate)->addMonth()->format('Y-m-d');
+                      $order->end_date = $subscriptionEndDate;
+
+                      \Log::info('PayConfirm - Last cycle payment: orders table +6 months, subscriptions table = previous end_date +1 month', [
+                          'total_cycle' => $orderx->total_cycle,
+                          'paid_cycle_after_payment' => $cycle + 1,
+                          'batch_start_date' => $enrolledBatch->start_date,
+                          'previous_end_date' => $previousEndDate,
+                          'orders_end_date' => $newEndDate,
+                          'subscription_end_date' => $subscriptionEndDate
+                      ]);
+                  } else {
+                      $order->end_date = $newEndDate;
+
+                      \Log::info('PayConfirm - Last cycle payment: extending end_date by 6 months from batch start date', [
+                          'total_cycle' => $orderx->total_cycle,
+                          'paid_cycle_after_payment' => $cycle + 1,
+                          'batch_start_date' => $enrolledBatch->start_date,
+                          'new_end_date' => $newEndDate
+                      ]);
+                  }
+              } else {
+                  // Fallback: use order date + 6 months if no batch found
+                  $currentDate = $orderx->created_at ? Carbon::parse($orderx->created_at)->format('Y-m-d') : date("Y-m-d");
+                  $newEndDate = Carbon::parse($currentDate)->addMonths(6)->format('Y-m-d');
+                  $orderx->end_date = $newEndDate;
+
+                  // For subscriptions table on last EMI, use previous end_date + 1 month
+                  if($payfor == "SUBSCRIPTION") {
+                      $subscriptionEndDate = Carbon::parse($previousEndDate)->addMonth()->format('Y-m-d');
+                      $order->end_date = $subscriptionEndDate;
+
+                      \Log::warning('PayConfirm - Last cycle payment: No batch found, orders table +6 months, subscriptions table = previous end_date +1 month', [
+                          'total_cycle' => $orderx->total_cycle,
+                          'paid_cycle_after_payment' => $cycle + 1,
+                          'order_date' => $currentDate,
+                          'previous_end_date' => $previousEndDate,
+                          'orders_end_date' => $newEndDate,
+                          'subscription_end_date' => $subscriptionEndDate
+                      ]);
+                  } else {
+                      $order->end_date = $newEndDate;
+
+                      \Log::warning('PayConfirm - Last cycle payment: No batch found, using order date + 6 months', [
+                          'total_cycle' => $orderx->total_cycle,
+                          'paid_cycle_after_payment' => $cycle + 1,
+                          'order_date' => $currentDate,
+                          'new_end_date' => $newEndDate
+                      ]);
+                  }
+              }
+          } 
+          
+          \Log::info('About to save - values set', [
+              'payfor' => $payfor,
+              'order_type' => get_class($order),
+              'orderx_type' => get_class($orderx),
+              'order_status' => $order->status,
+              'order_end_date' => $order->end_date,
+              'order_transaction_id' => $order->transaction_id,
+              'orderx_end_date' => $orderx->end_date,
+              'orderx_paid_cycle' => $orderx->paid_cycle,
+              'orderx_transaction_id' => $orderx->transaction_id
+          ]);
+          
+          // Save updates
+          try {
+              $orderSaved = $order->save();
+              $orderxSaved = $orderx->save();
+              
+              \Log::info('Save completed', [
+                  'order_saved' => $orderSaved,
+                  'orderx_saved' => $orderxSaved
+              ]);
+              
+              // Reload from database to verify
+              $order->refresh();
+              $orderx->refresh();
+              
+              \Log::info('After reload from DB', [
+                  'order_id' => $order->id,
+                  'order_status' => $order->status,
+                  'order_end_date' => $order->end_date,
+                  'orderx_id' => $orderx->id,
+                  'orderx_end_date' => $orderx->end_date,
+                  'orderx_paid_cycle' => $orderx->paid_cycle
+              ]);
+          } catch (\Exception $e) {
+              \Log::error('Error saving payment updates', [
+                  'error' => $e->getMessage(),
+                  'trace' => $e->getTraceAsString()
+              ]);
+              throw $e;
+          }
+          
+          // Create first subscription entry for ORDER payments (first-time purchase)
+          if($payfor=="ORDER" && !$isAlreadyPaid && $orderx->status == 1){
+              // Check if subscription already exists for this order and cycle
+              $existingSubscription = Subscription::where('order_id', $orderx->id)
+                  ->where('cycle_no', $orderx->paid_cycle)
+                  ->first();
+              
+              if(!$existingSubscription){
+                  try {
+                      $firstSubscription = new Subscription();
+                      $firstSubscription->order_id = $orderx->id;
+                      $firstSubscription->cycle_no = $orderx->paid_cycle;
+                      $firstSubscription->amount = $orderx->amount;
+                      $firstSubscription->gst = $orderx->gst;
+                      $firstSubscription->discount = $orderx->discount;
+                      $firstSubscription->coupon_id = $orderx->coupon_id;
+                      $firstSubscription->user_id = $orderx->user_id;
+                      $firstSubscription->course_mode = $orderx->course_mode;
+                      $firstSubscription->reference_no = $orderx->reference_no;
+                      $firstSubscription->transaction_id = $razorpay_payment_id;
+                      $firstSubscription->renew_date = date("Y-m-d H:i:s");
+                      $firstSubscription->end_date = $orderx->end_date;
+                      $firstSubscription->status = 1; // Paid
+                      $firstSubscription->save();
+                      
+                      \Log::info('PayConfirm - Created first subscription entry for ORDER', [
+                          'order_id' => $orderx->id,
+                          'subscription_id' => $firstSubscription->id,
+                          'cycle_no' => $firstSubscription->cycle_no,
+                          'reference_no' => $firstSubscription->reference_no
+                      ]);
+                  } catch (\Exception $e) {
+                      \Log::error('PayConfirm - Failed to create first subscription', [
+                          'order_id' => $orderx->id,
+                          'error' => $e->getMessage()
+                      ]);
+                  }
+              } else {
+                  \Log::info('PayConfirm - Subscription already exists for this order/cycle', [
+                      'order_id' => $orderx->id,
+                      'cycle_no' => $orderx->paid_cycle,
+                      'subscription_id' => $existingSubscription->id
+                  ]);
+              }
+          }
+          
      $ids=[];
 $items=[];
 
@@ -1461,52 +2343,80 @@ return redirect('/thank-you');
 
         $payfor = "ORDER";
         if($request->payment_for){
-            $payfor = $request->payment_for;
+            $payfor = strtoupper($request->payment_for);
         }
+
+        \Log::info('Pay function called', [
+            'ref_id' => $ref_id,
+            'payment_for' => $payfor
+        ]);
 
         if(!$ref_id){
             return redirect("/");
         }
-        if($payfor == "ORDER"){
-
-        $order = Order::where('reference_no',$ref_id)->where('status','0')->first();
         
-        if($order){
+        if($payfor == "ORDER"){
+            $order = Order::where('reference_no',$ref_id)->where('status','0')->first();
             
-            if($order->payment_method=='razorpay'){
-                try {
-                    $rzp_id = $this->createRzpOrder("order_".$order->id,$order->amount);
-                    $order->order_id=$rzp_id;
-                    $order->update();
-                } catch (\Exception $e) {
-                    \Log::error('Razorpay Order Creation Failed', [
-                        'order_id' => $order->id,
-                        'reference_no' => $ref_id,
-                        'error' => $e->getMessage()
-                    ]);
-                    return redirect()->back()->with('error', 'Payment gateway error: ' . $e->getMessage());
+            if($order){
+                // Always create Razorpay order for new payments (default to razorpay)
+                $paymentMethod = strtolower($order->payment_method ?? 'razorpay');
+                if($paymentMethod == 'razorpay' || empty($order->payment_method)){
+                    try {
+                        $rzp_id = $this->createRzpOrder("order_".$order->id,$order->amount);
+                        $order->order_id=$rzp_id;
+                        $order->save(); // Fixed: use save() instead of update()
+                        \Log::info('Razorpay order created for ORDER', ['rzp_id' => $rzp_id]);
+                    } catch (\Exception $e) {
+                        \Log::error('Razorpay Order Creation Failed', [
+                            'order_id' => $order->id,
+                            'reference_no' => $ref_id,
+                            'error' => $e->getMessage()
+                        ]);
+                        return redirect()->back()->with('error', 'Payment gateway error: ' . $e->getMessage());
+                    }
                 }
             }
-        }
-        
-        
-    }else{
-        $order = Subscription::where("reference_no",$ref_id)->where("status","0")->first();
-        if($order){
-            // Get payment_method from parent Order if Subscription doesn't have it
-            $parentOrder = null;
-            if($order->order_id){
-                $parentOrder = Order::find($order->order_id);
-            }
-            $paymentMethod = $order->payment_method ?? ($parentOrder ? $parentOrder->payment_method : null);
+        } else if($payfor == "SUBSCRIPTION") {
+            // Handle SUBSCRIPTION payments - always use Razorpay
             
-            if($paymentMethod == 'razorpay'){
+            // First, check if ANY subscription with this reference_no exists (regardless of status)
+            $anySubscription = Subscription::where("reference_no",$ref_id)->first();
+            
+            \Log::info('Subscription lookup - checking all', [
+                'ref_id' => $ref_id,
+                'any_found' => $anySubscription ? true : false,
+                'status_if_found' => $anySubscription ? $anySubscription->status : null,
+                'id_if_found' => $anySubscription ? $anySubscription->id : null
+            ]);
+            
+            // Now get the unpaid subscription - handle both integer 0 and empty string
+            $order = Subscription::where("reference_no",$ref_id)
+                ->where(function($q) {
+                    $q->where("status", 0)
+                      ->orWhere("status", "")
+                      ->orWhereNull("status");
+                })
+                ->first();
+            
+            \Log::info('Subscription lookup - unpaid only', [
+                'ref_id' => $ref_id,
+                'found' => $order ? true : false,
+                'subscription_id' => $order ? $order->id : null,
+                'amount' => $order ? $order->amount : null,
+                'payment_ref' => $order ? $order->payment_ref : null
+            ]);
+            
+            if($order){
+                // Always create a fresh Razorpay order for subscription renewals
                 try {
-                    $rzp_id = $this->createRzpOrder("sub_".$order->id,$order->amount);
-                    // Store Razorpay order ID - use a different column if order_id is foreign key
-                    // For now, assuming order_id can store Razorpay ID for subscriptions
-                    $order->order_id = $rzp_id;
-                    $order->update();
+                    $rzp_id = $this->createRzpOrder("sub_".$order->id, $order->amount);
+                    $order->payment_ref = $rzp_id;
+                    $order->save(); // Fixed: use save() instead of update()
+                    \Log::info('Razorpay order created for SUBSCRIPTION', [
+                        'subscription_id' => $order->id,
+                        'rzp_id' => $rzp_id
+                    ]);
                 } catch (\Exception $e) {
                     \Log::error('Razorpay Subscription Order Creation Failed', [
                         'subscription_id' => $order->id,
@@ -1515,39 +2425,66 @@ return redirect('/thank-you');
                     ]);
                     return redirect()->back()->with('error', 'Payment gateway error: ' . $e->getMessage());
                 }
+                
+                // Return Razorpay view directly for subscriptions
+                return view('frontend.rzp', compact('order','payfor'));
             }
         }
-    }
+        
         if(!$order){
-
-            return redirect("/");
-
+            // Try one more time with raw DB query to bypass Eloquent
+            if($payfor == "SUBSCRIPTION"){
+                $rawLookup = \DB::table('subscriptions')
+                    ->where('reference_no', $ref_id)
+                    ->where(function($q) {
+                        $q->where('status', 0)
+                          ->orWhere('status', '')
+                          ->orWhereNull('status');
+                    })
+                    ->first();
+                
+                \Log::warning('Order not found via Eloquent, trying raw DB', [
+                    'ref_id' => $ref_id,
+                    'ref_id_length' => strlen($ref_id),
+                    'ref_id_raw' => bin2hex($ref_id),
+                    'payfor' => $payfor,
+                    'raw_found' => $rawLookup ? true : false,
+                    'raw_id' => $rawLookup ? $rawLookup->id : null
+                ]);
+                
+                if($rawLookup){
+                    // Try to load via Eloquent using ID
+                    $order = Subscription::find($rawLookup->id);
+                    \Log::info('Loaded subscription via ID after raw lookup', [
+                        'subscription_id' => $order ? $order->id : null
+                    ]);
+                }
+            }
         }
         
-        // dd($order);
-
-// 
- if($order){
-     // Handle both Order and Subscription objects
-     $paymentMethod = null;
-     if($order instanceof \App\Models\Order){
-         $paymentMethod = $order->payment_method;
-     } else if($order instanceof \App\Models\Subscription){
-         $paymentMethod = $order->payment_method ?? null;
-         if(!$paymentMethod && $order->order_id){
-             $parentOrder = \App\Models\Order::find($order->order_id);
-             $paymentMethod = $parentOrder ? $parentOrder->payment_method : null;
-         }
-     }
+        if(!$order){
+            \Log::error('Order not found - all methods exhausted', [
+                'ref_id' => $ref_id,
+                'payfor' => $payfor
+            ]);
+            return redirect("/")->with('error', 'Order not found. Please contact support with reference: ' . $ref_id);
+        }
      
-     if($paymentMethod == 'razorpay'){
-         return view('frontend.rzp', compact('order','payfor'));
-     }else{
-         return view('frontend.paynow', compact('order','payfor'));  
-     }
- }
- 
- return redirect("/")->with('error', 'Order not found');
+        // For ORDER payments, determine view based on payment method
+        $paymentMethod = strtolower($order->payment_method ?? 'razorpay');
+        
+        \Log::info('Payment view selection', [
+            'payfor' => $payfor,
+            'payment_method' => $paymentMethod,
+            'order_type' => get_class($order)
+        ]);
+        
+        // Default to Razorpay when payment method is razorpay or not set
+        if($paymentMethod == 'razorpay' || empty($paymentMethod)){
+            return view('frontend.rzp', compact('order','payfor'));
+        }else{
+            return view('frontend.paynow', compact('order','payfor'));  
+        }
     }
     
     

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
 use App\Models\Course;
+use App\Models\TestSeries;
 class CouponController extends Controller
 {
     /**
@@ -29,8 +30,8 @@ class CouponController extends Controller
     public function create()
     { 
         $courses = Course::orderBy('id','desc')->where('category_id','>=','101')->get();
-        // dd($courses);
-        return view('backend.coupons.create',compact('courses'));
+        $testSeriesList = TestSeries::where('status','1')->orderBy('id','desc')->get();
+        return view('backend.coupons.create',compact('courses','testSeriesList'));
     }
 
     /**
@@ -59,6 +60,7 @@ class CouponController extends Controller
             $coupon->expires_at = $request->expires_at;
             $coupon->min_price = $request->min_price;
              $coupon->courses = json_encode($request->courses);
+            $coupon->test_series = json_encode($request->test_series);
             $coupon->per_user_limit = $request->per_user_limit;
             $coupon->save();
         }
@@ -88,7 +90,8 @@ class CouponController extends Controller
     {
         $coupon = Coupon::findOrFail($id);
         $courses = Course::orderBy('id','desc')->where('category_id','>=','101')->get();
-        return view('backend.coupons.edit',compact('coupon','courses'));
+        $testSeriesList = TestSeries::where('status','1')->orderBy('id','desc')->get();
+        return view('backend.coupons.edit',compact('coupon','courses','testSeriesList'));
     }
 
     /**
@@ -117,6 +120,7 @@ class CouponController extends Controller
             $coupon->expires_at = $request->expires_at;
             $coupon->min_price = $request->min_price;
              $coupon->courses = json_encode($request->courses);
+            $coupon->test_series = json_encode($request->test_series);
             $coupon->per_user_limit = $request->per_user_limit;
             $coupon->save();
             return redirect()->route('admin.coupons.index')->withFlashSuccess(trans('alerts.backend.general.updated'));

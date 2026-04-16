@@ -78,7 +78,37 @@ Route::get('btob-users', [BtoBController::class, 'users'])->name('btob.user.list
 Route::group(['middleware' => 'role:teacher|administrator|author'], function () {
     Route::resource('orders', OrderController::class);
 
-    //===== Demo Request Routes =====//
+  
+    Route::get('teacher-course-list', [TeachersController::class, 'teachercourseList'])->name('teacher-course-list');
+    Route::get('teacher-student-list', [TeachersController::class, 'teacherstudentList'])->name('teacher-student-list');
+
+    Route::get('teacher-attendance', [TeachersController::class, 'teacherattendanceList'])->name('teacher_attendance');
+    Route::get('teacher-fees/{id}', [TeachersController::class, 'teacherFees'])->name('teacher_fees');
+    Route::post('teacher-fees/{id}', [TeachersController::class, 'teacherFeescreate'])->name('teacher_fees.store');
+    Route::get('teacher-fees-delete/{id}', [TeachersController::class, 'teacherFeesdelete'])->name('teacher_fees_delete');
+    // Route::get('teacher-attendance-create', [TeachersController::class, 'teacherattendanceCreate'])->name('teacher_attendance_create');
+    // Route::post('teacher-attendance-store', [TeachersController::class, 'teacherattendanceStore'])->name('teacher_attendance_store');
+    Route::post('teacher-bank-details-create', [TeachersController::class, 'teacherbankdetailStore'])->name('teacher_bank_details_create');
+    Route::post('teacher-document-approof-create', [TeachersController::class, 'teacherdocumentapproofStore'])->name('teacher_document_approof_create');
+    Route::post('teacher-ppt-video-store', [TeachersController::class, 'teacherpptVideoStore'])->name('teacher-ppt-video-store');
+    Route::get('delete/{id}', [TeachersController::class, 'teacherpptVideoDelete'])->name('teacher-ppt-delete');
+
+    Route::get('batch/batch-progress-list/{id}', [BatchController::class, 'batchprogressList'])->name('batch-progress-list');
+
+    Route::get('batch-progress-list-teacher/{id}', [BatchController::class, 'batchprogressteacherList'])->name('batch-progress-list-teacher');
+    
+
+  
+    // Questions bank - accessible by teachers and administrators
+    // Route::get('questions-bank', [QuestionController::class, 'index'])->name('exams.questions.index');
+});
+
+
+
+
+Route::group(['middleware' =>  'role:teacher|administrator|author|backend-support-staff|telecaller'], function () {
+    
+      //===== Demo Request Routes =====//
     Route::get('demo-requests-teacher', [DemoController::class, 'indexTeacher'])->name('demo_requests_teacher');
 
     Route::get('update-sort', [CategoriesController::class, 'updateSort'])->name('update_sort');
@@ -101,41 +131,101 @@ Route::group(['middleware' => 'role:teacher|administrator|author'], function () 
          Route::get('demo-batch-student/{id}', [DemoController::class, 'demoBatchStudent'])->name('demo_batch.student');
      Route::post('demo-batch-student/{id}', [DemoController::class, 'demoBatchStudentUpdate'])->name('demo_batch.student.update');
      
+   
+      Route::get('demo-history/{id}', [DemoController::class, 'demoHistory'])->name('demo_history');
+    Route::get('demo-feedback-list/{id}', [DemoController::class, 'demoFeedback'])->name('demo_feedback_list');
+    Route::post('demo-feedback-list/{id}', [DemoController::class, 'senddemoEmail'])->name('demo_feedback_list.send');
+    
+    
+   
+    
+});
 
-    Route::get('teacher-course-list', [TeachersController::class, 'teachercourseList'])->name('teacher-course-list');
-    Route::get('teacher-student-list', [TeachersController::class, 'teacherstudentList'])->name('teacher-student-list');
+Route::group(['middleware' => 'role:administrator|backend-support-staff'], function () {
+     //for history 
+ 
+ 
+ 
+     Route::get('myclass/exam/{id}', [MyclassController::class, 'MyExam'])->name('myclass.exam');
+     Route::get('myclass/upload-exam/{id}', [MyclassController::class, 'MyExamUpload'])->name('myclass.exam.upload');
+     Route::post('myclass/upload-exam/{id}', [MyclassController::class, 'MyExamUploadGenerate'])->name('myclass.exam.upload.generate');
+    Route::get('myclass/exam/{id}/uploads', [MyclassController::class, 'MyExamUploads'])->name('myclass.examuploads');
+    Route::post('myclass/exam/{id}/uploads', [MyclassController::class, 'MyExamUploadsRemarks'])->name('myclass.examuploadsremarks');
+    Route::post('myclass/exam/{id}', [MyclassController::class, 'MyExamCreate'])->name('myclass.exam');
+    Route::get('myclass/exam/{id}/delete', [MyclassController::class, 'MyExamDelete'])->name('myclass.examdelete');
 
-    Route::get('teacher-attendance', [TeachersController::class, 'teacherattendanceList'])->name('teacher_attendance');
-    Route::get('teacher-fees/{id}', [TeachersController::class, 'teacherFees'])->name('teacher_fees');
-    Route::post('teacher-fees/{id}', [TeachersController::class, 'teacherFeescreate'])->name('teacher_fees.store');
-    Route::get('teacher-fees-delete/{id}', [TeachersController::class, 'teacherFeesdelete'])->name('teacher_fees_delete');
-    // Route::get('teacher-attendance-create', [TeachersController::class, 'teacherattendanceCreate'])->name('teacher_attendance_create');
-    // Route::post('teacher-attendance-store', [TeachersController::class, 'teacherattendanceStore'])->name('teacher_attendance_store');
-    Route::post('teacher-bank-details-create', [TeachersController::class, 'teacherbankdetailStore'])->name('teacher_bank_details_create');
-    Route::post('teacher-document-approof-create', [TeachersController::class, 'teacherdocumentapproofStore'])->name('teacher_document_approof_create');
-    Route::post('teacher-ppt-video-store', [TeachersController::class, 'teacherpptVideoStore'])->name('teacher-ppt-video-store');
-    Route::get('delete/{id}', [TeachersController::class, 'teacherpptVideoDelete'])->name('teacher-ppt-delete');
+      //===Batch Routes===//
+    Route::get('batches', [BatchController::class, 'index'])->name('batch');
+    Route::post('batches/onesignal', [BatchController::class, 'onesignal'])->name('onesignal');
+    Route::get('batch/create', [BatchController::class, 'create'])->name('batch.create');
+    Route::post('batch/create', [BatchController::class, 'saveBatch'])->name('batch.save');
+    Route::get('batch/edit/{id}', [BatchController::class, 'editBatch'])->name('batch.edit');
+    Route::post('batch/update', [BatchController::class, 'updateBatch'])->name('batch.update');
+    Route::get('batchassign/{id}', [BatchController::class, 'batchassign'])->name('batch.batchassign');
+    Route::post('batchassign', [BatchController::class, 'batchAssignsave'])->name('batch.batchassign.save');
+    Route::get('course', [BatchController::class, 'Course'])->name('batch.course');
+    Route::post('course', [BatchController::class, 'courseSave'])->name('batch.course.save');
+    Route::get('batch/delete/{id}', [BatchController::class, 'deleteBatch'])->name('batch.delete');
 
     Route::get('batch/batch-progress-list/{id}', [BatchController::class, 'batchprogressList'])->name('batch-progress-list');
-
-    Route::get('batch-progress-list-teacher/{id}', [BatchController::class, 'batchprogressteacherList'])->name('batch-progress-list-teacher');
+    Route::post('batch/batch-progress-list/{id}', [BatchController::class, 'updatebatchprogressList'])->name('batch-progress-list.update');
     
-    // Questions bank - accessible by teachers and administrators
-    Route::get('questions-bank', [QuestionController::class, 'index'])->name('exams.questions.index');
+    
+    Route::get('batch/batch-is-completed/{id}', [BatchController::class, 'batchisCompleted'])->name('batch-is-completed');
+
+    Route::get('batch/batch-recordings/{id}', [MyclassController::class, 'adminRecordings'])->name('batch-recording-list');
+    Route::get('batch/batch-feedback/{id}', [MyclassController::class, 'batchFeedback'])->name('batch-feedback-list');
+    Route::post('batch/batch-feedback/{id}', [MyclassController::class, 'sendBatchEmail'])->name('batch-email-list');
+    
+    // Batch Mock Tests Routes
+    Route::get('batch/{id}/available-mock-tests', [BatchController::class, 'availableMockTests'])->name('batch.available-mock-tests');
+    Route::post('batch/{id}/save-mock-tests', [BatchController::class, 'saveMockTests'])->name('batch.save-mock-tests');
+    Route::get('batch/{id}/mock-results', [BatchController::class, 'mockResults'])->name('batch.mockResults');
+    Route::get('batch/{id}/students-list', [BatchController::class, 'getStudentsList'])->name('batch.studentsList');
+    Route::get('batch/{id}/mock-tests-list', [BatchController::class, 'getMockTestsList'])->name('batch.mockTestsList');
+    Route::get('batch/student-mock-result/{student_id}/{mock_id}', [BatchController::class, 'getStudentMockResult'])->name('batch.studentMockResult');
+    Route::get('batch/mock-answer-key/{exam_id}', [\App\Http\Controllers\Frontend\MockSeriesController::class, 'adminMockExamAnswerKey'])->name('batch.mockAnswerKey');
+    
+    
+  
+
+
+
+ // Mock Test Routes
+     Route::get('myclass/mock-tests/{batch_id}', [MyclassController::class, 'mockTestsPage'])->name('myclass.mockTestsPage');
+     Route::get('myclass/get-mock-tests', [MyclassController::class, 'getMockTests'])->name('myclass.getMockTests');
+     Route::post('myclass/toggle-mock-status', [MyclassController::class, 'toggleMockStatus'])->name('myclass.toggleMockStatus');
+     Route::post('myclass/schedule-mock', [MyclassController::class, 'scheduleMock'])->name('myclass.scheduleMock');
+     Route::get('myclass/mock-test-questions/{mock_id}', [MyclassController::class, 'mockTestQuestions'])->name('myclass.mockTestQuestions');
+     Route::post('myclass/submit-mock/{mock_id}', [MyclassController::class, 'submitMock'])->name('myclass.submitMock');
+     Route::post('myclass/refresh-question', [MyclassController::class, 'refreshQuestion'])->name('myclass.refreshQuestion');
+     Route::post('myclass/report-question', [MyclassController::class, 'reportQuestion'])->name('myclass.reportQuestion');
+     
+     // Mock Results Routes
+     Route::get('myclass/mock-results/{batch_id}', [MyclassController::class, 'mockResults'])->name('myclass.mockResults');
+     Route::get('myclass/{batch_id}/students-list', [MyclassController::class, 'getStudentsList'])->name('myclass.studentsList');
+     Route::get('myclass/{batch_id}/mock-tests-list', [MyclassController::class, 'getMockTestsList'])->name('myclass.mockTestsList');
+     Route::get('myclass/student-mock-result/{student_id}/{mock_id}', [MyclassController::class, 'getStudentMockResult'])->name('myclass.studentMockResult');
+    
+    
+    
+     Route::get('myclass/attend/{id}', [MyclassController::class, 'attend'])->name('myclass.attend');
+    Route::get('myclass/fees/{id}', [MyclassController::class, 'batchFees'])->name('myclass.fees');
+    Route::post('myclass/fees/{id}', [MyclassController::class, 'batchFeesUpdate'])->name('myclass.updatefees');
+    Route::get('track/batch', [MyclassController::class, 'runningStatus'])->name('myclass.runningStatus');
+    Route::get('track/batch/debug', [MyclassController::class, 'runningStatusDebug'])->name('myclass.runningStatusDebug');
+     Route::get('track/exam', [MyclassController::class, 'runningStatusExam'])->name('myclass.runningStatus.exam');
 });
 
 
-Route::group(['middleware' => 'role:administrator'], function () {
+
+//data-entry route group and backend support
 
 
-
-
-
-
-
-// Generate questions (admin only)
-Route::post('questions-bank/generate', [QuestionController::class, 'generate'])->name('exams.questions.generate'); 
-
+Route::group(['middleware'=>'role:administrator|data-entry|backend-support-staff|teacher'], function () {
+      Route::get('questions-bank', [QuestionController::class, 'index'])->name('exams.questions.index');
+      Route::post('questions-bank/generate', [QuestionController::class, 'generate'])->name('exams.questions.generate'); 
+      
 // Show form to create a question for an exam
 Route::get('exams/{exam}/questions/create', [QuestionController::class, 'create'])->name('exams.questions.create');
 
@@ -171,6 +261,68 @@ Route::post('exams/update-question-chapter', [QuestionController::class, 'update
 Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySubject'])->name('exams.questions.getBySubject');  
 
 
+
+ Route::get('myclass/{id}', [MyclassController::class, 'details'])->name('myclass.details');
+    Route::get('course-tracking/{id}', [MyclassController::class, 'courseTracking'])->name('course-tracking');
+    Route::post('course-tracking/{id}', [MyclassController::class, 'courseTrackingValidate'])->name('course-tracking.validate');
+
+    // Route::get('myclass/upload/{id}', function(){ dd('pass');});
+    Route::get('myclass/upload/{id}', [MyclassController::class, 'upload'])->name('myclass.upload');
+    Route::post('myclass/uploadfile', [MyclassController::class, 'uploadFile'])->name('myclass.uploadfile');
+    Route::post('myclass/rmfile', [MyclassController::class, 'rmFile'])->name('myclass.rmfile');
+    Route::get('myclass/recordings/{id}', [MyclassController::class, 'recordings'])->name('myclass.recordings');
+    
+    Route::get('myclass/class-waiting', [MyclassController::class, 'tutorwaiting'])->name('myclass.tutorwaiting');
+
+    
+});
+
+Route::group(['middleware' => 'role:administrator'], function () {
+
+
+
+
+
+
+
+// // Generate questions (admin only)
+// Route::post('questions-bank/generate', [QuestionController::class, 'generate'])->name('exams.questions.generate'); 
+
+// // Show form to create a question for an exam
+// Route::get('exams/{exam}/questions/create', [QuestionController::class, 'create'])->name('exams.questions.create');
+
+// // Store a new question for an exam
+// Route::post('exams/{exam}/questions', [QuestionController::class, 'store'])->name('exams.questions.store');
+
+// // Show form to edit a question
+// Route::get('questions-bank/{question}/edit', [QuestionController::class, 'edit'])->name('exams.questions.edit');
+
+
+// Route::put('questions-bank/{question}/edit', [QuestionController::class, 'update'])->name('exams.questions.update');
+// Route::get('questions-bank/question/add', [QuestionController::class, 'add'])->name('exams.questions.add');
+// Route::post('questions-bank/question/add', [QuestionController::class, 'saveQuestion'])->name('exams.questions.store');
+// Route::get('questions-bank/import', [QuestionController::class, 'import'])->name('exams.questions.import'); 
+
+// Route::post('questions-bank/import', [QuestionController::class, 'importNow'])->name('exams.questions.import.store'); 
+// // Update a question
+// Route::put('questions-bank/{question}', [QuestionController::class, 'update'])->name('exams.questions.update');
+// Route::get('questions-bank/pending-verification', [QuestionController::class, 'getPendingVerification'])->name('exams.questions.pending');
+    
+//     Route::get('questions-bank/{question}/preview', [QuestionController::class, 'preview'])->name('exams.questions.preview');
+    
+//     Route::post('questions-bank/verify', [QuestionController::class, 'verify'])->name('exams.questions.verify');
+//  Route::get('questions-bank/questions/{id}/preview', [QuestionController::class, 'preview'])->name('exams.questions.preview.byId');
+// // Delete a question
+// Route::delete('questions-bank/{question}', [QuestionController::class, 'destroy'])->name('exams.questions.destroy');
+
+
+// // Update question chapter
+// Route::post('exams/update-question-chapter', [QuestionController::class, 'updateQuestionChapter'])->name('exams.questions.updateChapter');
+
+// // Get chapters by subject
+// Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySubject'])->name('exams.questions.getBySubject');  
+
+
     // enquiry route
     Route::get('enquiry-list', [EnquiryController::class, 'index'])->name('endquiryIndex');
     Route::get('enquiry-edit/{id}', [EnquiryController::class, 'edit'])->name('endquiryEdit');
@@ -189,10 +341,6 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::post('trainings-list-store', [TrainingController::class, 'Store'])->name('training-store');
     Route::get('trainings-list-delete/{id}', [TrainingController::class, 'delete'])->name('training-delete');
 
-
-    Route::get('demo-history/{id}', [DemoController::class, 'demoHistory'])->name('demo_history');
-    Route::get('demo-feedback-list/{id}', [DemoController::class, 'demoFeedback'])->name('demo_feedback_list');
-    Route::post('demo-feedback-list/{id}', [DemoController::class, 'senddemoEmail'])->name('demo_feedback_list.send');
 
     //===== Teachers Routes =====//
     Route::resource('teachers', TeachersController::class);
@@ -252,48 +400,19 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
     Route::post('subscription-reports-details/{id}', [OrderController::class, 'triggerEmail'])->name('subscription.triggerEmail');
     Route::get('subscription-reports', [OrderController::class, 'subscriptionReports'])->name('subscription.report');
     Route::get('gst-reports', [OrderController::class, 'gstReport'])->name('gst.report');
+     Route::post('gst-reports/update', [OrderController::class, 'updateGst'])->name('gst.update');
     Route::get('subscription-reports-data', [OrderController::class, 'subscriptionReportsData'])->name('subscription.report_data');
     Route::get('subscriptions', [OrderController::class, 'subscriptions'])->name('subscription.index');
     Route::get('get-subscriptions-data', [OrderController::class, 'getDataSubscription'])->name('subscription.get_data');
+       Route::post('subscription-toggle-cycle', [OrderController::class, 'toggleSubscriptionCycle'])->name('subscription.toggle_cycle');
     Route::get('get-orders-data', [OrderController::class, 'getData'])->name('orders.get_data');
 
-    Route::get('view-invoice/{oid}/{type}', [OrderController::class, 'viewInvoice']);
-    Route::post('orders_mass_destroy', [OrderController::class, 'massDestroy'])->name('orders.mass_destroy');
+        Route::get('view-invoice/{oid}/{type}', [OrderController::class, 'viewInvoice'])->name('orders.invoice');
+   Route::post('orders_mass_destroy', [OrderController::class, 'massDestroy'])->name('orders.mass_destroy');
     Route::post('orders/complete', [OrderController::class, 'complete'])->name('orders.complete');
     Route::delete('orders_perma_del/{id}', [OrderController::class, 'perma_del'])->name('orders.perma_del');
 
-    //===Batch Routes===//
-    Route::get('batches', [BatchController::class, 'index'])->name('batch');
-    Route::post('batches/onesignal', [BatchController::class, 'onesignal'])->name('onesignal');
-    Route::get('batch/create', [BatchController::class, 'create'])->name('batch.create');
-    Route::post('batch/create', [BatchController::class, 'saveBatch'])->name('batch.save');
-    Route::get('batch/edit/{id}', [BatchController::class, 'editBatch'])->name('batch.edit');
-    Route::post('batch/update', [BatchController::class, 'updateBatch'])->name('batch.update');
-    Route::get('batchassign/{id}', [BatchController::class, 'batchassign'])->name('batch.batchassign');
-    Route::post('batchassign', [BatchController::class, 'batchAssignsave'])->name('batch.batchassign.save');
-    Route::get('course', [BatchController::class, 'Course'])->name('batch.course');
-    Route::post('course', [BatchController::class, 'courseSave'])->name('batch.course.save');
-    Route::get('batch/delete/{id}', [BatchController::class, 'deleteBatch'])->name('batch.delete');
-
-    Route::get('batch/batch-progress-list/{id}', [BatchController::class, 'batchprogressList'])->name('batch-progress-list');
-    Route::post('batch/batch-progress-list/{id}', [BatchController::class, 'updatebatchprogressList'])->name('batch-progress-list.update');
-    
-    
-    Route::get('batch/batch-is-completed/{id}', [BatchController::class, 'batchisCompleted'])->name('batch-is-completed');
-
-    Route::get('batch/batch-recordings/{id}', [MyclassController::class, 'adminRecordings'])->name('batch-recording-list');
-    Route::get('batch/batch-feedback/{id}', [MyclassController::class, 'batchFeedback'])->name('batch-feedback-list');
-    Route::post('batch/batch-feedback/{id}', [MyclassController::class, 'sendBatchEmail'])->name('batch-email-list');
-    
-    // Batch Mock Tests Routes
-    Route::get('batch/{id}/available-mock-tests', [BatchController::class, 'availableMockTests'])->name('batch.available-mock-tests');
-    Route::post('batch/{id}/save-mock-tests', [BatchController::class, 'saveMockTests'])->name('batch.save-mock-tests');
-    Route::get('batch/{id}/mock-results', [BatchController::class, 'mockResults'])->name('batch.mockResults');
-    Route::get('batch/{id}/students-list', [BatchController::class, 'getStudentsList'])->name('batch.studentsList');
-    Route::get('batch/{id}/mock-tests-list', [BatchController::class, 'getMockTestsList'])->name('batch.mockTestsList');
-    Route::get('batch/student-mock-result/{student_id}/{mock_id}', [BatchController::class, 'getStudentMockResult'])->name('batch.studentMockResult');
-    Route::get('batch/mock-answer-key/{exam_id}', [\App\Http\Controllers\Frontend\MockSeriesController::class, 'adminMockExamAnswerKey'])->name('batch.mockAnswerKey');
-
+  
 
 
     //===== Assessment Routes =====//
@@ -478,7 +597,7 @@ Route::get('chapters/by-subject/{subject}', [QuestionController::class, 'getBySu
 
 
 //Common - Shared Routes for Teacher and Administrator
-Route::group(['middleware' => 'role:administrator|teacher'], function () {
+Route::group(['middleware' => 'role:administrator|teacher|backend-support-staff'], function () {
 
  // Mock Exam Answer Key (accessible by both admin and teacher)
  Route::get(
@@ -494,6 +613,8 @@ Route::group(['middleware' => 'role:administrator|teacher'], function () {
     Route::get('get-course-reports-data-subs', [ReportController::class, 'getCourseDataSubs'])->name('reports.get_course_data_subs');
     Route::get('get-bundle-reports-data', [ReportController::class, 'getBundleData'])->name('reports.get_bundle_data');
     Route::get('get-students-reports-data', [ReportController::class, 'getStudentsData'])->name('reports.get_students_data');
+    Route::get('report/course-purchase-details/{course_id}', [ReportController::class, 'getCoursePurchaseDetails'])->name('reports.course_purchase_details');
+    Route::get('get-course-purchase-details-data/{course_id}', [ReportController::class, 'getCoursePurchaseDetailsData'])->name('reports.get_course_purchase_details_data');
     Route::get('course-sort-order', [CoursesController::class, 'sortOrder'])->name('course.sort_order');
 
     //===MyClass Routes===//
@@ -504,37 +625,13 @@ Route::group(['middleware' => 'role:administrator|teacher'], function () {
     
      Route::post('myclass/suspend', [MyclassController::class, 'suspend'])->name('myclass.suspend');
      
-     // Mock Test Routes
-     Route::get('myclass/mock-tests/{batch_id}', [MyclassController::class, 'mockTestsPage'])->name('myclass.mockTestsPage');
-     Route::get('myclass/get-mock-tests', [MyclassController::class, 'getMockTests'])->name('myclass.getMockTests');
-     Route::post('myclass/toggle-mock-status', [MyclassController::class, 'toggleMockStatus'])->name('myclass.toggleMockStatus');
-     Route::post('myclass/schedule-mock', [MyclassController::class, 'scheduleMock'])->name('myclass.scheduleMock');
-     Route::get('myclass/mock-test-questions/{mock_id}', [MyclassController::class, 'mockTestQuestions'])->name('myclass.mockTestQuestions');
-     Route::post('myclass/submit-mock/{mock_id}', [MyclassController::class, 'submitMock'])->name('myclass.submitMock');
-     Route::post('myclass/refresh-question', [MyclassController::class, 'refreshQuestion'])->name('myclass.refreshQuestion');
-     Route::post('myclass/report-question', [MyclassController::class, 'reportQuestion'])->name('myclass.reportQuestion');
-     
-     // Mock Results Routes
-     Route::get('myclass/mock-results/{batch_id}', [MyclassController::class, 'mockResults'])->name('myclass.mockResults');
-     Route::get('myclass/{batch_id}/students-list', [MyclassController::class, 'getStudentsList'])->name('myclass.studentsList');
-     Route::get('myclass/{batch_id}/mock-tests-list', [MyclassController::class, 'getMockTestsList'])->name('myclass.mockTestsList');
-     Route::get('myclass/student-mock-result/{student_id}/{mock_id}', [MyclassController::class, 'getStudentMockResult'])->name('myclass.studentMockResult');
+    
      
      
     Route::get('calendar', [MyclassController::class, 'calendar'])->name('myclass.calendar');
     Route::post('calendar', [MyclassController::class, 'markUnavail'])->name('myclass.calendar.un');
 
-    Route::get('myclass/{id}', [MyclassController::class, 'details'])->name('myclass.details');
-    Route::get('course-tracking/{id}', [MyclassController::class, 'courseTracking'])->name('course-tracking');
-    Route::post('course-tracking/{id}', [MyclassController::class, 'courseTrackingValidate'])->name('course-tracking.validate');
-
-    // Route::get('myclass/upload/{id}', function(){ dd('pass');});
-    Route::get('myclass/upload/{id}', [MyclassController::class, 'upload'])->name('myclass.upload');
-    Route::post('myclass/uploadfile', [MyclassController::class, 'uploadFile'])->name('myclass.uploadfile');
-    Route::post('myclass/rmfile', [MyclassController::class, 'rmFile'])->name('myclass.rmfile');
-    Route::get('myclass/recordings/{id}', [MyclassController::class, 'recordings'])->name('myclass.recordings');
-    
-    Route::get('myclass/class-waiting', [MyclassController::class, 'tutorwaiting'])->name('myclass.tutorwaiting');
+   
      
     Route::post('getFacultyLaunch', [MyclassController::class, 'getLaunchURL'])->name('myclass.flaunch');
     Route::post('getDemoLaunchURL', [MyclassController::class, 'getDemoLaunchURL'])->name('myclass.demoflaunch');
@@ -542,27 +639,15 @@ Route::group(['middleware' => 'role:administrator|teacher'], function () {
 
     Route::get('myclass/attendance/{id}', [MyclassController::class, 'Attendance'])->name('myclass.attendance');
 
-    Route::get('myclass/assignment/{id}', [MyclassController::class, 'Assignment'])->name('myclass.assignment');
+   
+
+
+
+
+      Route::get('myclass/assignment/{id}', [MyclassController::class, 'Assignment'])->name('myclass.assignment');
     Route::get('myclass/assignment/{id}/uploads', [MyclassController::class, 'AssignmentUploads'])->name('myclass.assignmentuploads');
     Route::post('myclass/assignment/{id}/uploads', [MyclassController::class, 'AssignmentUploadsRemarks'])->name('myclass.assignmentuploadsremarks');
     Route::post('myclass/assignment/{id}', [MyclassController::class, 'AssignmentCreate'])->name('myclass.assignment');
-
-
-    Route::get('myclass/exam/{id}', [MyclassController::class, 'MyExam'])->name('myclass.exam');
-     Route::get('myclass/upload-exam/{id}', [MyclassController::class, 'MyExamUpload'])->name('myclass.exam.upload');
-     Route::post('myclass/upload-exam/{id}', [MyclassController::class, 'MyExamUploadGenerate'])->name('myclass.exam.upload.generate');
-    Route::get('myclass/exam/{id}/uploads', [MyclassController::class, 'MyExamUploads'])->name('myclass.examuploads');
-    Route::post('myclass/exam/{id}/uploads', [MyclassController::class, 'MyExamUploadsRemarks'])->name('myclass.examuploadsremarks');
-    Route::post('myclass/exam/{id}', [MyclassController::class, 'MyExamCreate'])->name('myclass.exam');
-    Route::get('myclass/exam/{id}/delete', [MyclassController::class, 'MyExamDelete'])->name('myclass.examdelete');
-
-
-    Route::get('myclass/attend/{id}', [MyclassController::class, 'attend'])->name('myclass.attend');
-    Route::get('myclass/fees/{id}', [MyclassController::class, 'batchFees'])->name('myclass.fees');
-    Route::post('myclass/fees/{id}', [MyclassController::class, 'batchFeesUpdate'])->name('myclass.updatefees');
-    Route::get('track/batch', [MyclassController::class, 'runningStatus'])->name('myclass.runningStatus');
-    Route::get('track/batch/debug', [MyclassController::class, 'runningStatusDebug'])->name('myclass.runningStatusDebug');
-     Route::get('track/exam', [MyclassController::class, 'runningStatusExam'])->name('myclass.runningStatus.exam');
    
     
     
@@ -726,8 +811,9 @@ Route::post('messages/reply', [MessagesController::class, 'reply'])->name('messa
 Route::get('invoice/download', [InvoiceController::class, 'getInvoice'])->name('invoice.download');
 Route::get('invoices', [InvoiceController::class, 'getIndex'])->name('invoices.index');
 
-Route::get('student-view-invoice/{oid}/{type}', [InvoiceController::class, 'viewInvoicestudent']);
-Route::get('student-view-invoice/{oid}/{type}/{sid}', [InvoiceController::class, 'viewSubsInvoicestudent']);
+Route::get('student-view-invoice/{oid}/{type}', [InvoiceController::class, 'viewInvoicestudent'])->name('student.invoice');
+Route::get('student-view-invoice/{oid}/{type}/{sid}', [InvoiceController::class, 'viewSubsInvoicestudent'])->name('student.invoice.subscription');
+
 
 
 //======= Blog Routes =====//

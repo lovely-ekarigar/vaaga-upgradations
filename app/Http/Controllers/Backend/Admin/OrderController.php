@@ -51,10 +51,18 @@ class OrderController extends Controller
                     }
 
                 }
+                
+                // Calculate the billing period for the next due cycle based on paid_cycle
+                $nextCycle = ((int) ($order->paid_cycle ?? 0)) + 1;
+                $startMonths = $nextCycle - 1;
+                $endMonths = $nextCycle;
+
+                $billingPeriodStart = date("d M Y", strtotime("+{$startMonths} Months", strtotime($order->created_at)));
+                $billingPeriodEnd = date("d M Y", strtotime("+{$endMonths} Months", strtotime($order->created_at)));
 
                     $message = 'Dear '.$order->user->first_name.',<br><br>
 
-Your subscription for <strong>'.$items.'</strong> is pending for the month of <strong>'.date("d M Y",strtotime("-1 Months",strtotime($order->end_date))).' - '.date("d M Y",strtotime($order->end_date)).'</strong>. Renew at the earliest for uninterrepted learning.<br><br>
+Your subscription for <strong>'.$items.'</strong> is pending for the month of <strong>'.$billingPeriodStart.' - '.$billingPeriodEnd.'</strong>. Renew at the earliest for uninterrepted learning.<br><br>
 
 Best regards,<br>
 Team VaaGa';
@@ -87,9 +95,47 @@ Team VaaGa';
 
     public function subscriptionDetails(Request $request, $id){
         $order = Order::find($id);
-        $subscriptions = Subscription::where('order_id',$id)->where('status','1')->orderBy("id","asc")->get();
+        $subscriptions = Subscription::where('order_id',$id)->where('status','1')->orderBy("cycle_no","asc")->get();
 
-         return view('backend.subscriptions.reports-info', compact('order','subscriptions'));
+        $paymentEntries = collect();
+
+        if ($order) {
+            // Add initial order as cycle 1
+            $paymentEntries->push((object) [
+                'cycle_no' => 1,
+                'amount' => $order->amount,
+                'paid_at' => $order->created_at,
+                'order_id' => $order->id,
+                'subscription_id' => null,
+            ]);
+
+            // Add all paid subscriptions using their cycle_no from the table
+            foreach ($subscriptions as $subscription) {
+                    $cyclePaidAt = $subscription->updated_at ?: $subscription->created_at;
+                $paymentEntries->push((object) [
+                    'cycle_no' => $subscription->cycle_no, // Use cycle_no directly from subscriptions table
+                    'amount' => $subscription->amount,
+                    'paid_at' => $cyclePaidAt,
+                    'order_id' => $subscription->order_id,
+                    'subscription_id' => $subscription->id,
+                ]);
+            }
+
+            // Fill in any missing cycles if paid_cycle is higher than actual entries
+            $expectedPaidCycles = max((int) ($order->paid_cycle ?? 0), 1);
+            while ($paymentEntries->count() < $expectedPaidCycles) {
+                $nextCycle = $paymentEntries->count() + 1;
+                $paymentEntries->push((object) [
+                    'cycle_no' => $nextCycle,
+                    'amount' => $order->amount,
+                    'paid_at' => $order->updated_at ?: $order->created_at,
+                    'order_id' => $order->id,
+                    'subscription_id' => null,
+                ]);
+            }
+        }
+
+         return view('backend.subscriptions.reports-info', compact('order','subscriptions','paymentEntries'));
     }
 
     public function gstReport(Request $request){
@@ -107,7 +153,7 @@ Team VaaGa';
         }else{
             $start = date("Y-m-01");
             $end = date("Y-m-d");
-           $date = date("m/d/Y",strtotime($start))." - ".date("m/d/Y",strtotime($end)); 
+           $date = date("m/d/Y",strtotime($start))." - ".date("m/d/Y",strtotime($end));
 
              $orders = Order::where('status','1')->where('created_at','>=',date("Y-m-d 00:00:00",strtotime($start)))->where('created_at','<=',date("Y-m-d 23:59:59",strtotime($end)));
 
@@ -115,7 +161,67 @@ Team VaaGa';
         }
 
 
-       return view('backend.subscriptions.gst', compact('date','orders','subscriptions')); 
+       return view('backend.subscriptions.gst', compact('date','orders','subscriptions'));
+    }
+
+    public function updateGst(Request $request){
+        $request->validate([
+            'gst_percentage' => 'required|numeric|min:0|max:100',
+            'apply_to' => 'required|in:all,date_range'
+        ]);
+
+        $gstPercentage = $request->gst_percentage;
+        $applyTo = $request->apply_to;
+
+        $updatedOrders = 0;
+        $updatedSubscriptions = 0;
+
+        // Determine which orders to update
+        if ($applyTo == 'date_range') {
+            // Get date range from session or default to current month
+            $start = $request->session()->get('gst_start_date', date("Y-m-01"));
+            $end = $request->session()->get('gst_end_date', date("Y-m-d"));
+
+            // Check if dates are in request (from date range picker)
+            if ($request->has('start') && $request->has('end')) {
+                $start = $request->start;
+                $end = $request->end;
+            }
+
+            $orders = Order::where('status','1')
+                ->where('created_at','>=',date("Y-m-d 00:00:00",strtotime($start)))
+                ->where('created_at','<=',date("Y-m-d 23:59:59",strtotime($end)))
+                ->get();
+
+            $subscriptions = Subscription::where('status','1')
+                ->where('created_at','>=',date("Y-m-d 00:00:00",strtotime($start)))
+                ->where('created_at','<=',date("Y-m-d 23:59:59",strtotime($end)))
+                ->get();
+        } else {
+            // Apply to all completed orders
+            $orders = Order::where('status','1')->get();
+            $subscriptions = Subscription::where('status','1')->get();
+        }
+
+        // Update orders
+        foreach ($orders as $order) {
+            $gstAmount = ($order->amount * $gstPercentage) / 100;
+            $order->gst = round($gstAmount, 2);
+            $order->save();
+            $updatedOrders++;
+        }
+
+        // Update subscriptions
+        foreach ($subscriptions as $subscription) {
+            $gstAmount = ($subscription->amount * $gstPercentage) / 100;
+            $subscription->gst = round($gstAmount, 2);
+            $subscription->save();
+            $updatedSubscriptions++;
+        }
+
+        return redirect()->back()->withFlashSuccess(
+            "GST updated successfully! Updated {$updatedOrders} orders and {$updatedSubscriptions} subscriptions with {$gstPercentage}% GST."
+        );
     }
 
     public function subscriptionReports(Request $request){
@@ -147,7 +253,7 @@ $orders->where("end_date","<=",date("Y-m-d"));
         $orders = Order::with(['user', 'items.item'])
             ->where("course_mode","like","%monthly%")
             ->where('status','1')
-            ->orderBy('updated_at', 'desc');
+            ->select('orders.*');
 
         if($request->type=='7days'){
             $orders->where("end_date","<=",date("Y-m-d",strtotime("+7 Days",time())))->whereRaw("total_cycle > paid_cycle");
@@ -160,7 +266,15 @@ $orders->where("end_date","<=",date("Y-m-d"));
             $orders->where("end_date","<=",date("Y-m-d"))->whereRaw("total_cycle > paid_cycle");
         }
 
-         return DataTables::of($orders)
+        return DataTables::eloquent($orders)
+            ->orderColumn('name', function ($query, $order) {
+                $query->join('users', 'orders.user_id', '=', 'users.id')
+                      ->orderBy('users.first_name', $order)
+                      ->orderBy('users.last_name', $order);
+            })
+            ->orderColumn('due_cycle', function ($query, $order) {
+                $query->orderByRaw("(total_cycle - paid_cycle) {$order}");
+            })
             ->addIndexColumn()
             ->addColumn('actions', function ($q) use ($request) {
                 $view = "";
@@ -183,11 +297,12 @@ $orders->where("end_date","<=",date("Y-m-d"));
                 foreach ($q->items as $key => $item) {
                     if($item->item != null){
                         $key++;
-                         $crs = new Course();
-                      
+                        $crs = new Course();
                         $items .= $key . '. ' . $crs->getCouseNameWithCat($item->item->id) . "<br>";
                     }
-
+                }
+                if (!empty($q->remarks)) {
+                    $items .=  e($q->remarks) ;
                 }
                 return $items;
             })
@@ -225,7 +340,13 @@ $orders->where("end_date","<=",date("Y-m-d"));
                 return $q->reference_no ?: 'ORD-' . $q->id;
             })
            
-           
+            ->filterColumn('name', function($query, $keyword) {
+                $query->whereHas('user', function($q) use ($keyword) {
+                    $q->where('first_name', 'like', "%{$keyword}%")
+                      ->orWhere('last_name', 'like', "%{$keyword}%")
+                      ->orWhere(\DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$keyword}%");
+                });
+            })
             ->rawColumns(['items', 'actions'])
             ->make();
     }
@@ -236,14 +357,19 @@ $orders->where("end_date","<=",date("Y-m-d"));
                 ->where('payment_type', '=', 3)
                 ->where('status','1')
                 ->where("course_mode","like","%monthly%")
-                ->orderBy('updated_at', 'desc');
+               ->select('orders.*');
         } else {
             $orders = Order::with(['user', 'items.item'])
                 ->where("course_mode","like","%monthly%")
-                ->orderBy('updated_at', 'desc');
+                ->select('orders.*');
         }
 
-        return DataTables::of($orders)
+            return DataTables::eloquent($orders)
+            ->orderColumn('name', function ($query, $order) {
+                $query->join('users', 'orders.user_id', '=', 'users.id')
+                      ->orderBy('users.first_name', $order)
+                      ->orderBy('users.last_name', $order);
+            })
             ->addIndexColumn()
             ->addColumn('actions', function ($q) use ($request) {
                 $view = "";
@@ -276,6 +402,18 @@ $orders->where("end_date","<=",date("Y-m-d"));
                     $view .= $delete;
                 }
 
+                // Show toggle switch only for regular course mode
+                if (stripos($q->course_mode, 'regular') !== false) {
+                    $isEnabled = ($q->total_cycle > 0);
+                    $checked = $isEnabled ? 'checked' : '';
+                    $labelClass = $isEnabled ? 'on' : 'off';
+                    $labelText = $isEnabled ? 'Subscription Disabled' : 'Subscription Enabled';
+                    $view .= '<div class="cycle-switch-wrap">'
+                        . '<label class="cycle-switch"><input type="checkbox" class="cycle-checkbox" data-reference="' . e($q->reference_no) . '" ' . $checked . '><span class="cycle-slider"></span></label>'
+                        . '<span class="cycle-label ' . $labelClass . '">' . $labelText . '</span>'
+                        . '</div>';
+                }
+
                 return $view;
 
             })
@@ -284,11 +422,12 @@ $orders->where("end_date","<=",date("Y-m-d"));
                 foreach ($q->items as $key => $item) {
                     if($item->item != null){
                         $key++;
-                         $crs = new Course();
-                      
+                        $crs = new Course();
                         $items .= $key . '. ' . $crs->getCouseNameWithCat($item->item->id) . "<br>";
                     }
-
+                }
+                if (!empty($q->remarks)) {
+                    $items .=  e($q->remarks) ;
                 }
                 return $items;
             })
@@ -302,7 +441,7 @@ $orders->where("end_date","<=",date("Y-m-d"));
                 return $q->user ? $q->user->email : '';
             })
             ->addColumn('date', function ($q) {
-                return $q->updated_at->format('d M, Y | h:i A');
+                return $q->created_at->format('d M, Y | h:i A');
             })
             ->addColumn('amount', function ($q) {
                 $currency = getCurrency(config('app.currency'));
@@ -330,8 +469,42 @@ $orders->where("end_date","<=",date("Y-m-d"));
                 }
                 return $referenceNo . $badge;
             })
+            ->filterColumn('name', function($query, $keyword) {
+                $query->whereHas('user', function($q) use ($keyword) {
+                    $q->where('first_name', 'like', "%{$keyword}%")
+                      ->orWhere('last_name', 'like', "%{$keyword}%")
+                      ->orWhere(\DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$keyword}%");
+                });
+            })
             ->rawColumns(['items', 'actions'])
             ->make();
+    }
+
+    public function toggleSubscriptionCycle(Request $request)
+    {
+        $referenceNo = $request->input('reference_no');
+        $enable = $request->input('enable');
+
+        if (!$referenceNo) {
+            return response()->json(['success' => false, 'message' => 'Reference number is required.'], 400);
+        }
+
+        $orders = Order::where('reference_no', $referenceNo)->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'No orders found with this reference number.'], 404);
+        }
+
+        foreach ($orders as $order) {
+            if ($enable) {
+                $order->total_cycle = max($order->paid_cycle, 1);
+            } else {
+                $order->total_cycle = 0;
+            }
+            $order->save();
+        }
+
+        return response()->json(['success' => true, 'message' => $enable ? 'Total cycle set to paid cycle.' : 'Total cycle set to 0.']);
     }
 
     /**
@@ -344,14 +517,19 @@ $orders->where("end_date","<=",date("Y-m-d"));
         if (request('offline_requests') == 1) {
             $orders = Order::with(['user', 'items.item'])
                 ->where('payment_type', '=', 3)
-                ->orderBy('updated_at', 'desc');
+                ->select('orders.*');
         } else {
             $orders = Order::with(['user', 'items.item'])
-                ->orderBy('updated_at', 'desc');
+               ->select('orders.*');
         }
 
-        return DataTables::of($orders)
+       return DataTables::eloquent($orders)
             ->addIndexColumn()
+            ->orderColumn('name', function ($query, $order) {
+                $query->join('users', 'orders.user_id', '=', 'users.id')
+                      ->orderBy('users.first_name', $order)
+                      ->orderBy('users.last_name', $order);
+            })
             ->addColumn('actions', function ($q) use ($request) {
                 $view = "";
 
@@ -391,11 +569,12 @@ $orders->where("end_date","<=",date("Y-m-d"));
                 foreach ($q->items as $key => $item) {
                     if($item->item != null){
                         $key++;
-                         $crs = new Course();
-                      
-                        $items .= $key . '. ' . $crs->getCouseNameWithCat($item->item->id) . "<br>";
+                        $crs = new Course();
+                        $items .= $crs->getCouseNameWithCat($item->item->id) ;
                     }
-
+                }
+                if (!empty($q->remarks)) {
+                    $items .=  e($q->remarks) ;
                 }
                 return $items;
             })
@@ -409,7 +588,18 @@ $orders->where("end_date","<=",date("Y-m-d"));
                 return getCourseType($q->course_mode);
             })
             ->addColumn('date', function ($q) {
-                return $q->updated_at->format('d M, Y | h:i A');
+                return $q->created_at->format('d M, Y | h:i A');
+            })
+            ->addColumn('total_amount', function ($q) {
+                // For full course modes, total amount = amount (single payment)
+                $fullModes = ['full', 'onetoone_full', 'onetomany_full'];
+                if (in_array($q->course_mode, $fullModes)) {
+                    return $q->amount;
+                }
+                $totalCycle = (int) $q->total_cycle;
+                $multiplier = $totalCycle > 0 ? $totalCycle : 1;
+
+                return $q->amount * $multiplier;
             })
             ->addColumn('payment', function ($q) {
                 if ($q->status == 0) {
@@ -427,6 +617,13 @@ $orders->where("end_date","<=",date("Y-m-d"));
             })
              ->editColumn('reference_no', function ($q) {
                 return $q->reference_no ?: 'ORD-' . $q->id;
+            })
+            ->filterColumn('name', function($query, $keyword) {
+                $query->whereHas('user', function($q) use ($keyword) {
+                    $q->where('first_name', 'like', "%{$keyword}%")
+                      ->orWhere('last_name', 'like', "%{$keyword}%")
+                      ->orWhere(\DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$keyword}%");
+                });
             })
             ->rawColumns(['items', 'actions'])
             ->make();
@@ -530,10 +727,10 @@ $orders->where("end_date","<=",date("Y-m-d"));
         $order->payment_method = $paymentMethods[$request->payment_type] ?? null;
         
         // Set payment_cycle based on course_mode (if column exists)
-        if (str_contains($request->course_mode ?? '', 'monthly')) {
-            $order->payment_cycle = 'monthly';
-        } else {
+       if (in_array($request->course_mode, ['onetoone_full', 'onetomany_full', 'full'])) {
             $order->payment_cycle = 'full';
+        } else {
+            $order->payment_cycle = 'monthly';
         }
         
         $order->status = $request->status;
@@ -557,9 +754,21 @@ $orders->where("end_date","<=",date("Y-m-d"));
         
         $order->save();
 
-        // Update reference_no to use unique order ID after saving
-        $order->reference_no = 'ORD-' . $order->id;
-        $order->save();
+        // Update reference_no to use unique order ID after saving 
+        // $order->reference_no = 'ORD-' . $order->id;
+        // $order->save();
+        //shruti
+        do {
+    $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    $refSuffix = '';
+    for ($i = 0; $i < 8; $i++) {
+        $refSuffix .= $characters[rand(0, strlen($characters) - 1)];
+    }
+    $generatedRef =  $refSuffix;
+} while (Order::where('reference_no', $generatedRef)->exists());
+
+$order->reference_no = $generatedRef;
+$order->save();
 
         // Add order items - ensure all courses are properly inserted
         foreach ($request->course_ids as $courseId) {
@@ -573,6 +782,10 @@ $orders->where("end_date","<=",date("Y-m-d"));
                     $price = $course->price_1;
                 } elseif ($request->course_mode == 'onetoone_monthly' && isset($course->monthly_price_1)) {
                     $price = $course->monthly_price_1;
+                } elseif ($request->course_mode == 'regular_monthly_1' && isset($course->regular_monthly_1)) {
+                    $price = $course->regular_monthly_1;
+                } elseif ($request->course_mode == 'regular_monthly' && isset($course->regular_monthly)) {
+                    $price = $course->regular_monthly;
                 } elseif ($request->course_mode == 'onetomany_full' && isset($course->price)) {
                     $price = $course->price;
                 } elseif ($request->course_mode == 'onetomany_monthly' && isset($course->monthly_price)) {
@@ -655,6 +868,7 @@ $orders->where("end_date","<=",date("Y-m-d"));
         ]);
 
         $oldStatus = $order->status;
+        $oldPaidCycle = (int) ($order->paid_cycle ?? 0);
         
         $order->user_id = $request->user_id;
         $order->amount = $request->amount;
@@ -675,10 +889,10 @@ $orders->where("end_date","<=",date("Y-m-d"));
         $order->payment_method = $paymentMethods[$request->payment_type] ?? null;
         
         // Set payment_cycle based on course_mode (if column exists)
-        if (str_contains($request->course_mode ?? '', 'monthly')) {
-            $order->payment_cycle = 'monthly';
-        } else {
+          if (in_array($request->course_mode, ['onetoone_full', 'onetomany_full', 'full'])) {
             $order->payment_cycle = 'full';
+        } else {
+            $order->payment_cycle = 'monthly';
         }
         
         $order->status = $request->status;
@@ -686,6 +900,34 @@ $orders->where("end_date","<=",date("Y-m-d"));
         $order->total_cycle = $request->total_cycle;
         $order->paid_cycle = $request->paid_cycle ?? 0;
         $order->save();
+
+        $newPaidCycle = (int) ($order->paid_cycle ?? 0);
+        $isMonthlyOrder = str_contains((string) ($order->course_mode ?? ''), 'monthly');
+
+        if ($isMonthlyOrder && $order->status == 1 && $newPaidCycle > $oldPaidCycle) {
+            $existingPaidSubscriptions = Subscription::where('order_id', $order->id)
+                ->where('status', '1')
+                ->count();
+
+            $requiredPaidSubscriptions = max($newPaidCycle - 1, 0);
+            $missingPaidSubscriptions = max($requiredPaidSubscriptions - $existingPaidSubscriptions, 0);
+
+            for ($index = 0; $index < $missingPaidSubscriptions; $index++) {
+                $subscription = new Subscription;
+                $subscription->order_id = $order->id;
+                $subscription->amount = $order->amount;
+                $subscription->gst = $order->gst;
+                $subscription->discount = $order->discount;
+                $subscription->coupon_id = $order->coupon_id;
+                $subscription->user_id = $order->user_id;
+                $subscription->end_date = $order->end_date;
+                $subscription->renew_date = date("Y-m-d");
+                $subscription->reference_no = uniqid();
+                $subscription->status = 1;
+                $subscription->transaction_id = $order->transaction_id;
+                $subscription->save();
+            }
+        }
 
         // Update order items - remove old ones and add new ones
         $order->items()->delete();
@@ -701,6 +943,10 @@ $orders->where("end_date","<=",date("Y-m-d"));
                     $price = $course->price_1;
                 } elseif ($request->course_mode == 'onetoone_monthly' && isset($course->monthly_price_1)) {
                     $price = $course->monthly_price_1;
+                } elseif ($request->course_mode == 'regular_monthly_1' && isset($course->regular_monthly_1)) {
+                    $price = $course->regular_monthly_1;
+                } elseif ($request->course_mode == 'regular_monthly' && isset($course->regular_monthly)) {
+                    $price = $course->regular_monthly;
                 } elseif ($request->course_mode == 'onetomany_full' && isset($course->price)) {
                     $price = $course->price;
                 } elseif ($request->course_mode == 'onetomany_monthly' && isset($course->monthly_price)) {
@@ -766,9 +1012,9 @@ $orders->where("end_date","<=",date("Y-m-d"));
         return view('backend.orders.show', compact('order'));
     }
 
-    public function viewInvoice($id,$type){
+    public function viewInvoice($id,$type){ 
     $order = Order::findOrFail($id);
-   showInvoice($order,$type);
+    return showInvoice($order,$type);
     }
 
     /**

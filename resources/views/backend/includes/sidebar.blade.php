@@ -157,6 +157,35 @@ use App\Models\UserNotification;
                     </ul>
                 </li>
             @endif
+            <!--//shruti-->
+           @if($logged_in_user->hasRole(['marketing']))
+                
+                <li class="nav-item">
+                            <a class="nav-link {{ $request->segment(2) == 'marketing' ? 'active' : '' }}"
+                                href="/user/marketing">
+                               <i class="nav-icon icon-graph"></i>
+                                <span class="title">Marketing</span>
+                            </a>
+                        </li>
+                   @endif  
+           @if($logged_in_user->hasRole(['data-entry', 'backend-support-staff']))
+               
+                <li
+                    class="nav-item nav-dropdown {{ active_class(Active::checkUriPattern('user/tests*', 'user/questions*', 'user/questions_options*', 'user/questions-bank*', 'user/test-series*', 'user/purchase*', 'user/question/report*', 'user/marketing*', 'user/mocktests*', 'user/mock*'), 'open') }}">
+                    <a class="nav-link nav-dropdown-toggle {{ active_class(Active::checkUriPattern('admin/log-viewer*')) }}"
+                        href="#">
+                        <i class="nav-icon icon-list"></i> Question Management
+                    </a>
+                     <ul class="nav-dropdown-items">
+                        <li class="nav-item">
+                            <a class="nav-link {{ $request->segment(2) == 'questions-bank' || $request->segment(2) == 'questions' ? 'active' : '' }}"
+                                href="{{ route('admin.exams.questions.index') }}">
+                                <span class="title">Question Bank</span>
+                            </a>
+                        </li>
+                        </ul>
+                    </li>
+                   @endif  
             @if ($logged_in_user->isAdmin())
                 {{-- Note: Exam module is visible only for Admin --}}
                 <li
@@ -319,6 +348,44 @@ use App\Models\UserNotification;
                     </a>
                 </li>  
             @endif
+            @if ($logged_in_user->hasRole('backend-support-staff'))
+              <li class="nav-item ">
+                     <a class="nav-link {{ $request->segment(2) == 'demo-requests' ? 'active' : '' }}"
+                                href="{{ route('admin.demo_requests') }}">
+                            
+                        <i class="nav-icon icon-user"></i>
+                        <span class="title">Demo Requests</span>
+                    </a>
+                </li>  
+              <li class="nav-item ">
+                      <a class="nav-link {{ $request->segment(2) == 'batch' ? 'active' : '' }}"
+                                    href="{{ route('admin.batch') }}">
+                           <i class="nav-icon icon-vector"></i>
+                                    <span class="title">Batches</span>
+                                </a>
+                </li>  
+                
+                
+            @endif
+            
+            
+            @if ($logged_in_user->hasRole('telecaller'))
+              <li class="nav-item ">
+                     <a class="nav-link {{ $request->segment(2) == 'demo-requests' ? 'active' : '' }}"
+                                href="{{ route('admin.demo_requests') }}">
+                            
+                        <i class="nav-icon icon-user"></i>
+                        <span class="title">Demo Requests</span>
+                    </a>
+                </li>
+                 <li class="nav-item">
+                            <a class="nav-link {{ $request->segment(2) == 'marketing' ? 'active' : '' }}"
+                                href="/user/marketing">
+                               <i class="nav-icon icon-graph"></i>
+                                <span class="title">Marketing</span>
+                            </a>
+                        </li>
+                 @endif
             @if ($logged_in_user->isAdmin())
                 <li class="nav-item ">
                     <a class="nav-link {{ $request->segment(2) == 'contact-requests' ? 'active' : '' }}"

@@ -1,5 +1,11 @@
 @component('mail::message')
-#Hello {{auth()->user()->name}}
+@slot('header')
+@component('mail::header', ['url' => config('app.url')])
+<img src="{{ asset('newassets/img/logo.png') }}" alt="VaaGa Academy" style="max-width: 280px; height: auto;">
+@endcomponent
+@endslot
+
+Hello {{auth()->user()->name}}
 
 Congratulations! We are excited to welcome you at VaaGa Academy. Your recent purchase of course is completed. You now have full access to our comprehensive learning materials, and we're confident that you'll find the content engaging and valuable.<br><br>
 Order Reference No. {{$content['reference_no']}}
@@ -10,15 +16,15 @@ Order Reference No. {{$content['reference_no']}}
 <br>
 @if($content['gst'])
 @if($content['gst']>0)
-#Total GST(18%) :₹{{$content['gst']}}
+Total GST(18%) :₹{{$content['gst']}}
 @endif
 @endif
 @if($content['discount'])
 @if($content['discount']>0)
-#Total Discount :₹{{$content['discount']}}
+Total Discount :₹{{$content['discount']}}
 @endif
 @endif
-#Total Amount Paid :₹{{$content['total']}}
+Total Amount Paid :₹{{$content['total']}}
 <br>
 
 Visit  dashboard for more details.<br>

@@ -1,27 +1,30 @@
 @extends('frontend.layout.sub-master')
 @section('title')
+
 <title>Become a Tutor at VaaGa Academy - Teach Online Olympiad Classes | {{env('APP_NAME')}}</title>
 
-
 <meta name="description" content="Join VaaGa Academy as an online tutor and teach Olympiad classes for Maths, Science & English. Share your expertise and help students prepare for IMO, NSO & IEO exams.">
-<meta name="keywords" content="Become a tutor, Online teaching jobs, Olympiad tutor, Teach Olympiad online, VaaGa Academy tutor, Online tutor jobs, Maths tutor, Science tutor, English tutor, Olympiad coaching jobs, Teaching opportunities">
+
+<meta name="keywords" content="Become Olympiad tutor, VaaGa Academy tutor registration, Teach Olympiad classes online, IMO NSO IEO coaching tutor, Online tutor for Maths Science English Olympiad, Online teaching jobs India">
 
 <meta property="og:locale" content="en_US" />
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content="Become a Tutor at VaaGa Academy - Teach Online Olympiad Classes | {{env('APP_NAME')}}" />
-    <meta property="og:description" content="Join VaaGa Academy as an online tutor and teach Olympiad classes for Maths, Science & English. Share your expertise and help students prepare for IMO, NSO & IEO exams." />
-    <meta property="og:url" content="{{URL::to('/become-tutor')}}" />
-    <meta property="og:site_name" content="VaaGa Academy | Online Learning Platforms For School Students" />
-    <meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
-    <meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
-    <meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" /> 
-   
-   <meta name="twitter:card" content="summary_large_image" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Become a Tutor at VaaGa Academy - Teach Online Olympiad Classes | {{env('APP_NAME')}}" />
+<meta property="og:description" content="Join VaaGa Academy as an online tutor and teach Olympiad classes for Maths, Science & English. Share your expertise and help students prepare for IMO, NSO & IEO exams." />
+<meta property="og:url" content="{{URL::to('/become-tutor')}}" />
+<meta property="og:site_name" content="{{env('APP_NAME')}}" />
+<meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
+
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="{{env('TWITTER_HANDLE')}}" />
 <meta name="twitter:title" content="Become a Tutor at VaaGa Academy - Teach Online Olympiad Classes | {{env('APP_NAME')}}" />
 <meta name="twitter:description" content="Join VaaGa Academy as an online tutor and teach Olympiad classes for Maths, Science & English. Share your expertise and help students prepare for IMO, NSO & IEO exams." />
 <meta name="twitter:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
+
 <link rel="canonical" href="{{URL::to('/become-tutor')}}">
+
 @stop
 @section('page_css')
 

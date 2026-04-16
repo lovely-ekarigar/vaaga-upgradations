@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\InvoiceGenerator;
 use App\Models\Auth\User;
 
 use Illuminate\Http\Request;
@@ -15,6 +16,9 @@ use App\Models\Course;
 use App\Models\Board;
 use App\Models\TestSeries;
 use App\Models\TestSeriesPurchase;
+use App\Models\Coupon;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Lesson;
 use App\Models\TestList;
 use App\Models\MyExam;
@@ -27,7 +31,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Models\Media;
-use App\Mail\Frontend\Demo\StudentTestByEmail;
+// use App\Mail\Frontend\Demo\StudentTestByEmail; // TODO: Create this mail class
 use App\Models\AiSensy;
 use Session;
 use DateTime;
@@ -63,6 +67,67 @@ class TestSeriesController extends Controller
            return view('admin.purchase', compact('purchaseList'));
 
         
+    }
+
+    public function purchaseInvoice($id, $type)
+    {
+        if (!in_array($type, ['show', 'download'])) {
+            abort(404);
+        }
+
+        $purchase = TestSeriesPurchase::with(['user', 'course', 'testSeries'])
+            ->where('id', $id)
+            ->where('payment_status', 'paid')
+            ->firstOrFail();
+
+        $invoice = new InvoiceGenerator();
+        $invoice->number($purchase->id);
+        $invoice->addOrderInfo($purchase->rzp_payment_id ?: ($purchase->rzp_order_id ?: ('TS-' . $purchase->id)));
+        $invoice->addDate($purchase->created_at);
+        $invoice->addMonth('One-Time');
+
+        $courseTitle = optional($purchase->course)->title;
+        $seriesTitle = optional($purchase->testSeries)->title;
+
+        $itemTitle = 'Test Series Purchase';
+        if ($courseTitle && $seriesTitle) {
+            $itemTitle = $courseTitle . ' | ' . $seriesTitle;
+        } elseif ($courseTitle) {
+            $itemTitle = $courseTitle;
+        } elseif ($seriesTitle) {
+            $itemTitle = $seriesTitle;
+        }
+
+        if (stripos($itemTitle, 'test series') === false) {
+            $itemTitle .= ' (Test Series)';
+        }
+
+        $discount = (float) ($purchase->discount ?? 0);
+        $amountPaid = (float) ($purchase->amount ?? 0);
+        $itemAmount = $amountPaid + $discount;
+
+        $invoice->addItem($itemTitle, $itemAmount, 1, 'TS-' . ($purchase->test_series_id ?: $purchase->id));
+
+        if ($discount > 0) {
+            $invoice->addDiscountData($discount);
+        }
+
+        $invoice->addTotal($amountPaid);
+
+        $invoice->customer([
+            'name' => optional($purchase->user)->full_name ?? optional($purchase->user)->name ?? 'Customer',
+            'id' => optional($purchase->user)->id ?? '',
+            'email' => optional($purchase->user)->email ?? '',
+            'phone' => optional($purchase->user)->phone ?? '',
+        ]);
+
+        $fileName = 'test-series-invoice-' . $purchase->id . '.pdf';
+
+        if ($type === 'show') {
+            return $invoice->show($fileName);
+        }
+
+        return $invoice->download($fileName);
     }
     
     
@@ -782,6 +847,30 @@ $end   = $start->copy()->addMinutes($exam->duration);
         $tp->status='active';
         $tp->update();
         
+        // Create order entry
+        $testSeries = TestSeries::find($tp->test_series_id);
+        $order = new Order();
+        $order->user_id = $tp->user_id;
+        $order->reference_no = 'TS'.str_random(8);
+        $order->amount = $tp->amount;
+        $order->discount = $tp->discount ?? 0;
+        $order->status = 1; // Completed
+        $order->coupon_id = $tp->coupon_id ?? 0;
+        $order->gst = 0;
+        $order->payment_method = 'Razorpay';
+        $order->payment_type = 1; // Razorpay/Online
+        $order->order_id = $tp->rzp_order_id;
+        $order->course_mode = 'test series';
+        $order->remarks = $testSeries->name;
+        $order->save();
+        
+        // Create order item for test series
+        $order->items()->create([
+            'item_id' => $tp->test_series_id,
+            'item_type' => TestSeries::class,
+            'price' => $tp->amount,
+        ]);
+        
           $phone = $result['items'][0]['contact'];
 $clean = preg_replace('/^\+91/', '', $phone);
 
@@ -809,7 +898,8 @@ $clean = preg_replace('/^\+91/', '', $phone);
         
          $xt= AiSensy::send($whatsappPayload);
          
-          Mail::to($user->email)->send(new StudentTestByEmail($course));
+          // TODO: Create StudentTestByEmail mail class
+          // Mail::to($user->email)->send(new StudentTestByEmail($course));
            
            
 
@@ -1054,22 +1144,150 @@ public function ajaxRegister(Request $request){
 
 
 
-public function buyTest($id){
+public function applyCouponTestSeries(Request $request){
+    $code = $request->coupon;
+    $testSeriesId = base64_decode($request->test_series_id);
+    $amount = floatval($request->amount);
+
+    $coupon = Coupon::where('code', '=', $code)
+        ->where('status', '=', 1)
+        ->first();
+
+    if(!$coupon){
+        return response()->json(['status' => 'fail', 'message' => 'Invalid coupon code']);
+    }
+
+    // Check if coupon is applicable for this test series
+    $tsIds = json_decode($coupon->test_series, true);
+    if(!empty($tsIds) && is_array($tsIds) && !in_array($testSeriesId, $tsIds)){
+        return response()->json(['status' => 'fail', 'message' => 'This coupon is not valid for this test series']);
+    }
+
+    // Check per user limit
+    if($coupon->per_user_limit > 0){
+        $usedCount = TestSeriesPurchase::where('coupon_id', $coupon->id)
+            ->where('user_id', Auth::user()->id)
+            ->where('payment_status', 'paid')
+            ->count();
+        if($usedCount >= $coupon->per_user_limit){
+            return response()->json(['status' => 'fail', 'message' => 'Coupon usage limit reached']);
+        }
+    }
+
+    // Check expiry
+    if($coupon->expires_at != null){
+        if(Carbon::parse($coupon->expires_at) < Carbon::now()){
+            return response()->json(['status' => 'fail', 'message' => 'Coupon has expired']);
+        }
+    }
+
+    // Check min price
+    if($coupon->min_price > 0 && $amount < $coupon->min_price){
+        return response()->json(['status' => 'fail', 'message' => 'Minimum purchase amount is ₹'.$coupon->min_price]);
+    }
+
+    // Calculate discount
+    $discount = 0;
+    if($coupon->type == 1){
+        $discount = $amount * $coupon->amount / 100;
+    } else {
+        $discount = min($coupon->amount, $amount);
+    }
+
+    $finalAmount = max(0, round($amount - $discount));
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Coupon applied successfully!',
+        'discount' => round($discount),
+        'final_amount' => $finalAmount,
+        'coupon_id' => $coupon->id
+    ]);
+}
+
+public function buyTest($id, Request $request){
     
     $id = base64_decode($id);
     $testSeries = TestSeries::findOrFail($id);
-  $tp = new TestSeriesPurchase();
-  $tp->user_id = Auth::user()->id;
-  $tp->test_series_id = $id;
-  $tp->course_id = $testSeries->course_id;
-  $tp->amount = $testSeries->offer_price;
-  $tp->save();
+    
+    $payAmount = $testSeries->offer_price;
+    $discount = 0;
+    $couponId = null;
+
+    // Apply coupon if provided
+    if($request->has('coupon_id') && $request->coupon_id){
+        $coupon = Coupon::where('id', $request->coupon_id)->where('status', 1)->first();
+        if($coupon){
+            // Validate coupon for this test series
+            $tsIds = json_decode($coupon->test_series, true);
+            $validForTs = empty($tsIds) || !is_array($tsIds) || in_array($id, $tsIds);
+            
+            // Validate per user limit
+            $usedCount = TestSeriesPurchase::where('coupon_id', $coupon->id)
+                ->where('user_id', Auth::user()->id)
+                ->where('payment_status', 'paid')
+                ->count();
+            $withinLimit = $coupon->per_user_limit == 0 || $usedCount < $coupon->per_user_limit;
+            
+            // Validate expiry
+            $notExpired = $coupon->expires_at == null || Carbon::parse($coupon->expires_at) >= Carbon::now();
+
+            if($validForTs && $withinLimit && $notExpired){
+                if($coupon->type == 1){
+                    $discount = $payAmount * $coupon->amount / 100;
+                } else {
+                    $discount = min($coupon->amount, $payAmount);
+                }
+                $payAmount = max(0, round($payAmount - $discount));
+                $couponId = $coupon->id;
+            }
+        }
+    }
+
+    $tp = new TestSeriesPurchase();
+    $tp->user_id = Auth::user()->id;
+    $tp->test_series_id = $id;
+    $tp->course_id = $testSeries->course_id;
+    $tp->amount = $payAmount;
+    $tp->coupon_id = $couponId;
+    $tp->discount = round($discount);
+    $tp->save();
+
+    // If amount is 0 after coupon, auto-activate
+    if($payAmount <= 0){
+        $tp->payment_status = 'paid';
+        $tp->status = 'active';
+        $tp->update();
+        
+        // Create order entry for free test series with coupon
+        $order = new Order();
+        $order->user_id = $tp->user_id;
+        $order->reference_no = 'TS'.str_random(8);
+        $order->amount = 0;
+        $order->discount = round($discount);
+        $order->status = 1; // Completed
+        $order->coupon_id = $couponId;
+        $order->gst = 0;
+        $order->payment_method = 'Coupon';
+        $order->payment_type = 0; // Free
+        $order->course_mode = 'test series';
+        $order->remarks = $testSeries->name;
+        $order->save();
+        
+        // Create order item for test series
+        $order->items()->create([
+            'item_id' => $tp->test_series_id,
+            'item_type' => TestSeries::class,
+            'price' => 0,
+        ]);
+        
+        return redirect('/user/my-test')->with('success', 'Test series activated with coupon!');
+    }
   
-   $rzp_id=   $this->createRzpOrder("ts_".$tp->id,$testSeries->offer_price);
+    $rzp_id = $this->createRzpOrder("ts_".$tp->id, $payAmount);
     
     $tp->rzp_order_id = $rzp_id;
     $tp->update();
-    
     
     return view('rzp-test',compact('testSeries','rzp_id','tp'));
 }
@@ -1125,6 +1343,32 @@ foreach ($purchases as $tp){
         $tp->cron_checked='1';
         $tp->update();
         
+        // Create order entry
+        $testSeries = TestSeries::find($tp->test_series_id);
+        if(!Order::where('order_id', $tp->rzp_order_id)->exists()) {
+            $order = new Order();
+            $order->user_id = $tp->user_id;
+            $order->reference_no = 'TS'.str_random(8);
+            $order->amount = $tp->amount;
+            $order->discount = $tp->discount ?? 0;
+            $order->status = 1; // Completed
+            $order->coupon_id = $tp->coupon_id ?? 0;
+            $order->gst = 0;
+            $order->payment_method = 'Razorpay';
+            $order->payment_type = 1; // Razorpay/Online
+            $order->order_id = $tp->rzp_order_id;
+            $order->course_mode = 'test series';
+            $order->remarks = $testSeries->name;
+            $order->save();
+            
+            // Create order item for test series
+            $order->items()->create([
+                'item_id' => $tp->test_series_id,
+                'item_type' => TestSeries::class,
+                'price' => $tp->amount,
+            ]);
+        }
+        
           $phone = $result['items'][0]['contact'];
 $clean = preg_replace('/^\+91/', '', $phone);
 
@@ -1152,7 +1396,8 @@ $clean = preg_replace('/^\+91/', '', $phone);
         
          $xt= AiSensy::send($whatsappPayload);
          
-          Mail::to($user->email)->send(new StudentTestByEmail($course));
+          // TODO: Create StudentTestByEmail mail class
+          // Mail::to($user->email)->send(new StudentTestByEmail($course));
            
            
 

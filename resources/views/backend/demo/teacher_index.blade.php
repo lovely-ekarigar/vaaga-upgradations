@@ -189,8 +189,32 @@
     </div>
   </div>
 </div>
-
-
+<!--create meeting link -->
+<div class="modal fade" id="meetLinkModal" tabindex="-1" role="dialog" aria-labelledby="meetLinkModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="meetLinkModalLabel">Create / Update Meet Link</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="meetLinkForm">
+        <div class="modal-body">
+          @csrf
+          <input type="hidden" name="demo_id" id="meet_demo_id">
+          <div class="form-group">
+            <label for="meet_link">Google Meet Link</label>
+            <input type="url" name="meet_link" id="meet_link_input" class="form-control" placeholder="https://meet.google.com/...">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save Link</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <a id="anchorID" href="" target="_blank"></a>
 @stop
 
@@ -423,6 +447,89 @@ console.log(demo_type);
                     }
                 }
             });
+            
+            
+            
+            // Open modal and prefill link
+$(document).on('click', '.addMeetLink', function() {
+    var demoId = $(this).data('id');
+    var link = $(this).data('link') || '';
+
+    $('#meet_demo_id').val(demoId);
+    $('#meet_link_input').val(link);
+    $('#meetLinkModal').modal('show');
+});
+
+// AJAX submit
+$('#meetLinkForm').on('submit', function(e) {
+    e.preventDefault();
+
+    var demoId = $('#meet_demo_id').val();
+    var link = $('#meet_link_input').val();
+    var token = $('meta[name="csrf-token"]').attr('content');
+
+    $.ajax({
+      url: '{{ route("admin.save_meet_link") }}',
+        type: 'POST',
+        data: {
+            _token: token,
+            demo_id: demoId,
+            meet_link: link
+        },
+        success: function(res) {
+            if(res.success){
+                $('#meetLinkModal').modal('hide');
+                alert('Meet link saved successfully!');
+                // Optional: update button data-link dynamically
+                $('.addMeetLink[data-id="'+demoId+'"]').data('link', link);
+            } else {
+                alert(res.msg || 'Something went wrong');
+            }
+        },
+        error: function() {
+            alert('Error saving link. Try again.');
+        }
+    });
+});
+
+
+// Google Meet Join Click
+$(document).on('click', '.joinGoogleMeet', function () {
+
+    let demoId = $(this).data('id');
+
+    $.ajax({
+        url: '/join-meet',
+        type: 'POST',
+        data: {
+            id: demoId,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (res) {
+            if (res.success) {
+                localStorage.setItem('active_demo_id', demoId);
+                window.open(res.link, '_blank');
+            } else {
+                alert(res.message);
+            }
+        }
+    });
+});
+
+
+// Auto check demo status every 5 sec
+setInterval(function(){
+    let demoId = localStorage.getItem('active_demo_id');
+
+    if(demoId){
+      $.get('/check-demo-status/' + demoId, function(res){
+    if(res.status === 'completed'){
+        localStorage.removeItem('active_demo_id');
+        window.location.href = "/user/demo-feedback/" + demoId;
+    }
+});
+    }
+}, 5000);
     </script>
 
     @endif

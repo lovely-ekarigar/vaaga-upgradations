@@ -1,5 +1,5 @@
 @component('mail::message')
-#Dear {{$user->name}}
+# Dear {{$user->name}}
 
 We would like to confirm that we have received your payment of ₹{{$amount}}. Thank you for choosing VaaGa Academy.You can now access your purchased courses and begin your exciting learning journey.<br><br>
 

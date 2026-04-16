@@ -48,13 +48,13 @@
 
                                 <th>@lang('labels.general.sr_no')</th>
                                 <th>@lang('labels.backend.contacts.fields.name')</th>
-                                @if(auth()->user()->hasRole('administrator'))
+                               @if(auth()->user()->hasRole(['administrator','backend-support-staff','telecaller']))
                                 <th>@lang('labels.backend.contacts.fields.email')</th>
                                 <th>@lang('labels.backend.contacts.fields.phone')</th>
                                @endif
                                 <th>Course</th>
                                 <th>
-                                    @if(auth()->user()->hasRole('administrator'))
+                                  @if(auth()->user()->hasRole(['administrator','backend-support-staff','telecaller']))
                                     Date
                                     @else
                                         Demo Date
@@ -63,7 +63,7 @@
                                 @if(auth()->user()->hasRole('teacher'))
                                 <th>Instructions</th>
                                @endif
-                                @if(auth()->user()->hasRole('administrator'))
+                               @if(auth()->user()->hasRole(['administrator','backend-support-staff','telecaller']))
                                 <th>Tutor Remarks</th>
                                @endif
                                 <th>Status</th>
@@ -82,7 +82,7 @@
         </div>
     </div>
 
-@if(auth()->user()->hasRole('administrator'))
+   @if(auth()->user()->hasRole(['administrator','backend-support-staff','telecaller']))
 
 <div class="modal fade" id="demoModal"  role="dialog" aria-labelledby="demoModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
@@ -120,13 +120,16 @@
                             <label for="title" class="control-label">Instructions for Tutor</label>
                             <input class="form-control" placeholder="Instructions" name="instruction" type="text">
                             <input type="hidden" name="demo_id" id="demo_id" />
-    <br>
-    <span class="required">*</span> Indicates required fields
+                        <br>
+                        <span class="required">*</span> Indicates required fields
                         </div>
                         <div  class="col-12 col-lg-12 form-group">
                             <a href="{{route('admin.teachers_course_availability')}}" target="_blank"  class="btn btn-info btn-sm">Check Tutor availability</a>
                         </div>
-                        
+                        <!--<div class="col-12 col-lg-12 form-group">-->
+                        <!--<label>Meeting Link</label>-->
+                        <!--<input class="form-control" name="meetlink" placeholder="Paste Google Meet link">-->
+                        <!--</div>-->
                         </div>
     
       </div>
@@ -246,8 +249,7 @@ $(this).html('Start Demo');
       
       
 </script>
-@if(auth()->user()->hasRole('administrator'))
- 
+   @if(auth()->user()->hasRole(['administrator','backend-support-staff','telecaller']))
 
     <script>
 
@@ -352,6 +354,21 @@ if(!flag)
 
       });
       
+      
+      
+      //shruti
+      
+      $(document).on('click', '.joinGoogleMeet', function () {
+
+    let meetLink = $(this).data('link');
+
+    if(meetLink){
+        window.open(meetLink, '_blank');
+    } else {
+        alert('Meet link not available');
+    }
+
+});
 
     </script>
 
@@ -416,8 +433,12 @@ if(!flag)
                     }
                 }
             });
+            
+            
+            
+            
     </script>
-
+    `
     @endif
 
 @endpush

@@ -1,0 +1,60 @@
+{
+  "_vendor-B17JbvWu.js": {
+    "file": "assets/vendor-B17JbvWu.js",
+    "name": "vendor"
+  },
+  "node_modules/font-awesome/fonts/fontawesome-webfont.eot": {
+    "file": "assets/fontawesome-webfont-G5YE5S7X.eot",
+    "src": "node_modules/font-awesome/fonts/fontawesome-webfont.eot"
+  },
+  "node_modules/font-awesome/fonts/fontawesome-webfont.svg": {
+    "file": "assets/fontawesome-webfont-D13rzr4g.svg",
+    "src": "node_modules/font-awesome/fonts/fontawesome-webfont.svg"
+  },
+  "node_modules/font-awesome/fonts/fontawesome-webfont.ttf": {
+    "file": "assets/fontawesome-webfont-CQDK8MU3.ttf",
+    "src": "node_modules/font-awesome/fonts/fontawesome-webfont.ttf"
+  },
+  "node_modules/font-awesome/fonts/fontawesome-webfont.woff": {
+    "file": "assets/fontawesome-webfont-CDK5bt4p.woff",
+    "src": "node_modules/font-awesome/fonts/fontawesome-webfont.woff"
+  },
+  "node_modules/font-awesome/fonts/fontawesome-webfont.woff2": {
+    "file": "assets/fontawesome-webfont-B-jkhYfk.woff2",
+    "src": "node_modules/font-awesome/fonts/fontawesome-webfont.woff2"
+  },
+  "resources/js/backend.js": {
+    "file": "assets/backend-RrBQoNew.js",
+    "name": "backend",
+    "src": "resources/js/backend.js",
+    "isEntry": true,
+    "imports": [
+      "resources/js/frontend/app.js",
+      "_vendor-B17JbvWu.js"
+    ]
+  },
+  "resources/js/frontend/app.js": {
+    "file": "assets/app-Dz5x2QzF.js",
+    "name": "app",
+    "src": "resources/js/frontend/app.js",
+    "isEntry": true,
+    "imports": [
+      "_vendor-B17JbvWu.js"
+    ]
+  },
+  "resources/sass/backend/app.scss": {
+    "file": "assets/app-DMty4vBL.css",
+    "src": "resources/sass/backend/app.scss",
+    "isEntry": true
+  },
+  "resources/sass/frontend-rtl/app.scss": {
+    "file": "assets/app-BwHBDk-S.css",
+    "src": "resources/sass/frontend-rtl/app.scss",
+    "isEntry": true
+  },
+  "resources/sass/frontend/app.scss": {
+    "file": "assets/app-C0AChEAs.css",
+    "src": "resources/sass/frontend/app.scss",
+    "isEntry": true
+  }
+}

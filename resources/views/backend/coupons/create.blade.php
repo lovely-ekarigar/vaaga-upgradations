@@ -30,7 +30,7 @@
     </div>
     <div class="card">
         <div class="card-header">
-            <h3 class="page-title d-inline">@lang('labels.backend.coupons.create')</h3>
+            <h3 class="page-title d-inline">@lang('labels.backend.coupons.create')</h3>  
             <div class="float-right">
                 <a href="{{ route('admin.coupons.index') }}"
                    class="btn btn-success">@lang('labels.backend.coupons.view')</a>
@@ -98,6 +98,17 @@
                 </div><!--col-->
             </div>
             
+            <div class="row form-group">
+                <label for="test_series" class="col-md-2 form-control-label">Test Series</label>
+                <div class="col-md-10">
+                   <select class="form-control form-select select2" id="test_series" name="test_series[]" multiple="">
+                       @foreach($testSeriesList as $ts)
+                        <option value="{{$ts->id}}">{{$ts->name}} @if($ts->course) - {{$ts->course->title}} @endif</option>
+                       @endforeach
+                   </select>
+                </div><!--col-->
+            </div>
+            
             
             <div class="row form-group">
                 {{ html()->label(__('labels.backend.coupons.fields.amount'))->class('col-md-2 form-control-label')->for('amount') }}
@@ -120,16 +131,19 @@
                 </div>
             </div>
 
-            <div class="row form-group">
-                {{ html()->label(__('labels.backend.coupons.fields.min_price'))->class('col-md-2 form-control-label')->for('amount') }}
+                     <div class="row form-group">
+    {{ html()->label(__('labels.backend.coupons.fields.min_price'))
+        ->class('col-md-2 form-control-label')
+        ->for('min_price') }}
 
-                <div class="col-md-10">
-                    {{ html()->input('number','min_price')
-                    ->placeholder(__('labels.backend.coupons.fields.min_price'))
-                        ->class('form-control')
-                    }}
-
-                </div><!--col-->
+    <div class="col-md-10">
+        {{ html()->input('number','min_price')
+            ->placeholder(__('labels.backend.coupons.fields.min_price'))
+            ->class('form-control')
+            ->required()   
+        }}
+   
+</div><!--col-->
             </div>
 
 

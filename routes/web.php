@@ -39,6 +39,8 @@ use Illuminate\Support\Facades\Route;
  * Global Routes    
  * Routes that are used between both frontend and backend. 
  */  
+ 
+Route::get('/user/objection/create/{recording_id}', [App\Http\Controllers\Frontend\User\ObjectionController::class, 'create'])->name('frontend.user.objection.create');
 
 // Route::get('/check-otp', [HomeController::class, 'checkOtp'])->name('home.checkOtp');
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
@@ -54,6 +56,7 @@ Route::get('test-series-purchase-cron', [TestSeriesController::class, 'purchaseC
 Route::post('/ajax-login', [TestSeriesController::class, 'ajaxLogin'])->name('frontend.login.ajax');
 Route::post('/ajax-register', [TestSeriesController::class, 'ajaxRegister'])->name('frontend.register.ajax');
 Route::get('/buy-test/{id}', [TestSeriesController::class, 'buyTest'])->name('frontend.buyTest');
+Route::post('/apply-coupon-test-series', [TestSeriesController::class, 'applyCouponTestSeries'])->name('frontend.applyCouponTestSeries');
 
 Route::get('/whiteboard/create', [WhiteboardController::class, 'createRoomAndToken']);
 Route::get('/whiteboard/view', [WhiteboardController::class, 'viewWhiteboard'])->name('whiteboard.view');
@@ -259,6 +262,7 @@ Route::delete('leads/{lead}', [MarketingController::class, 'destroyLead'])->name
 
   Route::get('purchase/test-series', [TestSeriesController::class, 'purchaseList'])->name('testseries.purchaseList'); 
 
+  Route::get('purchase/test-series/invoice/{id}/{type}', [TestSeriesController::class, 'purchaseInvoice'])->name('testseries.purchaseInvoice'); 
 
   Route::get('question/report', [TestSeriesController::class, 'questionReport'])->name('testseries.questionReport'); 
 
@@ -447,23 +451,27 @@ Route::get('user/exam/result/{id}', [TestSeriesController::class, 'examResult'])
 //shruti
 // List lessons based on Test Series
 
-
 Route::get('test-series/{testSeries}/study-material', [TestSeriesController::class, 'studyMaterial'])
-     ->name('testSeries.study-material');
+    ->name('testSeries.study-material');
 
-// List lesson files
 Route::get('lesson/{lesson}/materials', [TestSeriesController::class, 'lessonMaterials'])
-     ->name('lesson.materials');
+    ->name('lesson.materials');
 
-
-Route::get('/test-series/{id}/videos', [TestSeriesController::class, 'videos'])
+Route::get('test-series/{id}/videos', [TestSeriesController::class, 'videos'])
     ->name('testSeries.videos');
 
-Route::get('/lesson/{lessonId}/videos', [TestSeriesController::class, 'lessonVideos'])
+Route::get('lesson/{lessonId}/videos', [TestSeriesController::class, 'lessonVideos'])
     ->name('lesson.videos');
     
-    
-    
+
+
+//google meet link shruti
+Route::post('/admin/save-meet-link', [DemoController::class, 'saveMeetLink'])
+    ->name('admin.save_meet_link');
+Route::get('/check-demo-status/{id}', [DemoController::class, 'checkDemoStatus']);
+Route::post('/join-meet', [DemoController::class, 'joinMeet']);
+
+
 
 // Mock Test Series Routes (attempt route must be before list so /x/y/attempt is not matched as list /x)
 Route::get('user/my-mock-series', [MockSeriesController::class, 'myMockSeries'])->name('myMockSeries.index');
@@ -574,9 +582,10 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 
-// shruti
 
 
+
+//shruti
 Route::get('study-material/{id}', [MyclassController::class, 'studyMaterial'])
     ->name('study-material');
 
@@ -586,11 +595,14 @@ Route::get('/user/view-material/{lesson_id}/{batch_id}', [MyclassController::cla
 Route::get('/lesson-pdf/{id}', [MyclassController::class, 'viewPdf'])
     ->name('lesson.pdf.view');
 
-Route::get('/lesson-doc/{id}', [MyclassController::class, 'viewDoc'])
-    ->name('lesson.doc.view');
+// Route::get('/lesson-pdf/{id}', [MyclassController::class, 'viewPdf'])
+//     ->name('lesson.pdf.view');
 
-Route::get('/lesson-doc-file/{id}', [MyclassController::class, 'serveDoc'])
-    ->name('lesson.doc.serve');
+// Route::get('/lesson-doc/{id}', [MyclassController::class, 'viewDoc'])
+//     ->name('lesson.doc.view');
+
+// Route::get('/lesson-doc-file/{id}', [MyclassController::class, 'serveDoc'])
+//     ->name('lesson.doc.serve');
 
 Route::get('/search', [HomeController::class, 'searchCourse'])->name('search');
 Route::get('/search-course', [HomeController::class, 'searchCourse'])->name('search-course');
@@ -659,3 +671,7 @@ Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
 });
 
 
+//new ui routes
+Route::get('new_ui/latest_ui/home', function () {
+    return view('new_ui.latest_ui.pages.home');
+});

@@ -36,36 +36,25 @@
                     </tr>
                     </thead>
                     <tbody>
-                        @php $count=0 @endphp
-
-                        @foreach($subscriptions as $s)
-                         @php $count++ @endphp
+                        @php $srNo = 0 @endphp
+                        @foreach(($paymentEntries ?? collect()) as $entry)
+                        @php $srNo++ @endphp
                         <tr>
-                            <td>{{$count}}</td>
-                            <td>₹{{$s->amount}}</td>
-                            <td>{{$count+1}}</td>
-                            <td>{{date("d M Y",strtotime($s->created_at))}}</td>
+                            <td>{{$srNo}}</td>
+                             <td>₹{{intval($entry->amount)}}</td>
+                            <td>{{$entry->cycle_no}}</td>
+                            <td>{{\Carbon\Carbon::parse($entry->paid_at)->format('d M Y | h:i A')}}</td>
                             <td>
-                                <a href="https://vaagaacademy.com/user/student-view-invoice/{{$s->order_id}}/show/{{$s->id}}" class="btn btn-xs btn-primary mb-1"><i class="icon-eye"></i></a>
-                                <a href="https://vaagaacademy.com/user/student-view-invoice/{{$s->order_id}}/download/{{$s->id}}" class="btn btn-xs btn-danger mb-1"><i class="fa fa-file-pdf"></i></a>
+                                @if($entry->subscription_id)
+                                <a href="{{ route('admin.student.invoice.subscription', ['oid' => $entry->order_id, 'type' => 'show', 'sid' => $entry->subscription_id]) }}" class="btn btn-xs btn-primary mb-1"><i class="icon-eye"></i></a>
+                                <a href="{{ route('admin.student.invoice.subscription', ['oid' => $entry->order_id, 'type' => 'download', 'sid' => $entry->subscription_id]) }}" class="btn btn-xs btn-danger mb-1"><i class="fa fa-file-pdf"></i></a>
+                                @else
+                                <a href="{{ route('admin.student.invoice', ['oid' => $entry->order_id, 'type' => 'show']) }}" class="btn btn-xs btn-primary mb-1"><i class="icon-eye"></i></a>
+                                <a href="{{ route('admin.student.invoice', ['oid' => $entry->order_id, 'type' => 'download']) }}" class="btn btn-xs btn-danger mb-1"><i class="fa fa-file-pdf"></i></a>
+                                @endif
                             </td>
                         </tr>
-
                         @endforeach
-                        @if($order)
-  @php $count++ @endphp
-                          <tr>
-                            <td>{{$count}}</td>
-                            <td>₹{{$order->amount}}</td>
-                            <td>1</td>
-                            <td>{{date("d M Y",strtotime($order->created_at))}}</td>
-                            <td>
-                                 <a href="https://vaagaacademy.com/user/student-view-invoice/{{$order->id}}/show/" class="btn btn-xs btn-primary mb-1"><i class="icon-eye"></i></a>
-                                <a href="https://vaagaacademy.com/user/student-view-invoice/{{$order->id}}/download/" class="btn btn-xs btn-danger mb-1"><i class="fa fa-file-pdf"></i></a>
-                            </td>
-                        </tr>
-
-                        @endif
 
                     </tbody>
                 </table>

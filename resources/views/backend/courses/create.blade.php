@@ -143,6 +143,25 @@ use App\Models\Category;
                     {!! Form::label('monthly_price_1',  'Monthly Price 1:1 (in '.$appCurrency["symbol"].')', ['class' => 'control-label']) !!}
                     {!! Form::number('monthly_price_1', old('monthly_price_1'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.courses.fields.price'), 'pattern' => "[0-9]"]) !!}
                 </div> --}}
+                                <div class="col-12">
+                    <h5 class="mb-3 mt-3" style="font-weight: 600; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                        Regular Classes
+                    </h5>
+                </div>
+                <div class="col-12 col-lg-4 form-group">
+                    <label for="regular_monthly" class="control-label">Monthly Price (in ₹)</label>
+                    <input class="form-control" placeholder="Price" pattern="[0-9]" name="regular_monthly" type="number" value="{{old('regular_monthly')}}" id="regular_monthly">
+                </div>
+                <div class="col-12 col-lg-4 form-group">
+                    <label for="regular_monthly_1" class="control-label">1:1 Regular Classes Monthly Price (in ₹)</label>
+                    <input class="form-control" placeholder="Price" pattern="[0-9]" name="regular_monthly_1" type="number" value="{{old('regular_monthly_1')}}" id="regular_monthly_1">
+                </div>
+                <div class="col-12"></div>
+                <div class="col-12">
+                    <h5 class="mb-3 mt-3" style="font-weight: 600; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                        Group Classes
+                    </h5>
+                </div>
                 <div class="col-12 col-lg-4 form-group">
                         <label for="monthly_price" class="control-label">Monthly Price   (in ₹)</label>
                         <input class="form-control" placeholder="Price" pattern="[0-9]" name="monthly_price" type="number" value="{{old('monthly_price')}}" id="monthly_price">

@@ -59,7 +59,7 @@ var options = {
     "description": "Test Series Payment",
     "image": "https://vaagaacademy.com/newassets/img/logo.webp",
     "order_id": "{{ $rzp_id }}",
-    "callback_url": "https://vaagaacademy.com/pay-confirm-test/{{ $tp->id }}",
+    "callback_url": "{{ url('pay-confirm-test/'.$tp->id) }}",
     "prefill": {
         "name": "{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}",
         "email": "{{ Auth::user()->email }}",

@@ -24,6 +24,9 @@ use Carbon\Carbon;
 use App\Models\Recording;
 use App\Models\StudentTeacherBatch;
 use App\Models\OauthClient;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Session;
@@ -36,7 +39,7 @@ class BatchController extends Controller
 {
    public function index(){
 
-     if(!auth()->user()->isAdmin()){ 
+    if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
         $batches=Batch::orderBy("id","desc")->get();
@@ -302,7 +305,7 @@ public function sendPush($ids,$title,$msg){
 
 
 public function create(){
-     if(!auth()->user()->isAdmin()){
+     if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
         $courses=Course::orderBy("sort_order","asc")->get();
@@ -411,7 +414,7 @@ public function update(Request $request){
 
    }
 public function deleteBatch($id){
-    if(!auth()->user()->isAdmin()){
+   if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
 
@@ -432,7 +435,7 @@ public function show(){
 }
 public function editBatch($id){
    // echo $id;
-    if(!auth()->user()->isAdmin()){
+     if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
         $batch=Batch::where("id",$id)->first();
@@ -476,7 +479,7 @@ DB::table('course_student')->insert(
 return redirect()->route('admin.batch.course',['id'=>$cid])->withFlashSuccess("Course has been assigned to students");
 }
 public function batchassign($id){
-    if(!auth()->user()->isAdmin()){
+   if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
           
@@ -603,6 +606,60 @@ $teacher = User::find($request->teachersid);
           }
            
             //dd($bs);
+
+               // Update order end_date for eligible course modes when students are enrolled in batch
+        $batch = Batch::find($request->bid);
+        if ($batch && $batch->start_date) {
+            foreach($request->student as $sid) {
+                // Get ALL orders for this student and course (regardless of course_mode)
+                $orders = Order::where('user_id', $sid)
+                    ->where('status', '1')
+                    ->whereHas('items', function($query) use ($batch) {
+                        $query->where('item_id', $batch->cid)
+                              ->where('item_type', 'App\\Models\\Course');
+                    })
+                    ->get();
+
+                foreach($orders as $order) {
+                    // Get course mode for this order
+                    $courseMode = strtolower($order->course_mode ?? '');
+
+                    // Update end_date based on course mode
+                    if (strpos($courseMode, 'monthly') !== false) {
+                        // Handle monthly orders
+                        $batchStartDate = Carbon::parse($batch->start_date);
+                        $orderCreatedAt = Carbon::parse($order->created_at);
+
+                        // If batch start date is in future from order created_at
+                        if ($batchStartDate->gt($orderCreatedAt)) {
+                            // Use batch start_date + 1 month
+                            $newEndDate = $batchStartDate->copy()->addMonth()->format('Y-m-d');
+                        } else {
+                            // If batch start date is in past or same as order created_at
+                            // Use order created_at + 1 month
+                            $newEndDate = $orderCreatedAt->copy()->addMonth()->format('Y-m-d');
+                        }
+
+                        $order->end_date = $newEndDate;
+
+                        // Update subscription end_date
+                        $subscription = Subscription::where('order_id', $order->id)->first();
+                        if ($subscription) {
+                            $subscription->end_date = $newEndDate;
+                            $subscription->update();
+                        }
+                    } elseif (strpos($courseMode, 'full') !== false) {
+                        // Handle full course orders (full, onetoone_full, onetomany_full)
+                        $newEndDate = Carbon::parse($batch->start_date)->addMonths(6)->format('Y-m-d');
+                        $order->end_date = $newEndDate;
+                    }
+                    // For any other course mode, no date field is changed
+
+                    // Save the order
+                    $order->update();
+                }
+            }
+        }
 
         return redirect()->route('admin.batch.batchassign',['id'=>$request->bid])->withFlashSuccess("Batch has been assigned successfully");
 

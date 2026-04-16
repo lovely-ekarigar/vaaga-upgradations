@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mentortle.user",
+      "sha256_cert_fingerprints": [
+        "5E:A9:44:E9:60:4B:90:F3:AF:99:07:51:48:61:00:78:D1:A0:D3:02:7D:8A:99:7D:5C:9A:B1:51:E4:F1:BE:D1"
+      ]
+    }
+  }
+]

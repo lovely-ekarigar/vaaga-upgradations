@@ -1,25 +1,27 @@
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>VaaGa Academy - Online Olympiad Coaching for Students | About Us</title>
+<title>VaaGa Academy - Online Olympiad Coaching for Students | About | {{env('APP_NAME')}}</title>
 
-<meta name="description" content="Learn more about VaaGa Academy's mission to provide expert online Olympiad coaching for Class 2–8 students. We specialize in Maths, Science & English coaching for IMO, NSO & IEO exams.">
-<meta name="keywords" content="About VaaGa Academy, Online Olympiad coaching, Olympiad coaching mission, IMO NSO IEO coaching, Maths Science English coaching, Best Olympiad academy, Online learning platform, Olympiad preparation India">
+<meta name="description" content="Learn more about VaaGa Academy’s mission to provide expert online Olympiad coaching for Class 2–8 students. We specialize in Maths, Science & English coaching for IMO, NSO & IEO exams.">
+
+<meta name="keywords" content="Vaaga Academy, Online Olympiad Coaching, Olympiad coaching for Class 2-8, IMO preparation, NSO preparation, IEO preparation, Maths Olympiad coaching, Science Olympiad coaching, English Olympiad coaching, Online Olympiad classes for students">
 
 <meta property="og:locale" content="en_US" />
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content="VaaGa Academy - Online Olympiad Coaching for Students | About Us" />
-    <meta property="og:description" content="Learn more about VaaGa Academy's mission to provide expert online Olympiad coaching for Class 2–8 students. We specialize in Maths, Science & English coaching for IMO, NSO & IEO exams." />
-    <meta property="og:url" content="{{URL::to('/about')}}" />
-    <meta property="og:site_name" content="VaaGa Academy | Online Learning Platforms For School Students" />
-    <meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
-    <meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
-    <meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
-   
-   <meta name="twitter:card" content="summary_large_image" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="VaaGa Academy - Online Olympiad Coaching for Students | About | {{env('APP_NAME')}}" />
+<meta property="og:description" content="Learn more about VaaGa Academy’s mission to provide expert online Olympiad coaching for Class 2–8 students. We specialize in Maths, Science & English coaching for IMO, NSO & IEO exams." />
+<meta property="og:url" content="{{URL::to('/about')}}" />
+<meta property="og:site_name" content="{{env('APP_NAME')}}" />
+<meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
+
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="{{env('TWITTER_HANDLE')}}" />
-<meta name="twitter:title" content="VaaGa Academy - Online Olympiad Coaching for Students | About Us" />
-<meta name="twitter:description" content="Learn more about VaaGa Academy's mission to provide expert online Olympiad coaching for Class 2–8 students. We specialize in Maths, Science & English coaching for IMO, NSO & IEO exams." />
+<meta name="twitter:title" content="VaaGa Academy - Online Olympiad Coaching for Students | About | {{env('APP_NAME')}}" />
+<meta name="twitter:description" content="Learn more about VaaGa Academy’s mission to provide expert online Olympiad coaching for Class 2–8 students. We specialize in Maths, Science & English coaching for IMO, NSO & IEO exams." />
 <meta name="twitter:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
+
 <link rel="canonical" href="{{URL::to('/about')}}">
 
 @stop

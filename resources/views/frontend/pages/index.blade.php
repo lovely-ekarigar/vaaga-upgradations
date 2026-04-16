@@ -1,21 +1,6 @@
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>{{ $page->meta_title ?? $page->title . ' | ' . env('APP_NAME') }}</title>
-<meta name="description" content="{{ $page->meta_description ?? '' }}">
-<meta name="keywords" content="{{ $page->meta_keywords ?? '' }}">
-<meta property="og:locale" content="en_US" />
-<meta property="og:type" content="article" />
-<meta property="og:title" content="{{ $page->meta_title ?? $page->title }}" />
-<meta property="og:description" content="{{ $page->meta_description ?? '' }}" />
-<meta property="og:url" content="{{ URL::to('/' . $page->slug) }}" />
-<meta property="og:site_name" content="{{ env('APP_NAME') }}" />
-<meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:site" content="{{ env('TWITTER_HANDLE') }}" />
-<meta name="twitter:title" content="{{ $page->meta_title ?? $page->title }}" />
-<meta name="twitter:description" content="{{ $page->meta_description ?? '' }}" />
-<meta name="twitter:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
-<link rel="canonical" href="{{ URL::to('/' . $page->slug) }}">
+<title>{{$page->title}} | {{env('APP_NAME')}}</title>
 @stop
 @section('page_css')
 <style>

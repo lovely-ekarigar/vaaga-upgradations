@@ -153,12 +153,17 @@ class MarketingController extends Controller
         $lists = MarketingList::all();
         
         // Get leads for selected list
-        if ($listId) {
-            $list = MarketingList::findOrFail($listId);
-            $leads = $list->leads()->paginate(20);
-        } else {
-            $leads = collect([]);
-        }
+           if ($listId) {
+
+   $list = MarketingList::findOrFail($listId);
+
+$leads = $list->leads()->paginate(20);
+
+} else {
+
+   $leads = MarketingLead::latest()->paginate(20);
+
+}
         
         return view('admin.marketing.list', compact('lists', 'leads', 'listId'));
     }

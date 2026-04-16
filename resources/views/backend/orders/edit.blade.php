@@ -88,15 +88,18 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="course_mode">Course Mode</label>
-                            <select name="course_mode" id="course_mode" class="form-control">
+                             <select name="course_mode" id="course_mode" class="form-control">
                                 <option value="">Select Course Mode</option>
                                 <option value="onetoone_full" {{ old('course_mode', $order->course_mode) == 'onetoone_full' ? 'selected' : '' }}>1:1 Full Course</option>
                                 <option value="onetoone_monthly" {{ old('course_mode', $order->course_mode) == 'onetoone_monthly' ? 'selected' : '' }}>1:1 Monthly Subscription</option>
-                                <option value="onetomany_full" {{ old('course_mode', $order->course_mode) == 'onetomany_full' ? 'selected' : '' }}>1:N Full Course</option>
-                                <option value="onetomany_monthly" {{ old('course_mode', $order->course_mode) == 'onetomany_monthly' ? 'selected' : '' }}>1:N Monthly Subscription</option>
+                                {{-- <option value="onetomany_full" {{ old('course_mode', $order->course_mode) == 'onetomany_full' ? 'selected' : '' }}>1:N Full Course--</option> --}}
+                                {{-- <option value="onetomany_monthly" {{ old('course_mode', $order->course_mode) == 'onetomany_monthly' ? 'selected' : '' }}>1:N Monthly Subscription--</option> --}}
+                                <option value="full" {{ old('course_mode', $order->course_mode) == 'full' ? 'selected' : '' }}>1:N Full Course</option>
+                                <option value="monthly" {{ old('course_mode', $order->course_mode) == 'monthly' ? 'selected' : '' }}>1:N Monthly Subscription</option>
+                                <option value="regular_monthly" {{ old('course_mode', $order->course_mode) == 'regular_monthly' ? 'selected' : '' }}>Regular Monthly Subscription</option>
+                                <option value="regular_monthly_1" {{ old('course_mode', $order->course_mode) == 'regular_monthly_1' ? 'selected' : '' }}>1:1 Regular Monthly Subscription</option>
                                 <option value="quarterly" {{ old('course_mode', $order->course_mode) == 'quarterly' ? 'selected' : '' }}>Quarterly Subscription</option>
-                                <option value="monthly" {{ old('course_mode', $order->course_mode) == 'monthly' ? 'selected' : '' }}>Half Yearly Subscription</option>
-                                <option value="full" {{ old('course_mode', $order->course_mode) == 'full' ? 'selected' : '' }}>Yearly Subscription</option>
+                              
                             </select>
                             @error('course_mode')
                                 <span class="text-danger">{{ $message }}</span>

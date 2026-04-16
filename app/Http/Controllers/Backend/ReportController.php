@@ -20,38 +20,40 @@ class ReportController extends Controller
         $bundles = Bundle::ofTeacher()->pluck('id');
 
 
-        $bundle_earnings = Order::with('items')->whereHas('items',function ($q) use ($bundles){
-            $q->where('item_type','=',Bundle::class)
-                ->whereIn('item_id',$bundles);
-        })->where('status','=',1);
+        $bundle_earnings = OrderItem::where('item_type','=',Bundle::class)
+            ->whereIn('item_id',$bundles)
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status','=',1);
 
 
         $bundle_sales = $bundle_earnings->count();
-        $bundle_earnings = $bundle_earnings->sum('amount');
+        $bundle_earnings = $bundle_earnings->sum('orders.amount');
 
-        $course_earnings = Order::with('items')->whereHas('items',function ($q) use ($courses){
-            $q->where('item_type','=',Course::class)
-                ->whereIn('item_id',$courses);
-        })->where('status','=',1)->where("course_mode","like","%full%");
+        $course_earnings = OrderItem::where('item_type','=',Course::class)
+            ->whereIn('item_id',$courses)
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status','=',1)
+            ->where("orders.course_mode","like","%full%");
 
-        $course_earnings_subs = Order::with('items')->whereHas('items',function ($q) use ($courses){
-            $q->where('item_type','=',Course::class)
-                ->whereIn('item_id',$courses);
-        })->where('status','=',1)->where("course_mode","like","%monthly%");
+        $course_earnings_subs = OrderItem::where('item_type','=',Course::class)
+            ->whereIn('item_id',$courses)
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status','=',1)
+            ->where("orders.course_mode","like","%monthly%");
 
         $course_sales = $course_earnings->count();
-        $course_earnings = $course_earnings->sum('amount');
+        $course_earnings = $course_earnings->sum('orders.amount');
 
         $course_sales_subs = $course_earnings_subs->count();
-        $course_earnings_subs = $course_earnings_subs->sum('amount');
-        $sbs_earn = Subscription::where("status","1")->sum("amount");
+        $course_earnings_subs = $course_earnings_subs->sum('orders.amount');
+        $sbs_earn = Subscription::where("status","1")->where("cycle_no",">",1)->sum("amount");
 
         $course_earnings_subs = $course_earnings_subs + $sbs_earn;
 
         $total_earnings = $course_earnings+$bundle_earnings;
         $total_sales = $course_sales+$bundle_sales;
 
-        
+
 
         return view('backend.reports.sales',compact('total_earnings','total_sales','course_earnings_subs','course_sales_subs'));
     }
@@ -114,13 +116,17 @@ public function getCourseDataSubs(Request $request){
              $cr = new Course();
                 return $cr->getCouseNameWithCat($q->cid);
             })
+            ->editColumn('orders', function ($q) {
+                $link = "<a href='".route('admin.reports.course_purchase_details', [$q->cid])."'>".$q->orders."</a>";
+                return $link;
+            })
             ->addColumn('course', function ($q) {
                 $course_name = $q->name ?? '';
                 $course_slug = $q->slug ?? '';
                 $link = "<a href='".route('courses.show', [$course_slug])."' target='_blank'>".$course_name."</a>";
                 return $link;
             })
-            ->rawColumns(['course'])
+            ->rawColumns(['course', 'orders'])
             ->make();
     }
 
@@ -161,7 +167,7 @@ public function getCourseDataSubs(Request $request){
             ->addIndexColumn()
             ->editColumn('title', function ($q) {
                 $cr = new Course();
-               
+
                 return $cr->getCouseNameWithCat($q->id);
 
             })
@@ -180,6 +186,43 @@ public function getCourseDataSubs(Request $request){
                 }
                 return $count;
 
+            })
+            ->make();
+    }
+
+    public function getCoursePurchaseDetails($course_id)
+    {
+        $course = Course::findOrFail($course_id);
+        $cr = new Course();
+        $course_name = $cr->getCouseNameWithCat($course_id);
+
+        return view('backend.reports.course_purchase_details', compact('course', 'course_name'));
+    }
+
+    public function getCoursePurchaseDetailsData(Request $request, $course_id)
+    {
+        $purchases = Order::with(['user'])
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->where('order_items.item_type', '=', Course::class)
+            ->where('order_items.item_id', $course_id)
+            ->where('orders.status', '=', 1)
+            ->where('orders.course_mode', 'like', '%full%')
+            ->select('orders.*')
+            ->get();
+
+        return \DataTables::of($purchases)
+            ->addIndexColumn()
+            ->addColumn('student_name', function ($q) {
+                return $q->user ? $q->user->name : 'N/A';
+            })
+            ->addColumn('reference_no', function ($q) {
+                return $q->reference_no ?? $q->order_id ?? 'N/A';
+            })
+            ->addColumn('purchase_date', function ($q) {
+                return $q->created_at->format('d M, Y');
+            })
+            ->addColumn('amount', function ($q) {
+                return $q->amount;
             })
             ->make();
     }

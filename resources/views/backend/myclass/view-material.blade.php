@@ -43,58 +43,19 @@
 
 
                 @foreach($lessonMedia as $media)
-    @php
-        // Skip media without valid ID or file_name
-        if (empty($media->id) || empty($media->file_name)) {
-            continue;
-        }
-        
-        $fileExt = strtolower(pathinfo($media->file_name, PATHINFO_EXTENSION));
-        $isPdf = $fileExt === 'pdf';
-        $isDocx = in_array($fileExt, ['docx', 'doc']);
-        
-        // Get the file URL - prioritize url field, fallback to storage path
-        $fileUrl = $media->url;
-        if (empty($fileUrl)) {
-            $fileUrl = asset('storage/uploads/' . $media->file_name);
-        }
-        
-        // Check if file actually exists on disk
-        $fileExists = file_exists(public_path('storage/uploads/' . $media->file_name));
-    @endphp
     <div class="d-flex justify-content-between align-items-center border p-3 mb-2 rounded">
+        
         <div>
             <strong>{{ $media->name }}</strong>
-            <small class="d-block text-muted">{{ $media->file_name }}</small>
         </div>
 
         <div>
-            @if(!$fileExists)
-                {{-- File not found on server --}}
-                <span class="btn btn-sm btn-warning disabled" title="File not found on server">
-                    <i class="bi bi-exclamation-triangle"></i> File Missing
-                </span>
-            @elseif($isPdf)
-                {{-- PDF - Use built-in viewer --}}
-                <a href="{{ route('lesson.pdf.view', $media->id) }}" 
-                   class="btn btn-sm btn-primary">
-                    <i class="bi bi-eye"></i> View PDF
-                </a>
-            @elseif($isDocx)
-                {{-- Word Document - Use custom DOCX viewer page --}}
-                <a href="{{ route('lesson.doc.view', $media->id) }}" 
-                   class="btn btn-sm btn-success">
-                    <i class="bi bi-eye"></i> View Document
-                </a>
-            @else
-                {{-- Other files - Direct download --}}
-                <a href="{{ $fileUrl }}" 
-                   class="btn btn-sm btn-secondary"
-                   download>
-                    <i class="bi bi-download"></i> Download
-                </a>
-            @endif
+            <a href="{{ route('lesson.pdf.view', $media->id) }}" 
+               class="btn btn-sm btn-primary">
+                View
+            </a>
         </div>
+
     </div>
 @endforeach
 

@@ -3,10 +3,33 @@
 use App\Models\TestSeries;
 use App\Models\TestSeriesPurchase;
 ?>
-
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>Test Series | {{env('APP_NAME')}}</title>
+
+<title>Olympiad Test Series for Grade 2–8 - VaaGa Academy | {{env('APP_NAME')}}</title>
+
+<meta name="description" content="VaaGa Academy offers comprehensive Olympiad Test Series for Grade 2–8 students. Prepare for IMO, NSO & IEO exams with mock tests, performance tracking, and personalized feedback.">
+
+<meta name="keywords" content="Olympiad test series, IMO test series, NSO test series, IEO test series, Olympiad mock tests for grade 2-8, online Olympiad practice tests, VaaGa Academy Olympiad preparation">
+
+<meta property="og:locale" content="en_US" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Olympiad Test Series for Grade 2–8 - VaaGa Academy | {{env('APP_NAME')}}" />
+<meta property="og:description" content="VaaGa Academy offers comprehensive Olympiad Test Series for Grade 2–8 students. Prepare for IMO, NSO & IEO exams with mock tests, performance tracking, and personalized feedback." />
+<meta property="og:url" content="{{URL::to('/test-series')}}" />
+<meta property="og:site_name" content="{{env('APP_NAME')}}" />
+<meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="{{env('TWITTER_HANDLE')}}" />
+<meta name="twitter:title" content="Olympiad Test Series for Grade 2–8 - VaaGa Academy | {{env('APP_NAME')}}" />
+<meta name="twitter:description" content="VaaGa Academy offers comprehensive Olympiad Test Series for Grade 2–8 students. Prepare for IMO, NSO & IEO exams with mock tests, performance tracking, and personalized feedback." />
+<meta name="twitter:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
+
+<link rel="canonical" href="{{URL::to('/test-series')}}">
+
 @stop
 
 @section('page_css')
@@ -1330,7 +1353,7 @@ use App\Models\TestSeriesPurchase;
             
             <div class="action-buttons">
             @if(!in_array($test->id,$alreadyPurchased))
-               <button class="btn-buy" data-id="{{base64_encode($test->id)}}">
+                 <button class="btn-buy" data-id="{{base64_encode($test->id)}}" data-name="{{$test->name}}" data-price="{{$test->offer_price}}">
         Buy Now
     </button>
     @else
@@ -1593,6 +1616,36 @@ use App\Models\TestSeriesPurchase;
 <div id="purchasePopup" class="popup">
   🛍️ <span id="popupText"></span>
 </div>
+
+<!-- Coupon Modal -->
+<div class="modal fade" id="couponModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Apply Coupon</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pt-0">
+        <div class="mb-3">
+          <p class="mb-1" style="font-size:14px;">Test Series: <strong id="coupon-ts-name"></strong></p>
+          <p class="mb-2" style="font-size:14px;">Price: <strong>₹<span id="coupon-ts-price"></span></strong></p>
+        </div>
+        <div class="input-group mb-2">
+          <input type="text" class="form-control form-control-sm" id="ts-coupon-code" placeholder="Enter coupon code">
+          <button class="btn btn-sm btn-primary" type="button" id="apply-ts-coupon">Apply</button>
+        </div>
+        <div id="ts-coupon-msg" class="mb-2" style="font-size:13px;"></div>
+        <div id="ts-coupon-summary" class="d-none mb-3" style="font-size:14px; background:#f0f9f0; padding:10px; border-radius:6px;">
+          <div>Discount: <strong>₹<span id="ts-discount-amt">0</span></strong></div>
+          <div>Final Amount: <strong>₹<span id="ts-final-amt">0</span></strong></div>
+        </div>
+        <button class="btn btn-warning w-100" id="proceed-to-pay" type="button">Proceed to Pay</button>
+        <button class="btn btn-link btn-sm w-100 mt-1" id="skip-coupon" type="button" style="font-size:13px;">Skip & Pay Full Price</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-md">
     <div class="modal-content">
@@ -1708,17 +1761,71 @@ $.ajaxSetup({
     }
 });
 var testId='';
+var tsCouponId = '';
+var tsName = '';
+var tsPrice = 0;
    $(document).ready(function() {
-    $(".btn-buy").click(function(){
+     $(".btn-buy").click(function(){
          testId = $(this).data("id");
-   $("#selected_test").val(testId);
+         tsName = $(this).data("name");
+         tsPrice = $(this).data("price");
+         $("#selected_test").val(testId);
         @if(Auth::check())
-            // User is logged in, proceed to payment
-            window.location.href = "/buy-test/" + testId;
+            // User is logged in, show coupon modal
+            tsCouponId = '';
+            $("#ts-coupon-code").val('');
+            $("#ts-coupon-msg").html('');
+            $("#ts-coupon-summary").addClass('d-none');
+            $("#coupon-ts-name").text(tsName);
+            $("#coupon-ts-price").text(tsPrice);
+            $("#ts-final-amt").text(tsPrice);
+            $("#couponModal").modal("show");
         @else
             // User not logged in, show modal
             $("#authModal").modal("show");
         @endif
+    });
+    
+    // Apply coupon for test series
+    $("#apply-ts-coupon").click(function(){
+        var code = $("#ts-coupon-code").val().trim();
+        if(!code){ $("#ts-coupon-msg").html('<span class="text-danger">Please enter a coupon code</span>'); return; }
+        $("#ts-coupon-msg").html('<span class="text-muted">Checking...</span>');
+        $.ajax({
+            url: "/apply-coupon-test-series",
+            method: "POST",
+            data: { coupon: code, test_series_id: testId, amount: tsPrice },
+            success: function(res){
+                if(res.status == 'success'){
+                    tsCouponId = res.coupon_id;
+                    $("#ts-coupon-msg").html('<span class="text-success">' + res.message + '</span>');
+                    $("#ts-discount-amt").text(res.discount);
+                    $("#ts-final-amt").text(res.final_amount);
+                    $("#ts-coupon-summary").removeClass('d-none');
+                } else {
+                    tsCouponId = '';
+                    $("#ts-coupon-msg").html('<span class="text-danger">' + res.message + '</span>');
+                    $("#ts-coupon-summary").addClass('d-none');
+                }
+            },
+            error: function(){
+                $("#ts-coupon-msg").html('<span class="text-danger">Something went wrong. Try again.</span>');
+            }
+        });
+    });
+
+    // Proceed to pay with coupon
+    $("#proceed-to-pay").click(function(){
+        var url = "/buy-test/" + testId;
+        if(tsCouponId){
+            url += "?coupon_id=" + tsCouponId;
+        }
+        window.location.href = url;
+    });
+
+    // Skip coupon and pay full price
+    $("#skip-coupon").click(function(){
+        window.location.href = "/buy-test/" + testId;
     });
 
     // AJAX Login
@@ -1731,7 +1838,16 @@ var testId='';
             data: form.serialize(),
             success: function(res){
                 if(res.success){
-                      window.location.href = "/buy-test/" + testId;
+                      // After login, show coupon modal
+                      tsCouponId = '';
+                      $("#ts-coupon-code").val('');
+                      $("#ts-coupon-msg").html('');
+                      $("#ts-coupon-summary").addClass('d-none');
+                      $("#coupon-ts-name").text(tsName || 'Test Series');
+                      $("#coupon-ts-price").text(tsPrice || '');
+                      $("#ts-final-amt").text(tsPrice || '');
+                      $("#authModal").modal("hide");
+                      $("#couponModal").modal("show");
                 } else {
                     alert(res.message);
                 }
@@ -1749,8 +1865,16 @@ var testId='';
             data: form.serialize(),
             success: function(res){
                 if(res.success){
-                    // after registration, proceed to buy
-                       window.location.href = "/buy-test/" + testId;
+                     // After registration, show coupon modal
+                    tsCouponId = '';
+                    $("#ts-coupon-code").val('');
+                    $("#ts-coupon-msg").html('');
+                    $("#ts-coupon-summary").addClass('d-none');
+                    $("#coupon-ts-name").text(tsName || 'Test Series');
+                    $("#coupon-ts-price").text(tsPrice || '');
+                    $("#ts-final-amt").text(tsPrice || '');
+                    $("#authModal").modal("hide");
+                    $("#couponModal").modal("show");
                 } else {
                     alert(res.message);
                 }

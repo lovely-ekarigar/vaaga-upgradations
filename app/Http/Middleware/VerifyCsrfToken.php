@@ -18,6 +18,7 @@ class VerifyCsrfToken extends Middleware
         'api/*',
         'payment/*',
         'pay-confirm/*',
+        'pay-confirm-test/*',
         'user/upload-image-editorjs', // Editor.js ImageTool upload (auth still required)
         'user/upload-image-ckeditor', // CKEditor 4 image upload (auth still required)
         'login',

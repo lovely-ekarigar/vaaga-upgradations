@@ -458,6 +458,8 @@ $course->duration_text=$request->duration_text;
 $course->full_price=$request->full_price; 
 $course->quarterly_price=$request->quarterly_price; 
 $course->monthly_price=$request->monthly_price; 
+$course->regular_monthly_1=$request->regular_monthly_1;
+$course->monthly_price=$request->monthly_price; 
 $course->duration=$request->duration; 
 $course->save();
 
@@ -579,20 +581,25 @@ $course->save();
         }
 
 
-        $course->update($request->all());
+          // Generate slug if not provided
         $sclug= "";
         if($request->boards_id){
             $board = Board::find($request->boards_id);
             $sclug = $board->slug;
-            
+
         }
-         $cat = Category::find($request->category_id);
-         $sclug = $cat->slug;
-        if (($request->slug == "") || $request->slug == null) {
-            
-            $course->slug = Str::slug($sclug."-".$request->title);
-            $course->save();
+        $cat = Category::find($request->category_id);
+        $sclug = $cat->slug;
+
+        // Prepare update data
+        $updateData = $request->all();
+
+        // If slug is empty or null, generate it from category/board and title
+        if (empty($request->slug)) {
+            $updateData['slug'] = Str::slug($sclug."-".$request->title);
         }
+
+        $course->update($updateData);
         if ((int)$request->price == 0) {
             $course->price = NULL;
             $course->save();
@@ -610,6 +617,8 @@ $course->duration_text=$request->duration_text;
         $course->full_price=$request->full_price; 
 $course->monthly_price=$request->monthly_price; 
 $course->quarterly_price=$request->quarterly_price; 
+        $course->regular_monthly=$request->regular_monthly;
+$course->regular_monthly_1=$request->regular_monthly_1;
 $course->duration=$request->duration; 
         $course->save();
 

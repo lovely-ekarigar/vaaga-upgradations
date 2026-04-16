@@ -133,24 +133,45 @@ class Media extends Model
     /**
      * Get embed URL for external videos
      */
+    // public function getEmbedUrlAttribute(): ?string
+    // {
+    //     if ($this->type === 'youtube') {
+    //         $videoId = $this->extractYoutubeId($this->url);
+    //         return $videoId ? 'https://www.youtube.com/embed/' . $videoId : null;
+    //     }
+        
+    //     if ($this->type === 'vimeo') {
+    //         $videoId = $this->extractVimeoId($this->url);
+    //         return $videoId ? 'https://player.vimeo.com/video/' . $videoId : null;
+    //     }
+        
+    //     if ($this->type === 'embed') {
+    //         return $this->url;
+    //     }
+        
+    //     return null;
+    // }
+
+  //shruti
     public function getEmbedUrlAttribute(): ?string
-    {
-        if ($this->type === 'youtube') {
-            $videoId = $this->extractYoutubeId($this->url);
-            return $videoId ? 'https://www.youtube.com/embed/' . $videoId : null;
-        }
-        
-        if ($this->type === 'vimeo') {
-            $videoId = $this->extractVimeoId($this->url);
-            return $videoId ? 'https://player.vimeo.com/video/' . $videoId : null;
-        }
-        
-        if ($this->type === 'embed') {
-            return $this->url;
-        }
-        
-        return null;
+{
+    if ($this->type === 'youtube') {
+        $videoId = $this->url ? $this->extractYoutubeId($this->url) : null;
+        return $videoId ? 'https://www.youtube.com/embed/' . $videoId : null;
     }
+
+    if ($this->type === 'vimeo') {
+        $videoId = $this->url ? $this->extractVimeoId($this->url) : null;
+        return $videoId ? 'https://player.vimeo.com/video/' . $videoId : null;
+    }
+
+    if ($this->type === 'embed') {
+        return $this->url;
+    }
+
+    return null;
+}
+
 
     /**
      * Get thumbnail URL
@@ -158,10 +179,17 @@ class Media extends Model
     public function getThumbnailUrlAttribute(): ?string
     {
         if ($this->is_video) {
+            // if ($this->type === 'youtube') {
+            //     $videoId = $this->extractYoutubeId($this->url);
+            //     return $videoId ? 'https://img.youtube.com/vi/' . $videoId . '/mqdefault.jpg' : null;
+            // }
+            //shruti
+            
             if ($this->type === 'youtube') {
-                $videoId = $this->extractYoutubeId($this->url);
-                return $videoId ? 'https://img.youtube.com/vi/' . $videoId . '/mqdefault.jpg' : null;
-            }
+    $videoId = $this->url ? $this->extractYoutubeId($this->url) : null;
+    return $videoId ? 'https://img.youtube.com/vi/' . $videoId . '/mqdefault.jpg' : null;
+}
+
             return asset('images/video-placeholder.png');
         }
         
@@ -175,6 +203,7 @@ class Media extends Model
         
         return null;
     }
+
 
     /**
      * Get formatted file size

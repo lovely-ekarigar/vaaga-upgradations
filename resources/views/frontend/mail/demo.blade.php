@@ -1,25 +1,33 @@
 @component('mail::message')
-#Hello {{$request->name}}
+Hello **{{ $request->name }}**,
 
-Thank you for booking a demo with us. We appreciate your interest in our courses. Our team will reach out to you shortly to schedule the demo.<br>
+Thank you for booking a demo with us. We appreciate your interest in our courses.  
+Our team will reach out to you shortly to schedule the demo.
+
 
 @if($request->password)
-#Please use the below credentials to login:<br>
 
-User Id:  {{ $request->email }}<br>
-Password :  {{ $request->password }}<br>
+**Please use the below credentials to login:**
+
+**User Id:** {{ $request->email }}
+
+**Password:** {{ $request->password }}
+
 @else
 
-#Please use the credentials sent you before via email.
+**Please use the credentials sent to you before via email.**
+
 @endif
 
-<a href="{{env('APP_URL')}}/user/dashboard">Click here to login </a>
-<br>
-<br>
-In case of any query, please feel free to reach out to us at info@vaagaacademy.com<br>
+[Click here to login]({{ env('APP_URL') }}/user/dashboard)
 
+In case of any query, please feel free to reach out to us at  
+[info@vaagaacademy.com](mailto:info@vaagaacademy.com)
 
-Best regards,<br>
-Team VaaGa
-
+Best regards,  
+**Team VaaGa**
 @endcomponent
+
+
+
+

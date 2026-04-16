@@ -116,29 +116,31 @@ public function tutorwaiting(Request $request){
     
 }
 
-
 public function getLengthOfClass()
 {
     $recordings = Recording::whereNull('recording_date')->get();
-
     $el = new Elearn();
 
     foreach ($recordings as $recording) {
-        // Call API using api_class_id as meetingID
         $meetInfo = $el->eClass("getRecordings", [
             'meetingID' => $recording->api_class_id
         ]);
 
-        // Check if length exists in the API response
+        
+        if (isset($meetInfo['recordings']['recording'][0])) {
+            $meetInfo['recordings']['recording'] = 
+                $meetInfo['recordings']['recording'][0];
+        }
+
+       
         if (
             isset($meetInfo['recordings']['recording']['playback']['format']['length'])
             && is_numeric($meetInfo['recordings']['recording']['playback']['format']['length'])
         ) {
             $length = $meetInfo['recordings']['recording']['playback']['format']['length'];
 
-            // Update the length in database
             $recording->length = $length;
-            $recording->recording_date = date("Y-m-d",$meetInfo['recordings']['recording']['startTime']/1000);
+            $recording->recording_date = date("Y-m-d", $meetInfo['recordings']['recording']['startTime'] / 1000);
             $recording->startTime = $meetInfo['recordings']['recording']['startTime'];
             $recording->endTime = $meetInfo['recordings']['recording']['endTime'];
             $recording->save();
@@ -149,7 +151,6 @@ public function getLengthOfClass()
         }
     }
 }
-
     //shruti
     public function studyMaterial($id)
     {
@@ -476,9 +477,15 @@ return abort(404);
 
 $user=User::find(auth()->user()->id);
 $batch=Batch::find($bid);
-$stb=StudentTeacherBatch::where("bid",$bid)->where("uid",auth()->user()->id)->count();
-if($stb==0){
-return abort(404);
+if(!auth()->user()->hasAnyRole(['administrator','backend-support-staff'])){
+
+    $stb = StudentTeacherBatch::where("bid",$bid)
+            ->where("uid",auth()->user()->id)
+            ->count();
+
+    if($stb == 0){
+        return abort(404);
+    }
 }
 
 $assig = SubjectiveExam::find($id);
@@ -501,14 +508,25 @@ if(auth()->user()==null){
 return abort(404);
 }
 
-
+dd('exams method hit');
 $user=User::find(auth()->user()->id);
 $batch=Batch::find($id);
-$stb=StudentTeacherBatch::where("bid",$id)->where("uid",auth()->user()->id)->count();
+// $stb=StudentTeacherBatch::where("bid",$id)->where("uid",auth()->user()->id)->count();
+if(!auth()->user()->hasAnyRole(['administrator','backend-support-staff'])){
 
-if($stb==0){
-return abort(404);
+    $stb = StudentTeacherBatch::where("bid",$id)
+            ->where("uid",auth()->user()->id)
+            ->count();
+
+    if($stb == 0){
+        return abort(404);
+    }
 }
+
+
+// if($stb==0){
+// return abort(404);
+// }
 
 
 $assigs = SubjectiveExam::where('batch_id',$id)->orderBy("id","desc")->get();
@@ -1308,7 +1326,9 @@ if($request->date){
 
 foreach($reusr as $u){
     $st=User::find($u->uid);
-    $is=StudentJoin::where("user_id",$u->uid)->whereDate("created_at",date("Y-m-d",strtotime($date)))->first();
+   $is = StudentJoin::where("uid", $u->uid)
+    ->where("date", date("Y-m-d", strtotime($date)))
+    ->first();
     if($is){
         $st["present"]=true;
         $st["time"]=$is->created_at ? $is->created_at->format('h:i A') : '';
@@ -2214,17 +2234,19 @@ public function mockTestQuestions(Request $request, $mock_id){
                 $questionsBySectionId[$pq->section_id][] = $pq->question_id;
             }
             
-            // Build sections data
+                // Build sections data
             foreach ($questionsBySectionId as $sectionId => $questionIds) {
                 // Get section name
                 $section = DB::table('subjects')->where('id', $sectionId)->first();
                 if (!$section) continue;
-                
+
                 // Get questions in preserved order
-                $questions = Question::whereIn('id', $questionIds)
+                // Bypass global scope for teacher role to allow viewing all batch-assigned questions
+                $questions = Question::withoutGlobalScope('filter')
+                    ->whereIn('id', $questionIds)
                     ->orderByRaw('FIELD(id, ' . implode(',', $questionIds) . ')')
                     ->get();
-                
+
                 $sectionsData[] = [
                     'id' => $sectionId,
                     'name' => $section->name,
@@ -2255,10 +2277,11 @@ public function mockTestQuestions(Request $request, $mock_id){
                 $chapterQuestions = $sectionQuestions[$sectionId];
                 
                 foreach ($chapterQuestions as $chapterId => $questionCount) {
-                    if ($questionCount > 0) {
+                       if ($questionCount > 0) {
                         // Fetch random questions from questions table, filtered by difficulty
-                        $query = Question::where('chapter_id', $chapterId);
-                        
+                        // Bypass global scope for teacher role to allow viewing all batch-assigned questions
+                        $query = Question::withoutGlobalScope('filter')->where('chapter_id', $chapterId);
+
                         // Filter by difficulty level if specified for this section
                         if (!empty($section->difficulty)) {
                             $query->where('difficulty', $section->difficulty);
@@ -2268,13 +2291,13 @@ public function mockTestQuestions(Request $request, $mock_id){
                                 'difficulty' => $section->difficulty
                             ]);
                         }
-                        
+
                         $questions = $query->inRandomOrder()
                             ->limit($questionCount)
                             ->get();
-                        
+
                         \Log::info('Fetched questions:', ['chapter_id' => $chapterId, 'count' => $questions->count()]);
-                        
+
                         // Add questions to section data
                         foreach ($questions as $question) {
                             $sectionData['questions'][] = $question;
@@ -2509,8 +2532,9 @@ public function refreshQuestion(Request $request){
         \Log::info('Section ID: ' . $sectionId);
         \Log::info('Excluding question IDs: ' . json_encode($excludeQuestionIds));
         
-        // Get a random question from the same chapter, excluding already displayed questions
-        $query = Question::where('chapter_id', $chapterId);
+       // Match mockTestQuestions behavior: bypass teacher global scope so replace can fetch
+        // from the same batch question pool for both admin and teacher.
+        $query = Question::withoutGlobalScope('filter')->where('chapter_id', $chapterId);
         
         // Filter by difficulty level if section has it specified
         if ($sectionId) {
@@ -3095,34 +3119,46 @@ public function attemptTest(Request $request,$id)
 }
 
 
-   public function upload($id){
-   $role = Auth::user()->roles;
+public function upload($id){
 
-   $a=0; 
-   if($role && $role[0]->name == 'administrator')
-   {
-    $a=TeacherBatch::where("bid",$id)->count();
-   }else{
+    $user = auth()->user();
 
-       $a=TeacherBatch::where("bid",$id)->where("tid",auth()->user()->id)->count();
-   }
+    // ✅ check role properly
+    $isAdminOrSupport = $user->hasAnyRole(['administrator','backend-support-staff']);
 
-    
-if($a==0){
-return redirect()->route('admin.myclass')->withFlashDanger("Invalid batch");
+    // ✅ batch access check
+   $user = auth()->user();
+
+$isAdminOrSupport = $user->hasAnyRole(['administrator','backend-support-staff']);
+
+if($isAdminOrSupport){
+    $a = TeacherBatch::where("bid",$id)->count();
+} else {
+    $a = TeacherBatch::where("bid",$id)
+            ->where("tid",$user->id)
+            ->count();
 }
-$batch=Batch::find($id);
-if($role && $role[0]->name == 'administrator')
-   {
-    $files=BatchUpload::where("bid",$id)->orderBy("id","desc")->get();
 
-   }else{
-$files=BatchUpload::where("bid",$id)->where("tid",auth()->user()->id)->orderBy("id","desc")->get();
-   }
-return view('backend.myclass.upload', compact('batch','files'));
+    if($a == 0){
+        return redirect()->route('admin.myclass')->withFlashDanger("Invalid batch");
+    }
 
-   }
+    $batch = Batch::find($id);
 
+    // ✅ file access
+    if($isAdminOrSupport){
+        $files = BatchUpload::where("bid",$id)
+                    ->orderBy("id","desc")
+                    ->get();
+    } else {
+        $files = BatchUpload::where("bid",$id)
+                    ->where("tid",$user->id)
+                    ->orderBy("id","desc")
+                    ->get();
+    }
+
+    return view('backend.myclass.upload', compact('batch','files'));
+}
    public function adminRecordings($id){
       $batch=Batch::find($id);
       $list=array();

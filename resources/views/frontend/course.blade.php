@@ -6,16 +6,11 @@
 <?php 
    $bd = $course->board_id ? Board::find($course->board_id) : null;
    
-   // DEBUG: Output what we have from database
-   $courseTitle = $course->title;
-   $dbMetaTitle = $course->meta_title;
-   $dbMetaDescription = $course->meta_description;
-   $dbMetaKeywords = $course->meta_keywords;
-   
    // Generate meta data dynamically if not set in database
-   $metaTitle = $dbMetaTitle;
-   $metaDescription = $dbMetaDescription;
-   $metaKeywords = $dbMetaKeywords;
+   $courseTitle = $course->title;
+   $metaTitle = $course->meta_title;
+   $metaDescription = $course->meta_description;
+   $metaKeywords = $course->meta_keywords;
    
    // If meta is empty, generate from course title
    if (empty($metaDescription)) {
@@ -53,12 +48,12 @@
    ?>
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>{{ $metaTitle }} | {{env('APP_NAME')}}</title>
+<title>{{ $metaTitle }}</title>
 <meta name="description" content="{{ $metaDescription }}">
 <meta name="keywords" content="{{ $metaKeywords }}">
 <meta property="og:locale" content="en_US" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="{{ $metaTitle }} | {{env('APP_NAME')}}" />
+<meta property="og:title" content="{{ $metaTitle }}" />
 <meta property="og:description" content="{{ $metaDescription }}" />
 <meta property="og:url" content="{{URL::to('/courses')}}/{{$course->slug}}" />
 <meta property="og:site_name" content="VaaGa Academy | Online Learning Platforms For School Students" />
@@ -67,16 +62,10 @@
 <meta property="og:image" content="https://www.vaagaacademy.com/storage/uploads/{{$course->course_image}}" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="{{env('TWITTER_HANDLE')}}" />
-<meta name="twitter:title" content="{{ $metaTitle }} | {{env('APP_NAME')}}" />
+<meta name="twitter:title" content="{{ $metaTitle }}" />
 <meta name="twitter:description" content="{{ $metaDescription }}" />
 <meta name="twitter:image" content="https://www.vaagaacademy.com/storage/uploads/{{$course->course_image}}" />
 <link rel="canonical" href="{{URL::to('/courses')}}/{{$course->slug}}">
-<!-- DEBUG INFO - Remove after testing -->
-<!-- DB Title: {{ $courseTitle }} -->
-<!-- DB Meta Title: {{ $dbMetaTitle ?? 'NULL' }} -->
-<!-- DB Meta Desc: {{ $dbMetaDescription ?? 'NULL' }} -->
-<!-- DB Meta Keywords: {{ $dbMetaKeywords ?? 'NULL' }} -->
-<!-- Generated: {{ empty($dbMetaDescription) ? 'YES (fallback used)' : 'NO (using DB)' }} -->
 @stop
 @section('content')
 <style type="text/css">
@@ -214,6 +203,12 @@
     background-size: var(--bs-accordion-btn-icon-width);
     transition: var(--bs-accordion-btn-icon-transition);
 }
+.heading_meta_h1 {
+    color: #fff !important;
+    font-size: 34px;
+    margin-bottom: -5% !important;
+    margin-top: 5%;
+}
 </style>
 
 <main>
@@ -222,17 +217,19 @@
       <div class="container">
          <div class="row justify-content-center">
             <div class="col-lg-9 col-xl-8 text-center pb-10 wow fadeInUp pt-8" data-wow-duration="0.5s">
-               <h1 class="h1 mb-3 text-warning">  
-                  @if($bd)
-                  {{$bd->name}} | 
-                  @endif
-                  @if($pcategory)
-                  {{$pcategory->name}}
-                  @else
-                  {{$category->name}}
-                  @endif
-                  | {{$course->title}}
-               </h1>
+                <h1 class="h1 mb-3 text-warning heading_meta_h1">{{ $metaTitle }}</h1>
+
+               <!--<h1 class="h1 mb-3 text-warning">  -->
+               <!--   @if($bd)-->
+               <!--   {{$bd->name}} | -->
+               <!--   @endif-->
+               <!--   @if($pcategory)-->
+               <!--   {{$pcategory->name}}-->
+               <!--   @else-->
+               <!--   {{$category->name}}-->
+               <!--   @endif-->
+               <!--   | {{$course->title}}-->
+               <!--</h1>-->
             </div>
          </div>
       </div>
@@ -258,11 +255,6 @@
                   @if(count($clist)  > 0)
                   <div class="col-md-12 pt-5">
                      <h3 class="mb-3 fn18">Course Content</h3>
-                     <!--  <div class="card shadow-lg ">
-                        <div class="card-header">
-                            <h3>Course Content</h3>
-                        </div>
-                        <div class="card-body"> -->
                      <div class="accordion shadow" id="accordionExample_03">
                         @php $count = 0; @endphp
                         @foreach($clist as $ct)
@@ -303,8 +295,6 @@
                         </div>
                         @endforeach
                      </div>
-                     <!-- </div> -->
-                     <!-- </div> -->
                   </div>
                   @endif
                </div>
@@ -315,12 +305,9 @@
                      <div class="card shadow-lg">
                         <div class="card-body">
                            <form action="/courses/{{$course->slug}}/buy" method="get" class="priceForm">
-                              <!-- <h3 class="h5 mb-4">Buy This Course</h3> -->
                               <div>
                                  <img class="" src="{{asset('storage/uploads/'.$course->course_image)}}" onerror='this.src="/newassets/img/logo.png"' alt="{{$course->title}}" style="height: 200px;">
                               </div>
-                              <!-- @ if(Auth::user())
-                              @ if(Auth::user()->hasRole('student')) -->
                               @if(1)
                               @if(1)
                               @if(!$purchased_course)
@@ -332,6 +319,8 @@
                                     $price = $cop->applyCoupon($course->coupon_id,$course->price); 
                                     $price_1 = $cop->applyCoupon($course->coupon_id_1,$course->price_1); 
                                     $monthly_price = $cop->applyCoupon($course->coupon_id_monthly_price,$course->monthly_price); 
+                                    $regular_monthly = $course->regular_monthly;
+                                    $regular_monthly_1 = $course->regular_monthly_1;
                                     $monthly_price_1 = $cop->applyCoupon($course->coupon_id_monthly_price_1,$course->monthly_price_1); 
                                     $cp = Coupon::find($course->coupon_id);
                                     ?>
@@ -340,7 +329,7 @@
                                  @endif
                               </div>
                               <div class="row">
-                                 @if($course->price_1 || $course->monthly_price_1)
+                                 @if($course->price_1 || $course->monthly_price_1 || $course->regular_monthly_1)
                                  <?php   $priceFound=true; ?>
                                  <div class="col-md-6 col-sm-6" style="padding-left: 0px;padding-right: 0px;">
                                     <div class="pricing-box">
@@ -348,7 +337,8 @@
                                           <div class="bgx">
                                              <img src="/user.png">
                                           </div>
-                                          Private Classes
+                                          1-on-1 Classes
+
                                        </div>
                                        <div class="pricing-box-body">
                                           <ul class="price_list_ul">
@@ -388,23 +378,52 @@
                                                 </label>
                                              </li>
                                              @endif
+                                              @if($course->regular_monthly_1)
+                                             <li>
+                                                <label>
+                                                <input type="radio" required class="form-check-input" data-coupon="" name="course_mode" value="regular_monthly_1">
+                                                <span class="price">₹{{round($regular_monthly_1)}}</span>
+                                                <br>
+                                                <span class="pricing_type">1:1 Monthly Subscription</span>
+                                                </label>
+                                             </li>
+                                             @endif
                                           </ul>
                                        </div>
                                     </div>
                                  </div>
                                  @endif
-                                 @if($course->price || $course->monthly_price)
+                                 @if($course->price || $course->monthly_price || $course->regular_monthly)
                                  <?php   $priceFound=true; ?>
                                  <div class="col-md-6 col-sm-6" style="padding-left: 0px;padding-right: 0px;">
                                     <div class="pricing-box">
                                        <div class="pricing-box-head">
-                                          <!--<div class="bgx">-->
-                                          <!--   <img src="/people.png">-->
-                                          <!--</div>-->
-                                          Monthly
+                                            <div class="bgx">
+                                          <img src="/people.png">
+                                         </div>
+                                         Group Classes
+
                                        </div>
                                        <div class="pricing-box-body">
                                           <ul class="price_list_ul">
+                                                      @if($course->full_price)
+                                             <?php 
+                                                $cp = Coupon::find($course->coupon_id_full_price);
+                                                ?>
+                                             <li class="bg-dif">
+                                                <label>
+                                                <input type="radio" required class="form-check-input"  data-coupon="@if($cp) {{$cp->code}} @endif" name="course_mode" value="full"> 
+                                                @if($monthly_price<$course->monthly_price)
+                                                <span class="old_price">₹{{round($course->monthly_price)}}</span>
+                                                <span class="price">₹{{round($monthly_price)}}</span>
+                                                @else
+                                                <span class="price">₹{{round($course->full_price)}}</span>
+                                                @endif
+                                                <br>
+                                                <span class="pricing_type">Full Course</span>
+                                                </label>
+                                             </li>
+                                             @endif
                                              @if($course->price)
                                              <?php 
                                                 $cp = Coupon::find($course->coupon_id);
@@ -440,6 +459,16 @@
                                                 </label>
                                              </li>
                                              @endif
+                                              @if($course->regular_monthly)
+                                             <li class="bg-dif">
+                                                <label>
+                                                <input type="radio" required class="form-check-input" data-coupon="" name="course_mode" value="regular_monthly">
+                                                <span class="price">₹{{round($regular_monthly)}}</span>
+                                                <br>
+                                                <span class="pricing_type">Monthly Subscription</span>
+                                                </label>
+                                             </li>
+                                             @endif
                                           </ul>
                                        </div>
                                     </div>
@@ -450,9 +479,9 @@
                                  <div class="col-md-6 col-sm-6" style="padding-left: 0px;padding-right: 0px;">
                                     <div class="pricing-box">
                                        <div class="pricing-box-head">
-                                          <div class="bgx">
-                                             <img src="/people.png">
-                                          </div>
+                                               <div class="bgx">
+                                          <img src="/people.png">
+                                         </div>
                                           Group Classes
                                        </div>
                                        <div class="pricing-box-body">
@@ -480,35 +509,36 @@
                                        </div>
                                     </div>
                                  </div>
-                                 @endif
-                                 @if($course->price || $course->full_price)
+                                                                  @endif
+                                 {{-- @if($course->regular_monthly || $course->regular_monthly_1)
                                  <?php   $priceFound=true; ?>
                                  <div class="col-md-6 col-sm-6" style="padding-left: 0px;padding-right: 0px;">
                                     <div class="pricing-box">
                                        <div class="pricing-box-head">
-                                          <!--<div class="bgx">-->
-                                          <!--   <img src="/people.png">-->
-                                          <!--</div>-->
-                                         Full Course
+                                          <div class="bgx">
+                                             <img src="/people.png">
+                                          </div>
+                                          Regular Classes
                                        </div>
                                        <div class="pricing-box-body">
                                           <ul class="price_list_ul">
-                                           
-                                             @if($course->full_price)
-                                             <?php 
-                                                $cp = Coupon::find($course->coupon_id_full_price);
-                                                ?>
+                                             @if($course->regular_monthly_1)
+                                             <li>
+                                                <label>
+                                                <input type="radio" required class="form-check-input" data-coupon="" name="course_mode" value="regular_monthly_1">
+                                                <span class="price">₹{{round($regular_monthly_1)}}</span>
+                                                <br>
+                                                <span class="pricing_type">1:1 Monthly Subscription</span>
+                                                </label>
+                                             </li>
+                                             @endif
+                                             @if($course->regular_monthly)
                                              <li class="bg-dif">
                                                 <label>
-                                                <input type="radio" required class="form-check-input"  data-coupon="@if($cp) {{$cp->code}} @endif" name="course_mode" value="full"> 
-                                                @if($monthly_price<$course->monthly_price)
-                                                <span class="old_price">₹{{round($course->monthly_price)}}</span>
-                                                <span class="price">₹{{round($monthly_price)}}</span>
-                                                @else
-                                                <span class="price">₹{{round($course->full_price)}}</span>
-                                                @endif
+                                                <input type="radio" required class="form-check-input" data-coupon="" name="course_mode" value="regular_monthly">
+                                                <span class="price">₹{{round($regular_monthly)}}</span>
                                                 <br>
-                                                <span class="pricing_type">Full Subscription</span>
+                                                <span class="pricing_type">Monthly Subscription</span>
                                                 </label>
                                              </li>
                                              @endif
@@ -516,7 +546,23 @@
                                        </div>
                                     </div>
                                  </div>
-                                 @endif
+                                 @endif --}}
+                                 <!--@if($course->price || $course->full_price)-->
+                                 <?php   $priceFound=true; ?>
+                                 <!--<div class="col-md-6 col-sm-6" style="padding-left: 0px;padding-right: 0px;">-->
+                                 <!--   <div class="pricing-box">-->
+                                 <!--      <div class="pricing-box-head">-->
+                                 <!--        Full Course-->
+                                 <!--      </div>-->
+                                 <!--      <div class="pricing-box-body">-->
+                                 <!--         <ul class="price_list_ul">-->
+                                           
+                            
+                                 <!--         </ul>-->
+                                 <!--      </div>-->
+                                 <!--   </div>-->
+                                 <!--</div>-->
+                                 <!--@endif-->
                               </div>
                               <div style="text-align: center;">
                                  @if($priceFound)
@@ -567,7 +613,6 @@
                                  @endif
                               </div>
                               <div class="mb-3">
-                                 <!-- <input id="contact-phone" type="text" name="phone" placeholder="Phone Number"  value="{{old('phone')}}" class="form-control  @if($errors->has('phone')) is-invalid @endif"> -->
                                  <input id="contact-phone" tyype="tel" value="{{old('phone')}}"  class="form-control  @if($errors->has('phone')) is-invalid @endif" 
                                  oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');" maxlength="10" pattern="\d{10}" placeholder="Phone Number" name="phone" required>
                                  @if($errors->has('phone'))

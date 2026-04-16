@@ -1,5 +1,5 @@
 @component('mail::message')
-#Dear {{$user->name}}
+# Dear {{$user->name}}
 <br>
 We are excited to inform you that you have been assigned as Tutor for the new batch <strong>{{$batch}}</strong> of course <strong>{{$course}}</strong>. We appreciate your commitment to providing quality education and we are confident that your expertise will greatly benefit the students.
 <br>

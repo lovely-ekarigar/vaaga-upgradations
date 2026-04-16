@@ -909,7 +909,8 @@ class MockSeriesController extends Controller
             $sectionName = $section ? $section->name : "Section " . $sectionId;
             
             foreach ($questionIds as $qid) {
-                $question = \App\Models\Question::find($qid);
+                // Bypass global scopes to allow public access to all questions in answer key
+                $question = \App\Models\Question::withoutGlobalScopes()->find($qid);
                 
                 if (!$question) {
                     continue;
@@ -1017,7 +1018,8 @@ class MockSeriesController extends Controller
             $sectionName = $section ? $section->name : "Section " . $sectionId;
             
             foreach ($questionIds as $qid) {
-                $question = \App\Models\Question::find($qid);
+                // Bypass global scopes to ensure teachers can see all questions in answer key
+                $question = \App\Models\Question::withoutGlobalScopes()->find($qid);
                 
                 if (!$question) {
                     continue;

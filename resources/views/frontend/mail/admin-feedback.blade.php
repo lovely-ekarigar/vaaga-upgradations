@@ -1,5 +1,5 @@
 @component('mail::message')
-#Hi Admin,
+# Hi Admin,
 <br>
 You have received the feedback from {{$user->name}}.
 <br>

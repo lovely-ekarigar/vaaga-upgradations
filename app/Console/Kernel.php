@@ -66,8 +66,13 @@ class Kernel extends ConsoleKernel
 
         }
         
-        // Run the mock test activation command every minute
-        $schedule->command('mock:activate-scheduled')->everyMinute();
+         
+        
+        // Send EMI reminders daily at 11 AM (3 days before end_date)
+        $schedule->command('emi:send-reminders')->dailyAt('11:00');
+        
+         // Send account suspended notifications daily at 11 AM (once, the day after end_date)
+        $schedule->command('emi:send-suspended-notifications')->dailyAt('11:00');
         
         // Update recording lengths from BBB API every hour
         $schedule->command('recordings:update-lengths')->hourly();

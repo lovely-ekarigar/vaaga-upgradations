@@ -24,7 +24,9 @@ class TestSeriesPurchase extends Model
         'payment_status',
         'rzp_order_id',
         'rzp_payment_id',
-        'course_id'
+        'course_id',
+        'coupon_id',
+        'discount'
     ];
 
     // Casts

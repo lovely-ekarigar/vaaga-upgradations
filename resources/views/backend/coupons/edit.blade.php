@@ -110,6 +110,24 @@ if($coupon->courses!='null' ){
                 </div><!--col-->
             </div>
 
+            <?php
+$tsids=[];
+if($coupon->test_series && $coupon->test_series!='null' ){
+ $tsids = json_decode($coupon->test_series);
+ if(!is_array($tsids)) $tsids = [];
+}
+?>
+            <div class="row form-group">
+                <label for="test_series" class="col-md-2 form-control-label">Test Series</label>
+                <div class="col-md-10">
+                   <select class="form-control form-select select2" id="test_series" name="test_series[]" multiple="">
+                       @foreach($testSeriesList as $ts)
+                        <option value="{{$ts->id}}" @if(in_array($ts->id,$tsids)) selected @endif>{{$ts->name}} @if($ts->course) - {{$ts->course->title}} @endif</option>
+                       @endforeach
+                   </select>
+                </div><!--col-->
+            </div>
+
             <div class="row form-group">
                 {{ html()->label(__('labels.backend.coupons.fields.amount'))->class('col-md-2 form-control-label')->for('amount') }}
 

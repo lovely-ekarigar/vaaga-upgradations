@@ -425,7 +425,8 @@ $courses = Course::where('published','1')->get();
             'solution'        => json_encode($q['solution']),
             'difficulty'=>$difficulty,
             'subject_id' => $course->id,
-             'chapter_id' => $chapter->id
+             'chapter_id' => $chapter->id,
+             'verification_status' => 'pending'
         ];
 
         Question::create($questionData);
@@ -553,7 +554,7 @@ $subjects = Course::where('published','1')->orderBy("sort_order",'asc')->get();
 
         $questionData = $request->only('question_text', 'options', 'correct_answer', 'marks');
         $questionData['exam_id'] = $examId;
-
+         $questionData['verification_status'] = 'pending'; 
         Question::create($questionData);
 
         return redirect()->route('admin.exams.questions.index', $examId)->with('success', 'Question added successfully.');
@@ -598,8 +599,9 @@ $subjects = Course::where('published','1')->orderBy("sort_order",'asc')->get();
            'is_prev_year' => $request['is_prev_year'],
          'difficulty' => $request['difficulty'],
          'verification_status' => $request['verification_status'],
+         'verification_remarks' => $request['verification_remarks'] ?? null,
          'chapter_id'=>$request->chapter_id
-        
+
     ];
 
     // Update the question

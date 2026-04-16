@@ -56,50 +56,65 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getData(Request $request)
-    {
-        if($request->role &&  $request->role != ""){
-            $users = User::role($request->role)->with('roles', 'permissions', 'providers')
-                ->orderBy('users.created_at', 'desc');
-        }else{
-            $users = User::with('roles', 'permissions', 'providers');
-        }
-        if($request->order[0]['column']){
-            $col = $request->columns[$request->order[0]['column']]['name'];
-            if($col=='last_updated'){
-                $col='updated_at';
-            }
-            $users = $users->orderBy($col,$request->order[0]['dir']);
-        }
-
-        return \DataTables::of($users)
-            ->addIndexColumn()
-            ->addColumn('confirmed_label', function ($q)  {
-                return $q->confirmed_label;
-            })
-            ->addColumn('roles_label', function ($q)  {
-                return ($q->roles_label) ?? 'N/A';
-            })
-            ->addColumn('permissions_label', function ($q)  {
-                return ($q->permission_label) ?? 'N/A';
-            })
-            ->addColumn('social_buttons', function ($q)  {
-                return ($q->social_buttons) ?? 'N/A';
-            })
-            ->addColumn('updated_at', function ($q)  {
-                \Log::info($q);
-
-                return $q->updated_at->diffForHumans();
-            })
-            ->addColumn('last_updated', function ($q)  {
-                return $q->updated_at->diffForHumans();
-            })
-            ->addColumn('actions', function ($q)  {
-                return $q->action_buttons;
-            })
-            ->rawColumns(['confirmed_label','roles_label','permissions_label','social_buttons','actions'])
-            ->make();
+ 
+public function getData(Request $request)
+{
+    if ($request->filled('role')) {
+        $role = \Spatie\Permission\Models\Role::findById((int)$request->role, 'web');
+        $users = User::role($role)
+            ->with('roles', 'permissions', 'providers');
+    } else {
+        $users = User::with('roles', 'permissions', 'providers');
     }
+
+    // Default order
+    $users->orderBy('users.created_at', 'desc');
+
+    // Column sorting
+    if (isset($request->order[0]['column']) && $request->order[0]['column'] != 0) {
+        $col = $request->columns[$request->order[0]['column']]['name'];
+        $dir = $request->order[0]['dir'];
+
+        if ($col == 'last_updated') {
+            $users->reorder('updated_at', $dir);
+
+        } elseif ($col == 'roles.name') {
+            // — Roles sorting
+            $users->reorder()
+                  ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+                  ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                  ->select('users.*')
+                  ->orderBy('roles.name', $dir);
+
+        } else {
+            $users->reorder($col, $dir);
+        }
+    }
+
+    return \DataTables::of($users)
+        ->addIndexColumn()
+        ->addColumn('confirmed_label', function ($q) {
+            return $q->confirmed_label;
+        })
+        ->addColumn('roles_label', function ($q) {
+            return $q->roles_label ?? 'N/A';
+        })
+        ->addColumn('permissions_label', function ($q) {
+            return $q->permission_label ?? 'N/A';
+        })
+        ->addColumn('social_buttons', function ($q) {
+            return $q->social_buttons ?? 'N/A';
+        })
+        ->addColumn('last_updated', function ($q) {
+            return $q->updated_at->diffForHumans();
+        })
+        ->addColumn('actions', function ($q) {
+            return $q->action_buttons;
+        })
+        ->rawColumns(['confirmed_label', 'roles_label',
+                      'permissions_label', 'social_buttons', 'actions'])
+        ->make(true);
+}
 
     /**
      * @param ManageUserRequest    $request

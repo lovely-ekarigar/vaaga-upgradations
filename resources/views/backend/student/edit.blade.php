@@ -23,9 +23,9 @@
                     <input type="text" class="form-control" value="{{ $student->first_name}}" name="first_name">
                 </div>
                 <div class="col-12 col-lg-4 form-group">
-                    <label for="dec" class="control-label">Middle Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" value="{{ $student->middle_name}}" name="middle_name">
-                </div>
+    <label for="dec" class="control-label">Middle Name</label>
+    <input type="text" class="form-control" value="{{ $student->middle_name}}" name="middle_name">
+</div>
                  <div class="col-12 col-lg-4 form-group">
                     <label for="dec" class="control-label">Last Name <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" value="{{ $student->last_name}}" name="last_name">

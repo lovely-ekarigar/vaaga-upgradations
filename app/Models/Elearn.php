@@ -205,7 +205,7 @@ public function paymentStudentSMS($name,$phone,$amount){
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => 'https://control.msg91.com/api/v5/flow',
+//   CURLOPT_URL => 'https://control.msg91.com/api/v5/flow',
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => '',
   CURLOPT_MAXREDIRS => 10,

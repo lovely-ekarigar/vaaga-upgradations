@@ -1,5 +1,5 @@
 @component('mail::message')
-#Hi Admin,
+# Hi Admin,
 <br>
 New User onboarded: {{$user->name}}.
 <br>

@@ -11,7 +11,7 @@
 
 <div class="card">
   <div class="card-header">
-    <h3 class="page-title float-left mb-0">{{$batch->name}} Upload file(s)</h3>
+    <h3 class="page-title float-left mb-0">{{$batch->name}} hello Upload file(s)</h3>
 
   </div>
   <div class="card-body">

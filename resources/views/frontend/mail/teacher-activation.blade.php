@@ -1,7 +1,7 @@
 @component('mail::message')
-#Dear {{$user->name}}
+Dear {{$user->name}}
 
-#Congratulations!
+Congratulations!
 
 A warm welcome to VaaGa Academy. Your registration process is complete. Your account is now active. To explore the Tutor platform, visit: www.vaagaacademy.com<br>
 

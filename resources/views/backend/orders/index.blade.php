@@ -41,6 +41,7 @@
                         <th>Invoice No.</th>
                         <th>@lang('labels.backend.orders.fields.items')</th>
                         <th>@lang('labels.backend.orders.fields.amount') <small>(in {{$appCurrency['symbol']}})</small></th>
+                        <th>Total Amount <small>(in {{$appCurrency['symbol']}})</small></th>
                         <th>@lang('labels.backend.orders.fields.payment_status.title')</th>
                         <th>User Name</th>
                         <th>Course Mode</th>
@@ -71,17 +72,18 @@
                 iDisplayLength: 10,
                 retrieve: true,
                 dom: 'lfBrtip<"actions">',
+                order: [[10, 'desc']], // Default sort by date column (index 10) in descending order
                 buttons: [
                     {
                         extend: 'csv',
                         exportOptions: {
-                            columns: [ 1, 2, 3, 4, 5, 6, 7 ]
+                            columns: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
                         }
                     },
                     {
                         extend: 'pdf',
                         exportOptions: {
-                            columns: [ 1, 2, 3, 4, 5, 6, 7 ]
+                            columns: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
                         }
                     },
                     'colvis'
@@ -93,16 +95,17 @@
                             return '<input type="checkbox" class="single" name="id[]" value="' + data.id + '" />';
                         }, "orderable": false, "searchable": false, "name": "id"
                     },
-                    {data: "DT_RowIndex", name: 'DT_RowIndex'},
+                    {data: "DT_RowIndex", name: 'DT_RowIndex', orderable: false, searchable: false},
                     {data: "reference_no", name: 'reference_no'},
                     {data: "id", name: 'id'},
-                    {data: "items", name: 'items'},
+                    {data: "items", name: 'items', orderable: false},
                     {data: "amount", name: 'amount'},
-                    {data: "payment", name: 'payment'},
+                    {data: "total_amount", name: 'amount', orderable: false, searchable: false},
+                    {data: "payment", name: 'payment', orderable: false},
                     {data: "name", name: 'name'},
-                    {data: "course_mode", name: 'course_mode'},
-                    {data: "date", name: "date"},
-                    {data: "actions", name: "actions"}
+                    {data: "course_mode", name: 'course_mode', orderable: false},
+                    {data: "date", name: "created_at"},
+                    {data: "actions", name: "actions", orderable: false, searchable: false}
                 ],
                 @if(request('show_deleted') != 1)
                 columnDefs: [

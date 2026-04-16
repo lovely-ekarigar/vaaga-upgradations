@@ -21,10 +21,10 @@ use App\Models\Course;
             @if($order->invoice != "")
                 @if(Auth::user()->isAdmin())
                 <div class="float-right">
-                    <a class="btn btn-success" target="_blank" href="/user/view-invoice/{{$order->id}}/show">
+                    <a class="btn btn-success" target="_blank" href="{{ route('admin.orders.invoice', ['oid' => $order->id, 'type' => 'show']) }}">
                         @lang('labels.backend.orders.view_invoice')
                     </a>
-                    <a class="btn btn-primary" href="/user/view-invoice/{{$order->id}}/download">
+                    <a class="btn btn-primary" href="{{ route('admin.orders.invoice', ['oid' => $order->id, 'type' => 'download']) }}">
                         @lang('labels.backend.orders.download_invoice')
                     </a>
                 </div>
@@ -54,8 +54,11 @@ use App\Models\Course;
                                 @foreach($order->items as $key=>$item)
                                     @php $key++ @endphp
                                     <?php  $crs = new Course(); ?>
-                                    {{$key.'. '.$crs->getCouseNameWithCat($item->item->id)}}<br>
+                                    {{$crs->getCouseNameWithCat($item->item->id)}}
                                 @endforeach
+                                @if(!empty($order->remarks))
+                                    {{ $order->remarks }}
+                                @endif
                             </td>
                         </tr>
                         <tr>

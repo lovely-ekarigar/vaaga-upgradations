@@ -89,7 +89,7 @@ use App\Models\Category;
                 </div>
                 <div class="col-12 col-lg-4 form-group">
                     {!! Form::label('slug', trans('labels.backend.courses.fields.slug'), ['class' => 'control-label']) !!}
-                    {!! Form::text('slug', old('slug'), ['class' => 'form-control', 'placeholder' =>  trans('labels.backend.courses.slug_placeholder')]) !!}
+                    {!! Form::text('slug', old('slug', $course->slug), ['class' => 'form-control', 'placeholder' =>  trans('labels.backend.courses.slug_placeholder')]) !!}
                 </div>
 
 
@@ -111,13 +111,13 @@ use App\Models\Category;
 
 
             <div class="row">
-               {{--    <div class="col-12 form-group">
+                  {{-- <div class="col-12 form-group">
                     {!! Form::label('pre_requisite','Pre-requisites', ['class' => 'control-label']) !!}
                     {!! Form::text('pre_requisite', old('pre_requisite'), ['class' => 'form-control', 'placeholder' => 'Pre-requisites']) !!}
 
-                </div>
+                </div> --}}
 
-                <div class="col-12 form-group">
+                {{-- <div class="col-12 form-group">
                     {!! Form::label('description',trans('labels.backend.courses.fields.description'), ['class' => 'control-label']) !!}
                      <!-- Enhanced Editor Container -->
                     <div class="form-group shadow-sm border rounded-lg bg-white mb-3">
@@ -127,27 +127,50 @@ use App\Models\Category;
                         <div id="editorjs" class="p-4 prose max-w-none editorjs-holder" style="border:none; box-shadow:none;"></div>
                     </div>
                     {!! Form::hidden('description', old('description', $course->description), ['id' => 'description_input']) !!}
+                </div> --}}
+            </div>
+            
+            <!-- Set price for 1:1 classes Section -->
+            <div class="row" style="padding-left: 15px;">
+                <div class="col-12">
+                    <h5 class="mb-3 mt-3" style="font-weight: 600; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                        Set price for 1:1 classes
+                    </h5>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12 col-lg-3 form-group">
+
+            <div class="row" style="padding-left: 15px;">
+                {{-- <div class="col-12 col-lg-3 form-group">
                     {!! Form::label('price', 'Full Course Price 1:M (in '.$appCurrency["symbol"].')', ['class' => 'control-label']) !!}
                     {!! Form::number('price', old('price'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.courses.fields.price') ,'pattern' => "[0-9]"]) !!}
-                </div>
+                </div> --}}
+                 <div class="col-12 col-lg-3 form-group">
+                    {!! Form::label('monthly_price_1', 'Monthly Price 1:1 (in '.$appCurrency["symbol"].')', ['class' => 'control-label']) !!}
+                    {!! Form::number('monthly_price_1', old('monthly_price_1'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.courses.fields.price') ,'pattern' => "[0-9]"]) !!}
+                 </div>
                 <div class="col-12 col-lg-3 form-group">
                     {!! Form::label('price_1', 'Full Course Price 1:1 (in '.$appCurrency["symbol"].')', ['class' => 'control-label']) !!}
                     {!! Form::number('price_1', old('price_1'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.courses.fields.price') ,'pattern' => "[0-9]"]) !!}
                 </div>
-
+{{-- 
                 <div class="col-12 col-lg-3 form-group">
                     {!! Form::label('monthly_price', 'Monthly Price 1:M (in '.$appCurrency["symbol"].')', ['class' => 'control-label']) !!}
                     {!! Form::number('monthly_price', old('monthly_price'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.courses.fields.price') ,'pattern' => "[0-9]"]) !!}
-                </div>
-
-                 <div class="col-12 col-lg-3 form-group">
-                    {!! Form::label('monthly_price_1', 'Monthly Price 1:1 (in '.$appCurrency["symbol"].')', ['class' => 'control-label']) !!}
-                    {!! Form::number('monthly_price_1', old('monthly_price_1'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.courses.fields.price') ,'pattern' => "[0-9]"]) !!}
                 </div> --}}
+
+                
+            </div>
+
+            <!-- Group Classes Section -->
+            <div class="row" style="padding-left: 15px;">
+                <div class="col-12">
+                    <h5 class="mb-3 mt-3" style="font-weight: 600; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                        Group Classes
+                    </h5>
+                </div>
+            </div>
+
+            <div class="row" style="padding-left: 15px;">
 
                 <div class="col-12 col-lg-4 form-group">
                         <label for="monthly_price" class="control-label">Monthly Price   (in ₹)</label>
@@ -160,7 +183,28 @@ use App\Models\Category;
                 <div class="col-12 col-lg-4 form-group">
                         <label for="full_price" class="control-label">Full Course Price   (in ₹)</label>
                         <input class="form-control" placeholder="Price" pattern="[0-9]" name="full_price" type="number" value="{{old('full_price',$course->full_price)}}" id="full_price">
+                 </div>
+            </div>
+            
+            <!-- Regular Classes Section -->
+            <div class="row" style="padding-left: 15px;">
+                <div class="col-12">
+                    <h5 class="mb-3 mt-3" style="font-weight: 600; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                        Regular Classes
+                    </h5>
                 </div>
+            </div>
+
+            <div class="row" style="padding-left: 15px;">
+                <div class="col-12 col-lg-4 form-group">
+                    <label for="regular_monthly" class="control-label">Monthly Price (in ₹)</label>
+                    <input class="form-control" placeholder="Price" pattern="[0-9]" name="regular_monthly" type="number" value="{{old('regular_monthly',$course->regular_monthly)}}" id="regular_monthly">
+                </div>
+                <div class="col-12 col-lg-4 form-group">
+                    <label for="regular_monthly_1" class="control-label">Monthly Price 1:1 (in ₹)</label>
+                    <input class="form-control" placeholder="Price" pattern="[0-9]" name="regular_monthly_1" type="number" value="{{old('regular_monthly_1',$course->regular_monthly_1)}}" id="regular_monthly_1">
+                </div>
+            </div>
 
               
        <div class="col-12 col-lg-4 form-group">
@@ -202,7 +246,7 @@ use App\Models\Category;
                    </select>
 
                 </div>
-                  <!-- <div class="col-12 col-lg-3 form-group">
+                   <div class="col-12 col-lg-3 form-group">
                    <label for="type">Default Coupon</label>
                    <select class="form-control select2" id="coupon_id_monthly_price_1" name="coupon_id_monthly_price_1">
                      <option value="">____________</option>
@@ -214,7 +258,7 @@ use App\Models\Category;
                  
                    </select>
 
-                </div> -->
+                </div> 
 
                 <div class="col-12 col-lg-4 form-group">
                     {!! Form::label('duration', 'Course Duration (in Months)', ['class' => 'control-label']) !!}
@@ -249,7 +293,7 @@ use App\Models\Category;
                     @endif
                 </div>
             </div>
-            <div class="row">
+              <div class="row" style="padding-left: 15px;">
                 <div class="col-md-12 form-group">
                     {!! Form::label('add_video', trans('labels.backend.lessons.fields.add_video'), ['class' => 'control-label']) !!}
                     {!! Form::select('media_type', ['youtube' => 'Youtube','vimeo' => 'Vimeo','upload' => 'Upload','embed' => 'Embed'],($course->mediavideo) ? $course->mediavideo->type : null,['class' => 'form-control', 'placeholder' => 'Select One','id'=>'media_type' ]) !!}
@@ -282,18 +326,32 @@ use App\Models\Category;
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-12 form-group">
-                    <div class="checkbox d-inline mr-4">
-                        {!! Form::hidden('published', 0) !!}
-                        {!! Form::checkbox('published', 1, old('published'), []) !!}
-                        {!! Form::label('published', trans('labels.backend.courses.fields.published'), ['class' => 'checkbox control-label font-weight-bold']) !!}
-                    </div>
-                     <div class="checkbox d-inline mr-4">
-                        {!! Form::hidden('featured', 0) !!}
-                        {!! Form::checkbox('featured', 1, old('featured'), []) !!}
-                        {!! Form::label('featured',  trans('labels.backend.courses.fields.featured'), ['class' => 'checkbox control-label font-weight-bold']) !!}
-                    </div>
+           <div class="row" style="padding-left: 15px;">
+                <!--<div class="col-12 form-group">-->
+                <!--    <div class="checkbox d-inline mr-4">-->
+                <!--        {!! Form::hidden('published', 0) !!}-->
+                <!--        {!! Form::checkbox('published', 1, old('published'), []) !!}-->
+                <!--        {!! Form::label('published', trans('labels.backend.courses.fields.published'), ['class' => 'checkbox control-label font-weight-bold']) !!}-->
+                <!--    </div>-->
+                <!--     <div class="checkbox d-inline mr-4">-->
+                <!--        {!! Form::hidden('featured', 0) !!}-->
+                <!--        {!! Form::checkbox('featured', 1, old('featured'), []) !!}-->
+                <!--        {!! Form::label('featured',  trans('labels.backend.courses.fields.featured'), ['class' => 'checkbox control-label font-weight-bold']) !!}-->
+                <!--    </div>-->
+                
+                <!--shruti-->
+                  <div class="col-12 form-group">
+        <div class="checkbox d-inline mr-4">
+            {!! Form::hidden('published', 0) !!}
+            {!! Form::checkbox('published', 1, old('published', $course->published), []) !!}
+            {!! Form::label('published', trans('labels.backend.courses.fields.published'), ['class' => 'checkbox control-label font-weight-bold']) !!}
+        </div>
+        <div class="checkbox d-inline mr-4">
+            {!! Form::hidden('featured', 0) !!}
+            {!! Form::checkbox('featured', 1, old('featured', $course->featured), []) !!}
+            {!! Form::label('featured', trans('labels.backend.courses.fields.featured'), ['class' => 'checkbox control-label font-weight-bold']) !!}
+        </div>
+    </div>
 <!--
                     <div class="checkbox d-inline mr-4">
                         {!! Form::hidden('trending', 0) !!}
@@ -313,9 +371,9 @@ use App\Models\Category;
                     </div> -->
 
                 </div>
-            </div>
+  
 
-            <div class="row">
+           <div class="row" style="padding-left: 15px;">
                 <div class="col-12 form-group">
                     {!! Form::label('meta_title',trans('labels.backend.courses.fields.meta_title'), ['class' => 'control-label']) !!}
                     {!! Form::text('meta_title', old('meta_title'), ['class' => 'form-control', 'placeholder' => trans('labels.backend.courses.fields.meta_title')]) !!}
@@ -339,6 +397,7 @@ use App\Models\Category;
             </div>
         </div>
     </div>
+              </div>
 
     {!! Form::close() !!}
 @stop
@@ -515,7 +574,7 @@ use App\Models\Category;
 
         @if($course->mediavideo)
         @if($course->mediavideo->type !=  'upload')
-        $('#video').removeClass('d-none').attr('required', true);
+        $('#video').removeClass('d-none').attr('required', false);
         $('#video_file').addClass('d-none').attr('required', false);
         $('.video-player').addClass('d-none');
         @elseif($course->mediavideo->type == 'upload')
@@ -532,12 +591,12 @@ use App\Models\Category;
         $(document).on('change', '#media_type', function () {
             if ($(this).val()) {
                 if ($(this).val() != 'upload') {
-                    $('#video').removeClass('d-none').attr('required', true);
+                    $('#video').removeClass('d-none').attr('required', false); // true to false
                     $('#video_file').addClass('d-none').attr('required', false);
                     $('.video-player').addClass('d-none')
                 } else if ($(this).val() == 'upload') {
                     $('#video').addClass('d-none').attr('required', false);
-                    $('#video_file').removeClass('d-none').attr('required', true);
+                    $('#video_file').removeClass('d-none').attr('required', false);//shruti true - flase
                     $('.video-player').removeClass('d-none')
                 }
             } else {

@@ -204,7 +204,7 @@ class DemoController extends Controller
       
         return view('backend.demo.index', compact('users','demo_request'));
        
-    }elseif(auth()->user()->hasRole('administrator')){
+    }elseif(auth()->user()->hasAnyRole(['administrator','backend-support-staff','telecaller'])){
 
         $users = User::where('active',true)->role('teacher')->get();
 
@@ -212,7 +212,9 @@ class DemoController extends Controller
        
     }
 
-   
+    // fallback (VERY IMPORTANT)
+    abort(403, 'Unauthorized');
+
        
    } 
    
@@ -300,38 +302,37 @@ Mail::to($userx)->send(new FeedbackEmail($userx,$id));
     return redirect()->back()->withFlashSuccess("Feedback email has been sent to Student & Tutor");
    }
    
-   public function demoHistory($id)
-   {
-       $demo_history_list = DemoHistory::where('demo_id',$id)->get();
+  public function demoHistory($id)
+{
+    $demo_history_list = DemoHistory::where('demo_id', $id)->get();
 
-        $list=array();
+    $list = array();
 
-        foreach($demo_history_list as $demo_history){
+    foreach($demo_history_list as $demo_history){
 
-            $demo_history["demo_request"]= DemoRequest::find($demo_history->demo_id);
+        $demo_history["demo_request"] = DemoRequest::find($demo_history->demo_id);
+        $demo_history["teacher"]      = User::find($demo_history->teacher_id);
+        $demo_history["course"]       = Course::where("id", $demo_history->course_id)->first();
+        $demo_history["course_old"]   = Course::where("id", $demo_history["demo_request"]->course_id)->first();
 
-            $demo_history["teacher"]= User::find($demo_history->teacher_id);
-
-            $demo_history["course"]= Course::where("id",$demo_history->course_id)->first();
-            $demo_history["course_old"]= Course::where("id",$demo_history["demo_request"]->course_id)->first();
-
-            $list[]=$demo_history;
-            
-                    $el=new Elearn;
-        $in=array(
-            "meetingID"=>$demo_history["demo_request"]->api_class_id,
-        );
-        $x=$el->eClass("getRecordings",$in);
-        $demo_history['api'] = $x;
-         
+        // ✅ Sirf tab BBB call karo jab api_class_id ho
+        $demo_history['api'] = null;
+        if (!empty($demo_history["demo_request"]->api_class_id)) {
+            $el = new Elearn;
+            $in = array(
+                "meetingID" => $demo_history["demo_request"]->api_class_id,
+            );
+            $demo_history['api'] = $el->eClass("getRecordings", $in);
         }
-        
-        // dd($list);
 
-        return view('backend.demo.history',compact('list'));
-   }
+        $list[] = $demo_history; // ✅ API set hone KE BAAD push karo
+    }
+
+    return view('backend.demo.history', compact('list'));
+}
+
    
-   
+     
 public function getDataTeacher(Request $request)
 {
     $userId = auth()->user()->id;
@@ -385,10 +386,31 @@ public function getDataTeacher(Request $request)
                  'instructions'=>'',
                 'demo_status' => $q->demo_status == 'na' ? 'N/A' : ucwords($q->demo_status),
                 'created_at' => date("d M Y h:iA", strtotime($q->demo_date_time)),
-                'action' => $q->demo_status != 'completed' && $q->demo_status != 'na'
-                    ? '<a href="javascript:void(0)" data-type="single" data-id="' . $q->id . '" class="btn btn-sm btn-danger changeStatus mr-2 mb-2"><span class="fa fa-pencil"></span></a>
-                       <a href="javascript:void(0)" data-type="single"  data-id="' . $q->id . '" class="demo-start btn btn-primary btn-sm">Start Demo</a>'
-                    : '',
+             'action' => 
+    '<a href="javascript:void(0)" data-type="single" data-id="' . $q->id . '" 
+        class="btn btn-sm btn-danger changeStatus mr-2 mb-2 ' . ($q->demo_status == 'completed' ? 'disabled' : '') . '">
+        <span class="fa fa-pencil"></span>
+    </a>
+
+    <a href="javascript:void(0)" data-type="single" data-id="' . $q->id . '" 
+        class="demo-start btn btn-primary btn-sm ' . ($q->demo_status == 'completed' ? 'disabled' : '') . '">
+        Start Demo
+    </a>'
+
+    . (!empty($q->meet_link)
+        ? '<a href="javascript:void(0)" 
+   data-id="' . $q->id . '" 
+   data-link="' . $q->meet_link . '"
+   class="btn btn-success btn-sm ml-1 joinGoogleMeet ' . ($q->demo_status == 'completed' ? 'disabled' : '') . '">
+   Join Google Meet
+</a>'
+        : '')
+
+    . '<button class="btn btn-warning btn-sm ml-1 addMeetLink ' . ($q->demo_status == 'completed' ? 'disabled' : '') . '" 
+          data-id="' . $q->id . '" 
+          data-link="' . ($q->meet_link ?? '') . '">
+          Create/Update Meet Link
+      </button>',
             ];
         });
 
@@ -402,7 +424,85 @@ public function getDataTeacher(Request $request)
         ->make(true);
 }
 
+//shruti
 
+public function saveMeetLink(Request $request)
+{
+    $request->validate([
+        'demo_id' => 'required',
+        'meet_link' => 'required|url'
+    ]);
+
+    // Since you are working with DemoRequest
+    $demo = \App\Models\DemoRequest::find($request->demo_id);
+
+    if(!$demo){
+        return response()->json([
+            'success' => false,
+            'msg' => 'Demo not found'
+        ]);
+    }
+
+    $demo->meet_link = $request->meet_link;
+    $demo->save();
+
+    return response()->json([
+        'success' => true,
+        'msg' => 'Meet link saved successfully'
+    ]);
+}
+
+
+//shruti join meet
+public function joinMeet(Request $request)
+{
+    $demo = \App\Models\DemoRequest::find($request->id);
+
+    if(!$demo){
+        return response()->json([
+            'success' => false,
+            'message' => 'Demo not found'
+        ]);
+    }
+
+    // ⏱ Allow only 5 minutes before demo time
+    $allowedTime = strtotime($demo->demo_date_time) - (5 * 60);
+
+    if(time() < $allowedTime){
+        return response()->json([
+            'success' => false,
+            'message' => 'You can join 5 minutes before scheduled time'
+        ]);
+    }
+
+    // ✅ NEW: if teacher joins → mark started
+    if(auth()->user()->hasRole('teacher')){
+        if($demo->demo_status != 'completed'){
+            $demo->demo_status = 'started';
+            $demo->save();
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'link' => $demo->meet_link
+    ]);
+}
+//shruti
+public function checkDemoStatus($id)
+{
+    $demo = \App\Models\DemoRequest::find($id);
+
+    if(!$demo){
+        return response()->json([
+            'status' => 'not_found'
+        ]);
+    }
+
+    return response()->json([
+           'status' => $demo->demo_status // 🔥 correct field
+    ]);
+}
 public function join($id){
     $demo = DemoRequest::where("link",$id)->first();
     if(!$demo){
@@ -446,12 +546,13 @@ public function joinCheck($id){
        if(!$demo){
            return redirect()->back()->withErrors("Unbale to find demo request");
        }
-       
+       $meetLink = $request->meetlink;
        $demo->teacher_id = $request->teacher;
        $demo->demo_date_time = date("Y-m-d H:i:s",strtotime($request->datetime));
        $demo->demo_status = 'scheduled';
        $demo->instructions = $request->instruction;
        $demo->api_class_id=null;
+       $demo->meet_link = $request->meetlink;
        $demo->link=$demoLink;
        $demo->update();
 
@@ -533,35 +634,88 @@ public function joinCheck($id){
                 return "";
             }
         })
-         ->addColumn('action', function($q){
-             if($q->demo_status=='na'){
-                 return '<a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">Schedule Demo</a>
+      ->addColumn('action', function($q){
 
-                 <a href="/user/demo-history/'.$q->id.'" class="btn btn-outline-info btn-sm mb-2">History</a>
+    $user = auth()->user();
+    $isAdmin = $user && $user->role_id == 1;
 
-                 <a href="/user/demo-feedback-list/'.$q->id.'" class="btn btn-outline-info btn-sm mb-2">Feedback</a>
+    $historyBtn = '<a href="/user/demo-history/'.$q->id.'" class="btn btn-outline-info btn-sm mb-2">History</a>';
 
-                 ';
-             }else if($q->demo_status=='scheduled'){
-                  return '<span class="green-text">Demo is scheduled at '.$q->demo_date_time.'</span><br><a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">ReSchedule Demo</a>
+    $feedbackBtn = !$isAdmin 
+        ? '<a href="/user/demo-feedback-list/'.$q->id.'" class="btn btn-outline-info btn-sm mb-2">Feedback</a>'
+        : '';
 
-                  <a href="/user/demo-history/'.$q->id.'" class="btn btn-outline-info btn-sm mb-2">History</a>
-                  <a href="/user/demo-feedback-list/'.$q->id.'" class="btn btn-outline-info btn-sm mb-2">Feedback</a>
-                  
-                         <a href="javascript:void(0)" data-flag="1" data-id="'.$q->id.'" data-mid="'.$q->api_class_id.'"  class="btn btn-outline-primary btn-sm mb-2 joinDemo">Join Demo</a>
-                  ';
-                  
-             }else{
-                         return '<span class="red-text">Demo was scheduled at '.$q->demo_date_time.'</span><br><a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">ReSchedule Demo</a>
+    $meetBtn = !empty($q->meet_link)
+        ? '<a href="javascript:void(0)" 
+             class="btn btn-success btn-sm mb-2 ml-1 joinGoogleMeet"
+             data-id="'.$q->id.'" 
+             data-link="'.$q->meet_link.'">
+                Join Google Meet
+           </a>'
+        : '';
 
-                         <a href="/user/demo-history/'.$q->id.'" class="btn btn-outline-info btn-sm mb-2">History</a>
-                         <a href="/user/demo-feedback-list/'.$q->id.'" class="btn btn-outline-info btn-sm mb-2">Feedback</a>
-                         <a href="javascript:void(0)" data-id="'.$q->id.'" data-mid="'.$q->api_class_id.'"  class="btn btn-outline-primary btn-sm mb-2 joinDemo">Join Demo</a>
-                         ';
-             }
+    // ✅ COMPLETED
+    if($q->demo_status == 'completed'){
+        return '
+            <span class="text-success">Demo Completed</span><br>
+            '.$historyBtn.'
+            '.$feedbackBtn.'
+           
+        ';
+    }
 
+    // NA
+    else if($q->demo_status=='na'){
+        return '
+            <a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">Schedule Demo</a>
+            '.$historyBtn.'
+            '.$feedbackBtn.'
+            '.$meetBtn.'
+        ';
+    }
 
-        })
+    // SCHEDULED
+    else if($q->demo_status=='scheduled'){
+        return '
+            <span class="green-text">Demo is scheduled at '.$q->demo_date_time.'</span><br>
+
+            <a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">ReSchedule Demo</a>
+
+            '.$historyBtn.'
+            '.$feedbackBtn.'
+
+            <a href="javascript:void(0)" data-flag="1" data-id="'.$q->id.'" data-mid="'.$q->api_class_id.'" class="btn btn-outline-primary btn-sm mb-2 joinDemo">
+                Join Demo
+            </a>
+
+            '.$meetBtn.'
+        ';
+    }
+
+    // STARTED
+    else if($q->demo_status=='started'){
+        return '
+            <span class="red-text">Demo was scheduled at '.$q->demo_date_time.'</span><br>
+
+            <a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">ReSchedule Demo</a>
+
+            '.$historyBtn.'
+            '.$feedbackBtn.'
+
+            <a href="javascript:void(0)" data-id="'.$q->id.'" data-mid="'.$q->api_class_id.'" class="btn btn-outline-primary btn-sm mb-2 joinDemo">
+                Join Demo
+            </a>
+
+            '.$meetBtn.'
+        ';
+    }
+
+    // ✅ FINAL FALLBACK
+    else{
+        return $historyBtn . $feedbackBtn . $meetBtn;
+    }
+
+})
             ->editColumn('number', function ($q) {
                 if($q->number == ""){
                     return "N/A";

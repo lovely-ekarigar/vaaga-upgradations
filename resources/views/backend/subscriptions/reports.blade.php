@@ -129,6 +129,7 @@
                 iDisplayLength: 10,
                 retrieve: true,
                 dom: 'lfBrtip<"actions">',
+                order: [[7, 'asc']], // Default sort by next due date column (index 7) in ascending order
                 buttons: [
                     {
                         extend: 'csv',
@@ -151,20 +152,20 @@
                             return '<input type="checkbox" class="single" name="id[]" value="' + data.id + '" />';
                         }, "orderable": false, "searchable": false, "name": "id"
                     },
-                    {data: "DT_RowIndex", name: 'DT_RowIndex'},
+                    {data: "DT_RowIndex", name: 'DT_RowIndex', orderable: false, searchable: false},
                     {data: "reference_no", name: 'reference_no'},
                      {data: "name", name: 'name'},
-                     {data: "items", name: 'items'},
-                     {data: "subs_date", name: 'subs_date'},
-                     {data: "course_mode", name: 'course_mode'},
-                    {data: "due_date", name: 'due_date'},
-                    {data: "due_amount", name: 'due_amount'},
+                     {data: "items", name: 'items', orderable: false, searchable: false},
+                     {data: "subs_date", name: 'created_at'},
+                     {data: "course_mode", name: 'course_mode', orderable: false, searchable: false},
+                    {data: "due_date", name: 'end_date'},
+                    {data: "due_amount", name: 'amount'},
                     {data: "total_cycle", name: 'total_cycle'},
                     {data: "due_cycle", name: 'due_cycle'},
-                   
-                    {data: "total_amount", name: 'total_amount'},
-                    {data: "paid_amount", name: "paid_amount"},
-                    {data: "actions", name: "actions"}
+
+                    {data: "total_amount", name: 'total_amount', orderable: false, searchable: false},
+                    {data: "paid_amount", name: "paid_amount", orderable: false, searchable: false},
+                    {data: "actions", name: "actions", orderable: false, searchable: false}
                 ],
                 @if(request('show_deleted') != 1)
                 columnDefs: [

@@ -24,33 +24,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
 @stop
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "NewsArticle",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "{{URL::to('/blog')}}/{{$blog->slug}}"
-  },
-  "headline": "{{$blog->title}}",
-  "image": "{{asset('storage/uploads/'.$blog->image)}}",  
-  "author": {
-    "@type": "Blog",
-    "name": "Author", 
-    "url": "{{URL::to('/blog')}}/{{$blog->slug}}"
-  },  
-  "publisher": {
-    "@type": "article",
-    "name": "Admin",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "{{URL::to('/blog')}}/{{$blog->slug}}"
-    }
-  },
-  "datePublished": "{{date('Y-m-d',strtotime('0 days',strtotime($blog->created_at)))}}",
-  "dateModified": "{{date('Y-m-d',strtotime('0 days',strtotime($blog->updated_at)))}}"
-}
-</script>
+
 @section('page_css')
     <style>
  .avatar-sm {
@@ -92,13 +66,14 @@ iframe >footer{
                                  <!--<div class="col-md-2 pt-2"><i class="fa fa-calendar"></i> {{$blog->created_at->format('d M Y')}}</div>-->
                                
                                 <!--<span class="d-inline"><i class="fa fa-tag"></i> {{ucwords($blog->category->name)}}</span>-->
-                                <div class="justify-content-md-end d-flex pt-2">
+                               <div class="justify-content-md-end d-flex pt-2">
                                     
-                                     <a class="icon icon-sm rounded-circle text-white bg-primary ms-2" target="_blank" role="button" href="https://www.facebook.com/sharer/sharer.php?u={{route('blogs.index',['slug'=> $blog->slug.'-'.$blog->id])}}"><i class="bi-facebook"></i> </a>
-                                     <a class="icon icon-sm rounded-circle text-white bg-primary ms-2" target="_blank" href="https://twitter.com/intent/tweet?text={{route('blogs.index',['slug'=> $blog->slug.'-'.$blog->id])}}" role="button"><i class="bi-twitter"></i> </a>
+                                     <a class="icon icon-sm rounded-circle text-white bg-primary ms-2" target="_blank" role="button" href="https://www.facebook.com/profile.php?id=100095502854507"><i class="bi-facebook"></i> </a>
+                                     <a class="icon icon-sm rounded-circle text-white bg-primary ms-2" target="_blank" href="https://twitter.com/VaaGaAcademy" role="button"><i class="bi-twitter"></i> </a>
+                                      <a class="icon-sm  rounded-circle ms-2" href="https://www.instagram.com/vaagaacademy/" aria-label="VaaGaAcademy Instagram" target="_blank"><i style="    font-size: 20px;color:#d74d5d" class="bi-instagram"></i> </a>
                                      <a class="icon icon-sm rounded-circle text-white bg-primary ms-2" target="_blank" href="https://api.whatsapp.com/send?text={{route('blogs.index',['slug'=> $blog->slug.'-'.$blog->id])}}" role="button"><i class="bi bi-whatsapp"></i> </a>
-                                     <a class="icon icon-sm rounded-circle text-white bg-primary ms-2" target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url={{route('blogs.index',['slug'=> $blog->slug.'-'.$blog->id])}}" role="button"><i class="bi-linkedin"></i></a>
-                                    
+                                     <!--<a class="icon icon-sm rounded-circle text-white bg-primary ms-2" target="_blank" href="https://www.linkedin.com/company/96911976/admin/feed/posts/" role="button"><i class="bi-linkedin"></i></a>-->
+                                      <a class="icon-sm  rounded-circle ms-2" href="https://www.linkedin.com/company/vaaga-academy/" aria-label="VaaGaAcademy Linkedin" target="_blank"><i style="    font-size: 20px;color:#0a66c2" class="bi-linkedin"></i></a>
                                 </div>
                                 </div>
                           
@@ -199,7 +174,7 @@ iframe >footer{
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
    
     var disqus_config = function () {
-    this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+     this.page.url = "{{ url()->current() }}"; // Replace PAGE_URL with your page's canonical URL variable
     this.page.identifier = {{$blog->id}}; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
   

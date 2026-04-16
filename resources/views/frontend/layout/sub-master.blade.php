@@ -21,6 +21,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" defer />
 
   @yield('page_css')
+  @verbatim
   <style>
     .main-header.headroom--unpinned {
       transform: translateY(0%) !important;
@@ -155,7 +156,7 @@
       background-color: #535b6994 !important;
     }
   </style>
-  
+  @endverbatim
   <!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=G-S2LP3EM8C4"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-S2LP3EM8C4'); </script>
   
 </head>

@@ -47,6 +47,7 @@ Test Series Management | {{ env('APP_NAME') }}
                                 <th>Amount</th>
                                 <th>Payment Status</th>
                                 <th>Date</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,10 +65,14 @@ Test Series Management | {{ env('APP_NAME') }}
                                         </span>
                                     </td>
                                     <td>{{ $purchase->created_at->format('d M Y, h:i A') }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.testseries.purchaseInvoice', ['id' => $purchase->id, 'type' => 'show']) }}" class="btn btn-sm btn-primary" target="_blank">View</a>
+                                        <a href="{{ route('admin.testseries.purchaseInvoice', ['id' => $purchase->id, 'type' => 'download']) }}" class="btn btn-sm btn-success">Download</a>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">No purchases found</td>
+                                    <td colspan="9" class="text-center">No purchases found</td>
                                 </tr>
                             @endforelse
                         </tbody>

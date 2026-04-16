@@ -1,5 +1,5 @@
 
-Hello {{$user->first_name}}
+**Hello {{$user->first_name}}**
 
 Your demo has been scheduled. Kindly check below the demo details:<br>
 Demo Date & Time: {{$demo->datetime}}<br><br>

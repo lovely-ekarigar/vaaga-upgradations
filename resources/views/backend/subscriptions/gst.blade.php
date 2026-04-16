@@ -24,6 +24,49 @@
 
         </div>
         <div class="card-body">
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card bg-light">
+                        <div class="card-header">
+                            <h5 class="mb-0">Set GST Value for All Orders</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ route('admin.gst.update') }}" id="gstForm">
+                                @csrf
+                                <input type="hidden" name="start" id="start_date" value="{{ request('start', date('Y-m-01')) }}">
+                                <input type="hidden" name="end" id="end_date" value="{{ request('end', date('Y-m-d')) }}">
+                                <div class="row align-items-end">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="gst_percentage">GST Percentage (%)</label>
+                                            <input type="number" class="form-control" id="gst_percentage" name="gst_percentage" step="0.01" min="0" max="100" placeholder="e.g., 18.00" required>
+                                            <small class="form-text text-muted">Enter the GST percentage to apply to all orders</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="apply_to">Apply To</label>
+                                            <select class="form-control" id="apply_to" name="apply_to" required>
+                                                <option value="all">All Orders</option>
+                                               
+                                            </select>
+                                            <small class="form-text text-muted">Choose which orders to update</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to update GST values for the selected orders?')">
+                                                <i class="fas fa-calculator"></i> Calculate & Update GST
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <div class="row">
                 
@@ -109,9 +152,14 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
 
-      
+
         $(document).ready(function () {
          $('input[name="daterange"]').daterangepicker({},function(start, end, label) {
+            // Update hidden fields in GST form
+            $('#start_date').val(start.format('YYYY-MM-DD'));
+            $('#end_date').val(end.format('YYYY-MM-DD'));
+
+            // Reload page with new date range
             window.location.href="?start="+start.format('YYYY-MM-DD')+"&end="+end.format('YYYY-MM-DD')
     // console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
   });

@@ -44,6 +44,61 @@
     </div>
 @stop
 
+@push('after-styles')
+    <style>
+        .cycle-switch-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .cycle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .cycle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .cycle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #28a745;
+            border-radius: 24px;
+            transition: background-color .3s;
+        }
+        .cycle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #fff;
+            border-radius: 50%;
+            transition: transform .3s;
+        }
+        .cycle-switch input:checked + .cycle-slider {
+            background-color: #dc3545;
+        }
+        .cycle-switch input:checked + .cycle-slider:before {
+            transform: translateX(20px);
+        }
+        .cycle-label {
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .cycle-label.on { color: #28a745; }
+        .cycle-label.off { color: #dc3545; }
+    </style>
+@endpush
+
 @push('after-scripts')
     <script>
         $(document).ready(function () {
@@ -59,6 +114,7 @@
                 iDisplayLength: 10,
                 retrieve: true,
                 dom: 'lfBrtip<"actions">',
+                order: [[9, 'desc']], // Default sort by subscription date column (index 9) in descending order
                 buttons: [
                     {
                         extend: 'csv',
@@ -81,16 +137,16 @@
                             return '<input type="checkbox" class="single" name="id[]" value="' + data.id + '" />';
                         }, "orderable": false, "searchable": false, "name": "id"
                     },
-                    {data: "DT_RowIndex", name: 'DT_RowIndex'},
+                    {data: "DT_RowIndex", name: 'DT_RowIndex', orderable: false, searchable: false},
                     {data: "reference_no", name: 'reference_no'},
                     {data: "id", name: 'id'},
-                    {data: "items", name: 'items'},
+                    {data: "items", name: 'items', orderable: false, searchable: false},
                     {data: "amount", name: 'amount'},
-                    {data: "payment", name: 'payment'},
+                    {data: "payment", name: 'payment', orderable: false},
                     {data: "name", name: 'name'},
-                    {data: "course_mode", name: 'course_mode'},
-                    {data: "date", name: "date"},
-                    {data: "actions", name: "actions"}
+                    {data: "course_mode", name: 'course_mode', orderable: false, searchable: false},
+                    {data: "date", name: "created_at"},
+                    {data: "actions", name: "actions", orderable: false, searchable: false}
                 ],
                 @if(request('show_deleted') != 1)
                 columnDefs: [
@@ -116,6 +172,42 @@
             $('.actions').html('<a href="' + '{{ route('admin.orders.mass_destroy') }}' + '" class="btn btn-xs btn-danger js-delete-selected" style="margin-top:0.755em;margin-left: 20px;">Delete selected</a>');
             @endif
             @endcan
+
+            // Cycle switch toggle handler
+            $(document).on('change', '.cycle-checkbox', function () {
+                var cb = $(this);
+                var referenceNo = cb.attr('data-reference');
+                var enable = cb.is(':checked') ? 1 : 0;
+
+                cb.prop('disabled', true);
+
+                $.ajax({
+                    url: '{{ route("admin.subscription.toggle_cycle") }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        reference_no: referenceNo,
+                        enable: enable
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            // Full page reload to reflect updated state
+                            location.reload();
+                        } else {
+                            cb.prop('checked', !cb.is(':checked'));
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        cb.prop('checked', !cb.is(':checked'));
+                        toastr.error('Something went wrong. Please try again.');
+                    },
+                    complete: function () {
+                        cb.prop('disabled', false);
+                    }
+                });
+            });
         });
     </script>
 @endpush

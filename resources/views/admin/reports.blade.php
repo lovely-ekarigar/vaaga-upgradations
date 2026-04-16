@@ -33,9 +33,10 @@ Question Reports | {{ env('APP_NAME') }}
                             @forelse($reports as $key => $report)
                                 <tr>
                                     <td>{{ ($reports->firstItem() ?? 1) + $key }}</td>
-                                    <td>{{ $report->user->name ?? '-' }}</td>
+                                    <td>{{ $report->reporter->name ?? '-' }}</td>
+                                   
                                     <td><a href="/user/questions-bank/{{$report->question_id}}/edit" target="_blank">{{ $report->question_id }}</a></td>
-                                    <td>{{ $report->message ?? '-' }}</td>
+                                    <td>{{ $report->report_reason ?? '-' }}</td>
                                     <td>{{ $report->created_at->format('d M Y, h:i A') }}</td>
                                 </tr>
                             @empty

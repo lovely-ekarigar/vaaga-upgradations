@@ -48,12 +48,12 @@
    ?>
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>{{ $metaTitle }} | {{env('APP_NAME')}}</title>
+<title>{{ $metaTitle }}</title>
 <meta name="description" content="{{ $metaDescription }}">
 <meta name="keywords" content="{{ $metaKeywords }}">
 <meta property="og:locale" content="en_US" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="{{ $metaTitle }} | {{env('APP_NAME')}}" />
+<meta property="og:title" content="{{ $metaTitle }}" />
 <meta property="og:description" content="{{ $metaDescription }}" />
 <meta property="og:url" content="{{URL::to('/courses')}}/{{$course->slug}}" />
 <meta property="og:site_name" content="VaaGa Academy | Online Learning Platforms For School Students" />
@@ -62,7 +62,7 @@
 <meta property="og:image" content="https://www.vaagaacademy.com/storage/uploads/{{$course->course_image}}" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="{{env('TWITTER_HANDLE')}}" />
-<meta name="twitter:title" content="{{ $metaTitle }} | {{env('APP_NAME')}}" />
+<meta name="twitter:title" content="{{ $metaTitle }}" />
 <meta name="twitter:description" content="{{ $metaDescription }}" />
 <meta name="twitter:image" content="https://www.vaagaacademy.com/storage/uploads/{{$course->course_image}}" />
 <link rel="canonical" href="{{URL::to('/courses')}}/{{$course->slug}}">

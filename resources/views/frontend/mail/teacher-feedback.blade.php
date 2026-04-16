@@ -1,5 +1,5 @@
 @component('mail::message')
-#Dear {{$user->name}}
+# Dear {{$user->name}}
 <br>
 Thank you for choosing VaaGa Academy.<br>
 

@@ -5,8 +5,6 @@
 @section('page_css')
 <style>
     svg { height: 30px; }
-
-    /* Hide CKEditor notifications */
     .cke_notifications_area { display: none !important; }
 </style>
 @stop
@@ -46,7 +44,7 @@
                     {{-- Select Chapter --}}
                     <div class="col-lg-12 mb-4">
                         <label class="form-label fw-semibold">Select Chapter</label>
-                        <select name="chapter_id" id="chapter_id" class="form-select  form-control" required>
+                        <select name="chapter_id" id="chapter_id" class="form-select form-control" required>
                             <option value="">-- Choose Chapter --</option>
                             {{-- Filled dynamically via AJAX when course is selected --}}
                         </select>
@@ -91,26 +89,37 @@
                         <label class="form-label fw-semibold">Marks</label>
                         <input type="number" name="marks" min="1" class="form-control" value="{{ old('marks', 1) }}">
                     </div>
-                       <div class="col-md-4">
-                            <label class="form-label fw-semibold">Difficulty Level</label>
+                      
+                    {{-- Difficulty Level --}}
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Difficulty Level</label>
                         <select name="difficulty" id="selectDifficulty" class="form-control form-select" required>
                             <option value="">-- Select Difficulty --</option>
-                            <option value="easy" selected >Easy</option>
-                            <option value="medium" >Medium</option>
-                            <option value="hard" >Hard</option>
+                            <option value="easy" selected>Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
                         </select>
                     </div>
                     
-                     <div class="col-md-4">
-                            <label class="form-label fw-semibold">Is Previuos Year Question?</label>
+                    {{-- Is Previous Year Question? --}}
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Is Previous Year Question?</label>
                         <select name="is_prev_year" id="is_prev_year" class="form-control form-select" required>
-                         
-                            <option value="0" selected >No</option>
-                            <option value="1" >Yes</option>
+                            <option value="0" selected>No</option>
+                            <option value="1">Yes</option>
                         </select>
                     </div>
-                    
-                    
+
+                    {{-- ===== STATUS FIELD ===== --}}
+                    <div class="col-md-4 mt-4">
+                        <label class="form-label fw-semibold">Status</label>
+                        <select name="status" class="form-control form-select">
+                            <option value="pending" {{ old('status', 'pending') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="approved" {{ old('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="rejected" {{ old('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                        </select>
+                    </div>
+                    {{-- ===== END STATUS FIELD ===== --}}
                 </div>
 
                 {{-- Action Buttons --}}
@@ -130,63 +139,11 @@
 <script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize CKEditor for question text
-        CKEDITOR.replace('question_text_en', {
-            height: 200,
-            toolbarGroups: [
-                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
-                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
-                { name: 'links' },
-                { name: 'insert' },
-                { name: 'forms' },
-                { name: 'tools' },
-                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
-                { name: 'others' },
-                '/',
-                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
-                { name: 'styles' },
-                { name: 'colors' }
-            ]
-        });
-
-        // Initialize CKEditor for all options (4 options)
+        CKEDITOR.replace('question_text_en', { height: 200 });
         for(let i = 1; i <= 4; i++) {
-            CKEDITOR.replace('option_' + i + '_en', {
-                height: 150,
-                toolbarGroups: [
-                    { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
-                    { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
-                    { name: 'links' },
-                    { name: 'insert' },
-                    '/',
-                    { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-                    { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align' ] },
-                    { name: 'styles' },
-                    { name: 'colors' }
-                ]
-            });
+            CKEDITOR.replace('option_' + i + '_en', { height: 150 });
         }
-
-        // Initialize CKEditor for solution
-        CKEDITOR.replace('solution_en', {
-            height: 200,
-            toolbarGroups: [
-                { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
-                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ] },
-                { name: 'links' },
-                { name: 'insert' },
-                { name: 'forms' },
-                { name: 'tools' },
-                { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
-                { name: 'others' },
-                '/',
-                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
-                { name: 'styles' },
-                { name: 'colors' }
-            ]
-        });
+        CKEDITOR.replace('solution_en', { height: 200 });
     });
 </script>
 

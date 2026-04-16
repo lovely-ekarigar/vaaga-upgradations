@@ -1,27 +1,32 @@
 @extends('frontend.layout.sub-master')
 @section('title')
-<title>Live Online Learning Classes for School Students | {{env('APP_NAME')}}</title>
-<meta name="description" content="Are You Looking For Online Live Learning Platform for School Students? Access interactive Online Classes designed for Student Success. Enroll Now!">
-<meta name="keywords" content="Vaaga Academy,Vaaga Academy Gurgaon,online education platforms in India,Best elearning platforms in India,Online learning platform for students,Top online learning platforms in india,Online live learning platform for school students,Live Online Learning Classes for school students">
+
+<title>Contact VaaGa Academy - Get in Touch for Olympiad Coaching | {{env('APP_NAME')}}</title>
+
+<meta name="description" content="Have questions? Contact VaaGa Academy to learn more about our online Olympiad coaching for Class 2–8 students in Maths, Science & English. Prepare for IMO, NSO & IEO exams with expert guidance.">
+
+<meta name="keywords" content="Contact Vaaga Academy, Olympiad coaching contact, Online Olympiad coaching for Class 2-8, IMO coaching, NSO coaching, IEO coaching, Maths Science English Olympiad classes">
 
 <meta property="og:locale" content="en_US" />
-    <meta property="og:type" content="article" />
-    <meta property="og:title" content="Contact | {{env('APP_NAME')}}" />
-    <meta property="og:description" content="Are You Looking For Online Live Learning Platform for School Students? Access interactive Online Classes designed for Student Success. Enroll Now!" />
-    <meta property="og:url" content="{{URL::to('/contact')}}" />
-    <meta property="og:site_name" content="Live Online Learning Classes for School Students | {{env('APP_NAME')}}" />
-    <meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
-    <meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
-    <meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
-   
-   <meta name="twitter:card" content="summary_large_image" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Contact VaaGa Academy - Get in Touch for Olympiad Coaching | {{env('APP_NAME')}}" />
+<meta property="og:description" content="Have questions? Contact VaaGa Academy to learn more about our online Olympiad coaching for Class 2–8 students in Maths, Science & English. Prepare for IMO, NSO & IEO exams with expert guidance." />
+<meta property="og:url" content="{{URL::to('/contact')}}" />
+<meta property="og:site_name" content="{{env('APP_NAME')}}" />
+<meta property="article:published_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="article:modified_time" content="{{date('Y-m-d H:i:s',strtotime('-7 days',time()))}}" />
+<meta property="og:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
+
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="{{env('TWITTER_HANDLE')}}" />
-<meta name="twitter:title" content="Live Online Learning Classes for School Students | {{env('APP_NAME')}}" />
-<meta name="twitter:description" content="Are You Looking For Online Live Learning Platform for School Students? Access interactive Online Classes designed for Student Success. Enroll Now!" />
+<meta name="twitter:title" content="Contact VaaGa Academy - Get in Touch for Olympiad Coaching | {{env('APP_NAME')}}" />
+<meta name="twitter:description" content="Have questions? Contact VaaGa Academy to learn more about our online Olympiad coaching for Class 2–8 students in Maths, Science & English. Prepare for IMO, NSO & IEO exams with expert guidance." />
 <meta name="twitter:image" content="https://www.vaagaacademy.com/newassets/img/logo.webp" />
+
 <link rel="canonical" href="{{URL::to('/contact')}}">
 
-@stop
+@endsection
+
 @section('content')
  
 <style type="text/css">

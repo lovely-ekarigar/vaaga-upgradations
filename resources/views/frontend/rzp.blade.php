@@ -59,31 +59,59 @@
 		<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script type="text/javascript">
- 
 
+// Debug: Log the order details
+console.log("Payment Type:", "{{ $payfor }}");
+console.log("Order ID:", "{{ $payfor == 'SUBSCRIPTION' ? $order->payment_ref : $order->order_id }}");
+console.log("Reference No:", "{{ $order->reference_no }}");
+console.log("Amount:", "{{ $order->amount }}");
 
-var options = {
-    "key": "{{env('RZP_KEY')}}", // Enter the Key ID generated from the Dashboard
+var razorpayOrderId = "{{ $payfor == 'SUBSCRIPTION' ? $order->payment_ref : $order->order_id }}";
+
+if(!razorpayOrderId || razorpayOrderId === "" || razorpayOrderId === "null") {
+    alert("Payment Error: Razorpay order ID not found. Please try again or contact support.");
+    console.error("Razorpay order_id is empty or null");
+} else {
+    var options = {
+        "key": "{{env('RZP_KEY')}}", // Enter the Key ID generated from the Dashboard
+        
+        "name": "VAAGA ACADEMY",
+        "description": "{{ $payfor == 'SUBSCRIPTION' ? 'Subscription Renewal' : 'Course Payment' }}",
+        "image": "https://vaagaacademy.com/newassets/img/logo.webp",
+        "order_id": razorpayOrderId, //Razorpay Order ID
+        "callback_url": "{{ url('/pay-confirm/'.$order->reference_no.'/'.strtoupper($payfor)) }}",
+        "prefill": {
+            "name": "{{Auth::user()->first_name}} {{Auth::user()->last_name}}",
+            "email": "{{Auth::user()->email}}",
+            "contact": "{{Auth::user()->phone}}"
+        },
+        
+        "theme": {
+            "color": "#febc5a"
+        },
+        "modal": {
+            "ondismiss": function(){
+                console.log("Razorpay modal dismissed by user");
+            }
+        }
+    };
     
-    "name": "VAAGA ACADMEY",
-    "description": "Course Payment",
-    "image": "https://vaagaacademy.com/newassets/img/logo.webp",
-    "order_id": "{{$order->order_id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-    "callback_url": "https://vaagaacademy.com/pay-confirm/{{$order->reference_no}}/{{strtoupper($payfor)}}",
-    "prefill": {
-        "name": "{{Auth::user()->first_name}} {{Auth::user()->last_name}}",
-        "email": "{{Auth::user()->email}}",
-        "contact": "{{Auth::user()->phone}}"
-    },
+    console.log("Razorpay options:", options);
     
-    "theme": {
-        "color": "#febc5a"
+    try {
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response){
+            console.error("Payment failed:", response.error);
+            alert("Payment failed: " + response.error.description);
+        });
+        
+        // Open Razorpay checkout on page load
+        rzp1.open();
+    } catch(e) {
+        console.error("Razorpay initialization error:", e);
+        alert("Payment initialization failed. Please refresh and try again.");
     }
-};
-var rzp1 = new Razorpay(options);
-
-    rzp1.open();
-    e.preventDefault();
+}
 
 </script>
 

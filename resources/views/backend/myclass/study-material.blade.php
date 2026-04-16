@@ -40,9 +40,15 @@
                                     @endif
                                 </div>
 
-                              @php
+                          @php
+    $user = auth()->user();
+
     $disabled = true;
-    if($completion && $completion->status != 'not_started'){
+
+    if(
+        ($completion && $completion->status != 'not_started') 
+        || $user->hasAnyRole(['administrator','backend-support-staff'])
+    ){
         $disabled = false;
     }
 @endphp

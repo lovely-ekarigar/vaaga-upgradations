@@ -458,14 +458,14 @@ $(document).ready(function() {
                 } else {
                     console.error('Error in response:', response);
                     alert(response.message || 'No other questions found');
-                    button.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Refresh');
+                    button.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Replace');
                 }
             },
             error: function(xhr, status, error) {
                 console.error('AJAX Error:', xhr, status, error);
                 console.error('Response text:', xhr.responseText);
                 alert('Error refreshing question: ' + error + '. Please check console for details.');
-                button.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Refresh');
+                button.prop('disabled', false).html('<i class="fas fa-sync-alt"></i> Replace');
             }
         });
     });

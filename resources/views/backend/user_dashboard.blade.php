@@ -45,7 +45,7 @@ button.close {
                         <tbody>
                         @php $count=0 @endphp
                         @foreach($demo_request as $item)
-                            @php $count++ @endphp
+                        @php $count++ @endphp
                             <tr>
                                 <td>{{$count}}</td>
                                 <td>
@@ -62,19 +62,77 @@ button.close {
                                     @endif
                                     
                                 </td>
+                                
+                             
                                 <td>
                                     @if($item->demo_date_time)
                                     {{date("d M y h:iA",strtotime($item->demo_date_time))}}
                                     @endif
                                     </td>
-                                <td>
-                                    @if($item->demo_status=='started')
-                                    <a class="btn btn-primary btn-sm join-demo" href="{{route('myclass.slaunch',['id'=>$item->id,'meetid'=>$item->api_class_id])}}" data-id="{{$item->id}}">Join</a>
-                                    <a class="btn btn-outline-info btn-sm" target="_blank" href="/user/demo-feedback/{{$item->id}}">Feedback</a>
-                                    @else
-                                    <span class="text-danger">Not Started Yet</span>
-                                    @endif
-                                </td>
+                                    
+                                    
+                                    
+                                    <!--big blue flow -->
+<!--                                <td>-->
+<!--                                    @if($item->demo_status=='started')-->
+<!--                                    <a class="btn btn-primary btn-sm join-demo" href="{{route('myclass.slaunch',['id'=>$item->id,'meetid'=>$item->api_class_id])}}" data-id="{{$item->id}}">Join</a>-->
+<!--                                    <a class="btn btn-outline-info btn-sm" target="_blank" href="/user/demo-feedback/{{$item->id}}">Feedback</a>-->
+<!--                                    @else-->
+<!--                                    <span class="text-danger">Not Started Yet</span>-->
+<!--                                    @endif-->
+<!--                                       @if(!empty($item->meet_link))-->
+<!--   <a class="btn btn-primary btn-sm joinGoogleMeet"-->
+<!--   href="javascript:void(0)"-->
+<!--   data-id="{{ $item->id }}"-->
+<!--   data-link="{{ $item->meet_link }}">-->
+<!--   Join Google Meet-->
+<!--</a>-->
+<!--@endif-->
+<!--                                </td>-->
+
+
+<!--google meet flow for demo-->
+
+<td>
+
+    @if($item->demo_status === 'started')
+
+        {{--  GOOGLE MEET (NEW FLOW) --}}
+        @if(!empty($item->meet_link))
+            <a class="btn btn-primary btn-sm joinGoogleMeet"
+               href="javascript:void(0)"
+               data-id="{{ $item->id }}"
+               data-link="{{ $item->meet_link }}">
+               Join Google Meet
+            </a>
+        @else
+
+            {{--  OLD BIGBLUEBUTTON FLOW (ROLLBACK SAFE) --}}
+            {{-- 
+            <a class="btn btn-primary btn-sm join-demo"
+               href="{{ route('myclass.slaunch',['id'=>$item->id,'meetid'=>$item->api_class_id]) }}"
+               data-id="{{$item->id}}">
+               Join
+            </a>
+            --}}
+
+            <span class="text-warning">Link not available</span>
+
+        @endif
+
+        {{-- COMMON --}}
+        <a class="btn btn-outline-info btn-sm" target="_blank"
+           href="/user/demo-feedback/{{$item->id}}">
+           Feedback
+        </a>
+
+    @else
+        <span class="text-danger">Not Started Yet</span>
+    @endif
+
+</td>
+
+
                             </tr>
                         @endforeach
                         </tbody>
@@ -89,7 +147,15 @@ button.close {
            
               ?>
                 @foreach(($orders ?? collect()) as $orderd)
-@if(date("Y-m-d") >= date("Y-m-d",strtotime("-7 days",strtotime($orderd->end_date))))
+@php
+    $totalCycle = (int) ($orderd->total_cycle ?? 0);
+    $paidCycle = (int) ($orderd->paid_cycle ?? 0);
+    $showRenewMessage = !empty($orderd->end_date)
+        && date("Y-m-d") >= date("Y-m-d", strtotime("-7 days", strtotime($orderd->end_date)))
+        && ($totalCycle !== $paidCycle)
+       
+@endphp
+@if($showRenewMessage)
 
 
                             <?php 
@@ -104,7 +170,7 @@ button.close {
                                        $clistitems .=$cro->getCouseNameWithCat($item->item_id).", ";
 
                         }
- $expiredMsg1 .= '<div class="container position-relative z-index-1 bg-dark mb-2" style="border-radius: 6px;"><div class="row align-items-center"><div class="col-lg-9 col-md-9 my-3 text-md-start text-center"><p class="text-white m-0">Your course <strong>'.$clistitems.'</strong> subscription is expiring on <strong>'.date("d M Y",strtotime($orderd->end_date)).'</strong>. Kindly renew your subscription for uninterrupted classes.</p></div><div class="col-lg-3 col-md-3 my-3 text-md-end text-center"><a class="btn btn-danger btn-sm renew" data-order="'.$orderd->id.'" href="javascript:void(0)">Renew Now</a></div></div></div></div>';
+ $expiredMsg1 .= '<div class="container position-relative z-index-1 bg-dark mb-2" style="border-radius: 6px;"><div class="row align-items-center"><div class="col-lg-9 col-md-9 my-3 text-md-start text-center"><p class="text-white m-0">Your course <strong>'.$clistitems.'</strong> subscription is expiring on <strong>'.date("d M Y",strtotime($orderd->end_date)).'</strong>. Kindly renew your subscription for uninterrupted classes.</p></div><div class="col-lg-3 col-md-3 my-3 text-md-end text-center"><a class="btn btn-danger btn-sm renew" data-order="'.$orderd->id.'" href="javascript:void(0)">Renew Now</a></div></div></div></div>'; 
                             ?>
                        
                         {!!$expiredMsg1!!}
@@ -179,30 +245,78 @@ button.close {
     
 var token = '{{csrf_token()}}';
 
-$(document).on("click",".renew",function(){
+$(document).on("click",".renew",function(e){
+    e.preventDefault();
     var oid = $(this).data("order");
-$(this).html("Please wait...");
-$(this).attr("disabled","disabled");
-    console.log(oid);
+    var btn = $(this);
+    
+    if(!oid){
+        alert("Order ID not found");
+        return;
+    }
+    
+    btn.html("Please wait...");
+    btn.attr("disabled","disabled");
+    console.log("Renewing order ID:", oid);
+    
     $.ajax({
         url:'/user/renew-subscription',
         type:'POST',
+        dataType: 'json',
         data:{oid:oid,_token:token},
         success:function(res){
-
-            if(res.success){
-
-                window.location.href="/pay/"+res.order_id+"?payment_for=SUBSCRIPTION"
+            console.log("Server response:", res);
+            if(res && res.success){
+                console.log("Redirecting to:", "/pay/"+res.order_id+"?payment_for=SUBSCRIPTION");
+                window.location.href="/pay/"+res.order_id+"?payment_for=SUBSCRIPTION";
             }else{
-                alert(res.msg)
+                alert(res.msg || "Failed to renew subscription");
+                btn.html("Renew Now");
+                btn.removeAttr("disabled");
             }
         },
-        error:function(){
-            alert("Something went wrong");
+        error:function(xhr, status, error){
+            console.log("AJAX Error - Status:", status);
+            console.log("AJAX Error - Error:", error);
+            console.log("AJAX Error - Response:", xhr.responseText);
+            var errMsg = error;
+            try {
+                var resp = JSON.parse(xhr.responseText);
+                if(resp && resp.msg) errMsg = resp.msg;
+            } catch(e) {}
+            alert("Something went wrong: " + errMsg + "\nPlease check console for details.");
+            btn.html("Renew Now");
+            btn.removeAttr("disabled");
         }
-    })
-})
+    });
+});
 
+
+
+// Google Meet Join Click
+$(document).on('click', '.joinGoogleMeet', function () {
+
+    let demoId = $(this).data('id');
+    let link = $(this).data('link');
+
+    localStorage.setItem('active_demo_id', demoId);
+
+    window.open(link, '_blank');
+});
+
+// Auto check demo status every 5 sec
+setInterval(function(){
+    let demoId = localStorage.getItem('active_demo_id');
+
+    if(demoId){
+       $.get('/check-demo-status/' + demoId, function(res){
+    if(res.status === 'completed'){
+        localStorage.removeItem('active_demo_id');
+        window.location.href = "/user/demo-feedback/" + demoId;
+    }
+});
+    }
+}, 5000);
 </script>
 
 @stop

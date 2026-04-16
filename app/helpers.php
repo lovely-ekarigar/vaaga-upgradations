@@ -129,18 +129,22 @@ if (!function_exists('getCourseType')) {
     {
         // dd($string);
 
-        $list = array(
+         $list = array(
             "onetoone_full"=>"1:1 Full Course",
             "onetoone_monthly"=>"1:1 Monthly Subscription",
             "onetomany_full"=>"1:N Full Course",
             "onetomany_monthly"=>"1:N Monthly Subscription",
             "quarterly"=>" Quarterly Subscription",
-            "monthly"=>"Half Yearly Subscription",
-            "full"=>"Yearly Subscription",
+            "monthly"=>" 1:N Monthly Subscription",
+            "full"=>"1:N Full Course",
+            "test series"=>"Test Series",
+            "regular_monthly"=>"Regular Monthly Subscription",
+            "regular_monthly_1"=>"1:1 Regular Monthly Subscription",
             ""=>""
         );
 
-        return $list[$string];
+
+        return $list[$string] ?? $string;
     }
 }
 
@@ -320,6 +324,28 @@ if (!function_exists('section_filter')) {
     }
 }
 
+if (!function_exists('buildBillingPeriodFromAnchorDate')) {
+
+    /**
+     * Build billing period where month/year comes from created date offsets
+     * and day-of-month comes from anchor date (end_date preferred).
+     */
+    function buildBillingPeriodFromAnchorDate($createdAt, $anchorDate, $startMonths = 0, $endMonths = 1)
+    {
+        $created = \Carbon\Carbon::parse($createdAt);
+        $anchor = !empty($anchorDate) ? \Carbon\Carbon::parse($anchorDate) : $created;
+        $anchorDay = (int) $anchor->day;
+
+        $startBase = $created->copy()->addMonthsNoOverflow((int) $startMonths);
+        $endBase = $created->copy()->addMonthsNoOverflow((int) $endMonths);
+
+        $startDate = $startBase->copy()->day(min($anchorDay, $startBase->daysInMonth));
+        $endDate = $endBase->copy()->day(min($anchorDay, $endBase->daysInMonth));
+
+        return $startDate->format('d M Y') . ' - ' . $endDate->format('d M Y');
+    }
+}
+
 if (!function_exists('showInvoiceSubs')) {
 
     function showInvoiceSubs($order,$subscription,$type)
@@ -327,30 +353,38 @@ if (!function_exists('showInvoiceSubs')) {
         $invoice = new \App\Http\Controllers\Traits\InvoiceGenerator();
         $invoice->number($order->id.'-'.$subscription->id);
         $invoice->addOrderInfo($subscription->reference_no);
-         if(str_contains($order->course_mode,"monthly")){
-            
-            $month = date("d M Y",strtotime("-1 Months",strtotime($subscription->end_date)));
-            $month .= " - ".date("d M Y",strtotime($subscription->end_date));
-            // dd($order->end_date);
+        if (!empty($order->remarks)) {
+            $invoice->addRemark($order->remarks);
+        }
+        $invoice->addDate($subscription->renew_date ?: $subscription->created_at);
+            if(str_contains($order->course_mode,"monthly")){
+            // Subscription billing period is always calculated from subscription end date:
+            // start = end_date - 1 month, end = end_date.
+            $periodEnd = !empty($subscription->end_date)
+                ? \Carbon\Carbon::parse($subscription->end_date)
+                : \Carbon\Carbon::parse($subscription->renew_date ?: $subscription->created_at);
+            $periodStart = $periodEnd->copy()->subMonthNoOverflow();
+            $month = $periodStart->format('d M Y') . ' - ' . $periodEnd->format('d M Y');
 
             $invoice->addMonth($month);
          }
 
+        $itemCount = $order->items->count() ?: 1;
+        // Calculate price from orders table (amount + discount) divided by item count
+        $grossAmount = $subscription->amount + ($subscription->discount ?? 0);
+        $pricePerItem = round($grossAmount / $itemCount, 2);
+
         foreach ($order->items as $item) {
             $cx = new Course();
- 
+
             $title = $cx->getCouseNameWithCat($item->item->id);
 
-            $price=$item->price;
-                 
+            $price = $pricePerItem;
 
-
-            // $price = $item->item->price;
             $qty = 1;
             $id = 'prod-'.$item->item->id;
             $invoice->addItem($title, $price, $qty, $id);
         }
-//        $invoice->number($order->id);
         $total = $subscription->amount;
         if($subscription->discount){
          $invoice->addDiscountData($subscription->discount);
@@ -359,34 +393,14 @@ if (!function_exists('showInvoiceSubs')) {
      
         $invoice->addTotal($total);
         $invoice->addTaxData($subscription->gst);
-// dd($invoice);
 
         $user = \App\Models\Auth\User::find($subscription->user_id);
-  if($type=='show'){
-
-       $x= $invoice->customer([
-                'name' => $user->full_name,
-                'id' => $user->id,
-                'email' => $user->email,
-                 'phone' => $user->phone,
-            ])
-            // ->save('public/invoices/invoice-'.$order->id.'.pdf');
-//                ->download('invoice-'.$order->id.'.pdf');
-               ->show('invoice-'.$order->id.'-'.$subscription->id.'.pdf');
-        }
-        if($type=='download'){
-
-       $x= $invoice->customer([
-                'name' => $user->full_name,
-                'id' => $user->id,
-                'email' => $user->email,
-                'phone' => $user->phone,
-            ])
-            // ->save('public/invoices/invoice-'.$order->id.'.pdf');
-               ->download('invoice-'.$order->id.'-'.$subscription->id.'.pdf');
-               // ->show('invoice-'.$order->id.'.pdf');
-        }
-  // dd($x);
+        $invoice->customer([
+            'name' => $user->full_name,
+            'id' => $user->id,
+            'email' => $user->email,
+            'phone' => $user->phone,
+        ]);
 
         $invoiceEntry = \App\Models\Invoice::where('order_id','=',$order->id)->first();
         if($invoiceEntry == ""){
@@ -397,6 +411,12 @@ if (!function_exists('showInvoiceSubs')) {
             $invoiceEntry->save();
         }
 
+        if($type=='show'){
+            return $invoice->show('invoice-'.$order->id.'-'.$subscription->id.'.pdf');
+        }
+        if($type=='download'){
+            return $invoice->download('invoice-'.$order->id.'-'.$subscription->id.'.pdf');
+        }
     }
 }
 
@@ -409,72 +429,89 @@ if (!function_exists('showInvoice')) {
         $invoice = new \App\Http\Controllers\Traits\InvoiceGenerator();
         $invoice->number($order->id);
         $invoice->addOrderInfo($order->reference_no);
-         if(str_contains($order->course_mode,"monthly")){
-            
-            $month = date("d M Y",strtotime("-1 Months",strtotime($order->end_date)));
-            $month .= " - ".date("d M Y",strtotime($order->end_date));
-            // dd($order->end_date);
+        if (!empty($order->remarks)) {
+            $invoice->addRemark($order->remarks);
+        }
+        $invoice->addDate($order->created_at);
+            if(str_contains($order->course_mode,"monthly")){
+                $orderCreatedAt = \Carbon\Carbon::parse($order->created_at);
+                $periodStart = $orderCreatedAt->copy();
+
+                // If student's assigned batch starts after order date,
+                // use batch start date as billing period start.
+                $courseItemIds = $order->items
+                    ->where('item_type', \App\Models\Course::class)
+                    ->pluck('item_id')
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                if ($courseItemIds->isNotEmpty()) {
+                    $enrolledBatch = \App\Models\StudentTeacherBatch::query()
+                        ->join('batches', 'batches.id', '=', 'student_teacher_batches.bid')
+                        ->where('student_teacher_batches.uid', $order->user_id)
+                        ->whereIn('batches.cid', $courseItemIds)
+                        ->whereNotNull('batches.start_date')
+                        ->orderBy('batches.start_date', 'asc')
+                        ->select('batches.start_date')
+                        ->first();
+
+                    if ($enrolledBatch && !empty($enrolledBatch->start_date)) {
+                        $batchStartDate = \Carbon\Carbon::parse($enrolledBatch->start_date);
+                        if ($batchStartDate->gt($orderCreatedAt)) {
+                            $periodStart = $batchStartDate;
+                        }
+                    }
+                }
+
+                $periodEnd = $periodStart->copy()->addMonthNoOverflow();
+                $month = $periodStart->format('d M Y') . ' - ' . $periodEnd->format('d M Y');
 
             $invoice->addMonth($month);
          }
 
 
+        $hasRemarks = !empty($order->remarks);
+        $itemCount = $order->items->count() ?: 1;
+        // Calculate price from orders table (amount + discount) divided by item count
+        $grossAmount = $order->amount + ($order->discount ?? 0);
+        $pricePerItem = round($grossAmount / $itemCount, 2);
+
         foreach ($order->items as $item) {
-
-
             $cx = new Course();
 
             $title = $cx->getCouseNameWithCat($item->item->id);
 
-            $price=$item->price;
-            
-
+            $price = $pricePerItem;
 
             $qty = 1;
             $id = 'prod-'.$item->item->id;
             $invoice->addItem($title, $price, $qty, $id);
         }
-//        $invoice->number($order->id);
-        $total = $order->amount;
-
-        $coupon = \App\Models\Coupon::find($order->coupon_id);
-        if($coupon != null){
-            $discount =  $order->items->sum('price') * $coupon->amount/100;
-            $invoice->addDiscountData($discount);
-            // $total = $total - $discount;
+        if ($hasRemarks) {
+            $discount = $order->discount ?? 0;
+            if ($discount > 0) {
+                $invoice->addDiscountData($discount);
+            }
+            $total = $order->amount;
+        } else {
+            $total = $order->amount;
+            $discount = $order->discount ?? 0;
+            if ($discount > 0) {
+             $invoice->addDiscountData($discount);
+            }
         }
-        $taxes = \App\Models\Tax::where('status','=',1)->get();
-        $rateSum = \App\Models\Tax::where('status','=',1)->sum('rate');
-     
+
         $invoice->addTotal($total);
         $invoice->addTaxData($order->gst);
 
         $user = \App\Models\Auth\User::find($order->user_id);
-  if($type=='show'){
-
-       $x= $invoice->customer([
-                'name' => $user->full_name,
-                'id' => $user->id,
-                'email' => $user->email,
-                 'phone' => $user->phone,
-            ])
-            // ->save('public/invoices/invoice-'.$order->id.'.pdf');
-//                ->download('invoice-'.$order->id.'.pdf');
-               ->show('invoice-'.$order->id.'.pdf');
-        }
-        if($type=='download'){
-
-       $x= $invoice->customer([
-                'name' => $user->full_name,
-                'id' => $user->id,
-                'email' => $user->email,
-                'phone' => $user->phone,
-            ])
-            // ->save('public/invoices/invoice-'.$order->id.'.pdf');
-               ->download('invoice-'.$order->id.'.pdf');
-               // ->show('invoice-'.$order->id.'.pdf');
-        }
-  // dd($x);
+        $invoice->customer([
+            'name' => $user->full_name,
+            'id' => $user->id,
+            'email' => $user->email,
+            'phone' => $user->phone,
+        ]);
 
         $invoiceEntry = \App\Models\Invoice::where('order_id','=',$order->id)->first();
         if($invoiceEntry == ""){
@@ -485,6 +522,12 @@ if (!function_exists('showInvoice')) {
             $invoiceEntry->save();
         }
 
+        if($type=='show'){
+            return $invoice->show('invoice-'.$order->id.'.pdf');
+        }
+        if($type=='download'){
+            return $invoice->download('invoice-'.$order->id.'.pdf');
+        }
     }
 }
 
@@ -495,11 +538,16 @@ if (!function_exists('generateInvoice')) {
         $invoice = new \App\Http\Controllers\Traits\InvoiceGenerator();
         $invoice->number($order->id);
 
+        // Calculate price from orders table (amount + discount) divided by item count
+        $itemCount = $order->items->count() ?: 1;
+        $grossAmount = $order->amount + ($order->discount ?? 0);
+        $pricePerItem = round($grossAmount / $itemCount, 2);
+
         foreach ($order->items as $item) {
                $cx = new Course();
 
             $title = $cx->getCouseNameWithCat($item->item->id);
-            $price = $item->price;
+            $price = $pricePerItem;
             $qty = 1;
             $id = 'prod-'.$item->item->id;
             $invoice->addItem($title, $price, $qty, $id);

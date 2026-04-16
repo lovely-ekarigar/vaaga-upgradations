@@ -1,410 +1,331 @@
 <?php
 
-namespace App\Http\Controllers\Backend\Admin;
+namespace App\Http\Controllers\Backend\Admin;  // ✅ Correct namespace
 
-use App\Models\Question;
-use App\Models\QuestionsOption;
-use App\Models\Test;
-use App\Models\MockTest;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreQuestionsRequest;
-use App\Http\Requests\Admin\UpdateQuestionsRequest;
 use App\Http\Controllers\Traits\FileUploadTrait;
-use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Str;
+use App\Models\Course;
+use App\Models\Lesson;
+use App\Models\Question;
+use App\Models\Subject;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
-class QuestionsController extends Controller
+class QuestionController extends Controller  // ✅ Class name matches filename
 {
     use FileUploadTrait;
 
     /**
-     * Display a listing of Question.
+     * Display a listing of the questions.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = Question::query();
 
-        if (!Gate::allows('question_access')) {
-            return abort(401);
+        if ($request->filled('subject_id')) {
+            $query->where('subject_id', $request->subject_id);
         }
 
-        if (request('show_deleted') == 1) {
-            if (!Gate::allows('question_delete')) {
-                return abort(401);
-            }
-            // SoftDeletes removed - return empty collection for deleted items
-            $questions = collect(); // No soft deleted questions available
-        } else {
-            // Question model doesn't use SoftDeletes, so query normally
-            // The global 'filter' scope will be applied automatically for teachers
-            $questions = Question::orderBy('created_at', 'desc')->get();
+        if ($request->filled('chapter_id')) {
+            $query->where('chapter_id', $request->chapter_id);
         }
 
-        $tests = Test::where('published','=',1)->pluck('title','id')->prepend('Please select', '');
-        $mockTests = MockTest::orderByDesc('id')->pluck('title', 'id')->prepend('Please select', '');
+        if ($request->filled('difficulty')) {
+            $query->where('difficulty', $request->difficulty);
+        }
 
-        return view('backend.questions.index', compact('questions','tests','mockTests'));
-    }
+        if ($request->filled('verification_status')) {
+            $query->where('verification_status', $request->verification_status);
+        }
 
-
-    /**
-     * Display a listing of Questions via ajax DataTable.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function getData(Request $request)
-    {
-        $has_view = false;
-        $has_delete = false;
-        $has_edit = false;
-
-        /*TODO:: Show All questions if Admin, Show related if  Teacher*/
-        $questions = Question::query()->orderBy('created_at', 'desc');
-
-        if ($request->filled('test_id')) {
-            $test_id = $request->test_id;
-            $questions->whereHas('tests', function ($q) use ($test_id) {
-                $q->where('tests.id', $test_id);
+        if ($request->filled('key')) {
+            $search = $request->key;
+            $query->where(function ($q) use ($search) {
+                $q->where('question_text', 'like', '%' . $search . '%')
+                  ->orWhere('id', $search);
             });
         }
 
-        if (!auth()->user()->hasRole('administrator')) {
-            $questions->where('user_id', '=', auth()->user()->id);
-        }
+        $questions = $query->orderBy('id', 'desc')->paginate(25);
 
-        if ($request->show_deleted == 1) {
-            if (!Gate::allows('question_delete')) {
-                return abort(401);
-            }
-            // SoftDeletes removed - return empty query for deleted items
-            $questions->whereRaw('1 = 0'); // Return no results
-        }
+        $totalQuestions = Question::count();
+        $totalMarks = Question::sum('marks');
+        $pendingVerificationCount = Question::where('verification_status', 'pending')->count();
+        $approvedCount = Question::where('verification_status', 'approved')->count();
+        $rejectedCount = Question::where('verification_status', 'rejected')->count();
 
+        $subjects = Course::where('published', 1)->get(['id', 'title']);
+        $chapters = collect();
 
-        if (auth()->user()->can('question_view')) {
-            $has_view = true;
-        }
-        if (auth()->user()->can('question_edit')) {
-            $has_edit = true;
-        }
-        if (auth()->user()->can('question_delete')) {
-            $has_delete = true;
-        }
-
-        return DataTables::of($questions)
-            ->addIndexColumn()
-            ->addColumn('actions', function ($q) use ($has_view, $has_edit, $has_delete, $request) {
-                $view = "";
-                $edit = "";
-                $delete = "";
-                if ($request->show_deleted == 1) {
-                    return view('backend.datatable.action-trashed')->with(['route_label' => 'admin.questions', 'label' => 'question', 'value' => $q->id]);
-                }
-                if ($has_view) {
-                    $view = view('backend.datatable.action-view')
-                        ->with(['route' => route('admin.questions.show', ['question' => $q->id])])->render();
-                }
-                if ($has_edit) {
-                    $edit = view('backend.datatable.action-edit')
-                        ->with(['route' => route('admin.questions.edit', ['question' => $q->id])])
-                        ->render();
-                    $view .= $edit;
-                }
-
-                if ($has_delete) {
-                    $delete = view('backend.datatable.action-delete')
-                        ->with(['route' => route('admin.questions.destroy', ['question' => $q->id, 'test_id' => $request->test_id??''])])
-                        ->render();
-                    $view .= $delete;
-                }
-                return $view;
-
-            })
-            ->editColumn('question', function ($q) {
-                // UI expects Editor.js JSON; use question_json when available, fallback to question text.
-                return $q->question_json ?: $q->question;
-            })
-            ->editColumn('question_image', function ($q) {
-                return ($q->question_image != null) ? '<img height="50px" src="' . asset('storage/uploads/' . $q->question_image) . '">' : 'N/A';
-            })
-            ->rawColumns(['question_image', 'actions'])
-            ->make();
+        return view('backend.questions.index', compact(
+            'questions',
+            'totalQuestions',
+            'totalMarks',
+            'pendingVerificationCount',
+            'approvedCount',
+            'rejectedCount',
+            'subjects',
+            'chapters'
+        ));
     }
 
     /**
-     * Show the form for creating new Question.
+     * Show the form for creating a new question.
      *
      * @return \Illuminate\Http\Response
      */
     public function create()
     {
-        if (!Gate::allows('question_create')) {
-            return abort(401);
-        }
-        $tests = \App\Models\Test::get()->pluck('title', 'id');
-        $mockTests = MockTest::orderByDesc('id')->pluck('title', 'id');
-        return view('backend.questions.create', compact('tests', 'mockTests'));
+        $courses = Course::where('published', 1)->get(['id', 'title']);
+        $subjects = Subject::all(['id', 'title']);
+
+        return view('backend.questions.create', compact('courses', 'subjects'));
     }
 
     /**
-     * Store a newly created Question in storage.
+     * Store a newly created question in storage.
      *
-     * @param  \App\Http\Requests\StoreQuestionsRequest $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreQuestionsRequest $request)
+    public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'course_id'      => 'required|exists:courses,id',
+            'chapter_id'     => 'required|exists:lessons,id',
+            'question_text'  => 'required|array',
+            'question_text.en' => 'required|string',
+            'options'        => 'required|array|min:4|max:4',
+            'options.*.en'   => 'required|string',
+            'correct_answer' => 'required|array|min:1',
+            'solution'       => 'nullable|array',
+            'solution.en'    => 'nullable|string',
+            'marks'          => 'required|integer|min:1',
+            'difficulty'     => 'required|in:easy,medium,hard',
+            'is_prev_year'   => 'required|boolean',
+            'status'         => 'required|in:pending,approved,rejected',
+        ]);
 
-        if (!Gate::allows('question_create')) {
-            return abort(401);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
         }
+
         $request = $this->saveFiles($request);
-        $question = Question::create($request->all());
-        $question->user_id = auth()->user()->id;
-        $question->save();
-        $question->tests()->sync(array_filter((array)$request->input('tests')));
-        $question->mockTests()->sync(array_filter((array)$request->input('mock_tests')));
 
-        for ($q = 1; $q <= 4; $q++) {
-            $option = $request->input('option_text_' . $q, '');
-            $explanation = $request->input('explanation_' . $q, '');
-            if ($option != '') {
-                QuestionsOption::create([
-                    'question_id' => $question->id,
-                    'option_text' => $option,
-                    'explanation' => $explanation,
-                    'correct' => $request->input('correct_' . $q)
-                ]);
-            }
-        }
+        $data = $request->except(['_token', 'question_text', 'options', 'solution', 'correct_answer']);
+        $data['question_text'] = json_encode($request->question_text);
+        $data['options']       = json_encode($request->options);
+        $data['solution']      = $request->filled('solution.en') ? json_encode($request->solution) : null;
+        $data['correct_answer'] = implode(',', $request->correct_answer);
+        $data['verification_status'] = $request->status;
 
-        return redirect()->route('admin.questions.index')->withFlashSuccess(trans('alerts.backend.general.created'));
-    }
+        $question = Question::create($data);
 
-
-    /**
-     * Show the form for editing Question.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        if (!Gate::allows('question_edit')) {
-            return abort(401);
-        }
-        $question = Question::findOrFail($id);
-        $tests = \App\Models\Test::get()->pluck('title', 'id');
-
-        $mockTests = MockTest::orderByDesc('id')->pluck('title', 'id');
-        return view('backend.questions.edit', compact('question', 'tests', 'mockTests'));
+        return redirect()->route('admin.exams.questions.index')
+                         ->with('success', 'Question created successfully.');
     }
 
     /**
-     * Update Question in storage.
+     * Display the specified question.
      *
-     * @param  \App\Http\Requests\UpdateQuestionsRequest $request
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateQuestionsRequest $request, $id)
-    {
-        if (!Gate::allows('question_edit')) {
-            return abort(401);
-        }
-        $request = $this->saveFiles($request);
-        $question = Question::findOrFail($id);
-        $question->update($request->all());
-        $question->user_id = auth()->user()->id;
-        $question->save();
-        $question->tests()->sync(array_filter((array)$request->input('tests')));
-        $question->mockTests()->sync(array_filter((array)$request->input('mock_tests')));
-
-        for ($q = 1; $q <= 4; $q++) {
-            $option = $request->input('option_text_' . $q, '');
-            $explanation = $request->input('explanation_' . $q, '');
-            $option_id = $request->input('option_id_' . $q, '');
-            $correct = ($request->input('correct_' . $q) == 1) ? 1 : 0;
-            if ($option != '') {
-                $option_data = QuestionsOption::find($option_id);
-                if ($option_data) {
-                    $option_data->question_id = $question->id;
-                    $option_data->option_text = $option;
-                    $option_data->explanation = $explanation;
-                    $option_data->correct = $correct;
-                    $option_data->save();
-                }
-            }
-        }
-
-        return redirect()->route('admin.questions.index')->withFlashSuccess(trans('alerts.backend.general.updated'));
-    }
-
-
-    /**
-     * Display Question.
-     *
-     * @param  int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        if (!Gate::allows('question_view')) {
-            return abort(401);
-        }
-        $questions_options = \App\Models\QuestionsOption::where('question_id', $id)->get();
-        $tests = \App\Models\Test::whereHas('questions',
-            function ($query) use ($id) {
-                $query->where('id', $id);
-            })->get();
-
         $question = Question::findOrFail($id);
-
-        return view('backend.questions.show', compact('question', 'questions_options', 'tests'));
+        return view('backend.questions.show', compact('question'));
     }
 
+    /**
+     * Show the form for editing the specified question.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $question = Question::findOrFail($id);
+        $chapters = Lesson::where('course_id', $question->course_id)->get(['id', 'title']);
+
+        return view('backend.questions.edit', compact('question', 'chapters'));
+    }
 
     /**
-     * Remove Question from storage.
+     * Update the specified question in storage.
      *
-     * @param  int $id
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $question = Question::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'course_id'      => 'required|exists:courses,id',
+            'chapter_id'     => 'required|exists:lessons,id',
+            'question_text'  => 'required|array',
+            'question_text.en' => 'required|string',
+            'options'        => 'required|array|min:4|max:4',
+            'options.*.en'   => 'required|string',
+            'correct_answer' => 'required|array|min:1',
+            'solution'       => 'nullable|array',
+            'solution.en'    => 'nullable|string',
+            'marks'          => 'required|integer|min:1',
+            'difficulty'     => 'required|in:easy,medium,hard',
+            'is_prev_year'   => 'required|boolean',
+            'status'         => 'required|in:pending,approved,rejected',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        if ($request->hasFile('question_image')) {
+            $request = $this->saveFiles($request);
+        }
+
+        $data = $request->except(['_token', '_method', 'question_text', 'options', 'solution', 'correct_answer']);
+        $data['question_text'] = json_encode($request->question_text);
+        $data['options']       = json_encode($request->options);
+        $data['solution']      = $request->filled('solution.en') ? json_encode($request->solution) : null;
+        $data['correct_answer'] = implode(',', $request->correct_answer);
+        $data['verification_status'] = $request->status;
+
+        $question->update($data);
+
+        if ($request->status != 'pending') {
+            $question->verified_at = now();
+            $question->verified_by = auth()->id();
+            $question->save();
+        }
+
+        return redirect()->route('admin.exams.questions.index')
+                         ->with('success', 'Question updated successfully.');
+    }
+
+    /**
+     * Remove the specified question from storage.
+     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        if (!Gate::allows('question_delete')) {
-            return abort(401);
-        }
-        $question = Question::findOrFail($id);
-        if(request()->get('test_id'))
-            \DB::table('question_test')->where('question_id', $id)->where('test_id', request()->get('test_id'))->delete();
-        else
-            \DB::table('question_test')->where('question_id', $id)->delete();
-
-        $question->delete();
-
-        return redirect()->route('admin.questions.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
-    }
-
-    /**
-     * Delete all selected Question at once.
-     *
-     * @param Request $request
-     */
-    public function massDestroy(Request $request)
-    {
-        if (!Gate::allows('question_delete')) {
-            return abort(401);
-        }
-        if ($request->input('ids')) {
-            $entries = Question::whereIn('id', $request->input('ids'))->get();
-
-            foreach ($entries as $entry) {
-                $entry->delete();
-            }
-        }
-    }
-
-    public function bulkAssignMockTests(Request $request)
-    {
-        if (!Gate::allows('question_edit')) {
-            return abort(401);
-        }
-
-        $this->validate($request, [
-            'mock_test_id' => 'required|integer|exists:mock_tests,id',
-            'ids' => 'required|array|min:1',
-            'ids.*' => 'integer|exists:questions,id',
-        ]);
-
-        $mockTestId = (int) $request->mock_test_id;
-
-        $query = Question::whereIn('id', $request->input('ids', []));
-        if (!auth()->user()->hasRole('administrator')) {
-            $query->where('user_id', auth()->user()->id);
-        }
-
-        $questions = $query->get();
-
-        foreach ($questions as $question) {
-            $question->mockTests()->syncWithoutDetaching([$mockTestId]);
-        }
-
-        return redirect()
-            ->back()
-            ->withFlashSuccess('Selected questions assigned to mock test.');
-    }
-
-
-    /**
-     * Restore Question from storage.
-     * NOTE: SoftDeletes removed - restore functionality disabled
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function restore($id)
-    {
-        if (!Gate::allows('question_delete')) {
-            return abort(401);
-        }
-        // SoftDeletes removed - restore not available
-        return redirect()->route('admin.questions.index')->withFlashWarning('Restore functionality is not available - soft deletes are disabled.');
-    }
-
-    /**
-     * Permanently delete Question from storage.
-     * NOTE: SoftDeletes removed - this now does regular delete
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function perma_del($id)
-    {
-        if (!Gate::allows('question_delete')) {
-            return abort(401);
-        }
-        // SoftDeletes removed - just do regular delete
         $question = Question::findOrFail($id);
         $question->delete();
 
-        return redirect()->route('admin.questions.index')->withFlashSuccess(trans('alerts.backend.general.deleted'));
+        return redirect()->route('admin.exams.questions.index')
+                         ->with('success', 'Question deleted successfully.');
     }
 
     /**
-     * Upload image for Editor.js
+     * Load chapters for a given course (AJAX).
+     *
+     * @param  int  $courseId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function chapters($courseId)
+    {
+        $chapters = Lesson::where('course_id', $courseId)->get(['id', 'title']);
+        return response()->json($chapters);
+    }
+
+    /**
+     * Get pending questions for verification (AJAX).
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function uploadEditorImage(Request $request)
+    public function pending(Request $request)
     {
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        $courseId = $request->input('course_id');
+        $query = Question::where('verification_status', 'pending');
+
+        if ($courseId) {
+            $query->where('course_id', $courseId);
+        }
+
+        $questions = $query->get(['id']);
+        $pendingCount = $query->count();
+        $approvedCount = Question::where('verification_status', 'approved')->count();
+        $rejectedCount = Question::where('verification_status', 'rejected')->count();
+        $totalCount = Question::count();
+
+        return response()->json([
+            'questions'       => $questions,
+            'pending_count'   => $pendingCount,
+            'approved_count'  => $approvedCount,
+            'rejected_count'  => $rejectedCount,
+            'total_count'     => $totalCount,
+        ]);
+    }
+
+    /**
+     * Preview a question (AJAX for verification modal).
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function preview($id)
+    {
+        $question = Question::findOrFail($id);
+        return view('backend.questions.preview', compact('question'));
+    }
+
+    /**
+     * Verify a question (approve/reject) via AJAX.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verify(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'question_id' => 'required|exists:questions,id',
+            'status'      => 'required|in:approved,rejected',
+            'remarks'     => 'nullable|string',
         ]);
 
-        try {
-            $file = $request->file('image');
-            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public/uploads', $filename);
-            
-            return response()->json([
-                'success' => 1,
-                'file' => [
-                    'url' => asset('storage/uploads/' . $filename)
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => 0,
-                'error' => [
-                    'message' => 'Upload failed: ' . $e->getMessage()
-                ]
-            ], 500);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
+
+        $question = Question::find($request->question_id);
+        $question->verification_status = $request->status;
+        $question->verification_remarks = $request->remarks;
+        $question->verified_at = now();
+        $question->verified_by = auth()->id();
+        $question->save();
+
+        return response()->json(['success' => true, 'message' => 'Question ' . $request->status]);
+    }
+
+    /**
+     * Update chapter via AJAX (from index page).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateChapter(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'question_id' => 'required|exists:questions,id',
+            'chapter_id'  => 'required|exists:lessons,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $question = Question::find($request->question_id);
+        $question->chapter_id = $request->chapter_id;
+        $question->save();
+
+        return response()->json(['success' => true, 'message' => 'Chapter updated.']);
     }
 }

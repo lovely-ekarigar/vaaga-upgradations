@@ -31,11 +31,17 @@
                   <td>{{$demo->demo_request->demo_status}}</td>
                   <td>{{$demo->teacher->first_name}} {{$demo->teacher->last_name}}</td>
                   <td>{{$demo->date_time}}</td>
-                  <td>
-@if(isset($demo->api['recordings']->recording->internalMeetingID))
-    <a class="btn btn-sm btn-primary" href="https://asia-eu-2.meeting-recordings.com/playback/presentation/2.3/{{ $demo->api['recordings']->recording->internalMeetingID }}" target="_blank"><i class="fa fa-play-circle"></i> Watch Recording</a>
+               <td>
+
+@if(isset($demo->api['recordings']['recording']['internalMeetingID']))
+    <a class="btn btn-sm btn-primary"
+       href="https://asia-eu-2.meeting-recordings.com/playback/presentation/2.3/{{ $demo->api['recordings']['recording']['internalMeetingID'] }}"
+       target="_blank">
+       <i class="fa fa-play-circle"></i> Watch Recording
+    </a>
 @endif
-                  </td>
+
+</td>
                </tr>
               
                @endforeach

@@ -93,9 +93,11 @@
                                 <option value="onetoone_monthly" {{ old('course_mode') == 'onetoone_monthly' ? 'selected' : '' }}>1:1 Monthly Subscription</option>
                                 <option value="onetomany_full" {{ old('course_mode') == 'onetomany_full' ? 'selected' : '' }}>1:N Full Course</option>
                                 <option value="onetomany_monthly" {{ old('course_mode') == 'onetomany_monthly' ? 'selected' : '' }}>1:N Monthly Subscription</option>
+                                <option value="regular_monthly" {{ old('course_mode') == 'regular_monthly' ? 'selected' : '' }}>Regular Monthly Subscription</option>
+                                <option value="regular_monthly_1" {{ old('course_mode') == 'regular_monthly_1' ? 'selected' : '' }}>1:1 Regular Monthly Subscription</option>
                                 <option value="quarterly" {{ old('course_mode') == 'quarterly' ? 'selected' : '' }}>Quarterly Subscription</option>
-                                <option value="monthly" {{ old('course_mode') == 'monthly' ? 'selected' : '' }}>Half Yearly Subscription</option>
-                                <option value="full" {{ old('course_mode') == 'full' ? 'selected' : '' }}>Yearly Subscription</option>
+                                <option value="monthly" {{ old('course_mode') == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                                <option value="full" {{ old('course_mode') == 'full' ? 'selected' : '' }}>Full Course</option>
                             </select>
                             @error('course_mode')
                                 <span class="text-danger">{{ $message }}</span>

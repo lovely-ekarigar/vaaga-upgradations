@@ -67,51 +67,111 @@ use App\Models\Course;
             margin-top: 0.25rem;
         }
   /* //for video */
-        .video-control-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
+    /* VIDEO CONTROL */
 
-        .video-select {
-            flex: 0 0 85%;   /* Select thoda chhota */
-        }
-
-        .video-add-btn {
-            flex: 0 0 14%;   /* Button thoda bada */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Same height */
-        .video-select,
-        .video-add-btn {
-            height: 40px;
-        }
-
-
-        #video-template,
-    #video-list .form-group {
+.video-control-wrapper {
+    width: 100%;
     display: flex;
-    align-items: stretch;
     gap: 10px;
+    margin-bottom: 8px;
+}
+
+.video-select {
+    flex: 1;
+}
+
+.video-add-btn button {
+    width: 120px;
+}
+
+/* ADD VIDEO DEFAULT STATE */
+.video-add-btn button {
+    background: #ccc;
+    border-color: #ccc;
+    color: #333;
+}
+
+/* ACTIVE STATE */
+.video-add-btn button.active {
+    background: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+
+/* TOP SECTION : SELECT + ADD VIDEO */
+
+.video-control-wrapper {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.video-select {
+    flex: 1;
+}
+
+.video-add-btn button {
+    width: 110px;
+    height: 40px;
+}
+
+
+/* YOUTUBE DYNAMIC FIELD */
+
+#video-template,
+#video-list .form-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
 }
 
 #video-template .form-control,
 #video-list .form-group .form-control {
-    flex: 0 0 85%;
+    flex: 1;
     height: 40px;
+
+    /* long link ke liye */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 #video-template .remove-video,
 #video-list .form-group .remove-video {
-    flex: 0 0 14%;
+    width: 90px;
+    height: 35px;
+}
+
+
+/* MOBILE RESPONSIVE */
+
+@media (max-width:768px){
+
+    /*.video-control-wrapper{*/
+    /*    flex-direction: column;*/
+    /*}*/
+
+    /*.video-add-btn button{*/
+    /*    width: 100%;*/
+    /*}*/
+
+    #video-template,
+    #video-list .form-group{
+        flex-direction: row;
+    }
+    
+.video-add-btn button {
+    width: 110px;
     height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+}
+
+    #video-template .remove-video,
+    #video-list .form-group .remove-video{
+        width: 90px;
+    }
+
 }
     </style>
 @endpush

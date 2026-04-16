@@ -1,8 +1,8 @@
 @extends('frontend.layouts.app'.config('theme_layout'))
 
-@section('title', 'Contact VaaGa Academy - Get in Touch for Olympiad Coaching | '.app_name())
-@section('meta_description', 'Have questions? Contact VaaGa Academy to learn more about our online Olympiad coaching for Class 2–8 students in Maths, Science & English. Prepare for IMO, NSO & IEO exams with expert guidance.')
-@section('meta_keywords','Contact VaaGa Academy, Olympiad coaching contact, Online coaching inquiry, IMO NSO IEO coaching contact, Maths Science English coaching, Olympiad classes contact, Coaching center contact')
+@section('title', 'Contact | '.app_name())
+@section('meta_description', '')
+@section('meta_keywords','')
 
 @push('after-styles')
     <style>

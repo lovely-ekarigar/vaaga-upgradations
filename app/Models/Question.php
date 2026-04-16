@@ -25,6 +25,7 @@ class Question extends Model
         'question_json', 
         'question_image', 
         'score',
+         'status',  // <-- add this
         'exam_id',
         'question_text',
         'options',

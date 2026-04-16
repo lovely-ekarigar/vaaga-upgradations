@@ -67,96 +67,152 @@ trait FileUploadTrait
         }
         return $finalRequest;
     }
-public function saveAllFiles(Request $request, $fileInput = null, $model_type = null, $model = null)
+
+public function saveAllFiles(Request $request, $downloadable_file_input = null, $model_type = null, $model = null)
 {
-    $uploadPath = public_path('uploads/');
-    if (!is_dir($uploadPath)) {
+    $uploadPath = public_path('uploads');
+    $uploadUrl  = 'uploads/';
+
+    if (!file_exists($uploadPath)) {
         mkdir($uploadPath, 0777, true);
+        mkdir($uploadPath . '/thumb', 0777, true);
     }
 
-    if (!$fileInput || !$request->hasFile($fileInput)) {
-        return $request;
-    }
+    $finalRequest = $request;
 
-    $files = is_array($request->file($fileInput))
-        ? $request->file($fileInput)
-        : [$request->file($fileInput)];
+    foreach ($request->all() as $key => $value) {
 
-    foreach ($files as $file) {
-        if (!$file || !$file->isValid()) continue;
+        if ($request->hasFile($key)) {
 
-        $extension = strtolower($file->getClientOriginalExtension());
-        $name      = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeName  = preg_replace('/[^A-Za-z0-9_]+/', '_', $name);
-        $filename  = time() . '-' . \Illuminate\Support\Str::slug($safeName) . '.' . $extension;
+            if ($key == $downloadable_file_input) {
 
-        // ✅ Move FIRST before any other operation
-        $file->move($uploadPath, $filename);
+                // ✅ Downloadable — multiple files loop
+                foreach ($request->file($key) as $item) {
+                    if (!$item || !$item->isValid()) continue;
 
-        // ✅ Convert office files to PDF only if exec() is available
-        if (in_array($extension, ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'])) {
-            $inputFile = $uploadPath . $filename;
-            $pdfName   = pathinfo($filename, PATHINFO_FILENAME) . '.pdf';
-            $libreExe  = '/bin/libreoffice';
+                    $name      = pathinfo($item->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $item->getClientOriginalExtension();
+                    $filename  = $this->generateFilename($uploadPath, $name, $extension);
+                    $size      = $item->getSize() / 1024;
+                    $item->move($uploadPath, $filename);
 
-            $execEnabled = function_exists('exec')
-                && !in_array('exec', array_map('trim', explode(',', ini_get('disable_functions'))));
+                    Media::create([
+                        'model_type' => $model_type,
+                        'model_id'   => $model->id,
+                        'name'       => $filename,
+                        'url'        => asset($uploadUrl . $filename),
+                        'type'       => $item->getClientMimeType(),
+                        'file_name'  => $filename,
+                        'size'       => $size,
+                    ]);
+                }
 
-            if ($execEnabled) {
-                exec(
-                    $libreExe . ' --headless --convert-to pdf '
-                    . escapeshellarg($inputFile)
-                    . ' --outdir '
-                    . escapeshellarg($uploadPath)
-                );
+                $finalRequest = new Request($request->except($downloadable_file_input));
 
-                if (file_exists($uploadPath . $pdfName)) {
-                    @unlink($inputFile);
-                    $filename  = $pdfName;
+            } else {
+
+                if ($key != 'video_file') {
+
+                    if ($key == 'add_pdf') {
+
+                        // ✅ Multiple PDF files — sab process karo
+                        $files = is_array($request->file($key))
+                                    ? $request->file($key)
+                                    : [$request->file($key)];
+
+                        foreach ($files as $file) {
+                            if (!$file || !$file->isValid()) continue;
+
+                            $name      = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                            $extension = $file->getClientOriginalExtension();
+                            $filename  = $this->generateFilename($uploadPath, $name, $extension);
+                            $size      = $file->getSize() / 1024;
+                            $file->move($uploadPath, $filename);
+
+                            Media::create([
+                                'model_type' => $model_type,
+                                'model_id'   => $model->id,
+                                'name'       => $filename,
+                                'url'        => asset($uploadUrl . $filename),
+                                'type'       => 'lesson_pdf',
+                                'file_name'  => $filename,
+                                'size'       => $size,
+                            ]);
+                        }
+
+                        $finalRequest = new Request(array_merge($finalRequest->all(), [$key => 'processed']));
+
+                    } elseif ($key == 'add_audio') {
+
+                        // ✅ Multiple audio files
+                        $files = is_array($request->file($key))
+                                    ? $request->file($key)
+                                    : [$request->file($key)];
+
+                        foreach ($files as $file) {
+                            if (!$file || !$file->isValid()) continue;
+
+                            $name      = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                            $extension = $file->getClientOriginalExtension();
+                            $filename  = $this->generateFilename($uploadPath, $name, $extension);
+                            $size      = $file->getSize() / 1024;
+                            $file->move($uploadPath, $filename);
+
+                            Media::create([
+                                'model_type' => $model_type,
+                                'model_id'   => $model->id,
+                                'name'       => $filename,
+                                'url'        => asset($uploadUrl . $filename),
+                                'type'       => 'lesson_audio',
+                                'file_name'  => $filename,
+                                'size'       => $size,
+                            ]);
+                        }
+
+                        $finalRequest = new Request(array_merge($finalRequest->all(), [$key => 'processed']));
+
+                    } else {
+
+                        // Single file — lesson image etc
+                        $file      = $request->file($key);
+                        $name      = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                        $extension = $file->getClientOriginalExtension();
+                        $filename  = $this->generateFilename($uploadPath, $name, $extension);
+
+                        $file->move($uploadPath, $filename);
+
+                        $finalRequest = new Request(array_merge($finalRequest->all(), [$key => $filename]));
+
+                        $model->lesson_image = $filename;
+                        $model->save();
+                    }
                 }
             }
-            // If exec() disabled: file stays as .doc/.docx etc., still saved to DB
-        }
-
-        $size = filesize($uploadPath . $filename) / 1024;
-
-        if ($fileInput === 'add_pdf') {
-            Media::create([
-                'model_type' => $model_type,
-                'model_id'   => $model->id,
-                'name'       => $filename,
-                'url'        => asset('uploads/' . $filename),
-                'type'       => 'lesson_pdf',
-                'file_name'  => $filename,
-                'size'       => $size,
-            ]);
-        } elseif ($fileInput === 'add_audio') {
-            Media::create([
-                'model_type' => $model_type,
-                'model_id'   => $model->id,
-                'type'       => 'lesson_audio',
-                'file_name'  => $filename,
-                'url'        => asset('uploads/' . $filename),
-                'size'       => $size,
-            ]);
-        } elseif ($fileInput === 'downloadable_files') {
-            Media::create([
-                'model_type' => $model_type,
-                'model_id'   => $model->id,
-                'name'       => $filename,
-                'url'        => asset('uploads/' . $filename),
-                'type'       => 'downloadable',
-                'file_name'  => $filename,
-                'size'       => $size,
-            ]);
-        } else {
-            $model->lesson_image = $filename;
-            $model->save();
         }
     }
 
-    return $request;
+    return $finalRequest;
 }
+
+/* ─────────────────────────────────────
+   Helper — Clean unique filename
+───────────────────────────────────── */
+private function generateFilename(string $uploadPath, string $name, string $extension): string
+{
+    $slug     = Str::slug($name);
+    $filename = $slug . '.' . $extension;
+
+    if (file_exists($uploadPath . '/' . $filename)) {
+        $counter = 1;
+        while (file_exists($uploadPath . '/' . $slug . '_' . $counter . '.' . $extension)) {
+            $counter++;
+        }
+        $filename = $slug . '_' . $counter . '.' . $extension;
+    }
+
+    return $filename;
+}
+
 
     public function saveLogos(Request $request)
     {

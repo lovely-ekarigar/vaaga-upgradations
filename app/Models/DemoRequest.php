@@ -12,6 +12,26 @@ class DemoRequest extends Model
     use SoftDeletes;
 
     
+ 
+
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'user_id',
+        'course_id',
+        'status',
+        'teacher_id',
+        'demo_date_time',
+        'demo_status',
+        'instructions',
+        'remarks',
+        'api_class_id',
+        'student_join_at',
+        'ip',
+        'link',
+        'meet_link' // ✅ ADD THIS
+    ];
 
     public function coursed()
     {

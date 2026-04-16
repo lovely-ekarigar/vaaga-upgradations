@@ -97,12 +97,12 @@ class StudentController extends Controller
     {
         $this->validate($request, [
             'first_name' => 'required',
-            'middle_name' => 'required',
+            // 'middle_name' => 'required',
             'last_name' => 'required',
             'email' => 'required',
             'phone' => 'required',
-            'gender' => 'required',
-            'state' => 'required',
+            // 'gender' => 'required',
+            // 'state' => 'required',
 
         ], [
             'first_name.required' => 'Kindly Enter First Name',

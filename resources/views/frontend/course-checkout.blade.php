@@ -100,6 +100,12 @@ use App\Models\Board;
                                           @elseif(request('course_mode')=='onetoone_monthly') 
                                          
                                              @php $coursePrice=$course->monthly_price_1; @endphp
+                                                        @elseif(request('course_mode')=='regular_monthly') 
+                                         
+                                                            @php $coursePrice=$course->regular_monthly; @endphp
+                                                        @elseif(request('course_mode')=='regular_monthly_1') 
+                                         
+                                                            @php $coursePrice=$course->regular_monthly_1; @endphp
                                           @elseif(request('course_mode')=='onetomany_full') 
                                           
                                              @php $coursePrice=$course->price; @endphp
@@ -112,12 +118,20 @@ use App\Models\Board;
    @php $coursePrice=$course->monthly_price; @endphp
                                           @endif
 
+            @php
+                $selectedMode = request('course_mode');
+                $nonMonthlyModes = ['onetoone_full', 'onetomany_full', 'full', 'quarterly'];
+                $isMonthlyMode = $selectedMode === 'onetoone_monthly' || !in_array($selectedMode, $nonMonthlyModes, true);
+                $emiDuration = max((int) ($course->duration ?? 0), 0);
+                $emiBasePrice = (float) ($coursePrice ?? 0);
+            @endphp
+
 
             <!-- End Section --><!-- Section -->
             <section class="section pt-0">
                <div class="container mt-n12">
                   <div class="row  align-items-start gy-4">
-                        @php $prices = [] @endphp
+                        @php $prices = []; $emiPrices = [] @endphp
                         @if(!$purchased_course)
                          @if(count($courses)>1)
                      <div class="col-lg-8 col-xxl-9 wow fadeInUp " data-wow-duration="0.5s">
@@ -139,13 +153,23 @@ use App\Models\Board;
                                           @elseif(request('course_mode')=='onetoone_monthly') 
                                            @php $prices[] = array("id"=>$c->id,"price"=>round($c->monthly_price_1)) @endphp
                                              @php $price=round($c->monthly_price_1); @endphp
-                                          @elseif(request('course_mode')=='onetomany_full') 
+                                                                                    @elseif(request('course_mode')=='onetomany_full') 
                                            @php $prices[] = array("id"=>$c->id,"price"=>round($c->price)) @endphp
                                              @php $price=round($c->price); @endphp
+                                                                                    @elseif(request('course_mode')=='regular_monthly')
+ @php $prices[] = array("id"=>$c->id,"price"=>round($c->regular_monthly)) @endphp
+     @php $price=round($c->regular_monthly); @endphp
+                                                                                    @elseif(request('course_mode')=='regular_monthly_1')
+ @php $prices[] = array("id"=>$c->id,"price"=>round($c->regular_monthly_1)) @endphp
+         @php $price=round($c->regular_monthly_1); @endphp
                                           @else
  @php $prices[] = array("id"=>$c->id,"price"=>round($c->monthly_price)) @endphp
    @php $price=round($c->monthly_price); @endphp
                                           @endif
+                                          @php
+                                              $emiPrice = $price;
+                                              $emiPrices[] = array("id"=>$c->id,"price"=>$emiPrice);
+                                          @endphp
                                           @if($c->id!=$course->id)
 
                                           <?php $purchased_coursex = \Auth::check() && $c->students()->where('user_id', \Auth::id())->count() > 0; ?>
@@ -261,6 +285,13 @@ use App\Models\Board;
                                         <div class="col fw-bold">Payable</div>
                                         <div class="col text-end">₹ <span class="fw-bold" id="total_course_price">{{number_format($coursePrice)}}</span></div>
                                     </div>
+                                    @if($isMonthlyMode && $emiDuration > 0 && $selectedMode !== 'regular_monthly' && $selectedMode !== 'regular_monthly_1')
+                                    <hr>
+                                    <div id="emi_details" data-duration="{{$emiDuration}}">
+                                        <div class="fw-bold mb-1">Monthly EMI Plan ({{$emiDuration}} Months)</div>
+                                        <div id="emi_schedule_list"></div>
+                                    </div>
+                                    @endif
                                      <!-- <div class="row">
                                         <div class="col cus-gst">Prices are GST Inclusive</div>
                                         <div class="col text-end" style="display:none;"><span class="f-s-12"> (+)</span>₹ <span class="f-s-14 fw-500" id="gst_course_price">{{number_format($coursePrice*0.18)}}</span></div>
@@ -406,8 +437,11 @@ use App\Models\Board;
 
 <script>
 var selected = <?=$course->id?>;
+var selectedEmiPrice = <?=json_encode(round($emiBasePrice, 2))?>;
 var allcourses=[];
 var courses=<?=json_encode($prices)?>;
+var emiCourses=<?=json_encode($emiPrices)?>;
+var currentEmiTotal = selectedEmiPrice;
 
 
 $(document).on('change','.course-select',function(e){
@@ -427,9 +461,12 @@ allcourses=[];
 calculatePrice();
 
 function calculatePrice(){
-    allcourses.push(selected);
+   if(allcourses.indexOf(String(selected))===-1 && allcourses.indexOf(selected)===-1){
+       allcourses.push(selected);
+   }
    var total=0;
    var addonPrice=0;
+   var emiTotal=0;
    for(var i=0;i<allcourses.length;i++){
        for(var j=0;j<courses.length;j++){
            if(allcourses[i]==courses[j]["id"]){
@@ -444,16 +481,59 @@ function calculatePrice(){
        }
        
    } 
+   for(var m=0;m<allcourses.length;m++){
+       for(var n=0;n<emiCourses.length;n++){
+           if(allcourses[m]==emiCourses[n]["id"]){
+               emiTotal += parseFloat(emiCourses[n]["price"]);
+           }
+       }
+   }
+   if(emiTotal<=0){
+       emiTotal = parseFloat(selectedEmiPrice) || 0;
+   }
+   currentEmiTotal = emiTotal;
    $("#addon_course_price").html(numberWithCommas(addonPrice));
     $("#total_course_price").html(numberWithCommas(total));
     $("#total_course_price_").html(numberWithCommas(total));
     // $("#gst_course_price").html(numberWithCommas(total*0.18));
       $("#paybale_course_price").html(numberWithCommas(total*0.18+total));
    console.log(total,addonPrice);
+    renderEmiSchedule(emiTotal);
     processCoupon();
 }
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function parseAmount(value) {
+    if (typeof value === 'number') {
+        return value;
+    }
+    return parseFloat(String(value).replace(/,/g, '')) || 0;
+}
+
+function renderEmiSchedule(monthlyAmount) {
+    var emiContainer = $("#emi_details");
+    if (!emiContainer.length) {
+        return;
+    }
+
+    var duration = parseInt(emiContainer.data("duration"), 10);
+    if (!duration || duration < 1) {
+        return;
+    }
+
+    var perMonth = parseAmount(monthlyAmount);
+    var html = '';
+
+    for (var month = 1; month <= duration; month++) {
+        html += '<div class="row pb-1">'
+            + '<div class="col col-718096">Month ' + month + '</div>'
+            + '<div class="col text-end">₹ <span class="fw-bold">' + numberWithCommas(perMonth.toFixed(2)) + '</span></div>'
+            + '</div>';
+    }
+
+    $("#emi_schedule_list").html(html);
 }
 
  function onSubmit(token) {
@@ -499,8 +579,10 @@ $.ajax({
     //   $("#paybale_course_price").html(numberWithCommas(total*0.18+total));
     $("#total_discount").html(numberWithCommas(res.discount));
 $("#total_course_price").html(numberWithCommas(res.grant_total));
+renderEmiSchedule(res.grant_total);
 $("#gst_hidden").val(res.gst);
 $("#gst_course_price").html(numberWithCommas(res.gst));
+$("input[name='final_price']").val(res.grant_total);
 
 
 $("#discount_error").removeClass("fail");
@@ -511,6 +593,7 @@ $("#discount_error").html(res.html);
 
         $("#total_discount").html(numberWithCommas(res.discount));
 $("#total_course_price").html(numberWithCommas(res.grant_total));
+renderEmiSchedule(res.grant_total);
 $("#gst_hidden").val(res.gst);
 $("#gst_course_price").html(numberWithCommas(res.gst));
 if(coupon.trim()!=""){
@@ -523,6 +606,7 @@ $("#discount_error").html(res.html);
     error:function(er){
         $("#total_discount").html(total_discount);
         $("#total_course_price").html(total_course_price);
+        renderEmiSchedule(currentEmiTotal);
         console.log(er);
     }
 });
