@@ -382,5 +382,201 @@
     </div>
 </section>
 
+<section class="how-it-works">
+    <div class="container">
+        <div class="works-header">
+            <div class="header-left">
+                <span class="tagline">HOW IT WORKS</span>
+                <h2>Your Path to Success</h2>
+                <p>A Simple And Structured Process To Start Learning And Excel In Academics And Olympiad Exams.</p>
+            </div>
+            <div class="header-right">
+                <a href="#" class="btn-started">Get Started</a>
+            </div>
+        </div>
+        <div class="works-timeline">
+            <div class="timeline-step step-right">
+                <div class="step-badge"><span>Step 1</span></div>
+                <div class="step-content">
+                    <h3>Choose Your Program</h3>
+                    <p>Select the right course based on your class, goals, and interest in Olympiad preparation.</p>
+                </div>
+                <div class="step-image">
+                    <img src="https://placehold.co/400x300/d9d9d9/333?text=Choose+Program" alt="Choose Your Program">
+                </div>
+            </div>
+            <div class="timeline-step step-left">
+                <div class="step-badge"><span>Step 2</span></div>
+                <div class="step-image">
+                    <img src="https://placehold.co/400x300/d9d9d9/333?text=Instant+Access" alt="Get Instant Access">
+                </div>
+                <div class="step-content">
+                    <h3>Get Instant Access</h3>
+                    <p>Unlock your learning dashboard with access to live classes, recorded lectures, and study material.</p>
+                </div>
+            </div>
+            <div class="timeline-step step-right">
+                <div class="step-badge"><span>Step 3</span></div>
+                <div class="step-content">
+                    <h3>Learn & Practice</h3>
+                    <p>Attend interactive sessions, complete assignments, and solve Olympiad-level mock tests.</p>
+                </div>
+                <div class="step-image">
+                    <img src="https://placehold.co/400x300/d9d9d9/333?text=Learn+Practice" alt="Learn & Practice">
+                </div>
+            </div>
+            <div class="timeline-step step-left">
+                <div class="step-badge"><span>Step 4</span></div>
+                <div class="step-image">
+                    <img src="https://placehold.co/400x300/d9d9d9/333?text=Test+Improve" alt="Test & Improve">
+                </div>
+                <div class="step-content">
+                    <h3>Test & Improve</h3>
+                    <p>Take regular tests, analyze your performance, and improve with expert feedback and guidance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="container">
+        <div class="features-header">
+            <div class="header-left">
+                <span class="tagline">Features And Benefits</span>
+                <h2>Everything <span>You Need to Succeed</span></h2>
+                <p>A Complete Learning Ecosystem Designed For Academic Excellence And Olympiad Success.</p>
+            </div>
+            <div class="header-right">
+                <a href="#" class="btn-prep">Start Olympiad Prep</a>
+            </div>
+        </div>
+        <div class="features-body">
+            <div class="features-images">
+                <div class="feature-img">
+                    <img src="https://placehold.co/500x350/d9d9d9/333?text=Student" alt="Student learning">
+                </div>
+                <div class="feature-img">
+                    <img src="https://placehold.co/500x350/d9d9d9/333?text=Study" alt="Study materials">
+                </div>
+                <div class="feature-img">
+                    <img src="https://placehold.co/500x350/d9d9d9/333?text=Student" alt="Student with headphones">
+                </div>
+            </div>
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">01</span><span class="f-title">Live & Interactive Classes</span></div>
+                    <p>Engage in real-time sessions with expert educators, designed to simplify concepts and encourage active participation.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">02</span><span class="f-title">Recorded Lectures</span></div>
+                    <p>Access high-quality recorded sessions anytime, allowing you to learn at your own pace and revise easily.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">03</span><span class="f-title">Structured Study Material</span></div>
+                    <p>Well-organized notes, worksheets, and resources aligned with aligned with Olympiad curriculum.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">04</span><span class="f-title">Olympiad Practical Sets</span></div>
+                    <p>Advanced-level questions and topic-wise practice designed to prepare students for national and international Olympiad exams.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">05</span><span class="f-title">Regular Mock Tests</span></div>
+                    <p>Regular assessments to evaluate progress, improve accuracy, and build exam confidence.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">06</span><span class="f-title">Doubt Solving Support</span></div>
+                    <p>Get your queries resolved quickly through dedicated doubt-clearing sessions and mentor support.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">07</span><span class="f-title">Performance Analytics</span></div>
+                    <p>Track your progress with detailed reports, identify weak areas, and improve strategically.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">08</span><span class="f-title">Expert Mentorship</span></div>
+                    <p>Learn from experienced educators who guide you through academic challenges and Olympiad preparation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="testimonials">
+    <div class="container">
+        <div class="testimonials-header">
+            <div class="header-left">
+                <span class="tagline">Testimonials</span>
+                <h2>What Students Say</h2>
+                <p>Real experiences from students achieving academic success and excelling in Olympiad exams.</p>
+            </div>
+            <div class="header-right">
+                <div class="carousel-nav">
+                    <button class="nav-arrow prev"><i class="bi bi-arrow-left"></i></button>
+                    <div class="nav-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <button class="nav-arrow next"><i class="bi bi-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-video">
+                <img src="https://placehold.co/600x400/333/fff?text=Video+Testimonial" alt="Video testimonial">
+                <div class="play-button">
+                    <i class="bi bi-play-fill"></i>
+                </div>
+            </div>
+            <div class="testimonial-cards">
+                <div class="t-card t-dark">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="quote">The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.</p>
+                    <div class="author">
+                        <strong>Riya Sharma</strong>
+                        <span>Class 9 Student</span>
+                    </div>
+                </div>
+                <div class="t-card t-teal">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="quote">The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.</p>
+                    <div class="author">
+                        <strong>Riya Sharma</strong>
+                        <span>Class 9 Student</span>
+                    </div>
+                </div>
+                <div class="t-card t-light">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="quote">The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.</p>
+                    <div class="author">
+                        <strong>Riya Sharma</strong>
+                        <span>Class 9 Student</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section style="padding: 30% !important;"></section>
 @endsection
