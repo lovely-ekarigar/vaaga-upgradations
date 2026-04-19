@@ -325,29 +325,58 @@
                 <p>Boost School Performance With Our Academic Excellence Classes CBSE, ICSE And Other Boards — Focused On Clear Concepts, Regular Practice, And Exam Readiness.</p>
             </div>
         </div>
-        <div class="support-body">
-            <div class="support-list">
-                <h4>What You Get:</h4>
-                <ul>
-                    <li>Complete syllabus coverage</li>
-                    <li>Chapter-wise concept clarity</li>
-                    <li>Regular tests &amp; revision sessions</li>
-                    <li>Doubt-solving with expert teachers</li>
-                    <li>Homework support &amp; exam preparation</li>
-                    <li>Exam preparation &amp; Readiness</li>
-                </ul>
-            </div>
+        <div class="support-gallery-wrapper">
             <div class="support-gallery">
                 <div class="gallery-card">
                     <img src="https://placehold.co/400x600/d9d9d9/333?text=Study" alt="Study space">
                 </div>
-                <div class="gallery-card featured">
+                <div class="gallery-card">
                     <img src="https://placehold.co/400x600/d9d9d9/333?text=Student" alt="Student studying">
-                    <a href="#" class="btn-seat">Book Your Seat</a>
+                </div>
+                <div class="gallery-card">
+                    <img src="https://placehold.co/400x600/d9d9d9/333?text=Lamp" alt="Study lamp">
                 </div>
                 <div class="gallery-card">
                     <img src="https://placehold.co/400x600/d9d9d9/333?text=Desk" alt="Study desk">
                 </div>
+            </div>
+            <div class="gallery-bottom-bar">
+                <div class="support-list">
+                    <h4>What You Get:</h4>
+                    <ul>
+                        <li>Complete syllabus coverage</li>
+                        <li>Chapter-wise concept clarity</li>
+                        <li>Regular tests &amp; revision sessions</li>
+                        <li>Doubt-solving with expert teachers</li>
+                        <li>Homework support &amp; exam preparation</li>
+                        <li>Exam preparation &amp; Readiness</li>
+                    </ul>
+                </div>
+                <a href="#" class="btn-seat">Book Your Seat</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="anytime-learning">
+    <div class="container">
+        <div class="anytime-row">
+            <div class="anytime-image">
+                <img src="https://placehold.co/600x500/d9d9d9/333?text=Self+Learning" alt="Self Learning">
+            </div>
+            <div class="anytime-content">
+                <span class="tagline-dark">Self Learning</span>
+                <h2>Anytime Learning</h2>
+                <p>Empower students to learn at their own pace with our flexible Self Learning programs. Designed for independent study, this mode allows learners to access high-quality content anytime, anywhere—perfect for revision, practice, and concept mastery.</p>
+                <h4>Features</h4>
+                <ul>
+                    <li>Recorded video lectures</li>
+                    <li>Topic-wise study modules</li>
+                    <li>Mock Test Series</li>
+                    <li>Anytime, anywhere access</li>
+                    <li>Self-paced progress tracking</li>
+                </ul>
+                <a href="#" class="btn-enroll">Enroll Now</a>
             </div>
         </div>
     </div>
