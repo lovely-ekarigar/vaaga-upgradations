@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/new_ui/style.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/new_ui/header.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/new_ui/contact.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/new_ui/courses.css') }}?v={{ time() }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>

@@ -678,3 +678,6 @@ Route::get('new_ui/latest_ui/home', function () {
 Route::get('new_ui/latest_ui/contact', function () {
     return view('new_ui.latest_ui.pages.contact');
 });
+Route::get('new_ui/latest_ui/courses', function () {
+    return view('new_ui.latest_ui.pages.courses');
+});
