@@ -466,13 +466,13 @@
         <div class="features-body">
             <div class="features-images">
                 <div class="feature-img">
-                    <img src="https://placehold.co/500x350/d9d9d9/333?text=Student" alt="Student learning">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Student learning with headphones">
                 </div>
                 <div class="feature-img">
-                    <img src="https://placehold.co/500x350/d9d9d9/333?text=Study" alt="Study materials">
+                    <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Study desk with books">
                 </div>
                 <div class="feature-img">
-                    <img src="https://placehold.co/500x350/d9d9d9/333?text=Student" alt="Student with headphones">
+                    <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Student attending online class">
                 </div>
             </div>
             <div class="features-list">
@@ -590,5 +590,5 @@
     </div>
 </section>
 
-<section style="padding: 30% !important;"></section>
+<section style="padding: 4% !important;"></section>
 @endsection
