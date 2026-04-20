@@ -92,7 +92,7 @@
         </div>
         <div class="collapse show" id="class2Cards">
             <div class="cards-carousel-wrapper">
-                <button class="carousel-arrow arrow-left" onclick="scrollClass2(-1)"><i class="bi bi-chevron-left"></i></button>
+                <button class="carousel-arrow arrow-left" onclick="scrollCards(this, -1)"><i class="bi bi-chevron-left"></i></button>
                 <div class="cards-scroll-row" id="class2Scroll">
                     <!-- Math -->
                     <div class="olympiad-card-h">
@@ -205,7 +205,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="carousel-arrow arrow-right" onclick="scrollClass2(1)"><i class="bi bi-chevron-right"></i></button>
+                <button class="carousel-arrow arrow-right" onclick="scrollCards(this, 1)"><i class="bi bi-chevron-right"></i></button>
             </div>
         </div>
     </div>
@@ -223,7 +223,9 @@
                 </div>
                 <div id="class3" class="collapse" data-bs-parent="#olympiadAccordion">
                     <div class="accordion-body-custom">
-                        <div class="cards-scroll-row">
+                        <div class="cards-carousel-wrapper">
+                            <button class="carousel-arrow arrow-left" onclick="scrollCards(this, -1)"><i class="bi bi-chevron-left"></i></button>
+                            <div class="cards-scroll-row">
                             <div class="olympiad-card-h">
                                 <div class="card-left bg-teal">
                                     <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Math">
@@ -331,6 +333,8 @@
                                     </div>
                                 </div>
                             </div>
+                            </div>
+                            <button class="carousel-arrow arrow-right" onclick="scrollCards(this, 1)"><i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -343,7 +347,9 @@
                 </div>
                 <div id="class4" class="collapse" data-bs-parent="#olympiadAccordion">
                     <div class="accordion-body-custom">
-                        <div class="cards-scroll-row">
+                        <div class="cards-carousel-wrapper">
+                            <button class="carousel-arrow arrow-left" onclick="scrollCards(this, -1)"><i class="bi bi-chevron-left"></i></button>
+                            <div class="cards-scroll-row">
                             <div class="olympiad-card-h">
                                 <div class="card-left bg-teal">
                                     <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Math">
@@ -451,6 +457,8 @@
                                     </div>
                                 </div>
                             </div>
+                            </div>
+                            <button class="carousel-arrow arrow-right" onclick="scrollCards(this, 1)"><i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -463,7 +471,9 @@
                 </div>
                 <div id="class5" class="collapse" data-bs-parent="#olympiadAccordion">
                     <div class="accordion-body-custom">
-                        <div class="cards-scroll-row">
+                        <div class="cards-carousel-wrapper">
+                            <button class="carousel-arrow arrow-left" onclick="scrollCards(this, -1)"><i class="bi bi-chevron-left"></i></button>
+                            <div class="cards-scroll-row">
                             <div class="olympiad-card-h">
                                 <div class="card-left bg-teal">
                                     <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Math">
@@ -571,6 +581,8 @@
                                     </div>
                                 </div>
                             </div>
+                            </div>
+                            <button class="carousel-arrow arrow-right" onclick="scrollCards(this, 1)"><i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -583,7 +595,9 @@
                 </div>
                 <div id="class6" class="collapse" data-bs-parent="#olympiadAccordion">
                     <div class="accordion-body-custom">
-                        <div class="cards-scroll-row">
+                        <div class="cards-carousel-wrapper">
+                            <button class="carousel-arrow arrow-left" onclick="scrollCards(this, -1)"><i class="bi bi-chevron-left"></i></button>
+                            <div class="cards-scroll-row">
                             <div class="olympiad-card-h">
                                 <div class="card-left bg-teal">
                                     <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Math">
@@ -691,6 +705,8 @@
                                     </div>
                                 </div>
                             </div>
+                            </div>
+                            <button class="carousel-arrow arrow-right" onclick="scrollCards(this, 1)"><i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -703,7 +719,9 @@
                 </div>
                 <div id="class7" class="collapse" data-bs-parent="#olympiadAccordion">
                     <div class="accordion-body-custom">
-                        <div class="cards-scroll-row">
+                        <div class="cards-carousel-wrapper">
+                            <button class="carousel-arrow arrow-left" onclick="scrollCards(this, -1)"><i class="bi bi-chevron-left"></i></button>
+                            <div class="cards-scroll-row">
                             <div class="olympiad-card-h">
                                 <div class="card-left bg-teal">
                                     <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Math">
@@ -811,6 +829,8 @@
                                     </div>
                                 </div>
                             </div>
+                            </div>
+                            <button class="carousel-arrow arrow-right" onclick="scrollCards(this, 1)"><i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -823,7 +843,9 @@
                 </div>
                 <div id="class8" class="collapse" data-bs-parent="#olympiadAccordion">
                     <div class="accordion-body-custom">
-                        <div class="cards-scroll-row">
+                        <div class="cards-carousel-wrapper">
+                            <button class="carousel-arrow arrow-left" onclick="scrollCards(this, -1)"><i class="bi bi-chevron-left"></i></button>
+                            <div class="cards-scroll-row">
                             <div class="olympiad-card-h">
                                 <div class="card-left bg-teal">
                                     <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Math">
@@ -931,6 +953,8 @@
                                     </div>
                                 </div>
                             </div>
+                            </div>
+                            <button class="carousel-arrow arrow-right" onclick="scrollCards(this, 1)"><i class="bi bi-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -961,32 +985,49 @@
 <section style="padding: 4% !important;"></section>
 
 <script>
-/* Carousel scroll for Class 2 cards */
-function scrollClass2(dir) {
-    var el = document.getElementById('class2Scroll');
-    if (!el) return;
-    var cardW = el.querySelector('.olympiad-card-h');
-    var step = cardW ? (cardW.offsetWidth + 16) : 360;
-    el.scrollBy({ left: dir * step, behavior: 'smooth' });
+/* Generic carousel scroll for any card row */
+function scrollCards(btn, dir) {
+    var wrapper = btn.closest('.cards-carousel-wrapper');
+    if (!wrapper) return;
+    var row = wrapper.querySelector('.cards-scroll-row');
+    if (!row) return;
+    var card = row.querySelector('.olympiad-card-h');
+    var step = card ? (card.offsetWidth + 16) : 360;
+    row.scrollBy({ left: dir * step, behavior: 'smooth' });
 }
 
-/* Accordion bar icon toggle */
+/* Class 2 bar icon toggle */
 document.addEventListener('DOMContentLoaded', function () {
-    var bars = document.querySelectorAll('.accordion-bar, .class-bar');
-    bars.forEach(function (bar) {
-        bar.addEventListener('click', function () {
-            var icon = bar.querySelector('.toggle-icon i, .acc-icon i');
+    var class2Bar = document.querySelector('.class-bar');
+    if (class2Bar) {
+        class2Bar.addEventListener('click', function () {
+            var icon = class2Bar.querySelector('.toggle-icon i');
             if (!icon) return;
             setTimeout(function () {
-                var expanded = bar.getAttribute('aria-expanded') === 'true';
-                if (bar.classList.contains('class-bar')) {
-                    icon.className = expanded ? 'bi bi-chevron-up' : 'bi bi-chevron-down';
-                } else {
-                    icon.className = expanded ? 'bi bi-arrow-down-circle' : 'bi bi-arrow-up-right-circle';
-                }
-            }, 10);
+                var expanded = class2Bar.getAttribute('aria-expanded') === 'true';
+                icon.className = expanded ? 'bi bi-chevron-up' : 'bi bi-chevron-down';
+            }, 350);
         });
-    });
+    }
+
+    /* Accordion icon toggle using Bootstrap collapse events */
+    var accordion = document.getElementById('olympiadAccordion');
+    if (accordion) {
+        accordion.addEventListener('shown.bs.collapse', function (e) {
+            var bar = document.querySelector('[data-bs-target="#' + e.target.id + '"]');
+            if (bar) {
+                var icon = bar.querySelector('.acc-icon i');
+                if (icon) icon.className = 'bi bi-arrow-down-circle';
+            }
+        });
+        accordion.addEventListener('hidden.bs.collapse', function (e) {
+            var bar = document.querySelector('[data-bs-target="#' + e.target.id + '"]');
+            if (bar) {
+                var icon = bar.querySelector('.acc-icon i');
+                if (icon) icon.className = 'bi bi-arrow-up-right-circle';
+            }
+        });
+    }
 });
 </script>
 @endsection

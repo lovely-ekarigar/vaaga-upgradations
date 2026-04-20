@@ -1,3 +1,5 @@
+<section style="padding: 4% !important;"></section>
+
 <footer>
 
 <section class="footer">

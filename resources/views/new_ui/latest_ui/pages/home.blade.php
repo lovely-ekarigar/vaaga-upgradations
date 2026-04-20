@@ -633,7 +633,6 @@
     </div>
 </section>
 
-<section style="padding: 4% !important;"></section>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // TESTIMONIALS CAROUSEL
