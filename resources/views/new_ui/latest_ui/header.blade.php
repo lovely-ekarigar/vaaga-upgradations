@@ -25,13 +25,13 @@
                     </button>
                     <div class="collapse navbar-collapse justify-content-center navigation-area" id="mainNavbar">
                         <ul class="navbar-nav">
-                            <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                            <li class="nav-item"><a class="nav-link active" href="{{ url('new_ui/latest_ui/home') }}">Home</a></li>
                             <li class="nav-item"><a class="nav-link" href="#">About Us</a></li>
                             <li class="nav-item"><a class="nav-link" href="#">Courses</a></li>
                             <li class="nav-item"><a class="nav-link" href="#">Olympiad Exams</a></li>
                             <li class="nav-item"><a class="nav-link" href="#">Self Learning</a></li>
                             <li class="nav-item"><a class="nav-link" href="#">How It Works</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url('new_ui/latest_ui/contact') }}">Contact Us</a></li>
                         </ul>
                     </div>
                     <div class="auth-buttons">

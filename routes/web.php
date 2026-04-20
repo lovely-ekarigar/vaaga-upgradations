@@ -675,3 +675,6 @@ Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
 Route::get('new_ui/latest_ui/home', function () {
     return view('new_ui.latest_ui.pages.home');
 });
+Route::get('new_ui/latest_ui/contact', function () {
+    return view('new_ui.latest_ui.pages.contact');
+});
