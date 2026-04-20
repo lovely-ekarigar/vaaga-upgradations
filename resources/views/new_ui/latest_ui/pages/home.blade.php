@@ -395,44 +395,56 @@
             </div>
         </div>
         <div class="works-timeline">
+            <!-- Step 1 -->
             <div class="timeline-step step-right">
                 <div class="step-badge"><span>Step 1</span></div>
-                <div class="step-content">
-                    <h3>Choose Your Program</h3>
-                    <p>Select the right course based on your class, goals, and interest in Olympiad preparation.</p>
-                </div>
-                <div class="step-image">
-                    <img src="https://placehold.co/400x300/d9d9d9/333?text=Choose+Program" alt="Choose Your Program">
+                <div class="step-inner">
+                    <div class="step-content">
+                        <h3>Choose Your Program</h3>
+                        <p>Select the right course based on your class, goals, and interest in Olympiad preparation.</p>
+                    </div>
+                    <div class="step-image">
+                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Choose+Program" alt="Choose Your Program">
+                    </div>
                 </div>
             </div>
+            <!-- Step 2 -->
             <div class="timeline-step step-left">
                 <div class="step-badge"><span>Step 2</span></div>
-                <div class="step-image">
-                    <img src="https://placehold.co/400x300/d9d9d9/333?text=Instant+Access" alt="Get Instant Access">
-                </div>
-                <div class="step-content">
-                    <h3>Get Instant Access</h3>
-                    <p>Unlock your learning dashboard with access to live classes, recorded lectures, and study material.</p>
+                <div class="step-inner">
+                    <div class="step-image">
+                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Instant+Access" alt="Get Instant Access">
+                    </div>
+                    <div class="step-content">
+                        <h3>Get Instant Access</h3>
+                        <p>Unlock your learning dashboard with access to live classes, recorded lectures, and study material.</p>
+                    </div>
                 </div>
             </div>
+            <!-- Step 3 -->
             <div class="timeline-step step-right">
                 <div class="step-badge"><span>Step 3</span></div>
-                <div class="step-content">
-                    <h3>Learn & Practice</h3>
-                    <p>Attend interactive sessions, complete assignments, and solve Olympiad-level mock tests.</p>
-                </div>
-                <div class="step-image">
-                    <img src="https://placehold.co/400x300/d9d9d9/333?text=Learn+Practice" alt="Learn & Practice">
+                <div class="step-inner">
+                    <div class="step-content">
+                        <h3>Learn & Practice</h3>
+                        <p>Attend interactive sessions, complete assignments, and solve Olympiad-level mock tests.</p>
+                    </div>
+                    <div class="step-image">
+                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Learn+Practice" alt="Learn & Practice">
+                    </div>
                 </div>
             </div>
+            <!-- Step 4 -->
             <div class="timeline-step step-left">
                 <div class="step-badge"><span>Step 4</span></div>
-                <div class="step-image">
-                    <img src="https://placehold.co/400x300/d9d9d9/333?text=Test+Improve" alt="Test & Improve">
-                </div>
-                <div class="step-content">
-                    <h3>Test & Improve</h3>
-                    <p>Take regular tests, analyze your performance, and improve with expert feedback and guidance.</p>
+                <div class="step-inner">
+                    <div class="step-image">
+                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Test+Improve" alt="Test & Improve">
+                    </div>
+                    <div class="step-content">
+                        <h3>Test & Improve</h3>
+                        <p>Take regular tests, analyze your performance, and improve with expert feedback and guidance.</p>
+                    </div>
                 </div>
             </div>
         </div>

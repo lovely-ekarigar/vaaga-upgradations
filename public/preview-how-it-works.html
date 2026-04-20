@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works - Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+        .container { max-width: 1140px; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* HOW IT WORKS */
+        .how-it-works {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+        .works-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 60px;
+            gap: 30px;
+        }
+        .works-header .header-left .tagline {
+            background: #047185;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            padding: 6px 18px;
+            border-radius: 4px;
+            display: inline-block;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .works-header .header-left h2 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #047185;
+            margin: 0 0 10px;
+        }
+        .works-header .header-left p {
+            font-size: 14px;
+            color: #555555;
+            max-width: 480px;
+            margin: 0;
+        }
+        .btn-started {
+            background: #047185;
+            color: #ffffff;
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn-started:hover {
+            background: #0a8fa3;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .works-timeline {
+            position: relative;
+            padding: 0;
+        }
+        .timeline-step {
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin-bottom: 0;
+            z-index: 1;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        .timeline-step:nth-child(1) { animation-delay: 0s; }
+        .timeline-step:nth-child(2) { animation-delay: 0.15s; }
+        .timeline-step:nth-child(3) { animation-delay: 0.3s; }
+        .timeline-step:nth-child(4) { animation-delay: 0.45s; }
+        .timeline-step:last-child {
+            margin-bottom: 0;
+        }
+
+        /* S-curve dashed border */
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-top: 2px dashed #0E212F;
+            border-bottom: 2px dashed #0E212F;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .timeline-step:nth-child(odd)::before {
+            border-left: 2px dashed #0E212F;
+            border-right: none;
+            border-top-left-radius: 100px;
+            border-bottom-left-radius: 100px;
+        }
+        .timeline-step:nth-child(even)::before {
+            border-right: 2px dashed #0E212F;
+            border-left: none;
+            border-top-right-radius: 100px;
+            border-bottom-right-radius: 100px;
+        }
+
+        .step-right {
+            flex-direction: row;
+            padding: 50px;
+        }
+        .step-left {
+            flex-direction: row-reverse;
+            padding: 50px;
+        }
+
+        .step-inner {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        .step-right .step-inner {
+            flex-direction: row;
+            padding-left: 16px;
+        }
+        .step-left .step-inner {
+            flex-direction: row-reverse;
+            padding-right: 16px;
+        }
+
+        .step-badge {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #047185;
+            color: #ffffff;
+            padding: 18px 10px;
+            border-radius: 24px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 2;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 16px rgba(4,113,133,0.3);
+        }
+        .timeline-step:nth-child(odd) .step-badge {
+            left: -22px;
+        }
+        .timeline-step:nth-child(even) .step-badge {
+            right: -22px;
+        }
+
+        .step-content {
+            width: 45%;
+            padding: 0;
+        }
+        .step-content h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #047185;
+            margin-bottom: 10px;
+        }
+        .step-content p {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #555555;
+            margin: 0;
+        }
+        .step-image {
+            width: 45%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .step-image img {
+            max-width: 100%;
+            height: auto;
+            max-height: 280px;
+            object-fit: contain;
+            transition: transform 0.4s ease;
+        }
+        .step-image img:hover {
+            transform: scale(1.04);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .how-it-works { padding: 50px 0; }
+            .works-header {
+                flex-direction: column;
+                gap: 20px;
+                margin-bottom: 40px;
+            }
+            .works-header .header-left h2 { font-size: 28px; }
+            .btn-started { width: 100%; text-align: center; }
+            .works-timeline { padding-left: 30px; }
+            .works-timeline .timeline-step {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 20px;
+                padding: 70px 20px 30px 20px;
+            }
+            .works-timeline .timeline-step:last-child { margin-bottom: 0; }
+            .works-timeline .timeline-step::before {
+                left: 0;
+                top: 0;
+                bottom: 0;
+                right: auto;
+                width: 2px;
+                border: none;
+                border-left: 2px dashed #0E212F;
+                border-radius: 0;
+            }
+            .works-timeline .timeline-step:nth-child(even)::before {
+                left: 0;
+                right: auto;
+                border-left: 2px dashed #0E212F;
+                border-right: none;
+                border-radius: 0;
+            }
+            .works-timeline .timeline-step .step-badge {
+                left: -22px !important;
+                right: auto !important;
+                top: 18px;
+                transform: none;
+                writing-mode: horizontal-tb;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 10px;
+            }
+            .step-inner {
+                flex-direction: column !important;
+                gap: 20px;
+            }
+            .step-content { width: 100%; padding: 10px 0; }
+            .step-content h3 { font-size: 20px; }
+            .step-image { width: 100%; margin-bottom: 12px; order: -1; }
+            .step-image img { max-height: 200px; }
+        }
+        @media (min-width: 768px) and (max-width: 991px) {
+            .how-it-works { padding: 60px 0; }
+            .works-header .header-left h2 { font-size: 30px; }
+            .step-right { padding: 40px; }
+            .step-left { padding: 40px; }
+            .step-content h3 { font-size: 22px; }
+            .step-image img { max-height: 220px; }
+        }
+    </style>
+</head>
+<body>
+
+<section class="how-it-works">
+    <div class="container">
+        <div class="works-header">
+            <div class="header-left">
+                <span class="tagline">HOW IT WORKS</span>
+                <h2>Your Path to Success</h2>
+                <p>A Simple And Structured Process To Start Learning And Excel In Academics And Olympiad Exams.</p>
+            </div>
+            <div class="header-right">
+                <a href="#" class="btn-started">Get Started</a>
+            </div>
+        </div>
+        <div class="works-timeline">
+            <!-- Step 1 -->
+            <div class="timeline-step step-right">
+                <div class="step-badge"><span>Step 1</span></div>
+                <div class="step-inner">
+                    <div class="step-content">
+                        <h3>Choose Your Program</h3>
+                        <p>Select the right course based on your class, goals, and interest in Olympiad preparation.</p>
+                    </div>
+                    <div class="step-image">
+                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Choose+Program" alt="Choose Your Program">
+                    </div>
+                </div>
+            </div>
+            <!-- Step 2 -->
+            <div class="timeline-step step-left">
+                <div class="step-badge"><span>Step 2</span></div>
+                <div class="step-inner">
+                    <div class="step-image">
+                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Instant+Access" alt="Get Instant Access">
+                    </div>
+                    <div class="step-content">
+                        <h3>Get Instant Access</h3>
+                        <p>Unlock your learning dashboard with access to live classes, recorded lectures, and study material.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Step 3 -->
+            <div class="timeline-step step-right">
+                <div class="step-badge"><span>Step 3</span></div>
+                <div class="step-inner">
+                    <div class="step-content">
+                        <h3>Learn & Practice</h3>
+                        <p>Attend interactive sessions, complete assignments, and solve Olympiad-level mock tests.</p>
+                    </div>
+                    <div class="step-image">
+                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Learn+Practice" alt="Learn & Practice">
+                    </div>
+                </div>
+            </div>
+            <!-- Step 4 -->
+            <div class="timeline-step step-left">
+                <div class="step-badge"><span>Step 4</span></div>
+                <div class="step-inner">
+                    <div class="step-image">
+                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Test+Improve" alt="Test & Improve">
+                    </div>
+                    <div class="step-content">
+                        <h3>Test & Improve</h3>
+                        <p>Take regular tests, analyze your performance, and improve with expert feedback and guidance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

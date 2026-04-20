@@ -1,0 +1,34 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: HOW IT WORKS
+      - heading "Your Path to Success" [level=2] [ref=e7]
+      - paragraph [ref=e8]: A simple and structured process to start learning and excel in academics and Olympiad exams.
+    - link "Get Started" [ref=e10] [cursor=pointer]:
+      - /url: "#"
+  - generic [ref=e11]:
+    - img
+    - generic [ref=e13]:
+      - generic [ref=e14]: Step 1
+      - generic [ref=e15]:
+        - heading "Choose Your Program" [level=3] [ref=e16]
+        - paragraph [ref=e17]: Select the right course based on your class, goals, and interest in Olympiad preparation. Browse through curated programs designed for every academic level.
+      - img "Choose Your Program" [ref=e19]
+    - generic [ref=e21]:
+      - generic [ref=e22]: Step 2
+      - img "Get Instant Access" [ref=e24]
+      - generic [ref=e25]:
+        - heading "Get Instant Access" [level=3] [ref=e26]
+        - paragraph [ref=e27]: Unlock your learning dashboard with access to live classes, recorded lectures, study material, and progress tracking tools — all in one place.
+    - generic [ref=e29]:
+      - generic [ref=e30]: Step 3
+      - generic [ref=e31]:
+        - heading "Learn & Practice" [level=3] [ref=e32]
+        - paragraph [ref=e33]: Attend interactive sessions, complete assignments, and solve Olympiad-level mock tests with real-time feedback from expert mentors.
+      - img "Learn and Practice" [ref=e35]
+    - generic [ref=e37]:
+      - generic [ref=e38]: Step 4
+      - img "Test and Improve" [ref=e40]
+      - generic [ref=e41]:
+        - heading "Test & Improve" [level=3] [ref=e42]
+        - paragraph [ref=e43]: Take regular tests, analyze your performance with detailed analytics, and improve continuously with personalized guidance from our experts.
