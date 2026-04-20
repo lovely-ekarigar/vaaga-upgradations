@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaaga Academy - Full Home Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Include header.css content */
+        body { font-family: 'Poppins', sans-serif; font-size: 14px; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; font-weight:600; }
+        p { font-family: 'Poppins', sans-serif; font-weight:400; }
+        .navbar-nav .nav-link { font-family: 'Poppins', sans-serif; font-weight:500; }
+        .topbar { background: #0E212F; color: #EFEFEF; padding: 18px 0px !important; }
+        .topbar img { width: 18px; height: auto; vertical-align: middle; margin-right: 6px; }
+        .auth-buttons img { width: 80%; }
+        .main-navbar { background: rgba(255, 255, 255, 0.29); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); backdrop-filter: blur(0px); border-bottom: 1px solid #ffffff91; }
+        .navigation-area { background-image: url('https://vaagastag.ekarigar.com/images/new_ui/header/navigation-bg.png'); background-size: cover; background-position: center; min-height: 67px; }
+        .main-navbar .container { padding: 0px; }
+        nav.navbar.navbar-expand-lg { padding: 0px; }
+        .navigation-area-top { padding: 0% 15%; }
+        .navbar-nav .nav-link { color: #EFEFEF; font-weight: 100; }
+        .navbar-nav .nav-link:hover { color: #FEBC5A; }
+        .navbar-nav .nav-link.active { color: #FEBC5A; font-weight: 600; border-bottom: 2px solid #FEBC5A; }
+        .navbar-toggler { border: 1px solid rgba(14, 33, 47, 0.3); background: rgba(14, 33, 47, 0.08); padding: 8px 12px; border-radius: 6px; }
+        .navbar-toggler:focus { box-shadow: none; }
+        .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2814, 33, 47, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
+        @media (max-width:768px) { .topbar .container { flex-direction: column; text-align: center; gap: 6px; } }
+        @media (max-width:991px) { .navigation-area { height:auto; background-size: cover; padding:15px 0; } .navbar-collapse { background:#0E212F; padding:20px; border-radius:10px; margin-top:10px; } .navbar-nav { text-align:center; gap:10px; } .auth-buttons { display:flex; justify-content:center; gap:10px; margin-top:15px; } }
+        @media (max-width:1200px) { .navigation-area-top { padding:0 5%; } }
+        @media (max-width:768px) { .navigation-area-top { padding:0 3%; } .navbar-brand img { max-height:45px; } }
+        .navbar-brand img { max-height:55px; }
+
+        /* Core styles */
+        .container { max-width: 1440px; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Counter */
+        .section-counter { background: #047185; color: #EFEFEF;; padding: 2% 0%; }
+        .counter-title { color: #FEBC5A; font-size: 42px; font-weight: 800; }
+        .counter-description { color: #EFEFEF; font-size: 20px; }
+
+        /* Features */
+        .features-section { padding: 80px 0; background: #ffffff; }
+        .features-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 50px; gap: 30px; }
+        .features-header .header-left .tagline { background: #047185; color: #fff; font-size: 13px; font-weight: 500; letter-spacing: 1.5px; padding: 6px 18px; border-radius: 4px; display: inline-block; text-transform: uppercase; margin-bottom: 12px; }
+        .features-header .header-left h2 { font-size: 36px; font-weight: 700; color: #0E212F; margin: 0 0 10px; }
+        .features-header .header-left h2 span { color: #047185; }
+        .features-header .header-left p { font-size: 14px; color: #555555; max-width: 480px; margin: 0; }
+        .btn-prep { background: #047185; color: #ffffff; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block; transition: all 0.3s ease; white-space: nowrap; }
+        .features-body { display: flex; gap: 40px; align-items: stretch; }
+        .features-images { width: 42%; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; }
+        .feature-img { overflow: hidden; border-radius: 16px; flex: 1; min-height: 140px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+        .feature-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .features-list { flex: 1; display: flex; flex-direction: column; gap: 26px; justify-content: center; }
+        .feature-item { display: flex; flex-direction: column; gap: 10px; animation: fadeInUp 0.6s ease forwards; }
+        .feature-item:nth-child(even) { margin-left: 80px; }
+        .feature-tag { background: #047185; color: #ffffff; padding: 12px 24px; border-radius: 4px 30px 30px 4px; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 12px; width: 100%; max-width: 420px; align-self: flex-start; box-shadow: 0 4px 12px rgba(4,113,133,0.2); transition: all 0.3s ease; }
+        .feature-tag .f-num { font-size: 20px; font-weight: 700; line-height: 1; }
+        .feature-tag .f-title { font-size: 15px; font-weight: 600; }
+        .feature-item p { font-size: 14px; line-height: 1.6; color: #555555; margin: 0; padding-left: 0; max-width: 420px; }
+
+        /* Testimonials */
+        .testimonials { padding: 80px 0; background: #ffffff; }
+        .testimonials-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; gap: 30px; }
+        .testimonials-header .header-left .tagline { background: #047185; color: #fff; font-size: 13px; font-weight: 500; letter-spacing: 1.5px; padding: 6px 18px; border-radius: 4px; display: inline-block; text-transform: uppercase; margin-bottom: 12px; }
+        .testimonials-header .header-left h2 { font-size: 36px; font-weight: 700; color: #FEBC5A; margin: 0 0 10px; }
+        .testimonials-header .header-left p { font-size: 14px; color: #555555; max-width: 480px; margin: 0; }
+        .carousel-nav { display: flex; align-items: center; gap: 12px; }
+        .nav-arrow { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #ddd; background: #fff; color: #0E212F; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; font-size: 14px; padding: 0; }
+        .nav-arrow:hover { background: #047185; color: #fff; border-color: #047185; }
+        .nav-dots { display: flex; gap: 6px; }
+        .nav-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; display: inline-block; cursor: pointer; }
+        .nav-dots .dot.active { background: #0E212F; }
+        .testimonials-grid { display: flex; gap: 24px; align-items: stretch; }
+        .testimonial-video { width: 40%; position: relative; border-radius: 16px; overflow: hidden; min-height: 320px; flex-shrink: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .testimonial-video img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .play-button { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .play-button i { font-size: 24px; color: #0E212F; margin-left: 4px; }
+        .testimonial-cards { flex: 1; display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; }
+        .testimonial-cards::-webkit-scrollbar { display: none; }
+        .t-card { flex: 0 0 auto; width: 320px; border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; justify-content: space-between; min-height: 320px; transition: transform 0.4s ease, box-shadow 0.4s ease; scroll-snap-align: start; }
+        .t-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.15); }
+        .t-dark { background: #0E212F; color: #ffffff; }
+        .t-teal { background: #0d6f7e; color: #ffffff; }
+        .t-light { background: #e8f4f6; color: #0E212F; }
+        .stars { margin-bottom: 16px; display: flex; gap: 4px; }
+        .stars i { font-size: 14px; color: #FEBC5A; }
+        .quote { font-size: 14px; line-height: 1.7; margin: 0; flex: 1; }
+        .author { margin-top: 20px; }
+        .author strong { display: block; font-size: 15px; font-weight: 600; color: #ffffff; }
+        .author span { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+        /* Footer */
+        .footer-cta { position: absolute; width: 70%; margin-top: -8%; margin-left: 14%; }
+        .footer { background:#0E212F; color:#EFEFEF; font-weight:100; }
+        .footer-main { padding-top: 14% !important; padding-bottom: 2%; }
+        .footer a { text-decoration:none; color:inherit; }
+        .footer a:hover { color:#FEBC5A; }
+        .footer h6 { color:#FEBC5A; }
+        .footer-cta .container { background-image:url(https://vaagastag.ekarigar.com/images/new_ui/footer-above.png); background-size:cover; padding:6% 0%; }
+        .cta-button { background: transparent; color: #EFEFEF; border: 1px solid #EFEFEF; display: inline-block; padding: 18px 54px; margin-top: 15px; border-radius: 5px; font-weight: 600; }
+        .footer-widget { margin-bottom:25px; }
+        .footer-widget p { font-size:14px; line-height:1.6; }
+        .footer-widget a { display:inline-block; margin-bottom:6px; }
+        .footer-logo { max-width:180px; height:auto; margin-bottom:15px; }
+        .footer-spacing { padding:2%; }
+        .footer-bottom { background: #0E212F; border: 1px solid; color: #EFEFEF; margin: 0; padding: 2%; font-size: 14px; border-radius: 50px; }
+        .subscribe-form { display:flex; max-width:400px; }
+        .subscribe-form input { flex:1; padding:14px 15px; border:none; background:#e6e6e6; font-size:14px; outline:none; }
+        .subscribe-form button { width:60px; background:#f5a623; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .subscribe-form button span { font-size:18px; color:#000; }
+        .subscribe-form input::placeholder { color:#777; }
+        .footer-cta h2 { font-size: 45px; font-weight: 500; color: #FEBC5A; padding: 12px 0px; }
+
+        /* Footer Mobile */
+        @media (max-width: 768px) {
+            .footer-cta { display: block; position: relative; width: 100%; margin: auto; }
+            .footer-cta .container { padding:12% 5%; }
+            .footer-cta h2 { font-size: 28px; }
+            .footer-main { padding:30px 15px; }
+            .footer-main .col-6, .footer-main .col-md-2, .footer-main .col-md-3 { width: 100%; }
+            .footer-widget { margin-bottom: 25px; }
+            .footer-widget a { padding: 5px 0; }
+            .subscribe-form { max-width: 100%; }
+            .footer-bottom { text-align:center; border-radius: 20px; }
+            .footer-bottom .col-md-8, .footer-bottom .col-md-4 { width:100%; text-align:center; margin-bottom:8px; }
+            .footer-bottom .text-end { text-align:center !important; }
+            .footer-bottom a { display:inline-block; margin:5px 10px; }
+        }
+        @media (min-width: 768px) and (max-width: 991px) {
+            .footer-main .col-md-2, .footer-main .col-md-3 { width: 50%; }
+            .footer-main .row { display: flex; flex-wrap: wrap; }
+            .footer-widget { margin-bottom: 30px; }
+            .subscribe-form { max-width: 100%; }
+            .footer-cta h2 { font-size: 32px; }
+        }
+
+        /* Features Mobile */
+        @media (max-width: 768px) {
+            .features-section { padding: 50px 0; }
+            .features-header { flex-direction: column; gap: 20px; margin-bottom: 30px; }
+            .features-header .header-left h2 { font-size: 28px; }
+            .btn-prep { width: 100%; text-align: center; }
+            .features-body { flex-direction: column; }
+            .features-images { width: 100%; flex-direction: column; gap: 0; margin-bottom: 30px; }
+            .feature-img { min-height: 180px; }
+            .features-list { gap: 20px; }
+            .feature-item:nth-child(even) { margin-left: 0; }
+            .feature-item p { padding-left: 18px; max-width: 100%; }
+            .feature-tag { font-size: 14px; padding: 10px 18px; width: 100%; max-width: 100%; }
+            .feature-tag .f-num { font-size: 18px; }
+        }
+        @media (min-width: 768px) and (max-width: 991px) {
+            .features-section { padding: 60px 0; }
+            .features-header .header-left h2 { font-size: 30px; }
+            .features-body { gap: 20px; }
+            .features-images { width: 45%; }
+            .features-list { gap: 18px; }
+            .feature-tag { min-width: 300px; }
+        }
+
+        /* Testimonials Mobile */
+        @media (max-width: 768px) {
+            .testimonials { padding: 50px 0; }
+            .testimonials-header { flex-direction: column; gap: 20px; }
+            .testimonials-header .header-left h2 { font-size: 28px; }
+            .testimonials-grid { flex-direction: column; }
+            .testimonial-video { width: 100%; min-height: 240px; }
+            .testimonial-cards { flex-direction: row; overflow-x: auto; }
+            .t-card { width: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+    <div class="col-md-12">
+        <div class="topbar">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div class="chat-link">
+                   <img src="https://vaagastag.ekarigar.com/images/new_ui/header/whatsapp.png" alt="whatsapp"> Start Chat Now
+                </div>
+                <div class="contact-info">
+                    <img src="https://vaagastag.ekarigar.com/images/new_ui/header/phone.png" alt="phone"> +91 70226 78333 , +91 92179 64222
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="main-navbar">
+            <div class="container navigation-area-top">
+                <nav class="navbar navbar-expand-lg">
+                    <a class="navbar-brand" href="#">
+                     <img src="https://vaagastag.ekarigar.com/images/new_ui/header/logo.png" alt="Logo" style="max-height:55px;">
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-center navigation-area" id="mainNavbar">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">About Us</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Courses</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Olympiad Exams</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Self Learning</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">How It Works</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="auth-buttons">
+                        <a href="#" class="btn register-btn"><img src="https://vaagastag.ekarigar.com/images/new_ui/header/login.png" alt="login"></a>
+                        <a href="#" class="btn login-btn"><img src="https://vaagastag.ekarigar.com/images/new_ui/header/register.png" alt="register"></a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Counter Section -->
+<section class="section-counter">
+    <div class="container-fluid">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <h1 class="counter-title">200+ </h1>
+                    <p class="counter-description">Courses offered</p>
+                </div>
+                <div class="col-md-3">
+                    <h1 class="counter-title">2500+ </h1>
+                    <p class="counter-description">Happy Students</p>
+                </div>
+                <div class="col-md-3">
+                    <h1 class="counter-title">95+ </h1>
+                    <p class="counter-description">Expert Tutors</p>
+                </div>
+                <div class="col-md-3">
+                    <h1 class="counter-title">9000+ </h1>
+                    <p class="counter-description">Hours taught</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="features-header">
+            <div class="header-left">
+                <span class="tagline">Features And Benefits</span>
+                <h2>Everything <span>You Need to Succeed</span></h2>
+                <p>A Complete Learning Ecosystem Designed For Academic Excellence And Olympiad Success.</p>
+            </div>
+            <div class="header-right">
+                <a href="#" class="btn-prep">Start Olympiad Prep</a>
+            </div>
+        </div>
+        <div class="features-body">
+            <div class="features-images">
+                <div class="feature-img">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Student learning">
+                </div>
+                <div class="feature-img">
+                    <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Study desk">
+                </div>
+                <div class="feature-img">
+                    <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Online class">
+                </div>
+            </div>
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">01</span><span class="f-title">Live & Interactive Classes</span></div>
+                    <p>Engage in real-time sessions with expert educators, designed to simplify concepts and encourage active participation.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">02</span><span class="f-title">Recorded Lectures</span></div>
+                    <p>Access high-quality recorded sessions anytime, allowing you to learn at your own pace and revise easily.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">03</span><span class="f-title">Structured Study Material</span></div>
+                    <p>Well-organized notes, worksheets, and resources aligned with aligned with Olympiad curriculum.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">04</span><span class="f-title">Olympiad Practical Sets</span></div>
+                    <p>Advanced-level questions and topic-wise practice designed to prepare students for national and international Olympiad exams.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">05</span><span class="f-title">Regular Mock Tests</span></div>
+                    <p>Regular assessments to evaluate progress, improve accuracy, and build exam confidence.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">06</span><span class="f-title">Doubt Solving Support</span></div>
+                    <p>Get your queries resolved quickly through dedicated doubt-clearing sessions and mentor support.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">07</span><span class="f-title">Performance Analytics</span></div>
+                    <p>Track your progress with detailed reports, identify weak areas, and improve strategically.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-tag"><span class="f-num">08</span><span class="f-title">Expert Mentorship</span></div>
+                    <p>Learn from experienced educators who guide you through academic challenges and Olympiad preparation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials">
+    <div class="container">
+        <div class="testimonials-header">
+            <div class="header-left">
+                <span class="tagline">Testimonials</span>
+                <h2>What Students Say</h2>
+                <p>Real experiences from students achieving academic success and excelling in Olympiad exams.</p>
+            </div>
+            <div class="header-right">
+                <div class="carousel-nav">
+                    <button class="nav-arrow prev"><i class="bi bi-arrow-left"></i></button>
+                    <div class="nav-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <button class="nav-arrow next"><i class="bi bi-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-video">
+                <img src="https://placehold.co/600x400/333/fff?text=Video+Testimonial" alt="Video testimonial">
+                <div class="play-button"><i class="bi bi-play-fill"></i></div>
+            </div>
+            <div class="testimonial-cards">
+                <div class="t-card t-dark">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="quote">The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.</p>
+                    <div class="author"><strong>Riya Sharma</strong><span>Class 9 Student</span></div>
+                </div>
+                <div class="t-card t-teal">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="quote">The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.</p>
+                    <div class="author"><strong>Riya Sharma</strong><span>Class 9 Student</span></div>
+                </div>
+                <div class="t-card t-light">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="quote">The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.</p>
+                    <div class="author"><strong>Riya Sharma</strong><span>Class 9 Student</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // ============================================================
+    // TESTIMONIALS CAROUSEL
+    // ============================================================
+    var cardsContainer = document.querySelector('.testimonial-cards');
+    var prevBtn        = document.querySelector('.carousel-nav .nav-arrow.prev');
+    var nextBtn        = document.querySelector('.carousel-nav .nav-arrow.next');
+    var dots           = document.querySelectorAll('.carousel-nav .nav-dots .dot');
+
+    if (cardsContainer && prevBtn && nextBtn && dots.length) {
+        var currentIndex = 0;
+        var totalDots    = dots.length;
+
+        function updateDots(index) {
+            dots.forEach(function (dot, i) {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        function scrollToIndex(index) {
+            var maxScrollLeft = cardsContainer.scrollWidth - cardsContainer.clientWidth;
+            if (maxScrollLeft <= 0) return;
+            var scrollPosition = (maxScrollLeft / (totalDots - 1)) * index;
+            cardsContainer.scrollTo({ left: scrollPosition, behavior: 'smooth' });
+            currentIndex = index;
+            updateDots(currentIndex);
+        }
+
+        prevBtn.addEventListener('click', function () {
+            scrollToIndex((currentIndex - 1 + totalDots) % totalDots);
+        });
+        nextBtn.addEventListener('click', function () {
+            scrollToIndex((currentIndex + 1) % totalDots);
+        });
+        dots.forEach(function (dot, index) {
+            dot.addEventListener('click', function () { scrollToIndex(index); });
+        });
+    }
+
+    // ============================================================
+    // COUNTER ANIMATION
+    // ============================================================
+    var counterSection = document.querySelector('.section-counter');
+    var counters       = document.querySelectorAll('.counter-title');
+
+    if (counterSection && counters.length) {
+        var animated = false;
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting && !animated) {
+                    animated = true;
+                    counters.forEach(function (counter) {
+                        var targetText  = counter.textContent.trim();
+                        var targetValue = parseInt(targetText.replace(/\D/g, ''), 10);
+                        var suffix      = targetText.replace(/[\d\s]/g, '');
+                        var duration    = 2000;
+                        var startTime   = performance.now();
+                        function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+                        function updateCounter(currentTime) {
+                            var elapsed  = currentTime - startTime;
+                            var progress = Math.min(elapsed / duration, 1);
+                            var current  = Math.floor(easeOutCubic(progress) * targetValue);
+                            counter.textContent = current + suffix;
+                            if (progress < 1) { requestAnimationFrame(updateCounter); }
+                            else { counter.textContent = targetValue + suffix; }
+                        }
+                        requestAnimationFrame(updateCounter);
+                    });
+                    observer.unobserve(counterSection);
+                }
+            });
+        }, { threshold: 0.3 });
+        observer.observe(counterSection);
+    }
+});
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

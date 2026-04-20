@@ -1,0 +1,158 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img "whatsapp" [ref=e7]
+        - text: Start Chat Now
+      - generic [ref=e8]:
+        - img "phone" [ref=e9]
+        - text: +91 70226 78333 , +91 92179 64222
+    - navigation [ref=e13]:
+      - link "Logo" [ref=e14] [cursor=pointer]:
+        - /url: "#"
+        - img "Logo" [ref=e15]
+      - list [ref=e17]:
+        - listitem [ref=e18]:
+          - link "Home" [ref=e19] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e20]:
+          - link "About Us" [ref=e21] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e22]:
+          - link "Courses" [ref=e23] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e24]:
+          - link "Olympiad Exams" [ref=e25] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e26]:
+          - link "Self Learning" [ref=e27] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e28]:
+          - link "How It Works" [ref=e29] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e30]:
+          - link "Contact Us" [ref=e31] [cursor=pointer]:
+            - /url: "#"
+      - generic [ref=e32]:
+        - link "login" [ref=e33] [cursor=pointer]:
+          - /url: "#"
+          - img "login" [ref=e34]
+        - link "register" [ref=e35] [cursor=pointer]:
+          - /url: "#"
+          - img "register" [ref=e36]
+  - generic [ref=e40]:
+    - generic [ref=e41]:
+      - heading "166+" [level=1] [ref=e42]
+      - paragraph [ref=e43]: Courses offered
+    - generic [ref=e44]:
+      - heading "2082+" [level=1] [ref=e45]
+      - paragraph [ref=e46]: Happy Students
+    - generic [ref=e47]:
+      - heading "79+" [level=1] [ref=e48]
+      - paragraph [ref=e49]: Expert Tutors
+    - generic [ref=e50]:
+      - heading "7495+" [level=1] [ref=e51]
+      - paragraph [ref=e52]: Hours taught
+  - generic [ref=e54]:
+    - generic [ref=e55]:
+      - generic [ref=e56]:
+        - generic [ref=e57]: Features And Benefits
+        - heading "Everything You Need to Succeed" [level=2] [ref=e58]
+        - paragraph [ref=e59]: A Complete Learning Ecosystem Designed For Academic Excellence And Olympiad Success.
+      - link "Start Olympiad Prep" [ref=e61] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e62]:
+      - generic [ref=e63]:
+        - img "Student learning" [ref=e65]
+        - img "Study desk" [ref=e67]
+        - img "Online class" [ref=e69]
+      - generic [ref=e70]:
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - generic [ref=e73]: "01"
+            - generic [ref=e74]: Live & Interactive Classes
+          - paragraph [ref=e75]: Engage in real-time sessions with expert educators, designed to simplify concepts and encourage active participation.
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - generic [ref=e78]: "02"
+            - generic [ref=e79]: Recorded Lectures
+          - paragraph [ref=e80]: Access high-quality recorded sessions anytime, allowing you to learn at your own pace and revise easily.
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - generic [ref=e83]: "03"
+            - generic [ref=e84]: Structured Study Material
+          - paragraph [ref=e85]: Well-organized notes, worksheets, and resources aligned with aligned with Olympiad curriculum.
+        - generic [ref=e86]:
+          - generic [ref=e87]:
+            - generic [ref=e88]: "04"
+            - generic [ref=e89]: Olympiad Practical Sets
+          - paragraph [ref=e90]: Advanced-level questions and topic-wise practice designed to prepare students for national and international Olympiad exams.
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - generic [ref=e93]: "05"
+            - generic [ref=e94]: Regular Mock Tests
+          - paragraph [ref=e95]: Regular assessments to evaluate progress, improve accuracy, and build exam confidence.
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - generic [ref=e98]: "06"
+            - generic [ref=e99]: Doubt Solving Support
+          - paragraph [ref=e100]: Get your queries resolved quickly through dedicated doubt-clearing sessions and mentor support.
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - generic [ref=e103]: "07"
+            - generic [ref=e104]: Performance Analytics
+          - paragraph [ref=e105]: Track your progress with detailed reports, identify weak areas, and improve strategically.
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - generic [ref=e108]: "08"
+            - generic [ref=e109]: Expert Mentorship
+          - paragraph [ref=e110]: Learn from experienced educators who guide you through academic challenges and Olympiad preparation.
+  - generic [ref=e112]:
+    - generic [ref=e113]:
+      - generic [ref=e114]:
+        - generic [ref=e115]: Testimonials
+        - heading "What Students Say" [level=2] [ref=e116]
+        - paragraph [ref=e117]: Real experiences from students achieving academic success and excelling in Olympiad exams.
+      - generic [ref=e119]:
+        - button "" [ref=e120] [cursor=pointer]:
+          - generic [ref=e121]: 
+        - button "" [ref=e128] [cursor=pointer]:
+          - generic [ref=e129]: 
+    - generic [ref=e130]:
+      - generic [ref=e131]:
+        - img "Video testimonial" [ref=e132]
+        - generic [ref=e134] [cursor=pointer]: 
+      - generic [ref=e135]:
+        - generic [ref=e136]:
+          - generic [ref=e137]:
+            - generic [ref=e138]: 
+            - generic [ref=e139]: 
+            - generic [ref=e140]: 
+            - generic [ref=e141]: 
+            - generic [ref=e142]: 
+          - paragraph [ref=e143]: The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.
+          - generic [ref=e144]:
+            - strong [ref=e145]: Riya Sharma
+            - text: Class 9 Student
+        - generic [ref=e146]:
+          - generic [ref=e147]:
+            - generic [ref=e148]: 
+            - generic [ref=e149]: 
+            - generic [ref=e150]: 
+            - generic [ref=e151]: 
+            - generic [ref=e152]: 
+          - paragraph [ref=e153]: The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.
+          - generic [ref=e154]:
+            - strong [ref=e155]: Riya Sharma
+            - text: Class 9 Student
+        - generic [ref=e156]:
+          - generic [ref=e157]:
+            - generic [ref=e158]: 
+            - generic [ref=e159]: 
+            - generic [ref=e160]: 
+            - generic [ref=e161]: 
+            - generic [ref=e162]: 
+          - paragraph [ref=e163]: The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.
+          - generic [ref=e164]:
+            - strong [ref=e165]: Riya Sharma
+            - text: Class 9 Student

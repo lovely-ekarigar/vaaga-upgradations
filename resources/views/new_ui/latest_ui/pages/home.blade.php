@@ -530,6 +530,7 @@
                         <span class="dot"></span>
                         <span class="dot"></span>
                         <span class="dot"></span>
+                        <span class="dot"></span>
                     </div>
                     <button class="nav-arrow next"><i class="bi bi-arrow-right"></i></button>
                 </div>
@@ -585,10 +586,150 @@
                         <span>Class 9 Student</span>
                     </div>
                 </div>
+                <div class="t-card t-teal">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="quote">The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.</p>
+                    <div class="author">
+                        <strong>Aarav Patel</strong>
+                        <span>Class 8 Student</span>
+                    </div>
+                </div>
+                <div class="t-card t-light">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="quote">The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.</p>
+                    <div class="author">
+                        <strong>Priya Gupta</strong>
+                        <span>Class 10 Student</span>
+                    </div>
+                </div>
+                <div class="t-card t-dark">
+                    <div class="stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="quote">The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.</p>
+                    <div class="author">
+                        <strong>Karan Singh</strong>
+                        <span>Class 7 Student</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <section style="padding: 4% !important;"></section>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // TESTIMONIALS CAROUSEL
+    var cardsContainer = document.querySelector('.testimonial-cards');
+    var prevBtn = document.querySelector('.carousel-nav .nav-arrow.prev');
+    var nextBtn = document.querySelector('.carousel-nav .nav-arrow.next');
+    var dots = document.querySelectorAll('.carousel-nav .nav-dots .dot');
+
+    if (cardsContainer && prevBtn && nextBtn && dots.length) {
+        var currentIndex = 0;
+        var totalCards = cardsContainer.querySelectorAll('.t-card').length;
+        var cardWidth = 320 + 16; // card width + gap
+
+        function updateDots(index) {
+            dots.forEach(function (dot, i) {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        function scrollToIndex(index) {
+            if (index < 0) index = totalCards - 1;
+            if (index >= totalCards) index = 0;
+
+            cardsContainer.scrollTo({
+                left: cardWidth * index,
+                behavior: 'smooth'
+            });
+
+            currentIndex = index;
+            updateDots(currentIndex);
+        }
+
+        prevBtn.addEventListener('click', function () {
+            scrollToIndex(currentIndex - 1);
+        });
+
+        nextBtn.addEventListener('click', function () {
+            scrollToIndex(currentIndex + 1);
+        });
+
+        dots.forEach(function (dot, index) {
+            dot.addEventListener('click', function () {
+                scrollToIndex(index);
+            });
+        });
+    }
+
+    // ============================================================
+    // COUNTER ANIMATION
+    // ============================================================
+    var counterSection = document.querySelector('.section-counter');
+    var counters       = document.querySelectorAll('.counter-title');
+
+    if (counterSection && counters.length) {
+        var animated = false;
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting && !animated) {
+                    animated = true;
+
+                    counters.forEach(function (counter) {
+                        var targetText  = counter.textContent.trim();
+                        var targetValue = parseInt(targetText.replace(/\D/g, ''), 10);
+                        var suffix      = targetText.replace(/[\d\s]/g, '');
+                        var duration    = 3000;
+                        var startTime   = performance.now();
+
+                        function easeOutCubic(t) {
+                            return 1 - Math.pow(1 - t, 3);
+                        }
+
+                        function updateCounter(currentTime) {
+                            var elapsed  = currentTime - startTime;
+                            var progress = Math.min(elapsed / duration, 1);
+                            var current  = Math.floor(easeOutCubic(progress) * targetValue);
+
+                            counter.textContent = current + suffix;
+
+                            if (progress < 1) {
+                                requestAnimationFrame(updateCounter);
+                            } else {
+                                counter.textContent = targetValue + suffix;
+                            }
+                        }
+
+                        requestAnimationFrame(updateCounter);
+                    });
+
+                    observer.unobserve(counterSection);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        observer.observe(counterSection);
+    }
+});
+</script>
 @endsection
