@@ -482,70 +482,50 @@
                 <a href="#" class="btn-prep">Start Olympiad Prep</a>
             </div>
         </div>
-        <div class="features-interactive" id="features-interactive">
-            <!-- Left: Sticky Image Stack -->
-            <div class="features-image-sticky">
-                <div class="features-image-stack">
-                    <div class="feature-img-panel active" data-feature="0">
-                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Live & Interactive Classes">
-                    </div>
-                    <div class="feature-img-panel" data-feature="1">
-                        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Recorded Lectures">
-                    </div>
-                    <div class="feature-img-panel" data-feature="2">
-                        <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Structured Study Material">
-                    </div>
-                    <div class="feature-img-panel" data-feature="3">
-                        <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Olympiad Practical Sets">
-                    </div>
-                    <div class="feature-img-panel" data-feature="4">
-                        <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Regular Mock Tests">
-                    </div>
-                    <div class="feature-img-panel" data-feature="5">
-                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Doubt Solving Support">
-                    </div>
-                    <div class="feature-img-panel" data-feature="6">
-                        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Performance Analytics">
-                    </div>
-                    <div class="feature-img-panel" data-feature="7">
-                        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Expert Mentorship">
-                    </div>
+        <div class="features-body">
+            <div class="features-images">
+                <div class="feature-img">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Student learning with headphones">
+                </div>
+                <div class="feature-img">
+                    <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Study desk with books">
+                </div>
+                <div class="feature-img">
+                    <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Student attending online class">
                 </div>
             </div>
-
-            <!-- Right: Scrolling Badge List -->
-            <div class="features-badge-list">
-                <div class="feature-badge active" data-feature="0">
+            <div class="features-list">
+                <div class="feature-item">
                     <div class="feature-tag"><span class="f-num">01</span><span class="f-title">Live & Interactive Classes</span></div>
-                    <p class="badge-desc">Engage in real-time sessions with expert educators, designed to simplify concepts and encourage active participation.</p>
+                    <p>Engage in real-time sessions with expert educators, designed to simplify concepts and encourage active participation.</p>
                 </div>
-                <div class="feature-badge" data-feature="1">
+                <div class="feature-item">
                     <div class="feature-tag"><span class="f-num">02</span><span class="f-title">Recorded Lectures</span></div>
-                    <p class="badge-desc">Access high-quality recorded sessions anytime, allowing you to learn at your own pace and revise easily.</p>
+                    <p>Access high-quality recorded sessions anytime, allowing you to learn at your own pace and revise easily.</p>
                 </div>
-                <div class="feature-badge" data-feature="2">
+                <div class="feature-item">
                     <div class="feature-tag"><span class="f-num">03</span><span class="f-title">Structured Study Material</span></div>
-                    <p class="badge-desc">Well-organized notes, worksheets, and resources aligned with Olympiad curriculum.</p>
+                    <p>Well-organized notes, worksheets, and resources aligned with aligned with Olympiad curriculum.</p>
                 </div>
-                <div class="feature-badge" data-feature="3">
+                <div class="feature-item">
                     <div class="feature-tag"><span class="f-num">04</span><span class="f-title">Olympiad Practical Sets</span></div>
-                    <p class="badge-desc">Advanced-level questions and topic-wise practice designed to prepare students for national and international Olympiad exams.</p>
+                    <p>Advanced-level questions and topic-wise practice designed to prepare students for national and international Olympiad exams.</p>
                 </div>
-                <div class="feature-badge" data-feature="4">
+                <div class="feature-item">
                     <div class="feature-tag"><span class="f-num">05</span><span class="f-title">Regular Mock Tests</span></div>
-                    <p class="badge-desc">Regular assessments to evaluate progress, improve accuracy, and build exam confidence.</p>
+                    <p>Regular assessments to evaluate progress, improve accuracy, and build exam confidence.</p>
                 </div>
-                <div class="feature-badge" data-feature="5">
+                <div class="feature-item">
                     <div class="feature-tag"><span class="f-num">06</span><span class="f-title">Doubt Solving Support</span></div>
-                    <p class="badge-desc">Get your queries resolved quickly through dedicated doubt-clearing sessions and mentor support.</p>
+                    <p>Get your queries resolved quickly through dedicated doubt-clearing sessions and mentor support.</p>
                 </div>
-                <div class="feature-badge" data-feature="6">
+                <div class="feature-item">
                     <div class="feature-tag"><span class="f-num">07</span><span class="f-title">Performance Analytics</span></div>
-                    <p class="badge-desc">Track your progress with detailed reports, identify weak areas, and improve strategically.</p>
+                    <p>Track your progress with detailed reports, identify weak areas, and improve strategically.</p>
                 </div>
-                <div class="feature-badge" data-feature="7">
+                <div class="feature-item">
                     <div class="feature-tag"><span class="f-num">08</span><span class="f-title">Expert Mentorship</span></div>
-                    <p class="badge-desc">Learn from experienced educators who guide you through academic challenges and Olympiad preparation.</p>
+                    <p>Learn from experienced educators who guide you through academic challenges and Olympiad preparation.</p>
                 </div>
             </div>
         </div>
@@ -769,66 +749,6 @@ document.addEventListener('DOMContentLoaded', function () {
         observer.observe(counterSection);
     }
 
-    // FEATURES INTERACTIVE — Scroll-based image switching
-    (function() {
-        var section = document.getElementById('features-interactive');
-        if (!section) return;
-
-        var badges = section.querySelectorAll('.feature-badge');
-        var images = section.querySelectorAll('.feature-img-panel');
-        if (!badges.length || !images.length) return;
-
-        var activeIndex = 0;
-        var isScrolling = false;
-        var scrollTimeout;
-
-        function setActive(index) {
-            if (index === activeIndex) return;
-            activeIndex = index;
-
-            // Update badges
-            badges.forEach(function(b, i) {
-                b.classList.toggle('active', i === index);
-            });
-
-            // Update images with smooth transition
-            images.forEach(function(img, i) {
-                img.classList.toggle('active', i === index);
-            });
-        }
-
-        // Intersection Observer for scroll-based activation
-        var observerOptions = {
-            root: null,
-            rootMargin: '-35% 0px -35% 0px',
-            threshold: 0
-        };
-
-        var badgeObserver = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    var idx = parseInt(entry.target.getAttribute('data-feature'), 10);
-                    setActive(idx);
-                }
-            });
-        }, observerOptions);
-
-        badges.forEach(function(badge) {
-            badgeObserver.observe(badge);
-        });
-
-        // Click to jump
-        badges.forEach(function(badge) {
-            badge.addEventListener('click', function() {
-                var idx = parseInt(this.getAttribute('data-feature'), 10);
-                setActive(idx);
-                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
-        });
-
-        // Set first active on load
-        setActive(0);
-    })();
 });
 </script>
 @endsection
