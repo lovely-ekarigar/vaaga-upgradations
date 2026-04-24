@@ -1,0 +1,548 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img "whatsapp" [ref=e7]
+        - text: Start Chat Now
+      - generic [ref=e8]:
+        - img "phone" [ref=e9]
+        - text: +91 70226 78333 , +91 92179 64222
+    - navigation [ref=e13]:
+      - link "Logo" [ref=e14] [cursor=pointer]:
+        - /url: "#"
+        - img "Logo" [ref=e15]
+      - list [ref=e17]:
+        - listitem [ref=e18]:
+          - link "Home" [ref=e19] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/new_ui/latest_ui/home
+        - listitem [ref=e20]:
+          - link "About Us" [ref=e21] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e22]:
+          - link "Courses" [ref=e23] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/new_ui/latest_ui/courses
+        - listitem [ref=e24]:
+          - link "Olympiad Exams" [ref=e25] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e26]:
+          - link "Self Learning" [ref=e27] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e28]:
+          - link "How It Works" [ref=e29] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e30]:
+          - link "Contact Us" [ref=e31] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/new_ui/latest_ui/contact
+      - generic [ref=e32]:
+        - link "login" [ref=e33] [cursor=pointer]:
+          - /url: "#"
+          - img "login" [ref=e34]
+        - link "register" [ref=e35] [cursor=pointer]:
+          - /url: "#"
+          - img "register" [ref=e36]
+  - generic [ref=e42]:
+    - heading "Unlock Your Potential with" [level=1] [ref=e43]
+    - heading "Smart Learning & Olympiad Excellence" [level=4] [ref=e44]
+    - paragraph [ref=e45]:
+      - text: A complete platform for academic growth, competitive exam
+      - text: preparation, and Olympiad success — guided by expert mentors.
+    - generic [ref=e47]:
+      - text: Prepare for Olympiads
+      - img "whatsapp" [ref=e48]
+  - generic [ref=e52]:
+    - generic [ref=e53]:
+      - heading "0+" [level=1] [ref=e54]
+      - paragraph [ref=e55]: Courses offered
+    - generic [ref=e56]:
+      - heading "9+" [level=1] [ref=e57]
+      - paragraph [ref=e58]: Happy Students
+    - generic [ref=e59]:
+      - heading "0+" [level=1] [ref=e60]
+      - paragraph [ref=e61]: Expert Tutors
+    - generic [ref=e62]:
+      - heading "33+" [level=1] [ref=e63]
+      - paragraph [ref=e64]: Hours taught
+  - generic [ref=e66]:
+    - generic [ref=e68]:
+      - heading "Book Free Trial Class" [level=2] [ref=e69]
+      - paragraph [ref=e70]: Are you ready to take the next step towards achieving your Olympiad success? Let VaaGa Academy be your trusted partner
+    - generic [ref=e72]:
+      - textbox "Full Name" [ref=e73]
+      - textbox "Phone Number" [ref=e74]
+      - textbox "Email" [ref=e75]
+      - combobox [ref=e76]:
+        - option "Select Course" [selected]
+        - option "Math Olympiad"
+        - option "Science Olympiad"
+        - option "Foundation Course"
+      - generic [ref=e77]:
+        - checkbox [ref=e78]
+        - text: I'm not a robot
+      - button "SUBMIT" [ref=e79] [cursor=pointer]
+  - generic [ref=e82]:
+    - img "image-1" [ref=e83]
+    - img "image-2" [ref=e84]
+    - img "image-3" [ref=e85]
+  - generic [ref=e87]:
+    - generic [ref=e88]:
+      - generic [ref=e90]:
+        - paragraph [ref=e91]: About Us
+        - generic [ref=e92]:
+          - heading "About VaaGa Academy" [level=2] [ref=e93]
+          - paragraph [ref=e94]: Empowering students with strong fundamentals, smart learning strategies, and Olympiad-focused excellence.
+          - paragraph [ref=e95]:
+            - text: VaaGa Academy is a modern learning platform dedicated to helping students achieve academic excellence and succeed in competitive environments. Our approach focuses on building strong conceptual foundations, improving problem-solving skills, and fostering analytical thinking.
+            - text: We go beyond traditional learning by integrating structured programs for specialized Olympiad preparation, ensuring students are prepared for both classroom performance and higher-level competitions.
+          - generic [ref=e96]: Explore Programs
+      - img "image-1" [ref=e98]
+    - generic [ref=e99]:
+      - img "image-1" [ref=e101]
+      - generic [ref=e103]:
+        - paragraph [ref=e104]: Book a Free Demo
+        - generic [ref=e105]:
+          - heading "Experience Before You Join" [level=2] [ref=e106]
+          - paragraph [ref=e107]: Discover how our expert tutors, interactive sessions, and personalized approach can help you achieve better academic results. Join a live demo class to understand our teaching style, course structure, and platform features.
+          - heading "What You’ll Get:" [level=5] [ref=e108]
+          - list [ref=e109]:
+            - listitem [ref=e110]: Live interactive class experience
+            - listitem [ref=e111]: Introduction to our Olympiad-focused curriculum
+            - listitem [ref=e112]: One-on-one guidance and doubt-solving approach
+            - listitem [ref=e113]: Overview of courses and learning methodology
+          - generic [ref=e114]: Book Free Demo
+  - generic [ref=e116]:
+    - generic [ref=e117]:
+      - paragraph [ref=e118]:
+        - generic [ref=e119]: WHY CHOOSE US
+      - heading "Why Students Prefer Us" [level=2] [ref=e120]
+      - paragraph [ref=e121]: A smarter, structured approach to learn that help Students excel in academics and Olympiad exams.
+    - generic [ref=e122]:
+      - generic [ref=e124]:
+        - generic [ref=e126]: 
+        - paragraph [ref=e127]: Expert Faculty with proven teaching experience
+      - generic [ref=e129]:
+        - generic [ref=e131]: 
+        - paragraph [ref=e132]: Structured learning paths for competitive exams
+      - generic [ref=e134]:
+        - generic [ref=e136]: 
+        - paragraph [ref=e137]: Dedicated Olympiad preparation modules
+      - generic [ref=e139]:
+        - generic [ref=e141]: 
+        - paragraph [ref=e142]: Interactive live and recorded classes
+      - generic [ref=e144]:
+        - generic [ref=e146]: 
+        - paragraph [ref=e147]: Performance tracking and personalized feedback
+      - generic [ref=e149]:
+        - generic [ref=e151]: 
+        - paragraph [ref=e152]: Self learning preparation modules
+  - generic [ref=e154]:
+    - generic [ref=e155]:
+      - generic [ref=e156]:
+        - generic [ref=e157]: Courses
+        - heading "Explore Our Programs" [level=2] [ref=e158]
+        - paragraph [ref=e159]: Comprehensive Courses Designed To Strengthen Academics, Build Problem-Solving Skills, And Prepare For Olympiad Success.
+      - link "Explore All Courses" [ref=e161] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e162]:
+      - generic [ref=e164]:
+        - img "Olympiad Preparation" [ref=e165]
+        - generic [ref=e166]:
+          - heading "Olympiad Preparation" [level=3] [ref=e167]
+          - paragraph [ref=e168]: Specialized programs designed to prepare students for national and international Olympiad exams.
+          - generic [ref=e169]: "Includes:"
+          - list [ref=e170]:
+            - listitem [ref=e171]: Math, Science & English Olympiad
+            - listitem [ref=e172]: Previous year papers
+            - listitem [ref=e173]: Regular Mock tests & analysis
+      - generic [ref=e175]:
+        - img "Live Classes" [ref=e176]
+        - generic [ref=e177]:
+          - heading "Live Classes" [level=3] [ref=e178]
+          - paragraph [ref=e179]: Interactive live sessions with expert educators to ensure real-time learning and doubt resolution.
+          - generic [ref=e180]: "Includes:"
+          - list [ref=e181]:
+            - listitem [ref=e182]: Scheduled live sessions
+            - listitem [ref=e183]: Q&A interaction
+            - listitem [ref=e184]: Instant feedback
+      - generic [ref=e186]:
+        - img "Recorded Sessions" [ref=e187]
+        - generic [ref=e188]:
+          - heading "Recorded Sessions" [level=3] [ref=e189]
+          - paragraph [ref=e190]: View high-quality recorded live sessions anytime, anywhere for quick revision.
+          - generic [ref=e191]: "Includes:"
+          - list [ref=e192]:
+            - listitem [ref=e193]: Quick access
+            - listitem [ref=e194]: Revision-friendly format
+            - listitem [ref=e195]: Flexible learning
+      - generic [ref=e197]:
+        - img "Study Material & Resources" [ref=e198]
+        - generic [ref=e199]:
+          - heading "Study Material & Resources" [level=3] [ref=e200]
+          - paragraph [ref=e201]: Specialized resources designed to help students prepare for Olympiad exams.
+          - generic [ref=e202]: "Includes:"
+          - list [ref=e203]:
+            - listitem [ref=e204]: Math, Science & English Olympiad
+            - listitem [ref=e205]: Regular practice worksheets
+            - listitem [ref=e206]: Pre-Built Study Material
+  - generic [ref=e211]:
+    - heading "Book a Free Trial Class" [level=2] [ref=e212]
+    - paragraph [ref=e213]: Book your free demo session and experience our interactive teaching approach firsthand. Understand how our expert tutors and personalized learning methods can help you improve performance and achieve better results—all from the comfort of your home.
+  - generic [ref=e216]:
+    - img "Student studying" [ref=e218]
+    - generic [ref=e219]:
+      - generic [ref=e220]: Student Growth Focus
+      - heading "Olympiad Exams" [level=2] [ref=e221]
+      - paragraph [ref=e222]: Olympiad exams are not just tests—they are a gateway to developing deeper understanding and critical thinking. Our program helps students go beyond textbooks, encouraging curiosity, logic, and real-world application of concepts.
+      - paragraph [ref=e223]: With continuous practice, expert mentoring, and performance tracking, we ensure every student progresses with confidence and clarity.
+      - generic [ref=e224]:
+        - generic [ref=e225]: High-quality, exam-aligned study material
+        - generic [ref=e227]: Regular Test & Weekly Detailed reports
+        - generic [ref=e229]: Time management & accuracy training
+        - generic [ref=e231]: Previous year question practice
+        - generic [ref=e233]: Competitive exam readiness
+        - link "Enroll Now" [ref=e236] [cursor=pointer]:
+          - /url: "#"
+    - img "Student with laptop" [ref=e238]
+  - generic [ref=e240]:
+    - generic [ref=e241]:
+      - generic [ref=e242]:
+        - generic [ref=e243]: Academic Classes
+        - heading "Complete Academic Support" [level=2] [ref=e244]
+      - paragraph [ref=e246]: Boost School Performance With Our Academic Excellence Classes CBSE, ICSE And Other Boards — Focused On Clear Concepts, Regular Practice, And Exam Readiness.
+    - generic [ref=e247]:
+      - generic [ref=e248]:
+        - img "Study space" [ref=e250]
+        - img "Student studying" [ref=e252]
+        - img "Study lamp" [ref=e254]
+        - img "Study desk" [ref=e256]
+      - generic [ref=e257]:
+        - generic [ref=e258]:
+          - heading "What You Get:" [level=4] [ref=e259]
+          - list [ref=e260]:
+            - listitem [ref=e261]: Complete syllabus coverage
+            - listitem [ref=e262]: Chapter-wise concept clarity
+            - listitem [ref=e263]: Regular tests & revision sessions
+            - listitem [ref=e264]: Doubt-solving with expert teachers
+            - listitem [ref=e265]: Homework support & exam preparation
+            - listitem [ref=e266]: Exam preparation & Readiness
+        - link "Book Your Seat" [ref=e267] [cursor=pointer]:
+          - /url: "#"
+  - generic [ref=e270]:
+    - img "Self Learning" [ref=e272]
+    - generic [ref=e273]:
+      - generic [ref=e274]: Self Learning
+      - heading "Anytime Learning" [level=2] [ref=e275]
+      - paragraph [ref=e276]: Empower students to learn at their own pace with our flexible Self Learning programs. Designed for independent study, this mode allows learners to access high-quality content anytime, anywhere—perfect for revision, practice, and concept mastery.
+      - heading "Features" [level=4] [ref=e277]
+      - list [ref=e278]:
+        - listitem [ref=e279]: Recorded video lectures
+        - listitem [ref=e280]: Topic-wise study modules
+        - listitem [ref=e281]: Mock Test Series
+        - listitem [ref=e282]: Anytime, anywhere access
+        - listitem [ref=e283]: Self-paced progress tracking
+      - link "Enroll Now" [ref=e284] [cursor=pointer]:
+        - /url: "#"
+  - generic [ref=e286]:
+    - generic [ref=e287]:
+      - generic [ref=e288]:
+        - generic [ref=e289]: HOW IT WORKS
+        - heading "Your Path to Success" [level=2] [ref=e290]
+        - paragraph [ref=e291]: A Simple And Structured Process To Start Learning And Excel In Academics And Olympiad Exams.
+      - link "Get Started" [ref=e293] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e294]:
+      - generic [ref=e295]:
+        - generic [ref=e296]: Step 1
+        - generic [ref=e297]:
+          - generic [ref=e298]:
+            - heading "Choose Your Program" [level=3] [ref=e299]
+            - paragraph [ref=e300]: Select the right course based on your class, goals, and interest in Olympiad preparation.
+          - img "Choose Your Program" [ref=e302]
+      - generic [ref=e303]:
+        - generic [ref=e304]: Step 2
+        - generic [ref=e305]:
+          - img "Get Instant Access" [ref=e307]
+          - generic [ref=e308]:
+            - heading "Get Instant Access" [level=3] [ref=e309]
+            - paragraph [ref=e310]: Unlock your learning dashboard with access to live classes, recorded lectures, and study material.
+      - generic [ref=e311]:
+        - generic [ref=e312]: Step 3
+        - generic [ref=e313]:
+          - generic [ref=e314]:
+            - heading "Learn & Practice" [level=3] [ref=e315]
+            - paragraph [ref=e316]: Attend interactive sessions, complete assignments, and solve Olympiad-level mock tests.
+          - img "Learn & Practice" [ref=e318]
+      - generic [ref=e319]:
+        - generic [ref=e320]: Step 4
+        - generic [ref=e321]:
+          - img "Test & Improve" [ref=e323]
+          - generic [ref=e324]:
+            - heading "Test & Improve" [level=3] [ref=e325]
+            - paragraph [ref=e326]: Take regular tests, analyze your performance, and improve with expert feedback and guidance.
+  - generic [ref=e328]:
+    - generic [ref=e329]:
+      - generic [ref=e330]:
+        - generic [ref=e331]: Features And Benefits
+        - heading "Everything You Need to Succeed" [level=2] [ref=e332]
+        - paragraph [ref=e333]: A Complete Learning Ecosystem Designed For Academic Excellence And Olympiad Success.
+      - link "Start Olympiad Prep" [ref=e335] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e336]:
+      - generic [ref=e337]:
+        - img "Student learning with headphones" [ref=e339]
+        - img "Study desk with books" [ref=e341]
+        - img "Student attending online class" [ref=e343]
+      - generic [ref=e344]:
+        - generic [ref=e345]:
+          - generic [ref=e346]:
+            - generic [ref=e347]: "01"
+            - generic [ref=e348]: Live & Interactive Classes
+          - paragraph [ref=e349]: Engage in real-time sessions with expert educators, designed to simplify concepts and encourage active participation.
+        - generic [ref=e350]:
+          - generic [ref=e351]:
+            - generic [ref=e352]: "02"
+            - generic [ref=e353]: Recorded Lectures
+          - paragraph [ref=e354]: Access high-quality recorded sessions anytime, allowing you to learn at your own pace and revise easily.
+        - generic [ref=e355]:
+          - generic [ref=e356]:
+            - generic [ref=e357]: "03"
+            - generic [ref=e358]: Structured Study Material
+          - paragraph [ref=e359]: Well-organized notes, worksheets, and resources aligned with aligned with Olympiad curriculum.
+        - generic [ref=e360]:
+          - generic [ref=e361]:
+            - generic [ref=e362]: "04"
+            - generic [ref=e363]: Olympiad Practical Sets
+          - paragraph [ref=e364]: Advanced-level questions and topic-wise practice designed to prepare students for national and international Olympiad exams.
+        - generic [ref=e365]:
+          - generic [ref=e366]:
+            - generic [ref=e367]: "05"
+            - generic [ref=e368]: Regular Mock Tests
+          - paragraph [ref=e369]: Regular assessments to evaluate progress, improve accuracy, and build exam confidence.
+        - generic [ref=e370]:
+          - generic [ref=e371]:
+            - generic [ref=e372]: "06"
+            - generic [ref=e373]: Doubt Solving Support
+          - paragraph [ref=e374]: Get your queries resolved quickly through dedicated doubt-clearing sessions and mentor support.
+        - generic [ref=e375]:
+          - generic [ref=e376]:
+            - generic [ref=e377]: "07"
+            - generic [ref=e378]: Performance Analytics
+          - paragraph [ref=e379]: Track your progress with detailed reports, identify weak areas, and improve strategically.
+        - generic [ref=e380]:
+          - generic [ref=e381]:
+            - generic [ref=e382]: "08"
+            - generic [ref=e383]: Expert Mentorship
+          - paragraph [ref=e384]: Learn from experienced educators who guide you through academic challenges and Olympiad preparation.
+  - generic [ref=e386]:
+    - generic [ref=e387]:
+      - generic [ref=e388]:
+        - generic [ref=e389]: Testimonials
+        - heading "What Students Say" [level=2] [ref=e390]
+        - paragraph [ref=e391]: Real experiences from students achieving academic success and excelling in Olympiad exams.
+      - generic [ref=e393]:
+        - button "" [ref=e394] [cursor=pointer]:
+          - generic [ref=e395]: 
+        - button "" [ref=e403] [cursor=pointer]:
+          - generic [ref=e404]: 
+    - generic [ref=e405]:
+      - generic [ref=e406]:
+        - img "Video testimonial" [ref=e407]
+        - generic [ref=e409] [cursor=pointer]: 
+      - generic [ref=e410]:
+        - generic [ref=e411]:
+          - generic [ref=e412]:
+            - generic [ref=e413]: 
+            - generic [ref=e414]: 
+            - generic [ref=e415]: 
+            - generic [ref=e416]: 
+            - generic [ref=e417]: 
+          - paragraph [ref=e418]: The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.
+          - generic [ref=e419]:
+            - strong [ref=e420]: Riya Sharma
+            - text: Class 9 Student
+        - generic [ref=e421]:
+          - generic [ref=e422]:
+            - generic [ref=e423]: 
+            - generic [ref=e424]: 
+            - generic [ref=e425]: 
+            - generic [ref=e426]: 
+            - generic [ref=e427]: 
+          - paragraph [ref=e428]: The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.
+          - generic [ref=e429]:
+            - strong [ref=e430]: Riya Sharma
+            - text: Class 9 Student
+        - generic [ref=e431]:
+          - generic [ref=e432]:
+            - generic [ref=e433]: 
+            - generic [ref=e434]: 
+            - generic [ref=e435]: 
+            - generic [ref=e436]: 
+            - generic [ref=e437]: 
+          - paragraph [ref=e438]: The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.
+          - generic [ref=e439]:
+            - strong [ref=e440]: Riya Sharma
+            - text: Class 9 Student
+        - generic [ref=e441]:
+          - generic [ref=e442]:
+            - generic [ref=e443]: 
+            - generic [ref=e444]: 
+            - generic [ref=e445]: 
+            - generic [ref=e446]: 
+            - generic [ref=e447]: 
+          - paragraph [ref=e448]: The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.
+          - generic [ref=e449]:
+            - strong [ref=e450]: Aarav Patel
+            - text: Class 8 Student
+        - generic [ref=e451]:
+          - generic [ref=e452]:
+            - generic [ref=e453]: 
+            - generic [ref=e454]: 
+            - generic [ref=e455]: 
+            - generic [ref=e456]: 
+            - generic [ref=e457]: 
+          - paragraph [ref=e458]: The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.
+          - generic [ref=e459]:
+            - strong [ref=e460]: Priya Gupta
+            - text: Class 10 Student
+        - generic [ref=e461]:
+          - generic [ref=e462]:
+            - generic [ref=e463]: 
+            - generic [ref=e464]: 
+            - generic [ref=e465]: 
+            - generic [ref=e466]: 
+            - generic [ref=e467]: 
+          - paragraph [ref=e468]: The teaching approach is very clear and concept-based. I especially appreciate how subject mentors are always available. My confidence for Olympiads soared.
+          - generic [ref=e469]:
+            - strong [ref=e470]: Karan Singh
+            - text: Class 7 Student
+  - contentinfo [ref=e472]:
+    - generic [ref=e473]:
+      - generic [ref=e478]:
+        - heading "Start Your Learning Journey Today" [level=2] [ref=e479]
+        - paragraph [ref=e480]:
+          - text: Join thousands of students preparing for academic success and Olympiad excellence.
+          - text: Take the first step towards a brighter future.
+        - generic [ref=e481]: Enroll Now
+      - generic [ref=e485]:
+        - generic [ref=e486]:
+          - generic [ref=e488]:
+            - img "Logo" [ref=e489]
+            - paragraph [ref=e490]: Online live platform for Olympiad preparation with expert tutors. Personalized private and group classes help students build strong concepts and achieve top ranks from home.
+          - generic [ref=e492]:
+            - heading "QUICK LINKS" [level=6] [ref=e493]
+            - link "Home" [ref=e494] [cursor=pointer]:
+              - /url: /
+            - link "About Us" [ref=e495] [cursor=pointer]:
+              - /url: /about-us
+            - link "Tutor Registration" [ref=e496] [cursor=pointer]:
+              - /url: /tutor-registration
+            - link "How It Works" [ref=e497] [cursor=pointer]:
+              - /url: /how-it-works
+            - link "Our Team" [ref=e498] [cursor=pointer]:
+              - /url: /our-team
+            - link "Blogs" [ref=e499] [cursor=pointer]:
+              - /url: /blogs
+            - link "Contact Us" [ref=e500] [cursor=pointer]:
+              - /url: /contact-us
+          - generic [ref=e502]:
+            - heading "COURSES" [level=6] [ref=e503]
+            - link "How It Works" [ref=e504] [cursor=pointer]:
+              - /url: /how-it-works
+            - link "Live Olympiad Classes" [ref=e505] [cursor=pointer]:
+              - /url: /live-olympiad-classes
+            - link "Self Learning Program" [ref=e506] [cursor=pointer]:
+              - /url: /self-learning-program
+            - link "Test Series" [ref=e507] [cursor=pointer]:
+              - /url: /test-series
+            - link "Study Material" [ref=e508] [cursor=pointer]:
+              - /url: /study-material
+            - link "Self Learning Video" [ref=e509] [cursor=pointer]:
+              - /url: /self-learning-video
+          - generic [ref=e511]:
+            - heading "SUPPORT" [level=6] [ref=e512]
+            - link "FAQs" [ref=e513] [cursor=pointer]:
+              - /url: /how-it-works
+            - link "Help Center" [ref=e514] [cursor=pointer]:
+              - /url: /live-olympiad-classes
+            - link "Terms & Conditions" [ref=e515] [cursor=pointer]:
+              - /url: /self-learning-program
+            - link "Privacy Policy" [ref=e516] [cursor=pointer]:
+              - /url: /test-series
+            - link "Refund Policy" [ref=e517] [cursor=pointer]:
+              - /url: /study-material
+          - generic [ref=e519]:
+            - heading "STAY UPDATED" [level=6] [ref=e520]
+            - generic [ref=e521]:
+              - textbox "Enter your email to subscribe..." [ref=e522]
+              - button "→" [ref=e523] [cursor=pointer]:
+                - generic [ref=e524]: →
+            - paragraph [ref=e525]: Get latest updates on courses, exams, and Olympiad preparation tips.
+            - heading "CUSTOMER SUPPORT" [level=6] [ref=e526]
+            - text: "Call/WhatsApp:"
+            - link "+91 70226 78333" [ref=e527] [cursor=pointer]:
+              - /url: tel:+917022678333
+            - text: ","
+            - link "+91 92179 64222" [ref=e528] [cursor=pointer]:
+              - /url: tel:+919217964222
+            - text: "Email:"
+            - link "info@vaagaacademy.com" [ref=e529] [cursor=pointer]:
+              - /url: mailto:info@vaagaacademy.com
+            - text: "Address:"
+            - text: "Sector-86, Gurugram, Haryana Pin: 122004"
+        - generic [ref=e531]:
+          - generic [ref=e532]: © 2026 Your Company. All Rights Reserved.
+          - generic [ref=e533]:
+            - link "Privacy Policy" [ref=e534] [cursor=pointer]:
+              - /url: /privacy-policy
+            - link "Terms of Services" [ref=e535] [cursor=pointer]:
+              - /url: /terms-of-services
+  - generic [ref=e536]:
+    - generic [ref=e538]:
+      - generic [ref=e540]:
+        - generic [ref=e541] [cursor=pointer]:
+          - text: 
+          - generic: Request
+        - text: 
+        - generic [ref=e542] [cursor=pointer]:
+          - text: 
+          - generic: Timeline
+        - text: 
+        - generic [ref=e543] [cursor=pointer]:
+          - text: 
+          - generic: Views
+          - generic [ref=e544]: "4"
+        - generic [ref=e545] [cursor=pointer]:
+          - text: 
+          - generic: Route
+        - generic [ref=e546] [cursor=pointer]:
+          - text: 
+          - generic: Queries
+          - generic [ref=e547]: "1"
+        - text:  
+        - generic [ref=e548] [cursor=pointer]:
+          - text: 
+          - generic: Auth
+        - text: 
+        - generic [ref=e549] [cursor=pointer]:
+          - text: 
+          - generic: Session
+      - generic [ref=e550]:
+        - generic [ref=e553] [cursor=pointer]:
+          - generic: 
+        - generic [ref=e555] [cursor=pointer]:
+          - generic: 
+        - generic [ref=e556]:
+          - generic: 
+          - generic: 8.3.1
+        - generic [ref=e557] [cursor=pointer]:
+          - generic: 
+          - generic: 1.74s
+        - generic [ref=e558]:
+          - generic: 
+          - generic: 33MB
+        - generic [ref=e559]:
+          - generic: 
+        - generic [ref=e560] [cursor=pointer]:
+          - generic: 
+          - generic: GET new_ui/latest_ui/home
+    - text:                         
+  - text: 

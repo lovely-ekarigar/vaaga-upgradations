@@ -384,7 +384,8 @@
 
 <section class="how-it-works">
     <div class="container">
-        <div class="works-header">
+        <!-- Bordered Header -->
+        <div class="works-header-box">
             <div class="header-left">
                 <span class="tagline">HOW IT WORKS</span>
                 <h2>Your Path to Success</h2>
@@ -394,9 +395,25 @@
                 <a href="#" class="btn-started">Get Started</a>
             </div>
         </div>
+
+        <!-- Timeline — CSS-only S-curve matching Figma Vector 9 -->
         <div class="works-timeline">
+            <!-- CSS S-curve path: 5 horizontal lines + 4 semicircular curves -->
+            <div class="s-curve-path">
+                <div class="sc-line sc-line-1"></div>
+                <div class="sc-line sc-line-2"></div>
+                <div class="sc-line sc-line-3"></div>
+                <div class="sc-line sc-line-4"></div>
+                <div class="sc-line sc-line-5"></div>
+
+                <div class="sc-curve sc-curve-left sc-curve-1"></div>
+                <div class="sc-curve sc-curve-right sc-curve-2"></div>
+                <div class="sc-curve sc-curve-left sc-curve-3"></div>
+                <div class="sc-curve sc-curve-right sc-curve-4"></div>
+            </div>
+
             <!-- Step 1 -->
-            <div class="timeline-step step-right">
+            <div class="timeline-step step-1 step-right">
                 <div class="step-badge"><span>Step 1</span></div>
                 <div class="step-inner">
                     <div class="step-content">
@@ -404,16 +421,16 @@
                         <p>Select the right course based on your class, goals, and interest in Olympiad preparation.</p>
                     </div>
                     <div class="step-image">
-                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Choose+Program" alt="Choose Your Program">
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Choose Your Program">
                     </div>
                 </div>
             </div>
             <!-- Step 2 -->
-            <div class="timeline-step step-left">
+            <div class="timeline-step step-2 step-left">
                 <div class="step-badge"><span>Step 2</span></div>
                 <div class="step-inner">
                     <div class="step-image">
-                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Instant+Access" alt="Get Instant Access">
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Get Instant Access">
                     </div>
                     <div class="step-content">
                         <h3>Get Instant Access</h3>
@@ -422,7 +439,7 @@
                 </div>
             </div>
             <!-- Step 3 -->
-            <div class="timeline-step step-right">
+            <div class="timeline-step step-3 step-right">
                 <div class="step-badge"><span>Step 3</span></div>
                 <div class="step-inner">
                     <div class="step-content">
@@ -430,16 +447,16 @@
                         <p>Attend interactive sessions, complete assignments, and solve Olympiad-level mock tests.</p>
                     </div>
                     <div class="step-image">
-                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Learn+Practice" alt="Learn & Practice">
+                        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Learn & Practice">
                     </div>
                 </div>
             </div>
             <!-- Step 4 -->
-            <div class="timeline-step step-left">
+            <div class="timeline-step step-4 step-left">
                 <div class="step-badge"><span>Step 4</span></div>
                 <div class="step-inner">
                     <div class="step-image">
-                        <img src="https://placehold.co/400x300/d9d9d9/333?text=Test+Improve" alt="Test & Improve">
+                        <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Test & Improve">
                     </div>
                     <div class="step-content">
                         <h3>Test & Improve</h3>

@@ -97,6 +97,7 @@
                     <!-- Math -->
                     <div class="olympiad-card-h">
                         <div class="card-left bg-teal">
+                            <span class="subject-circle">Math<br>Olympiad</span>
                             <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Math Olympiad">
                         </div>
                         <div class="card-right">
@@ -106,19 +107,20 @@
                                 <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 2</span>
                             </div>
                             <ul class="card-specs">
-                                <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                <li><i class="bi bi-book-fill"></i> Study Material</li>
                             </ul>
                             <div class="card-actions">
                                 <a href="#" class="btn-enroll">Enroll Now</a>
-                                <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                             </div>
                         </div>
                     </div>
                     <!-- Science -->
                     <div class="olympiad-card-h">
                         <div class="card-left bg-gold">
+                            <span class="subject-circle">Science<br>Olympiad</span>
                             <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Science Olympiad">
                         </div>
                         <div class="card-right">
@@ -128,19 +130,20 @@
                                 <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 2</span>
                             </div>
                             <ul class="card-specs">
-                                <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                <li><i class="bi bi-book-fill"></i> Study Material</li>
                             </ul>
                             <div class="card-actions">
                                 <a href="#" class="btn-enroll">Enroll Now</a>
-                                <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                             </div>
                         </div>
                     </div>
                     <!-- English -->
                     <div class="olympiad-card-h">
                         <div class="card-left bg-teal">
+                            <span class="subject-circle">English<br>Olympiad</span>
                             <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="English Olympiad">
                         </div>
                         <div class="card-right">
@@ -150,19 +153,20 @@
                                 <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 2</span>
                             </div>
                             <ul class="card-specs">
-                                <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                <li><i class="bi bi-book-fill"></i> Study Material</li>
                             </ul>
                             <div class="card-actions">
                                 <a href="#" class="btn-enroll">Enroll Now</a>
-                                <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                             </div>
                         </div>
                     </div>
                     <!-- GK Olympiad -->
                     <div class="olympiad-card-h">
                         <div class="card-left bg-teal">
+                            <span class="subject-circle">GK<br>Olympiad</span>
                             <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="GK Olympiad">
                         </div>
                         <div class="card-right">
@@ -172,19 +176,20 @@
                                 <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 2</span>
                             </div>
                             <ul class="card-specs">
-                                <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                <li><i class="bi bi-book-fill"></i> Study Material</li>
                             </ul>
                             <div class="card-actions">
                                 <a href="#" class="btn-enroll">Enroll Now</a>
-                                <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                             </div>
                         </div>
                     </div>
                     <!-- Cyber Olympiad -->
                     <div class="olympiad-card-h">
                         <div class="card-left bg-gold">
+                            <span class="subject-circle">Cyber<br>Olympiad</span>
                             <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Cyber Olympiad">
                         </div>
                         <div class="card-right">
@@ -194,13 +199,13 @@
                                 <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 2</span>
                             </div>
                             <ul class="card-specs">
-                                <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                <li><i class="bi bi-book-fill"></i> Study Material</li>
                             </ul>
                             <div class="card-actions">
                                 <a href="#" class="btn-enroll">Enroll Now</a>
-                                <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                             </div>
                         </div>
                     </div>
@@ -228,6 +233,7 @@
                             <div class="cards-scroll-row">
                             <div class="olympiad-card-h">
                                 <div class="card-left bg-teal">
+                                    <span class="subject-circle">Math<br>Olympiad</span>
                                     <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Math">
                                 </div>
                                 <div class="card-right">
@@ -237,18 +243,19 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 3</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
                             <div class="olympiad-card-h">
                                 <div class="card-left bg-gold">
+                                    <span class="subject-circle">Science<br>Olympiad</span>
                                     <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Science">
                                 </div>
                                 <div class="card-right">
@@ -258,18 +265,19 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 3</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
                             <div class="olympiad-card-h">
                                 <div class="card-left bg-teal">
+                                    <span class="subject-circle">English<br>Olympiad</span>
                                     <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="English">
                                 </div>
                                 <div class="card-right">
@@ -279,13 +287,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 3</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -301,13 +309,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 3</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -323,13 +331,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 3</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -361,13 +369,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 4</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -382,13 +390,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 4</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -403,13 +411,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 4</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -425,13 +433,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 4</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -447,13 +455,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 4</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -485,13 +493,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 5</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -506,13 +514,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 5</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -527,13 +535,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 5</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -549,13 +557,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 5</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -571,13 +579,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 5</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -609,13 +617,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 6</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -630,13 +638,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 6</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -651,13 +659,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 6</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -673,13 +681,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 6</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -695,13 +703,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 6</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -733,13 +741,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 7</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -754,13 +762,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 7</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -775,13 +783,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 7</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -797,13 +805,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 7</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -819,13 +827,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 7</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -857,13 +865,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 8</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -878,13 +886,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 8</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -899,13 +907,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 8</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -921,13 +929,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 8</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
@@ -943,13 +951,13 @@
                                         <span class="cbadge"><i class="bi bi-mortarboard-fill"></i> Class 8</span>
                                     </div>
                                     <ul class="card-specs">
-                                        <li><i class="bi bi-check-circle-fill"></i> 24 Session</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> 15 Mock test</li>
-                                        <li><i class="bi bi-check-circle-fill"></i> Study Material</li>
+                                        <li><i class="bi bi-person-fill"></i> 24 Session</li>
+                                        <li><i class="bi bi-file-earmark-text-fill"></i> 15 Mock test</li>
+                                        <li><i class="bi bi-book-fill"></i> Study Material</li>
                                     </ul>
                                     <div class="card-actions">
                                         <a href="#" class="btn-enroll">Enroll Now</a>
-                                        <div class="btn-subscribe">Subscription <span>2999/-</span></div>
+                                        <a href="#" class="btn-subscribe"><small>Subscription</small>2999/-</a>
                                     </div>
                                 </div>
                             </div>
