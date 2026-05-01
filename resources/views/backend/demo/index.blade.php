@@ -126,10 +126,34 @@
                         <div  class="col-12 col-lg-12 form-group">
                             <a href="{{route('admin.teachers_course_availability')}}" target="_blank"  class="btn btn-info btn-sm">Check Tutor availability</a>
                         </div>
-                        <!--<div class="col-12 col-lg-12 form-group">-->
-                        <!--<label>Meeting Link</label>-->
-                        <!--<input class="form-control" name="meetlink" placeholder="Paste Google Meet link">-->
-                        <!--</div>-->
+                        
+                                          
+                        
+                        <div class="col-12 col-lg-12 form-group">
+                            
+                              <div class="mb-3">
+                        <button type="button" id="connectBtn" class="btn btn-primary btn-sm">
+                            Connect to Google
+                        </button>
+
+    <span id="googleStatusText" class="ml-2"></span>
+</div>
+                        <label>Meeting Link</label>
+                       <!--<input class="form-control" id="meet_link" name="meetlink" placeholder="Paste Google Meet link">-->
+                        
+                        <input class="form-control" id="meet_link" name="meetlink" readonly>
+                        <!--//for generate button :-->
+                    <br>
+                    
+
+
+               <button type="button" id="generateLinkBtn" class="btn btn-success btn-sm" disabled>
+                Generate Google Meet Link
+                </button>
+                                        
+                        
+                        </div>
+                        
                         </div>
     
       </div>
@@ -177,8 +201,9 @@
                             <label for="title" class="control-label">Remarks<span class="required">*</span></label>
                             <input class="form-control" placeholder="Remarks" name="teacher_remarks" type="text">
                             <input type="hidden" name="demo_id" id="demo_id_status" />
-    <br>
-    <span class="required">*</span> Indicates required fields
+                           <input type="hidden" name="demo_type" id="demo_id_type" />
+                        <br>
+                        <span class="required">*</span> Indicates required fields
                         </div>
                         
                         </div>
@@ -204,18 +229,33 @@
     dropdownParent: $('#demoModal')
   });
 
-    $(document).on("click",".demo-init",function(){
-        $("#demo_id").val($(this).data("id"))
-        $("#demoModal").modal('show')
-    })
-      $(document).on("click",".changeStatus",function(){
-        $("#demo_id_status").val($(this).data("id"))
-        $("#changeStatusModal").modal('show')
-    })
+    // $(document).on("click",".demo-init",function(){
+    //     $("#demo_id").val($(this).data("id"))
+    //     $("#demoModal").modal('show')
+    // })
+    //   $(document).on("click",".changeStatus",function(){
+    //     $("#demo_id_status").val($(this).data("id"))
+    //     $("#changeStatusModal").modal('show')
+    // })
     
     
-    
-      
+   $(document).on("click", ".demo-init", function () {
+
+    console.log("clicked"); // debug
+
+    let demoId = $(this).data("id");
+    let meet = $(this).data("meet");
+
+    $("#demo_id").val(demoId);
+
+    if (meet) {
+        $("#meet_link").val(meet);
+    } else {
+        $("#meet_link").val('');
+    }
+
+    $('#demoModal').modal('show');
+});
     
      $(document).on("click",".demo-start",function(){
         $(this).attr("disabled",true);
@@ -357,18 +397,170 @@ if(!flag)
       
       
       //shruti
-      
-      $(document).on('click', '.joinGoogleMeet', function () {
+$(document).on('click', '.joinGoogleMeet', function () {
 
-    let meetLink = $(this).data('link');
+    let demoId = $(this).data('id');
 
-    if(meetLink){
-        window.open(meetLink, '_blank');
-    } else {
-        alert('Meet link not available');
-    }
+    $.ajax({
+        url: '/join-meet',
+        type: 'POST',
+        data: {
+            id: demoId,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (res) {
+
+            if (res.success) {
+
+                // NOW open meet AFTER DB save
+                window.open(res.link, '_blank');
+
+            } else {
+                alert(res.message);
+            }
+
+        },
+        error: function (xhr) {
+            console.log(xhr.responseText);
+            alert('Join failed');
+        }
+    });
 
 });
+// 
+
+
+// Generate Google Meet Link
+$(document).on('click', '#generateLinkBtn', function () {
+
+    let btn = $(this);
+    let start = $("#demoModal input[name='datetime']").val();
+    if (!start) {
+        alert("Please select date & time");
+        return;
+    }
+
+    // disable button + loader
+    btn.prop('disabled', true).text('Generating...');
+
+    // auto end time (+1 hour)
+    let end = new Date(start);
+end.setHours(end.getHours() + 1);
+
+function formatLocal(dt) {
+    return dt.getFullYear() + '-' +
+        String(dt.getMonth() + 1).padStart(2, '0') + '-' +
+        String(dt.getDate()).padStart(2, '0') + 'T' +
+        String(dt.getHours()).padStart(2, '0') + ':' +
+        String(dt.getMinutes()).padStart(2, '0') + ':00';
+}
+
+end = formatLocal(end);
+    fetch("{{ route('generate.meet') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            start_time: start,
+            end_time: end
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.link) {
+            $("#meet_link").val(data.link);
+        } else {
+            alert(data.error || "Failed to generate link");
+        }
+
+        // enable button
+        btn.prop('disabled', false).text('Generate Google Meet Link');
+
+    })
+    .catch(() => {
+        alert("Server error");
+        btn.prop('disabled', false).text('Generate Google Meet Link');
+    });
+});
+
+
+// Clear old link if datetime changes
+$(document).on('change', "input[name='datetime']", function () {
+    $("#meet_link").val('');
+});
+
+
+// $(document).on("click", ".demo-init", function () {
+//     $("#meet_link").val('');
+//     checkGoogleStatus();
+// });
+
+// $(document).ready(function () {
+
+//     var table = $('#myTable').DataTable();
+
+//     setInterval(function () {
+//         table.ajax.reload(null, false);
+//     }, 5000);
+
+// });
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    function checkGoogleStatus() {
+        fetch('/google/status')
+            .then(res => res.json())
+            .then(data => {
+
+              if (data.connected) {
+
+    document.getElementById('connectBtn').disabled = false;
+    document.getElementById('connectBtn').innerText = "Reconnect Google";
+
+    document.getElementById('generateLinkBtn').disabled = false;
+
+    document.getElementById('googleStatusText').innerHTML =
+        "<span style='color:green;font-weight:600;'> Connected</span>";
+}
+                 else {
+
+                    document.getElementById('connectBtn').disabled = false;
+                    document.getElementById('generateLinkBtn').disabled = true;
+
+                    document.getElementById('googleStatusText').innerHTML =
+                        "<span style='color:red'>Not Connected</span>";
+                }
+            });
+    }
+
+    checkGoogleStatus();
+
+    document.getElementById('connectBtn').addEventListener('click', function () {
+        window.location.href = "/google/redirect";
+    });
+
+});
+
+
+$(document).on("click", ".changeStatus", function () {
+
+    let id = $(this).data("id");
+    let type = $(this).data("type"); // VERY IMPORTANT
+
+    $("#demo_id_status").val(id);
+    $("#demo_id_type").val(type); // SET VALUE HERE
+
+    $("#changeStatusModal").modal('show');
+});
+
 
     </script>
 
@@ -435,7 +627,7 @@ if(!flag)
             });
             
             
-            
+        
             
     </script>
     `

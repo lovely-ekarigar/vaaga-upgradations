@@ -30,11 +30,15 @@ use App\Http\Controllers\Backend\CertificateController as FrontendCertificateCon
 use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Backend\MenuController;
 use App\Http\Controllers\Backend\NotificationController;
-
+use App\Http\Controllers\GoogleController;
 
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/robots.txt', function () {
+    return response("User-agent: *\nDisallow: /", 200)
+        ->header('Content-Type', 'text/plain');
+});
 /* 
  * Global Routes    
  * Routes that are used between both frontend and backend. 
@@ -470,9 +474,21 @@ Route::post('/admin/save-meet-link', [DemoController::class, 'saveMeetLink'])
     ->name('admin.save_meet_link');
 Route::get('/check-demo-status/{id}', [DemoController::class, 'checkDemoStatus']);
 Route::post('/join-meet', [DemoController::class, 'joinMeet']);
+// Route::post('/end-class', [DemoController::class, 'endClass'])->name('end.class');
+
+Route::get('/google/redirect', [GoogleController::class, 'redirect']);
+Route::get('/google/callback', [GoogleController::class, 'callback']);
+Route::get('/google/status',[GoogleController::class,'status']);
+
+Route::post('/generate-meet-link', [GoogleController::class, 'generate'])->name('generate.meet');
 
 
-
+//shruti for live demo tracking via google meet 
+Route::get('/user/track/demo', [DemoController::class, 'liveDemoTrack']);
+Route::post('/student/demo/join', [DemoController::class, 'studentJoinDemo'])
+    ->name('student.demo.join');
+    
+    
 // Mock Test Series Routes (attempt route must be before list so /x/y/attempt is not matched as list /x)
 Route::get('user/my-mock-series', [MockSeriesController::class, 'myMockSeries'])->name('myMockSeries.index');
 Route::get(
@@ -671,6 +687,7 @@ Route::group(['namespace' => 'Frontend', 'as' => 'frontend.'], function () {
 });
 
 
+//new ui routes
 //new ui routes
 Route::get('new_ui/latest_ui/home', function () {
     return view('new_ui.latest_ui.pages.home');

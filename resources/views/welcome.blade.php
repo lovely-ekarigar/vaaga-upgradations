@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 
 @section('title')
 <title>Olympiad Online Classes for Maths, Science & English - VaaGa Academy </title>
+<meta name="robots" content="noindex, nofollow">
 <meta name="description" content="VaaGa Academy offers expert online Olympiad coaching for Maths, Science & English for Grade 2-8 students. Boost your child's performance with live classes and mock tests!">
 <meta name="keywords"
    content="Vaaga Academy,Vaaga Academy Gurgaon,online education platforms in India,Best elearning platforms in India,Online learning platform for students,Top online learning platforms in india,Online live learning platform for school students,Live Online Learning Classes for school students">

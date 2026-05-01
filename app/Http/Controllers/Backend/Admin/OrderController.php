@@ -226,7 +226,17 @@ Team VaaGa';
 
     public function subscriptionReports(Request $request){
 
-           $orders = Order::where("course_mode","like","%monthly%")->where('status','1')->orderBy('updated_at', 'desc')->whereRaw("total_cycle > paid_cycle");
+           $orders = Order::where('status', '1')
+                ->where(function ($query) {
+                    $query->where(function ($subQuery) {
+                        $subQuery->where('course_mode', 'like', '%monthly%')
+                            ->whereColumn('total_cycle', '>', 'paid_cycle');
+                    })->orWhere(function ($subQuery) {
+                        $subQuery->where('course_mode', 'like', '%regular%')
+                            ->whereColumn('total_cycle', '!=', 'paid_cycle');
+                    });
+                })
+                ->orderBy('updated_at', 'desc');
 
         if($request->type=='7days'){
             $orders->where("end_date","<=",date("Y-m-d",strtotime("+7 Days",time())));
@@ -273,7 +283,7 @@ $orders->where("end_date","<=",date("Y-m-d"));
                       ->orderBy('users.last_name', $order);
             })
             ->orderColumn('due_cycle', function ($query, $order) {
-                $query->orderByRaw("(total_cycle - paid_cycle) {$order}");
+                $query->orderByRaw("(CASE WHEN (total_cycle - paid_cycle) < 0 AND course_mode LIKE '%regular%' THEN 1 WHEN (total_cycle - paid_cycle) < 0 THEN 0 ELSE (total_cycle - paid_cycle) END) {$order}");
             })
             ->addIndexColumn()
             ->addColumn('actions', function ($q) use ($request) {
@@ -310,7 +320,13 @@ $orders->where("end_date","<=",date("Y-m-d"));
                  return $q->amount;
             })
             ->addColumn('due_cycle', function ($q) {
-                 return $q->total_cycle - $q->paid_cycle;
+                $dueCycle = (int) $q->total_cycle - (int) $q->paid_cycle;
+
+                if ($dueCycle < 0 && stripos((string) $q->course_mode, 'regular') !== false) {
+                    return 1;
+                }
+
+                return max(0, $dueCycle);
             })
              ->addColumn('subs_date', function ($q) {
                 return $q->created_at->format('d M, Y');

@@ -39,16 +39,19 @@
         <h3 class="page-title d-inline">Batch Progress</h3>
 
 
+
     </div>
     <div class="card-body">
         <div class="row">
             <div class="col-12">
                 <ul class="list-unstyled">
                     @foreach($list as $lesson)
+                    @if($lesson->lesson_lists->where('published', 1)->count() > 0 || $lesson->lesson_lists->where('published', '1')->count() > 0)
                     <li class="pb-3">
                         <h6 class="pb-2">{{$lesson->title}}</h6>
 
                         @foreach($lesson->lesson_lists as $ll)
+                        @if($ll->published == 1 || $ll->published == '1')
                         @foreach($lession_complete_list as $lession_complete)
                         @if($ll->id == $lession_complete->lession_id)
 
@@ -64,10 +67,12 @@
 
 
                         @endforeach
+                        @endif
 
                         @endforeach
 
                     </li>
+                    @endif
                     @endforeach
                 </ul>
             </div>

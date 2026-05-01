@@ -57,8 +57,7 @@ use App\Mail\Frontend\Demo\SubscriptionDueEmail;
 use App\Mail\TeacherFeedbackEmail;
 use App\Mail\FeedbackEmail;
 use App\Models\VideoLink;
-
-
+use App\Models\DemoRequest;
 use Stevebauman\Location\Facades\Location;
 use DateTime;
 /**
@@ -469,6 +468,19 @@ public function demofeedbackCreate(Request $request,$id)
     $feedback_list->review = $v;
     $feedback_list->save();
        }
+       
+       
+       //to mark status as completred when teacher submits the feedback form
+//         $demo = DemoRequest::find($id);
+
+// if ($demo) {
+
+//     //  ONLY teacher feedback will mark completed
+//     if (auth()->user()->hasRole('teacher')) {
+//         $demo->demo_status = 'completed';
+//         $demo->save();
+//     }
+// }
     
    if(auth()->user()->hasRole('student')){
    

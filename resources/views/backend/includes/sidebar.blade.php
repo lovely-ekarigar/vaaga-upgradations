@@ -263,6 +263,14 @@ use App\Models\UserNotification;
                         <span class="title">Live Exam Tracking</span>
                     </a>
                 </li>
+                
+                   <li class="nav-item">
+                    <a class="nav-link {{ request()->segment(3) == 'demo' ? 'active' : '' }}"
+                        href="/user/track/demo">
+                        <i class="nav-icon icon-vector"></i>
+                        <span class="title">Live Demo Tracking</span>
+                    </a>
+                </li>
 
                 <li class="nav-item ">
                     <a class="nav-link {{ $request->segment(2) == 'enquiry-list' ? 'active' : '' }}"

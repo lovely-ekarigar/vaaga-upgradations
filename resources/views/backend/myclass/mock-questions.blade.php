@@ -210,7 +210,7 @@
                                 <input type="hidden" name="batch_id" value="{{ $batchId }}">
                                 <input type="hidden" name="questions_data" id="questionsData" value="">
                                 <input type="hidden" name="scheduled_at" id="scheduledAtInput" value="">
-                                <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                                <button type="button" class="btn btn-success btn-lg" id="submitBtn">
                                     <i class="fas fa-check"></i> Submit & Schedule Mock Test
                                 </button>
                             </form>
@@ -225,6 +225,51 @@
         </div><!--row-->
     </div><!--card-body-->
 </div><!--card-->
+
+<!-- Submit Confirmation Modal -->
+<div class="modal fade" id="submitConfirmModal" tabindex="-1" role="dialog" aria-labelledby="submitConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog submit-confirm-modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="submitConfirmModalLabel">
+                    <i class="fas fa-check-circle"></i> Confirm Mock Test Submission
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-info-circle"></i> Please review the details below before confirming.
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <strong>Test Name:</strong>
+                    </div>
+                    <div class="col-sm-8">
+                        <span id="confirmTestName" class="badge badge-primary confirm-test-name-badge"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <strong>Scheduled Date:</strong>
+                    </div>
+                    <div class="col-sm-8">
+                        <span id="confirmTestDate" class="badge badge-success" style="font-size: 1em; padding: 8px 12px;"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmSubmitBtn">
+                    <i class="fas fa-check"></i> Confirm & Submit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Report Question Modal -->
 <div class="modal fade" id="reportQuestionModal" tabindex="-1" role="dialog" aria-labelledby="reportQuestionModalLabel" aria-hidden="true">
@@ -274,6 +319,23 @@
         height: auto;
         display: block;
         margin: 10px 0;
+    }
+
+    .submit-confirm-modal-dialog {
+        width: min(92vw, 720px);
+        max-width: 92vw;
+    }
+
+    .confirm-test-name-badge {
+        display: inline-block;
+        max-width: 100%;
+        font-size: 1em;
+        padding: 8px 12px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        line-height: 1.4;
+        text-align: left;
     }
 </style>
 
@@ -470,10 +532,10 @@ $(document).ready(function() {
         });
     });
     
-    // Collect questions data before submit
-    // This captures all current question IDs (including any refreshed ones)
-    // and sends them to backend to be saved in batch_mock_questions table
-    $('#submitMockForm').on('submit', function(e) {
+    // Handle submit button click - show confirmation modal
+    $(document).on('click', '#submitBtn', function(e) {
+        e.preventDefault();
+        
         console.log('🚀 SUBMITTING MOCK TEST - Collecting all question IDs...');
         
         var questionsData = {};
@@ -514,7 +576,7 @@ $(document).ready(function() {
         // Check if we have questions data
         if (Object.keys(questionsData).length === 0) {
             alert('No questions found. Please ensure questions are loaded on the page.');
-            return false;
+            return;
         }
         
         // Set the hidden fields
@@ -530,9 +592,28 @@ $(document).ready(function() {
         console.log('🔍 Hidden field #scheduledAtInput value:', $('#scheduledAtInput').val());
         console.log('✅ These question IDs (including any refreshed ones) will be saved!');
         
-        // Allow form to submit
-        return true;
+        // Format the date for display
+        var dateObj = new Date(scheduledDate);
+        var formattedDate = dateObj.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        
+        // Show confirmation modal
+        $('#confirmTestName').text('{{ $mockTest->name ?? "Mock Test" }}');
+        $('#confirmTestDate').text(formattedDate);
+        $('#submitConfirmModal').modal('show');
     });
+    
+    // Handle confirmation button click
+    $('#confirmSubmitBtn').on('click', function() {
+        $('#submitConfirmModal').modal('hide');
+        // Submit the form directly
+        document.getElementById('submitMockForm').submit();
+    });
+    
     
     // Report Question functionality
     $(document).on('click', '.report-question-btn', function(e) {

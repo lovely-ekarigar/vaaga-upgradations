@@ -39,7 +39,7 @@ class BatchController extends Controller
 {
    public function index(){
 
-    if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
+      if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
         $batches=Batch::orderBy("id","desc")->get();
@@ -80,7 +80,7 @@ class BatchController extends Controller
 
             $list=array();
             foreach($course_content_list as $course_content){
-                $lesson_list = Lesson::where('content_id',$course_content->id)->where('published','1')->get();
+                $lesson_list = Lesson::where('content_id',$course_content->id)->where('published', 1)->get();
                 
                     $course_content->lesson_lists=$lesson_list;
 
@@ -305,7 +305,7 @@ public function sendPush($ids,$title,$msg){
 
 
 public function create(){
-     if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
+       if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
         $courses=Course::orderBy("sort_order","asc")->get();
@@ -407,14 +407,14 @@ return redirect()->route('admin.batch.create')->withFlashDanger("You have an iss
 
 
 public function update(Request $request){
-    if(!auth()->user()->isAdmin()){
+     if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
 
 
    }
 public function deleteBatch($id){
-   if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
+      if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
 
@@ -427,7 +427,7 @@ public function deleteBatch($id){
 
 }
 public function show(){
-    if(!auth()->user()->isAdmin()){
+   if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
 
@@ -435,7 +435,7 @@ public function show(){
 }
 public function editBatch($id){
    // echo $id;
-     if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
+   if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
         $batch=Batch::where("id",$id)->first();
@@ -445,7 +445,7 @@ public function editBatch($id){
 }
 
 public function Course(Request $request){
-  if(!auth()->user()->isAdmin()){
+   if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         }  
         
@@ -479,7 +479,7 @@ DB::table('course_student')->insert(
 return redirect()->route('admin.batch.course',['id'=>$cid])->withFlashSuccess("Course has been assigned to students");
 }
 public function batchassign($id){
-   if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
+     if(!auth()->user()->hasAnyRole(['administrator', 'backend-support-staff'])){
             return abort(403);
         } 
           
@@ -607,7 +607,7 @@ $teacher = User::find($request->teachersid);
            
             //dd($bs);
 
-               // Update order end_date for eligible course modes when students are enrolled in batch
+              // Update order end_date for eligible course modes when students are enrolled in batch
         $batch = Batch::find($request->bid);
         if ($batch && $batch->start_date) {
             foreach($request->student as $sid) {
@@ -684,17 +684,21 @@ $teacher = User::find($request->teachersid);
             ->pluck('lession_id')
             ->toArray();
         
-        // First, get all mock series for this course
+        // First, get all ACTIVE mock series for this course (status '1' = active)
         $mockSeriesIds = DB::table('mock_series')
             ->where('course_id', $courseId)
+            ->where('status', '1')
             ->pluck('id')
             ->toArray();
-        
+
         // Get ALL mock tests from mock_list table - NO FILTERING by chapter progress
         // Admin can assign any mock test regardless of batch progress
+        // Only include active mock tests from active series
         $mockTests = DB::table('mock_list')
             ->join('mock_series', 'mock_series.id', '=', 'mock_list.mock_series_id')
             ->whereIn('mock_list.mock_series_id', $mockSeriesIds)
+            ->where('mock_list.status', 'active')
+            ->where('mock_series.status', '1')
             ->select(
                 'mock_list.id',
                 'mock_list.name',
@@ -731,7 +735,7 @@ $teacher = User::find($request->teachersid);
     public function saveMockTests(Request $request, $id)
     {
         $request->validate([
-            'mock_test_ids' => 'required|array',
+            'mock_test_ids' => 'nullable|array',
             'mock_test_ids.*' => 'exists:mock_list,id'
         ]);
         

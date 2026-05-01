@@ -11,7 +11,7 @@ use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class QuestionController extends Controller  // ✅ Class name matches filename
+class QuestionsController extends Controller  // ✅ Class name matches filename
 {
     use FileUploadTrait;
 

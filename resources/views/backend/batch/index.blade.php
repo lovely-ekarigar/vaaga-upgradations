@@ -23,11 +23,11 @@ use App\Models\Recording;
    <div class="card-body">
       <div class="table-responsive">
          <table id="myTable" class="table table-bordered table-striped dt-select ">
-            <thead>
+       <thead>
                <tr>
                   <th style="text-align:center;"><input type="checkbox" class="mass" id="select-all" />
                   </th>
-                  <th>@lang('labels.general.sr_no')</th>
+               <th>@lang('labels.general.sr_no')</th>
                   <th>Batch Name</th>
                   <th>Course Name</th>
                   <th>Completion</th>
@@ -35,7 +35,7 @@ use App\Models\Recording;
                   <th>Batch class time</th>
                   <th>Batch Days</th>
                   <th>Expenses</th>
-                  <td>Join</td>
+                  <th>Join</th>
                   <th>&nbsp; @lang('strings.backend.general.actions')</th>
                </tr>
             </thead>

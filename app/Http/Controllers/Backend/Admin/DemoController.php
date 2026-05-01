@@ -219,27 +219,88 @@ class DemoController extends Controller
    } 
    
    
-   public function statusUpdate(Request $request){
+//   public function statusUpdate(Request $request){
       
-    if($request->demo_type=='single'){
-      $demo = DemoRequest::find($request->demo_id); 
-      if($demo->teacher_id != Auth::user()->id){
-           return redirect()->back()->withErrors("Unbale to perform this action");
-      }
-      $demo->demo_status = $request->status;
-      $demo->remarks = $request->teacher_remarks;
-      $demo->update();
-    }else{
-       $demo = DemoBatch::find($request->demo_id); 
-      if($demo->teacher_id != Auth::user()->id){
-           return redirect()->back()->withErrors("Unbale to perform this action");
-      }
-      $demo->demo_status = $request->status;
-      $demo->remarks = $request->teacher_remarks;
-      $demo->update();  
+//     if($request->demo_type=='single'){
+//       $demo = DemoRequest::find($request->demo_id); 
+//       if($demo->teacher_id != Auth::user()->id){
+//           return redirect()->back()->withErrors("Unbale to perform this action");
+//       }
+//       $demo->demo_status = $request->status;
+//       $demo->remarks = $request->teacher_remarks;
+//       $demo->update();
+//     }else{
+//       $demo = DemoBatch::find($request->demo_id); 
+//       if($demo->teacher_id != Auth::user()->id){
+//           return redirect()->back()->withErrors("Unbale to perform this action");
+//       }
+//       $demo->demo_status = $request->status;
+//       $demo->remarks = $request->teacher_remarks;
+//       $demo->update();  
+//     }
+//       return redirect()->back()->withSuccess("Status updated succesfully");
+//   }
+
+
+public function statusUpdate(Request $request)
+{
+    $user = Auth::user();
+
+    if($request->demo_type == 'single'){
+        $demo = DemoRequest::find($request->demo_id);
+
+        if(
+            !$user->hasRole('administrator') && 
+            $demo->teacher_id != $user->id
+        ){
+            return redirect()->back()->withErrors("Unable to perform this action");
+        }
+
+        $demo->demo_status = $request->status;
+        $demo->remarks = $request->teacher_remarks;
+        $demo->update();
+
+    } else {
+
+        $demo = DemoBatch::find($request->demo_id);
+
+        if(
+            !$user->hasRole('administrator') && 
+            $demo->teacher_id != $user->id
+        ){
+            return redirect()->back()->withErrors("Unable to perform this action");
+        }
+
+        $demo->demo_status = $request->status;
+        $demo->remarks = $request->teacher_remarks;
+        $demo->update();
     }
-       return redirect()->back()->withSuccess("Status updated succesfully");
-   }
+
+    return redirect()->back()->withSuccess("Status updated successfully");
+}
+
+
+//shruti 
+public function liveDemoTrack()
+{
+    $demos = DB::table('demo_requests as d')
+        ->leftJoin('users as u', 'd.teacher_id', '=', 'u.id')
+        ->select(
+            'd.*',
+            'u.first_name',
+            'u.last_name'
+        )
+        ->whereNotNull('d.meet_link')
+        ->whereDate('d.demo_date_time', now()->toDateString())
+
+        
+        ->where('d.demo_status', 'started')
+        ->orderBy('d.demo_date_time', 'desc')
+        ->get();
+
+    return view('backend.demo.live_demo_tracking', compact('demos'));
+}
+
 
    public function demoFeedback(Request $request,$id)
    {
@@ -315,7 +376,7 @@ Mail::to($userx)->send(new FeedbackEmail($userx,$id));
         $demo_history["course"]       = Course::where("id", $demo_history->course_id)->first();
         $demo_history["course_old"]   = Course::where("id", $demo_history["demo_request"]->course_id)->first();
 
-        // ✅ Sirf tab BBB call karo jab api_class_id ho
+        // sirf tab BBB call karo jab api_class_id ho
         $demo_history['api'] = null;
         if (!empty($demo_history["demo_request"]->api_class_id)) {
             $el = new Elearn;
@@ -325,7 +386,7 @@ Mail::to($userx)->send(new FeedbackEmail($userx,$id));
             $demo_history['api'] = $el->eClass("getRecordings", $in);
         }
 
-        $list[] = $demo_history; // ✅ API set hone KE BAAD push karo
+        $list[] = $demo_history; // 
     }
 
     return view('backend.demo.history', compact('list'));
@@ -386,31 +447,40 @@ public function getDataTeacher(Request $request)
                  'instructions'=>'',
                 'demo_status' => $q->demo_status == 'na' ? 'N/A' : ucwords($q->demo_status),
                 'created_at' => date("d M Y h:iA", strtotime($q->demo_date_time)),
-             'action' => 
+            'action' => 
     '<a href="javascript:void(0)" data-type="single" data-id="' . $q->id . '" 
         class="btn btn-sm btn-danger changeStatus mr-2 mb-2 ' . ($q->demo_status == 'completed' ? 'disabled' : '') . '">
         <span class="fa fa-pencil"></span>
-    </a>
+    </a>'
 
-    <a href="javascript:void(0)" data-type="single" data-id="' . $q->id . '" 
+    // BBB FLOW (SAFE - COMMENTED, CAN RESTORE ANYTIME)
+    /*
+    .'<a href="javascript:void(0)" data-type="single" data-id="' . $q->id . '" 
         class="demo-start btn btn-primary btn-sm ' . ($q->demo_status == 'completed' ? 'disabled' : '') . '">
         Start Demo
     </a>'
+    */
 
+    // GOOGLE MEET FLOW (ACTIVE)
     . (!empty($q->meet_link)
         ? '<a href="javascript:void(0)" 
-   data-id="' . $q->id . '" 
-   data-link="' . $q->meet_link . '"
-   class="btn btn-success btn-sm ml-1 joinGoogleMeet ' . ($q->demo_status == 'completed' ? 'disabled' : '') . '">
-   Join Google Meet
-</a>'
+            data-id="' . $q->id . '" 
+            data-link="' . $q->meet_link . '"
+            class="btn btn-primary btn-sm ml-1 joinGoogleMeet ' . ($q->demo_status == 'completed' ? 'disabled' : '') . '">
+            Start Demo
+          </a>'
         : '')
-
-    . '<button class="btn btn-warning btn-sm ml-1 addMeetLink ' . ($q->demo_status == 'completed' ? 'disabled' : '') . '" 
-          data-id="' . $q->id . '" 
-          data-link="' . ($q->meet_link ?? '') . '">
-          Create/Update Meet Link
-      </button>',
+        
+        
+ // NEW: Feedback Button
+    . ($q->demo_status == 'started'
+        ? '<a href="/user/demo-feedback/'.$q->id.'" 
+            class="btn btn-success btn-sm ml-1">
+            Give Feedback
+          </a>'
+        : '')
+    
+    
             ];
         });
 
@@ -454,9 +524,10 @@ public function saveMeetLink(Request $request)
 
 
 //shruti join meet
+//shruti join meet
 public function joinMeet(Request $request)
 {
-    $demo = \App\Models\DemoRequest::find($request->id);
+    $demo = DemoRequest::find($request->id);
 
     if(!$demo){
         return response()->json([
@@ -465,23 +536,22 @@ public function joinMeet(Request $request)
         ]);
     }
 
-    // ⏱ Allow only 5 minutes before demo time
-    $allowedTime = strtotime($demo->demo_date_time) - (5 * 60);
-
-    if(time() < $allowedTime){
-        return response()->json([
-            'success' => false,
-            'message' => 'You can join 5 minutes before scheduled time'
-        ]);
+    // mark demo started (optional)
+    if(auth()->check() && $demo->demo_status != 'completed'){
+        $demo->demo_status = 'started';
+        $demo->save();
     }
 
-    // ✅ NEW: if teacher joins → mark started
-    if(auth()->user()->hasRole('teacher')){
-        if($demo->demo_status != 'completed'){
-            $demo->demo_status = 'started';
-            $demo->save();
-        }
-    }
+    //  INSERT INTO demo_participants TABLE (NO MODEL)
+    DB::table('demo_participants')->insert([
+        'demo_id'     => $demo->id,
+        'user_id'     => auth()->id(),
+        'name'        => auth()->user()->name ?? 'Guest',
+        'role'        => auth()->user()->roles[0]->name ?? 'unknown',
+        'device_info' => $request->header('User-Agent'),
+        'ip_address'  => $request->ip(),
+        'joined_at'   => now(),
+    ]);
 
     return response()->json([
         'success' => true,
@@ -500,7 +570,7 @@ public function checkDemoStatus($id)
     }
 
     return response()->json([
-           'status' => $demo->demo_status // 🔥 correct field
+           'status' => $demo->demo_status //  correct field
     ]);
 }
 public function join($id){
@@ -538,22 +608,99 @@ public function joinCheck($id){
 
 
   
+//   public function scheduleDemo(Request $request){
+       
+//       $demo_id = $request->demo_id;
+//       $demo = DemoRequest::find($demo_id);
+//       $demoLink = date("ymd").rand(10,99).rand(100,999);
+//       if(!$demo){
+//           return redirect()->back()->withErrors("Unbale to find demo request");
+//       }
+//       $meetLink = $request->meetlink;
+//       $demo->teacher_id = $request->teacher;
+//       $demo->demo_date_time = date("Y-m-d H:i:s",strtotime($request->datetime));
+//       $demo->demo_status = 'scheduled';
+//       $demo->instructions = $request->instruction;
+//       $demo->api_class_id=null;
+//       $demo->meet_link = $request->meetlink;
+//       $demo->link=$demoLink;
+//       $demo->update();
+
+//       $demo_history = new DemoHistory();
+//       $demo_history->demo_id = $demo->id;
+//       $demo_history->date_time = $demo->demo_date_time;
+//       $demo_history->teacher_id = $demo->teacher_id;
+//       $demo_history->course_id = $demo->course_id;
+//       $demo_history->save();
+
+//       $user = User::find($demo->user_id);
+//         $teacher = User::find($request->teacher);
+//         $demod = DemoRequest::find($demo_id);
+//         $link = URL::to("/user/dashboard");
+//       $course = Course::find($demo->course_id);
+//       $cro = new Course();
+//       $title = $cro->getCouseNameWithCat($demo->course_id);
+       
+       
+//         $whatsappPayload = [
+//             'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
+//             'campaignName' => 'student_demo',
+//             'destination' => '+91'.$demo->phone,
+//             'userName' => $demo->name,
+//             'source' => 'schedule_demo',
+//             'templateParams' => [strtoupper(explode(" ",$demo->name)[0]), date("d-M-Y h:i A",strtotime($demo->demo_date_time))." IST",$teacher->first_name,$course->title,$demoLink,$demoLink],
+//             'tags' => ['demo', 'new-demo'],
+//             'attributes' => ['eenquiry_id' => $demo->id],
+//         ];
+        
+//         $grade =explode(" ",$course->title);
+        
+//          $whatsappPayloadTutor = [
+//             'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
+//             'campaignName' => 'tutor_demo',
+//             'destination' => '+91'.$teacher->phone,
+//             'userName' => $teacher->name,
+//             'source' => 'schedule_demo',
+//             'templateParams' => [strtoupper(explode(" ",$teacher->name)[0]), date("d-M-Y h:i A",strtotime($demo->demo_date_time))." IST",$course->title,$course->title],
+//             'tags' => ['demo', 'new-demo'],
+//             'attributes' => ['eenquiry_id' => $demo->id],
+//         ];
+//         //  dispatch(new SendWhatsAppAiSensy($whatsappPayload));
+//          $xt= AiSensy::send($whatsappPayloadTutor);
+//       $x= AiSensy::send($whatsappPayload);
+//         // dd($xt);
+        
+       
+//       //email jayega user & teachers ko
+//       Mail::to($user)->send(new DemoStudentEmail($user,$teacher,$demod,$link,$title));
+//         Mail::to($teacher)->send(new DemoTeacherEmail($user,$teacher,$demod,$link,$title));
+//         return redirect()->back()->withSuccess("Demo has been scheduled");
+       
+//   }
+   
+   
+   
+   //googlemeet
+   
    public function scheduleDemo(Request $request){
        
        $demo_id = $request->demo_id;
        $demo = DemoRequest::find($demo_id);
        $demoLink = date("ymd").rand(10,99).rand(100,999);
+
        if(!$demo){
            return redirect()->back()->withErrors("Unbale to find demo request");
        }
+
        $meetLink = $request->meetlink;
+
        $demo->teacher_id = $request->teacher;
        $demo->demo_date_time = date("Y-m-d H:i:s",strtotime($request->datetime));
        $demo->demo_status = 'scheduled';
        $demo->instructions = $request->instruction;
-       $demo->api_class_id=null;
+       $demo->api_class_id = null;
        $demo->meet_link = $request->meetlink;
-       $demo->link=$demoLink;
+       $demo->link = $demoLink;
        $demo->update();
 
        $demo_history = new DemoHistory();
@@ -564,49 +711,80 @@ public function joinCheck($id){
        $demo_history->save();
 
        $user = User::find($demo->user_id);
-        $teacher = User::find($request->teacher);
-        $demod = DemoRequest::find($demo_id);
-        $link = URL::to("/user/dashboard");
+       $teacher = User::find($request->teacher);
+       $demod = DemoRequest::find($demo_id);
+       $link = URL::to("/user/dashboard");
        $course = Course::find($demo->course_id);
        $cro = new Course();
        $title = $cro->getCouseNameWithCat($demo->course_id);
-       
-       
-        $whatsappPayload = [
+
+       // FIX: choose Google Meet first, fallback to BBB
+       $finalLink = !empty($demo->meet_link) ? $demo->meet_link : $demoLink;
+
+       $whatsappPayload = [
             'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
             'campaignName' => 'student_demo',
             'destination' => '+91'.$demo->phone,
             'userName' => $demo->name,
             'source' => 'schedule_demo',
-            'templateParams' => [strtoupper(explode(" ",$demo->name)[0]), date("d-M-Y h:i A",strtotime($demo->demo_date_time))." IST",$teacher->first_name,$course->title,$demoLink,$demoLink],
+            // FIX APPLIED HERE
+            'templateParams' => [
+                strtoupper(explode(" ",$demo->name)[0]),
+                date("d-M-Y h:i A",strtotime($demo->demo_date_time))." IST",
+                $teacher->first_name,
+                $course->title,
+                $finalLink,
+                $finalLink
+            ],
             'tags' => ['demo', 'new-demo'],
             'attributes' => ['eenquiry_id' => $demo->id],
-        ];
+       ];
         
-        $grade =explode(" ",$course->title);
+       $grade = explode(" ",$course->title);
         
-         $whatsappPayloadTutor = [
+       $whatsappPayloadTutor = [
             'apiKey' => config('app.aisensy_api_key', env('AISENSY_API_KEY')),
             'campaignName' => 'tutor_demo',
             'destination' => '+91'.$teacher->phone,
             'userName' => $teacher->name,
             'source' => 'schedule_demo',
-            'templateParams' => [strtoupper(explode(" ",$teacher->name)[0]), date("d-M-Y h:i A",strtotime($demo->demo_date_time))." IST",$course->title,$course->title],
+            // FIX APPLIED HERE ALSO
+            'templateParams' => [
+                strtoupper(explode(" ",$teacher->name)[0]),
+                date("d-M-Y h:i A",strtotime($demo->demo_date_time))." IST",
+                $course->title,
+                $finalLink
+            ],
             'tags' => ['demo', 'new-demo'],
             'attributes' => ['eenquiry_id' => $demo->id],
-        ];
-        //  dispatch(new SendWhatsAppAiSensy($whatsappPayload));
-         $xt= AiSensy::send($whatsappPayloadTutor);
-       $x= AiSensy::send($whatsappPayload);
-        // dd($xt);
-        
-       
-       //email jayega user & teachers ko
-      Mail::to($user)->send(new DemoStudentEmail($user,$teacher,$demod,$link,$title));
-        Mail::to($teacher)->send(new DemoTeacherEmail($user,$teacher,$demod,$link,$title));
-        return redirect()->back()->withSuccess("Demo has been scheduled");
-       
-   }
+       ];
+
+       $xt = AiSensy::send($whatsappPayloadTutor);
+       $x = AiSensy::send($whatsappPayload);
+
+       // email jayega user & teachers ko
+       Mail::to($user)->send(new DemoStudentEmail($user,$teacher,$demod,$link,$title));
+       Mail::to($teacher)->send(new DemoTeacherEmail($user,$teacher,$demod,$link,$title));
+
+       return redirect()->back()->withSuccess("Demo has been scheduled");
+}
+   
+   
+   
+   
+// public function endClass(Request $request)
+// {
+//     $demo = DemoRequest::find($request->demo_id);
+
+//     if($demo){
+//         // $demo->demo_status = 'class_ended';
+//         $demo->save();
+//     }
+
+//     return response()->json([
+//         'success' => true
+//     ]);
+// }
    
     public function getData(Request $request)
     {
@@ -638,7 +816,14 @@ public function joinCheck($id){
 
     $user = auth()->user();
     $isAdmin = $user && $user->role_id == 1;
-
+ 
+    $changeStatusBtn = '
+<a href="javascript:void(0)" 
+   data-type="single" 
+   data-id="'.$q->id.'" 
+   class="btn btn-sm btn-danger changeStatus mr-2 mb-2 '.($q->demo_status == 'completed' ? 'disabled' : '').'">
+   <span class="fa fa-pencil"></span>
+</a>';
     $historyBtn = '<a href="/user/demo-history/'.$q->id.'" class="btn btn-outline-info btn-sm mb-2">History</a>';
 
     $feedbackBtn = !$isAdmin 
@@ -650,14 +835,15 @@ public function joinCheck($id){
              class="btn btn-success btn-sm mb-2 ml-1 joinGoogleMeet"
              data-id="'.$q->id.'" 
              data-link="'.$q->meet_link.'">
-                Join Google Meet
+                Join Demo
            </a>'
         : '';
 
-    // ✅ COMPLETED
+    // COMPLETED
     if($q->demo_status == 'completed'){
         return '
             <span class="text-success">Demo Completed</span><br>
+              '.$changeStatusBtn.'
             '.$historyBtn.'
             '.$feedbackBtn.'
            
@@ -666,8 +852,21 @@ public function joinCheck($id){
 
     // NA
     else if($q->demo_status=='na'){
+        // return '
+        //     <a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">Schedule Demo</a>
+        //     '.$historyBtn.'
+        //     '.$feedbackBtn.'
+        //     '.$meetBtn.'
+        // ';
         return '
-            <a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">Schedule Demo</a>
+          '.$changeStatusBtn.'
+          <a href="javascript:void(0)"
+   data-id="'.$q->id.'"
+   data-meet="'.$q->meet_link.'"
+   class="demo-init btn btn-primary btn-sm mb-2">
+   Schedule Demo
+</a>
+            
             '.$historyBtn.'
             '.$feedbackBtn.'
             '.$meetBtn.'
@@ -676,43 +875,74 @@ public function joinCheck($id){
 
     // SCHEDULED
     else if($q->demo_status=='scheduled'){
-        return '
-            <span class="green-text">Demo is scheduled at '.$q->demo_date_time.'</span><br>
+        // return '
+        //     <span class="green-text">Demo is scheduled at '.$q->demo_date_time.'</span><br>
 
-            <a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">ReSchedule Demo</a>
+        //     <a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">ReSchedule Demo</a>
 
-            '.$historyBtn.'
-            '.$feedbackBtn.'
+        //     '.$historyBtn.'
+        //     '.$feedbackBtn.'
 
-            <a href="javascript:void(0)" data-flag="1" data-id="'.$q->id.'" data-mid="'.$q->api_class_id.'" class="btn btn-outline-primary btn-sm mb-2 joinDemo">
-                Join Demo
-            </a>
+        //     <a href="javascript:void(0)" data-flag="1" data-id="'.$q->id.'" data-mid="'.$q->api_class_id.'" class="btn btn-outline-primary btn-sm mb-2 joinDemo">
+        //         Join Demo
+        //     </a>
 
-            '.$meetBtn.'
-        ';
+        //     '.$meetBtn.'
+        // ';
+       return '
+    <span class="green-text">Demo is scheduled at '.$q->demo_date_time.'</span><br>
+    '.$changeStatusBtn.'
+    <a href="javascript:void(0)"
+       data-id="'.$q->id.'"
+       data-meet="'.$q->meet_link.'"
+       class="demo-init btn btn-primary btn-sm mb-2">
+       ReSchedule Demo
+    </a>
+   
+    '.$historyBtn.'
+    '.$feedbackBtn.'
+
+    <!-- BBB FLOW COMMENTED START
+    <a href="javascript:void(0)" data-flag="1" data-id="'.$q->id.'" data-mid="'.$q->api_class_id.'" class="btn btn-outline-primary btn-sm mb-2 joinDemo">
+        Join Demo
+    </a>
+    BBB FLOW COMMENTED END -->
+     
+    '.$meetBtn.'
+';
     }
 
     // STARTED
     else if($q->demo_status=='started'){
         return '
-            <span class="red-text">Demo was scheduled at '.$q->demo_date_time.'</span><br>
+    <span class="red-text">Demo was scheduled at '.$q->demo_date_time.'</span><br>
+   '.$changeStatusBtn.'
+    <a href="javascript:void(0)"
+       data-id="'.$q->id.'"
+       data-meet="'.$q->meet_link.'"
+       class="demo-init btn btn-primary btn-sm mb-2">
+       ReSchedule Demo
+    </a>
+      
+    '.$historyBtn.'
+    '.$feedbackBtn.'
+    
 
-            <a href="javascript:void(0)" data-id="'.$q->id.'" class="demo-init btn btn-primary btn-sm mb-2">ReSchedule Demo</a>
+    <!-- BBB FLOW COMMENTED
+    <a href="javascript:void(0)" data-id="'.$q->id.'" data-mid="'.$q->api_class_id.'" class="btn btn-outline-primary btn-sm mb-2 joinDemo">
+        Join Demo
+    </a>
+    -->
 
-            '.$historyBtn.'
-            '.$feedbackBtn.'
+    '.$meetBtn.'
 
-            <a href="javascript:void(0)" data-id="'.$q->id.'" data-mid="'.$q->api_class_id.'" class="btn btn-outline-primary btn-sm mb-2 joinDemo">
-                Join Demo
-            </a>
-
-            '.$meetBtn.'
-        ';
+  
+';
     }
 
-    // ✅ FINAL FALLBACK
+    // FINAL FALLBACK
     else{
-        return $historyBtn . $feedbackBtn . $meetBtn;
+        return   $changeStatusBtn. $historyBtn . $feedbackBtn . $meetBtn;
     }
 
 })
@@ -735,3 +965,6 @@ public function joinCheck($id){
      
 
 }
+
+
+

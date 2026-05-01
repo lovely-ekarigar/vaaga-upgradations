@@ -219,9 +219,21 @@
 <script>
 $(document).ready(function() {
     const batchId = {{ $batch->id }};
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectStudentId = urlParams.get('student_id');
+    const preselectMockId = urlParams.get('mock_id');
     let selectedStudentId = null;
     let selectedMockId = null;
-    
+    let studentsLoaded = false;
+    let mocksLoaded = false;
+
+    function maybeAutoFetch() {
+        if (!studentsLoaded || !mocksLoaded) return;
+        if (preselectStudentId && preselectMockId) {
+            fetchResult();
+        }
+    }
+
     // Load students list
     $.ajax({
         url: '/user/myclass/' + batchId + '/students-list',
@@ -237,18 +249,25 @@ $(document).ready(function() {
                             .text(student.name + ' (' + student.email + ')')
                     );
                 });
+
+                if (preselectStudentId) {
+                    $('#student-select').val(preselectStudentId);
+                    selectedStudentId = $('#student-select').val() || null;
+                }
             } else {
                 $('#student-select').append(
                     $('<option></option>').text('No students found in this batch')
                 );
             }
+            studentsLoaded = true;
+            maybeAutoFetch();
         },
         error: function(xhr, status, error) {
             console.error('Error loading students:', xhr.responseText);
             alert('Error loading students list');
         }
     });
-    
+
     // Load mock tests list
     $.ajax({
         url: '/user/myclass/' + batchId + '/mock-tests-list',
@@ -264,11 +283,18 @@ $(document).ready(function() {
                             .text(mockTest.name + ' (' + mockTest.series_name + ')')
                     );
                 });
+
+                if (preselectMockId) {
+                    $('#mock-test-select').val(preselectMockId);
+                    selectedMockId = $('#mock-test-select').val() || null;
+                }
             } else {
                 $('#mock-test-select').append(
                     $('<option></option>').text('No mock tests assigned to this batch')
                 );
             }
+            mocksLoaded = true;
+            maybeAutoFetch();
         },
         error: function(xhr, status, error) {
             console.error('Error loading mock tests:', xhr.responseText);

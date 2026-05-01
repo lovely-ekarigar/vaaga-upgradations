@@ -113,20 +113,23 @@
                                         <a href="{{route('admin.coupons.edit', $item->id)}}"
                                            class="btn btn-xs btn-info mb-1"><i class="icon-pencil"></i></a>
 
-                                        <a data-method="delete" data-trans-button-cancel="Cancel"
-                                           data-trans-button-confirm="Delete" data-trans-title="Are you sure?"
+                                        @php
+                                            $deleteId = 'delete-coupon-'.$item->id;
+                                        @endphp
+                                                     <a href="#"
                                            class="btn btn-xs btn-danger text-white mb-1" style="cursor:pointer;"
-                                           onclick="$(this).find('form').submit();">
+                                           onclick="event.preventDefault(); document.getElementById('{{ $deleteId }}').submit();">
                                             <i class="fa fa-trash"
                                                data-toggle="tooltip"
                                                data-placement="top" title=""
                                                data-original-title="Delete"></i>
-                                            <form action="{{route('admin.coupons.destroy', $item->id)}}"
-                                                  method="POST" name="delete_item" style="display:none">
-                                                @csrf
-                                                {{method_field('DELETE')}}
-                                            </form>
                                         </a>
+                                        <form id="{{ $deleteId }}"
+                                              action="{{route('admin.coupons.destroy', $item->id)}}"
+                                              method="POST" name="delete_item" style="display:none">
+                                            @csrf
+                                            {{method_field('DELETE')}}
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach

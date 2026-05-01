@@ -34,9 +34,18 @@ class Batch extends Model
 
             $total = Lesson::where("course_id",$batch->cid)->count();
             if($tid){
- $completed = Recording::where('parent',$batch->parent_api_class_id)->where('tid',$tid)->distinct()->count('lesson_id');
+ $completed = Recording::where('parent',$batch->parent_api_class_id)
+                ->where('tid',$tid)
+                ->whereNotNull('lesson_id')
+                ->where('lesson_id', '!=', 0)
+                ->distinct()
+                ->count('lesson_id');
             }else{
-            $completed = Recording::where('parent',$batch->parent_api_class_id)->distinct()->count('lesson_id');
+            $completed = Recording::where('parent',$batch->parent_api_class_id)
+                ->whereNotNull('lesson_id')
+                ->where('lesson_id', '!=', 0)
+                ->distinct()
+                ->count('lesson_id');
         }
 
         }

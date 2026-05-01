@@ -215,10 +215,12 @@
                                         <i class="bi bi-question-circle"></i>
                                         <span>{{ $mock->total_questions }} Qs</span>
                                     </div>
-                                    @if($mock->scheduled_at)
+                                    @if(($isCompleted && !empty($mock->myExam->updated_at)) || (!$isCompleted && $mock->scheduled_at))
                                     <div class="test-meta-item">
                                         <i class="bi bi-calendar"></i>
-                                        <span>{{ \Carbon\Carbon::parse($mock->scheduled_at)->format('M d, Y') }}</span>
+                                        <span>
+                                            {{ $isCompleted ? \Carbon\Carbon::parse($mock->myExam->updated_at)->format('M d, Y') : \Carbon\Carbon::parse($mock->scheduled_at)->format('M d, Y') }}
+                                        </span>
                                     </div>
                                     @endif
                                     @if($mock->status_message)

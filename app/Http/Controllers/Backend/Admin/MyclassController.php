@@ -4091,4 +4091,78 @@ return response()->json(['success' => false, 'url' => "Something went wrong."]);
         }
     }
  
+    /**
+     * Get list of batch students with their attempt status for a specific mock test.
+     */
+    public function getMockAttemptStatus($batch_id, $mock_id)
+    {
+        try {
+            $user = auth()->user();
+            if (!$user->isAdmin() && !$user->hasRole('teacher')) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
+            $batch = Batch::findOrFail($batch_id);
+            $mockTest = \App\Models\MockList::find($mock_id);
+
+            if (!$mockTest) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mock test not found'
+                ], 404);
+            }
+
+            $studentBatches = StudentTeacherBatch::where('bid', $batch_id)->get();
+            $studentIds = $studentBatches->pluck('uid')->toArray();
+
+            $attemptedExams = \App\Models\MyExam::whereIn('user_id', $studentIds)
+                ->where('exam_id', $mock_id)
+                ->where('status', 'completed')
+                ->get()
+                ->keyBy('user_id');
+
+            $students = [];
+            foreach ($studentIds as $sid) {
+                $student = User::find($sid);
+                if (!$student) {
+                    continue;
+                }
+
+                $hasAttempted = $attemptedExams->has($sid);
+                $students[] = [
+                    'id' => $student->id,
+                    'name' => trim($student->first_name . ' ' . ($student->middle_name ?? '') . ' ' . $student->last_name),
+                    'email' => $student->email,
+                    'attempted' => $hasAttempted,
+                    'attempted_at' => $hasAttempted
+                        ? \Carbon\Carbon::parse($attemptedExams[$sid]->exam_date_time)->format('d M Y, h:i A')
+                        : null,
+                ];
+            }
+
+            usort($students, function ($a, $b) {
+                if ($a['attempted'] === $b['attempted']) {
+                    return strcasecmp($a['name'], $b['name']);
+                }
+                return $a['attempted'] ? -1 : 1;
+            });
+
+            return response()->json([
+                'success' => true,
+                'mock_name' => $mockTest->name,
+                'batch_name' => $batch->name,
+                'total_students' => count($students),
+                'attempted_count' => collect($students)->where('attempted', true)->count(),
+                'not_attempted_count' => collect($students)->where('attempted', false)->count(),
+                'students' => $students,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getMockAttemptStatus: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching attempt status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

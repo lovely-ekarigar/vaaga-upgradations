@@ -152,7 +152,7 @@ class DashboardController extends Controller
         $batch= Batch::count();
         if (auth()->user()->hasRole('student')) {
 
-            $demo_request = DemoRequest::with('course')->where('user_id', auth()->user()->id)->whereIn("demo_status", array("na", "scheduled", "started"))->get();
+            $demo_request = DemoRequest::with('course')->where('user_id', auth()->user()->id)->whereIn("demo_status", array("na", "scheduled", "started","completed"))->get();
 
             $orders = Order::where('user_id', auth()->user()->id)->where('status', '1')->where('course_mode', 'like', '%monthly%')->get();
 

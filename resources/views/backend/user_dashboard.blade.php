@@ -72,67 +72,55 @@ button.close {
                                     
                                     
                                     
-                                    <!--big blue flow -->
-<!--                                <td>-->
-<!--                                    @if($item->demo_status=='started')-->
-<!--                                    <a class="btn btn-primary btn-sm join-demo" href="{{route('myclass.slaunch',['id'=>$item->id,'meetid'=>$item->api_class_id])}}" data-id="{{$item->id}}">Join</a>-->
-<!--                                    <a class="btn btn-outline-info btn-sm" target="_blank" href="/user/demo-feedback/{{$item->id}}">Feedback</a>-->
-<!--                                    @else-->
-<!--                                    <span class="text-danger">Not Started Yet</span>-->
-<!--                                    @endif-->
-<!--                                       @if(!empty($item->meet_link))-->
-<!--   <a class="btn btn-primary btn-sm joinGoogleMeet"-->
-<!--   href="javascript:void(0)"-->
-<!--   data-id="{{ $item->id }}"-->
-<!--   data-link="{{ $item->meet_link }}">-->
-<!--   Join Google Meet-->
-<!--</a>-->
-<!--@endif-->
-<!--                                </td>-->
-
-
+                               
 <!--google meet flow for demo-->
 
-<td>
+<td style="vertical-align: middle;">
 
-    @if($item->demo_status === 'started')
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
 
-        {{--  GOOGLE MEET (NEW FLOW) --}}
-        @if(!empty($item->meet_link))
-            <a class="btn btn-primary btn-sm joinGoogleMeet"
-               href="javascript:void(0)"
-               data-id="{{ $item->id }}"
-               data-link="{{ $item->meet_link }}">
-               Join Google Meet
-            </a>
-        @else
+        {{-- LEFT SIDE (TEXT / JOIN) --}}
+        <div style="flex:1; word-break: break-word;">
 
-            {{--  OLD BIGBLUEBUTTON FLOW (ROLLBACK SAFE) --}}
-            {{-- 
-            <a class="btn btn-primary btn-sm join-demo"
-               href="{{ route('myclass.slaunch',['id'=>$item->id,'meetid'=>$item->api_class_id]) }}"
-               data-id="{{$item->id}}">
-               Join
-            </a>
-            --}}
+            @if($item->demo_status === 'started')
 
-            <span class="text-warning">Link not available</span>
+                @if(!empty($item->meet_link))
+                   <a class="btn btn-primary btn-sm joinGoogleMeet"
+   style="width:80px; text-align:center;"
+   href="javascript:void(0)"
+   data-id="{{ $item->id }}"
+   data-link="{{ $item->meet_link }}">
+   Join
+</a>
+                @else
+                    <span class="text-warning">Link not available</span>
+                @endif
 
+            @elseif($item->demo_status === 'completed')
+
+                <span class="text-success">Completed</span>
+
+            @else
+
+                <span class="text-muted">Not Started Yet</span>
+            @endif
+
+        </div>
+
+        {{-- RIGHT SIDE (FEEDBACK FIXED) --}}
+        @if($item->demo_status === 'started' || $item->demo_status === 'completed')
+            <div style="flex-shrink:0;">
+                <a class="btn btn-outline-info btn-sm"
+                   target="_blank"
+                   href="/user/demo-feedback/{{$item->id}}">
+                   Feedback
+                </a>
+            </div>
         @endif
 
-        {{-- COMMON --}}
-        <a class="btn btn-outline-info btn-sm" target="_blank"
-           href="/user/demo-feedback/{{$item->id}}">
-           Feedback
-        </a>
-
-    @else
-        <span class="text-danger">Not Started Yet</span>
-    @endif
+    </div>
 
 </td>
-
-
                             </tr>
                         @endforeach
                         </tbody>
@@ -296,27 +284,26 @@ $(document).on("click",".renew",function(e){
 // Google Meet Join Click
 $(document).on('click', '.joinGoogleMeet', function () {
 
+    console.log("CLICKED JOIN BUTTON");
+
     let demoId = $(this).data('id');
     let link = $(this).data('link');
 
+    console.log("demoId:", demoId);
+    console.log("link:", link);
+
+    if(!demoId){
+        alert("Demo ID missing");
+        return;
+    }
+
     localStorage.setItem('active_demo_id', demoId);
+
+    console.log("Saved in localStorage:", localStorage.getItem('active_demo_id'));
 
     window.open(link, '_blank');
 });
 
-// Auto check demo status every 5 sec
-setInterval(function(){
-    let demoId = localStorage.getItem('active_demo_id');
-
-    if(demoId){
-       $.get('/check-demo-status/' + demoId, function(res){
-    if(res.status === 'completed'){
-        localStorage.removeItem('active_demo_id');
-        window.location.href = "/user/demo-feedback/" + demoId;
-    }
-});
-    }
-}, 5000);
 </script>
 
 @stop

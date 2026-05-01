@@ -335,6 +335,10 @@ $(this).html('Start Demo');
                     }
                 }
             });
+            
+            
+            
+            
 
         });
         
@@ -490,8 +494,20 @@ $('#meetLinkForm').on('submit', function(e) {
             alert('Error saving link. Try again.');
         }
     });
+    
+    
+    
+    
 });
+// $(document).ready(function () {
 
+//     var table = $('#myTable').DataTable();
+
+//     setInterval(function () {
+//         table.ajax.reload(null, false);
+//     }, 5000);
+
+// });
 
 // Google Meet Join Click
 $(document).on('click', '.joinGoogleMeet', function () {
@@ -507,7 +523,7 @@ $(document).on('click', '.joinGoogleMeet', function () {
         },
         success: function (res) {
             if (res.success) {
-                localStorage.setItem('active_demo_id', demoId);
+                // localStorage.setItem('active_demo_id', demoId);
                 window.open(res.link, '_blank');
             } else {
                 alert(res.message);
@@ -518,18 +534,24 @@ $(document).on('click', '.joinGoogleMeet', function () {
 
 
 // Auto check demo status every 5 sec
-setInterval(function(){
-    let demoId = localStorage.getItem('active_demo_id');
+// setInterval(function(){
+//     let demoId = localStorage.getItem('active_demo_id');
 
-    if(demoId){
-      $.get('/check-demo-status/' + demoId, function(res){
-    if(res.status === 'completed'){
-        localStorage.removeItem('active_demo_id');
-        window.location.href = "/user/demo-feedback/" + demoId;
-    }
-});
-    }
-}, 5000);
+//     if(demoId){
+//         $.get('/check-demo-status/' + demoId, function(res){
+
+    
+
+//             if(res.status === 'class_ended'){
+//                 localStorage.removeItem('active_demo_id');
+//                 window.location.href = "/user/demo-feedback/" + demoId;
+//             }
+//         });
+//     }
+// }, 5000);
+
+
+
     </script>
 
     @endif

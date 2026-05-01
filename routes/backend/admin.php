@@ -206,6 +206,7 @@ Route::group(['middleware' => 'role:administrator|backend-support-staff'], funct
      Route::get('myclass/{batch_id}/students-list', [MyclassController::class, 'getStudentsList'])->name('myclass.studentsList');
      Route::get('myclass/{batch_id}/mock-tests-list', [MyclassController::class, 'getMockTestsList'])->name('myclass.mockTestsList');
      Route::get('myclass/student-mock-result/{student_id}/{mock_id}', [MyclassController::class, 'getStudentMockResult'])->name('myclass.studentMockResult');
+      Route::get('myclass/{batch_id}/mock-attempt-status/{mock_id}', [MyclassController::class, 'getMockAttemptStatus'])->name('myclass.mockAttemptStatus');
     
     
     

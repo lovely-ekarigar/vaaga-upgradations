@@ -103,9 +103,9 @@ use App\Models\Batch;
                   <i class="fa fa-file-text"></i> Available Mock Tests
                 </a> 
 
-                <a href="{{ route('admin.myclass.mockResults', $l->id) }}" class="btn btn-outline-info mb-1">
-                  <i class="fa fa-chart-bar"></i> Mock Test Results
-                </a>
+                <!--<a href="{{ route('admin.myclass.mockResults', $l->id) }}" class="btn btn-outline-info mb-1">-->
+                <!--  <i class="fa fa-chart-bar"></i> Mock Test Results-->
+                <!--</a>-->
 
                 <a href="javascript:void(0);" class="btn btn-xs btn-warning mb-1 suspend-btn" data-id="{{ $l->id }}">
                   <i class="fa fa-ban"></i> Suspend
